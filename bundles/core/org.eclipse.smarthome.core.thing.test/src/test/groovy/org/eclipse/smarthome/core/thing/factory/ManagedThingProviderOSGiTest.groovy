@@ -100,9 +100,8 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 		managedThingProvider.addThing(thing2)
 		things = managedThingProvider.getThings()
 		assertThat things.size(), is(2)
-		assertThat things.getAt(0), is(thing1)
-		assertThat things.getAt(1), is(thing2)
-		
+		assertThat things, hasItems(thing1, thing2)
+	
 	}
 	
 	@Test
