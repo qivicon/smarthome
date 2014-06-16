@@ -12,6 +12,9 @@ import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.config.discovery.inbox.InboxListener;
+import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.ThingRegistryChangeListener;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.osgi.service.component.ComponentContext;
@@ -31,8 +34,9 @@ import org.slf4j.LoggerFactory;
  * (synchronization).
  * 
  * @author Michael Grammling
+ * @author Dennis Nobel - Added automated removing of entries
  */
-public final class PersistentInbox implements Inbox, DiscoveryListener {
+public final class PersistentInbox implements Inbox, DiscoveryListener, ThingRegistryChangeListener {
 
     /**
      * Internal enumeration to identify the correct type of the event to be
@@ -47,24 +51,37 @@ public final class PersistentInbox implements Inbox, DiscoveryListener {
     private List<DiscoveryResult> entries = new CopyOnWriteArrayList<>();
 
     private List<InboxListener> listeners = new CopyOnWriteArrayList<>();
+
     private Logger logger = LoggerFactory.getLogger(PersistentInbox.class);
 
+    private ThingRegistry thingRegistry;
 
     @Override
     public synchronized boolean add(DiscoveryResult result) throws IllegalStateException {
 
         if (result != null) {
-            DiscoveryResult inboxResult = get(result.getThingUID());
+            ThingUID thingUID = result.getThingUID();
+            Thing thing = this.thingRegistry.getByUID(thingUID);
 
-            if (inboxResult == null) {
-                this.entries.add(result);
-                notifyListeners(result, EventType.added);
+            if (thing == null) {
+                DiscoveryResult inboxResult = get(thingUID);
+
+                if (inboxResult == null) {
+                    this.entries.add(result);
+                    notifyListeners(result, EventType.added);
+                    logger.info("Discovery result added to inbox.");
+                    return true;
+                } else {
+                    inboxResult.synchronize(result);
+                    notifyListeners(inboxResult, EventType.updated);
+                    logger.info("Discovery result in inbox was updated.");
+                    return true;
+                }
             } else {
-                inboxResult.synchronize(result);
-                notifyListeners(inboxResult, EventType.updated);
+                logger.info("Discovery result not added as inbox entry. It is already present as thing.");
+                return false;
             }
 
-            return true;
         }
 
         return false;
@@ -88,8 +105,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener {
     }
 
     @Override
-    public List<DiscoveryResult> get(InboxFilterCriteria criteria)
-            throws IllegalStateException {
+    public List<DiscoveryResult> get(InboxFilterCriteria criteria) throws IllegalStateException {
 
         List<DiscoveryResult> filteredEntries = new ArrayList<>();
 
@@ -124,10 +140,16 @@ public final class PersistentInbox implements Inbox, DiscoveryListener {
     }
 
     @Override
-    public void removeInboxListener(InboxListener listener)
-            throws IllegalStateException {
+    public void removeInboxListener(InboxListener listener) throws IllegalStateException {
         if (listener != null) {
             this.listeners.remove(listener);
+        }
+    }
+
+    @Override
+    public void thingAdded(Thing thing) {
+        if (remove(thing.getUID())) {
+            logger.info("Discovery result removed from inbox, because it was added as Thing to the ThingRegistry.");
         }
     }
 
@@ -139,6 +161,11 @@ public final class PersistentInbox implements Inbox, DiscoveryListener {
     @Override
     public void thingRemoved(DiscoveryService source, ThingUID thingUID) {
         remove(thingUID);
+    }
+
+    @Override
+    public void thingRemoved(Thing thing) {
+        // nothing to do
     }
 
     /**
@@ -231,9 +258,19 @@ public final class PersistentInbox implements Inbox, DiscoveryListener {
         this.discoveryServiceRegistry.addDiscoveryListener(this);
     }
 
+    protected void setThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = thingRegistry;
+        this.thingRegistry.addThingRegistryChangeListener(this);
+    }
+
     protected void unsetDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
         this.discoveryServiceRegistry.removeDiscoveryListener(this);
         this.discoveryServiceRegistry = null;
+    }
+
+    protected void unsetThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry.removeThingRegistryChangeListener(this);
+        this.thingRegistry = null;
     }
 
 }

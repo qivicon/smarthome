@@ -2,7 +2,6 @@ package org.eclipse.smarthome.core.thing;
 
 import java.util.List;
 
-import org.eclipse.smarthome.core.thing.internal.ThingRegistryImpl;
 import org.eclipse.smarthome.core.thing.internal.ThingTracker;
 
 /**
@@ -25,14 +24,14 @@ public interface ThingRegistry {
 	public abstract void addThingRegistryChangeListener(
 			ThingRegistryChangeListener listener);
 
-	/**
-	 * Returns a thing for a given UID or null if no thing was found.
-	 * 
-	 * @param uid
-	 *            thing UID
-	 * @return thing for a given UID or null if no thing was found
-	 */
-	public abstract Thing getByUID(String uid);
+	    /**
+     * Returns a thing for a given UID or null if no thing was found.
+     * 
+     * @param thingUID
+     *            thing UID
+     * @return thing for a given UID or null if no thing was found
+     */
+    public abstract Thing getByUID(ThingUID thingUID);
 
 	/**
 	 * Returns all things.

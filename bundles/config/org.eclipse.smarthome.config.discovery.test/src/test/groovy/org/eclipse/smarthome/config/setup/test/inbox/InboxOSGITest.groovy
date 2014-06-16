@@ -12,8 +12,10 @@ import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry
 import org.eclipse.smarthome.config.discovery.inbox.Inbox
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria
 import org.eclipse.smarthome.config.discovery.inbox.InboxListener
+import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
+import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
@@ -25,6 +27,7 @@ class InboxOSGITest extends OSGiTest {
 
     Inbox inbox
     DiscoveryServiceRegistry discoveryServiceRegistry
+    ManagedThingProvider managedThingProvider
 
     Map<ThingUID, DiscoveryResult> discoveryResults = [:]
     List<InboxListener> inboxListeners = new ArrayList<InboxListener>()
@@ -36,6 +39,7 @@ class InboxOSGITest extends OSGiTest {
         inboxListeners.clear()
         inbox = getService Inbox
         discoveryServiceRegistry = getService DiscoveryServiceRegistry
+        managedThingProvider = getService ManagedThingProvider
     }
 
     @After
@@ -44,6 +48,7 @@ class InboxOSGITest extends OSGiTest {
         inboxListeners.each { inbox.removeInboxListener(it) }
         discoveryResults.clear()
         inboxListeners.clear()
+        managedThingProvider.getThings().each { managedThingProvider.removeThing(it.getUID())}
     }
 
     private boolean addDiscoveryResult(DiscoveryResult discoveryResult) {
@@ -519,6 +524,51 @@ class InboxOSGITest extends OSGiTest {
             assertThat properties.get("property1"), is("property1value1")
             assertThat properties.get("property2"), is("property2value1")
         }
+    }
+
+    @Test
+    void 'assert that DiscoveryResult is removed when thing is added to ThingRegistry'() {
+        assertThat inbox.getAll().size(), is(0)
+
+        ThingTypeUID thingTypeUID = new ThingTypeUID("dummyBindingId", "dummyThingType")
+        ThingUID thingUID = new ThingUID(thingTypeUID, "dummyThingId")
+
+        DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
+            label = "DummyLabel1"
+            properties.put("property1", "property1value1")
+            properties.put("property2", "property2value1")
+            it
+        }
+
+        inbox.add discoveryResult
+
+        assertThat inbox.getAll().size(), is(1)
+
+        managedThingProvider.addThing ThingBuilder.create(thingTypeUID, "dummyThingId").build()
+
+        assertThat inbox.getAll().size(), is(0)
+    }
+
+    @Test
+    void 'assert that DiscoveryResult is not added to Inbox when thing with same UID exists'() {
+
+        assertThat inbox.getAll().size(), is(0)
+
+        ThingTypeUID thingTypeUID = new ThingTypeUID("dummyBindingId", "dummyThingType")
+        ThingUID thingUID = new ThingUID(thingTypeUID, "dummyThingId")
+
+        managedThingProvider.addThing ThingBuilder.create(thingTypeUID, "dummyThingId").build()
+
+        DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
+            label = "DummyLabel1"
+            properties.put("property1", "property1value1")
+            properties.put("property2", "property2value1")
+            it
+        }
+
+        inbox.add discoveryResult
+
+        assertThat inbox.getAll().size(), is(0)
     }
 
     void assertIncludesAll(List<DiscoveryResult> expectedList, List<DiscoveryResult> actualList) {

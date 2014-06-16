@@ -19,6 +19,7 @@ import org.eclipse.smarthome.core.thing.ThingChangeListener;
 import org.eclipse.smarthome.core.thing.ThingProvider;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingRegistryChangeListener;
+import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.internal.ThingTracker.ThingTrackerEvent;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
@@ -65,9 +66,9 @@ public class ThingRegistryImpl implements ThingChangeListener, ThingRegistry {
 	 * @see org.eclipse.smarthome.core.thing.ThingRegistry#getByUID(java.lang.String)
 	 */
 	@Override
-	public Thing getByUID(String uid) {
+    public Thing getByUID(ThingUID thingUID) {
         for (Thing thing : getThings()) {
-			if (thing.getUID().toString().equals(uid)) {
+            if (thing.getUID().equals(thingUID)) {
 				return thing;
 			}
 		}
