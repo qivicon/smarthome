@@ -7,8 +7,12 @@
  */
 package org.eclipse.smarthome.binding.hue.internal;
 
+import org.eclipse.smarthome.binding.hue.internal.setup.discovery.bridge.HueBridgeDiscoveryService;
+import org.eclipse.smarthome.binding.hue.internal.setup.discovery.bulb.HueLightDiscoveryService;
+import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,16 +26,34 @@ public final class HueActivator implements BundleActivator {
 
 	private static final Logger logger = LoggerFactory.getLogger(HueActivator.class);
 
+	private ServiceRegistration<?> bridgeDiscoveryServiceRegistration;
+	private ServiceRegistration<?> lightDiscoveryServiceRegistration;
+
 
     @Override
     public void start(BundleContext bc) throws Exception {
     	logger.debug("Philips hue binding has been started.");
+    	HueLightDiscoveryService lightDiscoveryService = new HueLightDiscoveryService(bc);
+    	lightDiscoveryServiceRegistration = bc.registerService(DiscoveryService.class.getName(), lightDiscoveryService, null);
+    	HueBridgeDiscoveryService bridgeDiscoveryService = new HueBridgeDiscoveryService(bc);
+    	bridgeDiscoveryServiceRegistration = bc.registerService(DiscoveryService.class.getName(), bridgeDiscoveryService, null);
+    	
+    	lightDiscoveryService.setAutoDiscoveryEnabled(true);
+        bridgeDiscoveryService.setAutoDiscoveryEnabled(true);
     }
 
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
     	logger.debug("Philips hue binding has been stopped.");
-    }
+        HueBridgeDiscoveryService hueBridgeDiscoveryService = (HueBridgeDiscoveryService) bundleContext.getService(bridgeDiscoveryServiceRegistration.getReference());
+        hueBridgeDiscoveryService.setAutoDiscoveryEnabled(false);
+        bridgeDiscoveryServiceRegistration.unregister();
+        bridgeDiscoveryServiceRegistration = null;
 
+        HueLightDiscoveryService hueLightDiscoveryService = (HueLightDiscoveryService) bundleContext.getService(lightDiscoveryServiceRegistration.getReference());
+        hueLightDiscoveryService.setAutoDiscoveryEnabled(false);
+        lightDiscoveryServiceRegistration.unregister();
+        lightDiscoveryServiceRegistration = null;
+    }
 
 }
