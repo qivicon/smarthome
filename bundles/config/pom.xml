@@ -18,6 +18,8 @@
   <modules>
     <module>org.eclipse.smarthome.config.core</module>
     <module>org.eclipse.smarthome.config.core.test</module>
+    <module>org.eclipse.smarthome.config.setupflow</module>
+    <module>org.eclipse.smarthome.config.setupflow.test</module>
   </modules>
 
 </project>
