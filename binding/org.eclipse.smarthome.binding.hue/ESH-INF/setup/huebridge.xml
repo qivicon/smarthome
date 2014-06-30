@@ -13,7 +13,7 @@
         <configuration-step id="ipConfiguration">
             <implementation class="org.eclipse.smarthome.binding.hue.internal.setup.IpConfigurationSetupStepHandler" />
             <properties>
-                <property name="ip" />
+                <property name="ipAddress" />
             </properties>
         </configuration-step>
 
