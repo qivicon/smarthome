@@ -22,6 +22,8 @@
     <module>org.eclipse.smarthome.config.discovery.test</module>
     <module>org.eclipse.smarthome.config.setupflow</module>
     <module>org.eclipse.smarthome.config.setupflow.test</module>
+    <module>org.eclipse.smarthome.config.xml</module>
+    <module>org.eclipse.smarthome.config.xml.test</module>
   </modules>
 
 </project>
