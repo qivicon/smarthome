@@ -131,12 +131,14 @@ public class FolderObserver implements ManagedService {
 	}
 
 	private void stopWatchService() {
-		try {
-			watchService.close();
-		} catch (IOException e) {
-			logger.warn("Cannot deactivate folder watcher", e);
+		if(watchService!=null) {
+			try {
+				watchService.close();
+			} catch (IOException e) {
+				logger.warn("Cannot deactivate folder watcher", e);
+			}
+			watchService = null;
 		}
-		watchService = null;
 	}
 
 	private static class WatchQueueReader implements Runnable {
@@ -189,11 +191,7 @@ public class FolderObserver implements ManagedService {
 				}
 
 			} catch (ClosedWatchServiceException ecx) {
-				logger.debug(
-						"ClosedWatchServiceException catched! {}. \n{} Stopping ",
-						ecx.getLocalizedMessage(), Thread.currentThread()
-								.getName());
-
+				logger.debug("Terminated thread {}", Thread.currentThread().getName());
 				return;
 			}
 		}

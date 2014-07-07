@@ -5,21 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.designer.ui.internal.perspectives;
-
-import org.eclipse.ui.IPageLayout;
-import org.eclipse.ui.IPerspectiveFactory;
+package org.eclipse.smarthome.model.rule.runtime;
 
 /**
- *
+ * This is a marker interface for Rule Engines.
+ * 
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public class Perspective implements IPerspectiveFactory {
-
-	public void createInitialLayout(IPageLayout layout) {
-		layout.setEditorAreaVisible(true);
-		layout.setFixed(false);
-	}
+public interface RuleEngine {
 
 }
