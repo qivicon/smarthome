@@ -132,7 +132,7 @@ class GenericConfigurationStepHandlerOSGITest extends OSGiTest {
     }
 
     private createConfigDescription(String thingType) {
-        new ConfigDescription(thingType,
+        new ConfigDescription(URI.create(thingType),
                 [
                     createParameter("requiredParameter", true),
                     createParameter("optionalParameter", false)]

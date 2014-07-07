@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.config.setupflow.internal;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -168,7 +169,7 @@ public class SetupFlowManagerImpl implements SetupFlowManager {
         Iterable<ConfigDescriptionParameter> requiredParameters = null;
         if (configDescriptionRegistry != null) {
             ConfigDescription configDescription = configDescriptionRegistry
-                    .getConfigDescription(thingTypeUID.toString());
+                    .getConfigDescription(URI.create(toString()));
 
             if (configDescription != null) {
                 requiredParameters = Iterables.filter(configDescription.getParameters(),

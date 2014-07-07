@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.config.setupflow.internal;
 
+import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -66,7 +67,7 @@ public class GenericConfigurationStepHandler extends BaseSetupStepHandler {
 					if (configDescriptionRegistry != null) {
 
 						ConfigDescription configDescription = configDescriptionRegistry
-								.getConfigDescription(thingTypeId);
+								.getConfigDescription(URI.create(thingTypeId));
 						if (configDescription == null) {
 							logger.error(
 									"No configuration description can be found for thing type {}",
