@@ -8,6 +8,7 @@ import org.eclipse.smarthome.config.core.ConfigDescription
 import org.eclipse.smarthome.config.core.ConfigDescriptionListener
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider
+import org.eclipse.smarthome.config.core.ConfigDescriptionsChangeListener
 import org.eclipse.smarthome.config.setupflow.SetupFlowContext
 import org.eclipse.smarthome.config.setupflow.SetupStepHandlerCallback
 import org.eclipse.smarthome.config.setupflow.internal.GenericConfigurationStepHandler
@@ -29,11 +30,14 @@ class GenericConfigurationStepHandlerOSGITest extends OSGiTest {
         def ConfigDescription configDescriptionWithoutExplicitFlow = createConfigDescription(CONCATENATED_THING_TYPE_WITHOUT_EXPLICIT_FLOW)
 
         configDescriptionProviderMock = [
-            addConfigDescriptionListener: { ConfigDescriptionListener listener ->
-                listener.configDescriptionAdded(configDescriptionWithoutExplicitFlow)
+            addConfigDescriptionsChangeListener: { ConfigDescriptionsChangeListener listener ->
+                // listener.configDescriptionAdded(configDescriptionProviderMock, configDescriptionWithoutExplicitFlow)
             },
-            removeConfigDescriptionListener: { ConfigDescriptionListener listener ->
-                listener.configDescriptionRemoved(configDescriptionWithoutExplicitFlow)
+            removeConfigDescriptionsChangeListener: { ConfigDescriptionsChangeListener listener ->
+                // listener.configDescriptionRemoved(configDescriptionProviderMock, configDescriptionWithoutExplicitFlow)
+            },
+            getConfigDescriptions: {
+                -> [ configDescriptionWithoutExplicitFlow ]
             }
         ] as ConfigDescriptionProvider
         registerService configDescriptionProviderMock
