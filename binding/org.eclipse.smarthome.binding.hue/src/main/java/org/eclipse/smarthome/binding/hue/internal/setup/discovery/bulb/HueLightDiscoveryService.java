@@ -10,7 +10,7 @@ package org.eclipse.smarthome.binding.hue.internal.setup.discovery.bulb;
 import java.util.Collections;
 
 import org.eclipse.smarthome.binding.hue.config.HueLightConfiguration;
-import org.eclipse.smarthome.binding.hue.internal.HueThingTypeProvider;
+import org.eclipse.smarthome.binding.hue.internal.HueBinding;
 import org.eclipse.smarthome.binding.hue.internal.handler.HueBridgeHandler;
 import org.eclipse.smarthome.binding.hue.internal.setup.discovery.bridge.HueBridgeServiceTracker;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
@@ -49,7 +49,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     private static String getFilter() {
         return "(&(" + Constants.OBJECTCLASS + "=" + ThingHandler.class.getName() + ")("
                 + ThingHandler.SERVICE_PROPERTY_THING_TYPE + "="
-                + HueThingTypeProvider.BRIDGE_THING_TYPE + "))";
+                + HueBinding.BRIDGE_THING_TYPE_UID.toString() + "))";
     }
 
     public HueLightDiscoveryService(BundleContext bundleContext) throws InvalidSyntaxException {
@@ -81,7 +81,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     @Override
     public DiscoveryServiceInfo getInfo() {
         return new DiscoveryServiceInfo(
-                Collections.singletonList(HueThingTypeProvider.LIGHT_THING_TYPE.getUID()),
+                Collections.singletonList(HueBinding.LIGHT_THING_TYPE_UID),
                 FORCE_DISCOVERY_TIMEOUT_IN_SECONDS);
     }
 
@@ -168,7 +168,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
         ThingUID hueBridgeUID = hueBridge.getUID();
         String bridgeId = hueBridgeUID.getId();
         String thingLightId = bridgeId + "Light" + lightId;
-        ThingTypeUID thingTypeUID = HueThingTypeProvider.LIGHT_THING_TYPE.getUID();
+        ThingTypeUID thingTypeUID = HueBinding.LIGHT_THING_TYPE_UID;
         ThingUID thingUID = new ThingUID(thingTypeUID, thingLightId);
         DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID);
         discoveryResult.getProperties().put(HueLightConfiguration.LIGHT_ID, lightId);
