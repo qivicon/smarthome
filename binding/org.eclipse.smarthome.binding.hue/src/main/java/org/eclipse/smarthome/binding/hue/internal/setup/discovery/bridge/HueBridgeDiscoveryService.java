@@ -116,7 +116,7 @@ public class HueBridgeDiscoveryService extends AbstractDiscoveryService implemen
                 bridgeTypeUID, discoveredBridge.serialNumber));
         Map<String, Object> properties = discoveryResult.getProperties();
         properties.put(HueBridgeConfiguration.IP_ADDRESS, discoveredBridge.ipAddress);
-        properties.put(HueBridgeConfiguration.BRIDGE_SERIAL_NUMBER, discoveredBridge.serialNumber);
+        properties.put(HueBridgeConfiguration.SERIAL_NUMBER, discoveredBridge.serialNumber);
         discoveryResult.setLabel(discoveredBridge.serialNumber + " (" + discoveredBridge.ipAddress
                 + ")");
         thingDiscovered(discoveryResult);
