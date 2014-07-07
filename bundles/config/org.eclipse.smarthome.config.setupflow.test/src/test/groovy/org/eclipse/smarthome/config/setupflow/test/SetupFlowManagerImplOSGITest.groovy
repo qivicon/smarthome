@@ -55,7 +55,7 @@ class SetupFlowManagerImplOSGITest extends OSGiTest {
     }
 
     private createConfigDescription(ThingTypeUID thingTypeUID) {
-        new ConfigDescription(thingTypeUID.toString(),[
+        new ConfigDescription(URI.create(thingTypeUID.toString()),[
             createParameter("requiredParameter", true),
             createParameter("optionalParameter", false)
         ])

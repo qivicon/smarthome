@@ -25,7 +25,7 @@ import nl.q42.jue.exceptions.ApiException;
 import nl.q42.jue.exceptions.UnauthorizedException;
 
 import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration;
-import org.eclipse.smarthome.binding.hue.internal.HueThingTypeProvider;
+import org.eclipse.smarthome.binding.hue.internal.HueBinding;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.setupflow.SetupFlowContext;
 import org.eclipse.smarthome.config.setupflow.SetupStepHandlerCallback;
@@ -90,7 +90,7 @@ public class IpConfigurationSetupStepHandler extends BaseHueSetupStepHandler {
                     // If the user name is not yet added in the flow, we try to
                     // obtain it from the stored configuration
                     Thing bridge = getThingRegistry().getByUID(
-                            new ThingUID(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(),
+                            new ThingUID(HueBinding.BRIDGE_THING_TYPE_UID,
                                     bridgeSerialNumber));
                     if (bridge != null) {
                         Configuration hueBridgeConfiguration = (Configuration) bridge
