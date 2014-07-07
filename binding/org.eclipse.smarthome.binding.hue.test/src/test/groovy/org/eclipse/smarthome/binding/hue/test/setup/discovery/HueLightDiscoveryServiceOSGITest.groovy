@@ -4,8 +4,8 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.binding.hue.internal.HueBinding
 import org.eclipse.smarthome.binding.hue.config.HueLightConfiguration
-import org.eclipse.smarthome.binding.hue.internal.HueThingTypeProvider
 import org.eclipse.smarthome.binding.hue.internal.factory.HueThingHandlerFactory
 import org.eclipse.smarthome.binding.hue.internal.setup.discovery.bulb.HueLightDiscoveryService
 import org.eclipse.smarthome.config.discovery.DiscoveryListener
@@ -69,7 +69,7 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
     void 'assert hue light registration'() {
 
         Bridge bridge = BridgeBuilder
-                .create(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), "testBridge").build()
+                .create(HueBinding.BRIDGE_THING_TYPE_UID, "testBridge").build()
 
 
         def lightId = "1"
@@ -96,7 +96,7 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
             assertThat flag, is (DiscoveryResultFlag.NEW)
             assertThat thingUID.toString(), is("hue:light:testBridgeLight" + lightId)
             assertThat label, is (lightName)
-            assertThat thingTypeUID, is (HueThingTypeProvider.LIGHT_THING_TYPE.getUID())
+            assertThat thingTypeUID, is (HueBinding.LIGHT_THING_TYPE_UID)
             assertThat bridgeUID, is(bridge.getUID())
             assertThat properties.get(HueLightConfiguration.LIGHT_ID), is (lightId)
         }

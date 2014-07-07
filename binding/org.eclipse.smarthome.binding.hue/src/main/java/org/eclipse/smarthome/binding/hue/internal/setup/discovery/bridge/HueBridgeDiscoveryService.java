@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration;
-import org.eclipse.smarthome.binding.hue.internal.HueThingTypeProvider;
+import org.eclipse.smarthome.binding.hue.internal.HueBinding;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
@@ -110,7 +110,7 @@ public class HueBridgeDiscoveryService extends AbstractDiscoveryService implemen
     }
 
     protected void notifyListenersOnBridgeDiscovered(DiscoveredBridge discoveredBridge) {
-        ThingTypeUID bridgeTypeUID = HueThingTypeProvider.BRIDGE_THING_TYPE.getUID();
+        ThingTypeUID bridgeTypeUID = HueBinding.BRIDGE_THING_TYPE_UID;
 
         DiscoveryResult discoveryResult = new DiscoveryResult(bridgeTypeUID, new ThingUID(
                 bridgeTypeUID, discoveredBridge.serialNumber));
@@ -123,7 +123,7 @@ public class HueBridgeDiscoveryService extends AbstractDiscoveryService implemen
     }
 
     protected void notifyListenersOnBridgeRemoved(String serialNumber) {
-        ThingUID bridgeUID = new ThingUID(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(),
+        ThingUID bridgeUID = new ThingUID(HueBinding.BRIDGE_THING_TYPE_UID,
                 serialNumber);
         thingRemoved(bridgeUID);
     }
@@ -204,7 +204,7 @@ public class HueBridgeDiscoveryService extends AbstractDiscoveryService implemen
     @Override
     public DiscoveryServiceInfo getInfo() {
         return new DiscoveryServiceInfo(
-                Collections.singletonList(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID()),
+                Collections.singletonList(HueBinding.BRIDGE_THING_TYPE_UID),
                 FORCE_DISCOVERY_TIMEOUT_IN_SECONDS);
     }
 
