@@ -169,7 +169,7 @@ public class SetupFlowManagerImpl implements SetupFlowManager {
         Iterable<ConfigDescriptionParameter> requiredParameters = null;
         if (configDescriptionRegistry != null) {
             ConfigDescription configDescription = configDescriptionRegistry
-                    .getConfigDescription(URI.create(toString()));
+                    .getConfigDescription(URI.create(thingTypeUID.toString()));
 
             if (configDescription != null) {
                 requiredParameters = Iterables.filter(configDescription.getParameters(),
