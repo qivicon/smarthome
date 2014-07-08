@@ -76,7 +76,7 @@ class HueBridgeDiscoveryServiceOSGITest extends OSGiTest {
             assertThat label, is ("00178814e058 (192.168.3.99)")
             assertThat thingTypeUID, is (HueBinding.BRIDGE_THING_TYPE_UID)
             assertThat properties.get(HueBridgeConfiguration.IP_ADDRESS), is ("192.168.3.99")
-            assertThat properties.get(HueBridgeConfiguration.BRIDGE_SERIAL_NUMBER), is ("00178814e058")
+            assertThat properties.get(HueBridgeConfiguration.SERIAL_NUMBER), is ("00178814e058")
         }
     }
 
@@ -208,7 +208,7 @@ class HueBridgeDiscoveryServiceOSGITest extends OSGiTest {
             assertThat label, is ("00178814e058 (192.168.3.99)")
             assertThat thingTypeUID, is (HueBinding.BRIDGE_THING_TYPE_UID)
             assertThat properties.get(HueBridgeConfiguration.IP_ADDRESS), is ("192.168.3.99")
-            assertThat properties.get(HueBridgeConfiguration.BRIDGE_SERIAL_NUMBER), is ("00178814e058")
+            assertThat properties.get(HueBridgeConfiguration.SERIAL_NUMBER), is ("00178814e058")
         }
     }
 
