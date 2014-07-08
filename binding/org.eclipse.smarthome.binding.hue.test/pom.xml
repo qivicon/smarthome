@@ -44,7 +44,17 @@
 						</dependency>
 						<dependency>
 							<type>eclipse-plugin</type>
+							<artifactId>org.eclipse.smarthome.config.discovery</artifactId>
+							<version>0.0.0</version>
+						</dependency>
+						<dependency>
+							<type>eclipse-plugin</type>
 							<artifactId>org.eclipse.smarthome.config.xml</artifactId>
+							<version>0.0.0</version>
+						</dependency>
+						<dependency>
+							<type>eclipse-plugin</type>
+							<artifactId>org.eclipse.smarthome.core.thing</artifactId>
 							<version>0.0.0</version>
 						</dependency>
 						<dependency>
@@ -55,6 +65,11 @@
 						<dependency>
 							<type>eclipse-plugin</type>
 							<artifactId>org.eclipse.smarthome.core.binding.xml</artifactId>
+							<version>0.0.0</version>
+						</dependency>
+						<dependency>
+							<type>eclipse-plugin</type>
+							<artifactId>org.eclipse.smarthome.io.console</artifactId>
 							<version>0.0.0</version>
 						</dependency>
 					</dependencies>
@@ -85,7 +100,17 @@
 							<autoStart>true</autoStart>
 						</bundle>
 						<bundle>
+							<id>org.eclipse.smarthome.config.discovery</id>
+							<level>4</level>
+							<autoStart>true</autoStart>
+						</bundle>
+						<bundle>
 							<id>org.eclipse.smarthome.config.xml</id>
+							<level>4</level>
+							<autoStart>true</autoStart>
+						</bundle>
+						<bundle>
+							<id>org.eclipse.smarthome.core.thing</id>
 							<level>4</level>
 							<autoStart>true</autoStart>
 						</bundle>
@@ -96,6 +121,11 @@
 						</bundle>
 						<bundle>
 							<id>org.eclipse.smarthome.core.binding.xml</id>
+							<level>4</level>
+							<autoStart>true</autoStart>
+						</bundle>
+						<bundle>
+							<id>org.eclipse.smarthome.io.console</id>
 							<level>4</level>
 							<autoStart>true</autoStart>
 						</bundle>
