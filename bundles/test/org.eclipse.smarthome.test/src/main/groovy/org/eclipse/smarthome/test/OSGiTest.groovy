@@ -130,7 +130,7 @@ abstract class OSGiTest {
 	 * @return the service registration that was unregistered or null if no service could be found
 	 */
 	protected unregisterService(def service) {
-		def interfaceName = service instanceof String ?: getInterfaceName(service)
+		def interfaceName = service instanceof String ? service : getInterfaceName(service)
 		registeredServices.get(interfaceName)?.unregister()
 		registeredServices.remove(interfaceName)
 	}
