@@ -29,15 +29,15 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 public class HueThingHandlerFactory extends BaseThingHandlerFactory {
 
     @Override
-    public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID,
-            Bridge bridge) {
+    public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration,
+            ThingUID thingUID, ThingUID bridgeUID) {
         if (HueThingTypeProvider.BRIDGE_THING_TYPE.getUID().equals(thingTypeUID)) {
-            ThingUID bridgeUID = getBridgeThingUID(thingTypeUID, thingUID, configuration);
-            return super.createThing(thingTypeUID, configuration, bridgeUID, bridge);
+            ThingUID hueBridgeUID = getBridgeThingUID(thingTypeUID, thingUID, configuration);
+            return super.createThing(thingTypeUID, configuration, hueBridgeUID);
         }
         if (HueThingTypeProvider.LIGHT_THING_TYPE.getUID().equals(thingTypeUID)) {
-            ThingUID lightUID = getLightUID(thingTypeUID, thingUID, configuration, bridge);
-            return super.createThing(thingTypeUID, configuration, lightUID, bridge);
+            ThingUID hueLightUID = getLightUID(thingTypeUID, thingUID, configuration, bridgeUID);
+            return super.createThing(thingTypeUID, configuration, hueLightUID, bridgeUID);
         }
         throw new IllegalArgumentException("The thing type " + thingTypeUID
                 + " is not supported by the hue binding.");
@@ -59,11 +59,11 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
     }
 
     private ThingUID getLightUID(ThingTypeUID thingTypeUID, ThingUID thingUID,
-            Configuration configuration, Bridge bridge) {
+            Configuration configuration, ThingUID bridgeUID) {
         String lightId = (String) configuration.get(HueLightConfiguration.LIGHT_ID);
 
         if (thingUID == null) {
-            thingUID = new ThingUID(thingTypeUID, "Light" + lightId, bridge.getUID().getId());
+            thingUID = new ThingUID(thingTypeUID, "Light" + lightId, bridgeUID.getId());
         }
         return thingUID;
     }
