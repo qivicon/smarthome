@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -35,21 +36,15 @@ public class BridgeImpl extends ThingImpl implements Bridge {
 
     public void addThing(Thing thing) {
         things.add(thing);
-        if (thing.getBridge() == null || !thing.getBridge().getUID().equals(this.getUID())) {
-            thing.setBridge(this);
-        }
     }
 
     public void removeThing(Thing thing) {
         things.remove(thing);
-        if (thing.getBridge() != null) {
-            thing.setBridge(null);
-        }
     }
 
     @Override
     public List<Thing> getThings() {
-        return things;
+        return Collections.unmodifiableList(things);
     }
 
     @Override

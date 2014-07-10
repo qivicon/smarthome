@@ -76,13 +76,13 @@ public class ManagedThingProvider extends AbstractThingProvider implements Stora
      *            the configuration
      * @return the created thing
      */
-    public Thing createThing(ThingTypeUID thingTypeUID, ThingUID thingUID, Bridge bridge,
+    public Thing createThing(ThingTypeUID thingTypeUID, ThingUID thingUID, ThingUID bridgeUID,
             Configuration configuration) {
         logger.debug("Creating thing for type '{}'.", thingTypeUID);
         for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
             if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
-                Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID,
-                        bridge);
+                Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration,
+                        thingUID, bridgeUID);
                 addThing(thing);
                 return thing;
             }

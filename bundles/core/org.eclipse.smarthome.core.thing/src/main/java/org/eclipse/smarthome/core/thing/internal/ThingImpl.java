@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -24,7 +23,7 @@ import org.eclipse.smarthome.core.types.State;
 
 public class ThingImpl implements Thing {
 
-	volatile private BridgeImpl bridge;
+    private ThingUID bridgeUID;
 
     private List<Channel> channels;
 
@@ -82,8 +81,8 @@ public class ThingImpl implements Thing {
     }
 
     @Override
-    public Bridge getBridge() {
-        return this.bridge;
+    public ThingUID getBridgeUID() {
+        return this.bridgeUID;
     }
 
     public List<Channel> getChannels() {
@@ -125,17 +124,8 @@ public class ThingImpl implements Thing {
     }
 
     @Override
-    public void setBridge(Bridge bridge) {
-        if (bridge != null) {
-        	this.bridge = (BridgeImpl) bridge;
-            this.bridge.addThing(this);
-        } else {
-        	BridgeImpl oldBridge = this.bridge;
-        	this.bridge = null;
-        	if (oldBridge != null) {
-        		oldBridge.removeThing(this);
-        	}
-        }
+    public void setBridgeUID(ThingUID bridgeUID) {
+        this.bridgeUID = bridgeUID;
     }
 
     public void setChannels(List<Channel> channels) {
