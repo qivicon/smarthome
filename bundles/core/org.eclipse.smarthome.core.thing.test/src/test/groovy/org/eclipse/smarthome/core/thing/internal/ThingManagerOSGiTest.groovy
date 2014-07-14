@@ -25,83 +25,84 @@ import org.junit.Test
 
 class ThingManagerOSGiTest extends OSGiTest {
 
-	ManagedThingProvider managedThingProvider
+    ManagedThingProvider managedThingProvider
 
-	Thing THING = ThingBuilder.create(new ThingTypeUID("binding:type"), "id").withChannels([]).build()
+    Thing THING = ThingBuilder.create(new ThingTypeUID("binding:type"), "id").withChannels([]).build()
 
-	@Before
-	void setUp() {
-		managedThingProvider = getService(ManagedThingProvider)
-	}
-	
-	@After
-	void teardown() {
-		managedThingProvider.getThings().each {
-			managedThingProvider.removeThing(it.getUID())
-		}
-	}
+    @Before
+    void setUp() {
+        registerVolatileStorageService()
+        managedThingProvider = getService(ManagedThingProvider)
+    }
 
-	@Test
-	void 'ThingManager calls registerHandler for added Thing'() {
+    @After
+    void teardown() {
+        managedThingProvider.getThings().each {
+            managedThingProvider.removeThing(it.getUID())
+        }
+    }
 
-		def registerHandlerCalled = false
+    @Test
+    void 'ThingManager calls registerHandler for added Thing'() {
 
-		def thingHandlerFactory = [
-			supportsThingType: {ThingTypeUID thingTypeUID -> true},
-			registerHandler: {Thing thing -> registerHandlerCalled = true}
-		] as ThingHandlerFactory
+        def registerHandlerCalled = false
 
-		registerService(thingHandlerFactory)
+        def thingHandlerFactory = [
+            supportsThingType: {ThingTypeUID thingTypeUID -> true},
+            registerHandler: {Thing thing -> registerHandlerCalled = true}
+        ] as ThingHandlerFactory
 
-		managedThingProvider.addThing(THING)
+        registerService(thingHandlerFactory)
 
-		waitForAssert {assertThat registerHandlerCalled, is(true)}
-	}
+        managedThingProvider.addThing(THING)
 
-	@Test
-	void 'ThingManager calls unregisterHandler for removed Thing'() {
+        waitForAssert {assertThat registerHandlerCalled, is(true)}
+    }
 
-		def unregisterHandlerCalled = false
+    @Test
+    void 'ThingManager calls unregisterHandler for removed Thing'() {
 
-		def thingHandlerFactory = [
-			supportsThingType: {ThingTypeUID thingTypeUID -> true},
-			registerHandler: {
-				def thingHandler = [] as ThingHandler
-				registerService(thingHandler,[
-					(ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
-					(ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
-				] as Hashtable)
-			},
-			unregisterHandler: {Thing thing -> unregisterHandlerCalled = true}
-		] as ThingHandlerFactory
+        def unregisterHandlerCalled = false
 
-		registerService(thingHandlerFactory)
+        def thingHandlerFactory = [
+            supportsThingType: {ThingTypeUID thingTypeUID -> true},
+            registerHandler: {
+                def thingHandler = [] as ThingHandler
+                registerService(thingHandler,[
+                    (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
+                    (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
+                ] as Hashtable)
+            },
+            unregisterHandler: {Thing thing -> unregisterHandlerCalled = true}
+        ] as ThingHandlerFactory
 
-		managedThingProvider.addThing(THING)
+        registerService(thingHandlerFactory)
 
-		managedThingProvider.removeThing(THING.getUID())
+        managedThingProvider.addThing(THING)
 
-		waitForAssert {assertThat unregisterHandlerCalled, is(true)}
-	}
+        managedThingProvider.removeThing(THING.getUID())
 
-	@Test
-	void 'ThingManager tracks handler for Thing'() {
+        waitForAssert {assertThat unregisterHandlerCalled, is(true)}
+    }
 
-		def registerHandlerCalled = false
+    @Test
+    void 'ThingManager tracks handler for Thing'() {
 
-		managedThingProvider.addThing(THING)
-		assertThat THING.getStatus(), is(not(ThingStatus.ONLINE))
+        def registerHandlerCalled = false
 
-		def thingHandler = [] as ThingHandler
-		registerService(thingHandler,[
-			(ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
-			(ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
-		] as Hashtable)
+        managedThingProvider.addThing(THING)
+        assertThat THING.getStatus(), is(not(ThingStatus.ONLINE))
 
-		assertThat THING.getStatus(), is(ThingStatus.ONLINE)
+        def thingHandler = [] as ThingHandler
+        registerService(thingHandler,[
+            (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
+            (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
+        ] as Hashtable)
 
-		unregisterService(thingHandler)
+        assertThat THING.getStatus(), is(ThingStatus.ONLINE)
 
-		assertThat THING.getStatus(), is(ThingStatus.OFFLINE)
-	}
+        unregisterService(thingHandler)
+
+        assertThat THING.getStatus(), is(ThingStatus.OFFLINE)
+    }
 }

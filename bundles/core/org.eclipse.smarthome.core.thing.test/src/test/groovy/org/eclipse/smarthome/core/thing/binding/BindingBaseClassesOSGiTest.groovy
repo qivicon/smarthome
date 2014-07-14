@@ -47,6 +47,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
     @Before
     void setup() {
+        registerVolatileStorageService()
         managedThingProvider = getService ManagedThingProvider
         assertThat managedThingProvider, is(notNullValue())
     }
