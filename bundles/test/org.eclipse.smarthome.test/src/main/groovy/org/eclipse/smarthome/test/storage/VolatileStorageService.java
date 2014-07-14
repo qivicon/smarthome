@@ -37,5 +37,15 @@ public class VolatileStorageService implements StorageService {
 		}
 		return storages.get(name);
 	}
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @return
+     */
+    @Override
+    public <T> Storage<T> getStorage(String name, ClassLoader classLoader) {
+        return getStorage(name);
+    }
 	
 }

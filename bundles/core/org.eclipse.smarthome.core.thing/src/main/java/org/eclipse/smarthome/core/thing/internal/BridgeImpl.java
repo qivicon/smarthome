@@ -19,12 +19,11 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 
 public class BridgeImpl extends ThingImpl implements Bridge {
 
-    private List<Thing> things = new CopyOnWriteArrayList<>();
+    private transient List<Thing> things = new CopyOnWriteArrayList<>();
 
     public BridgeImpl(ThingTypeUID thingTypeUID, String bridgeId) {
         super(thingTypeUID, bridgeId);
     }
-    
     
     /**
      * @param thingUID

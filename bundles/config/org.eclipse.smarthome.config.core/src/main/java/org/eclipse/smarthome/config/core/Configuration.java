@@ -20,7 +20,7 @@ public class Configuration {
 
     private Map<String, Object> properties = new ConcurrentHashMap<>();
 
-    private Logger logger = LoggerFactory.getLogger(Configuration.class);
+    private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
     public <T> T as(Class<T> configurationClass) {
         T configuration = null;

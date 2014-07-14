@@ -106,7 +106,8 @@ public class ManagedThingProvider extends AbstractThingProvider {
     }
 
     protected void setStorageService(StorageService storageService) {
-        this.storage = storageService.getStorage(Thing.class.getName());
+        this.storage = storageService.getStorage(Thing.class.getName(), this.getClass()
+                .getClassLoader());
     }
 
     protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {

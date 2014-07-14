@@ -99,7 +99,8 @@ public class ManagedItemChannelLinkProvider implements ItemChannelLinkProvider {
     }
 
     protected void setStorageService(StorageService storageService) {
-        this.storage = storageService.getStorage(ItemChannelLink.class.getName());
+        this.storage = storageService.getStorage(ItemChannelLink.class.getName(), this.getClass()
+                .getClassLoader());
     }
 
     protected void unsetStorageService(StorageService storageService) {

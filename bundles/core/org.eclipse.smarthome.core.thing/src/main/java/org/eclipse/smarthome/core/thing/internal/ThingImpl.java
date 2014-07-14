@@ -31,11 +31,11 @@ public class ThingImpl implements Thing {
 
     private ThingUID uid;
 
-    volatile private ThingStatus status;
+    transient volatile private ThingStatus status;
 
-    volatile private ThingHandler thingHandler;
+    transient volatile private ThingHandler thingHandler;
 
-    volatile private List<ThingListener> thingListeners = new CopyOnWriteArrayList<>();
+    transient volatile private List<ThingListener> thingListeners = new CopyOnWriteArrayList<>();
     
     private String name;
 
