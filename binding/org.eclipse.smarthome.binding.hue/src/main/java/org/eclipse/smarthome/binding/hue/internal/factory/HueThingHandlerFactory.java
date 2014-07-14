@@ -33,7 +33,7 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
             ThingUID thingUID, ThingUID bridgeUID) {
         if (HueThingTypeProvider.BRIDGE_THING_TYPE.getUID().equals(thingTypeUID)) {
             ThingUID hueBridgeUID = getBridgeThingUID(thingTypeUID, thingUID, configuration);
-            return super.createThing(thingTypeUID, configuration, hueBridgeUID);
+            return super.createThing(thingTypeUID, configuration, hueBridgeUID, null);
         }
         if (HueThingTypeProvider.LIGHT_THING_TYPE.getUID().equals(thingTypeUID)) {
             ThingUID hueLightUID = getLightUID(thingTypeUID, thingUID, configuration, bridgeUID);
