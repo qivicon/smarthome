@@ -16,7 +16,6 @@ import nl.q42.jue.HueBridge;
 import nl.q42.jue.Light;
 import nl.q42.jue.StateUpdate;
 import nl.q42.jue.exceptions.ApiException;
-import nl.q42.jue.exceptions.UnauthorizedException;
 
 import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration;
 import org.eclipse.smarthome.binding.hue.internal.service.BridgeHeartbeatService;
@@ -91,23 +90,12 @@ public class HueBridgeHandler extends BaseBridgeHandler implements
         HueBridgeConfiguration configuration = getConfigAs(HueBridgeConfiguration.class);
 
         if (configuration.ipAddress != null && configuration.userName != null) {
-        	if (bridge == null) {
-        		bridge = new HueBridge(configuration.ipAddress);
-        		bridge.setTimeout(5000);
-        	}
-            try {
-            	bridge.authenticate(configuration.userName);
-            	bridgeHeartbeatService.initialize(bridge);
-                bridgeHeartbeatService.registerBridgeStatusListener(this);
-                bridgeHeartbeatService.registerLightStatusListener(this);
-            } catch (IOException e) {
-                throw new RuntimeException("The Hue bridge on " + configuration.ipAddress
-                        + " cannot be reached.", e);
-            } catch (UnauthorizedException e) {
-                throw new RuntimeException("Authorization failed.", e);
-            } catch (ApiException e) {
-                throw new RuntimeException(e);
+            if (bridge == null) {
+                bridge = new HueBridge(configuration.ipAddress);
+                bridge.setTimeout(5000);
             }
+            bridgeHeartbeatService.initialize(bridge);
+            bridgeHeartbeatService.registerBridgeStatusListener(this);
         } else {
             logger.warn("Cannot connect to hue bridge. IP address or user name not set.");
         }

@@ -37,6 +37,7 @@ class InboxOSGITest extends OSGiTest {
     void setUp() {
         discoveryResults.clear()
         inboxListeners.clear()
+        registerVolatileStorageService()
         inbox = getService Inbox
         discoveryServiceRegistry = getService DiscoveryServiceRegistry
         managedThingProvider = getService ManagedThingProvider
