@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -50,6 +49,9 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
             ThingHandler thingHandler = (ThingHandler) bundleContext.getService(serviceRegistration
                     .getReference());
+            if (thingHandler instanceof BaseThingHandler) {
+                ((BaseThingHandler) thingHandler).unsetBundleContext(bundleContext);
+            }
             thingHandler.dispose();
         }
         thingTypeRegistryServiceTracker.close();
@@ -65,6 +67,9 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
             serviceRegistration.unregister();
             removeHandler(thingHandler);
             thingHandler.dispose();
+            if (thingHandler instanceof BaseThingHandler) {
+                ((BaseThingHandler) thingHandler).unsetBundleContext(bundleContext);
+            }
         }
     }
 
@@ -72,12 +77,14 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
     public void registerHandler(Thing thing) {
 
         ThingHandler thingHandler = createHandler(thing);
+        if (thingHandler instanceof BaseThingHandler) {
+            ((BaseThingHandler) thingHandler).setBundleContext(bundleContext);
+        }
+        thingHandler.initialize();
 
         ServiceRegistration<ThingHandler> serviceRegistration = registerAsService(thing,
                 thingHandler);
         thingHandlers.put(thing.getUID().toString(), serviceRegistration);
-
-        thingHandler.initialize();
 
     }
 
@@ -167,37 +174,38 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
      * Creates a thing based on given thing type uid.
      * 
      * @param thingTypeUID
-     *            thing type uid (should not be null)
+     *            thing type uid (can not be null)
      * @param thingUID
-     *            thingUID (should not be null)
+     *            thingUID (can not be null)
      * @param configuration
-     *            (should not be null)
-     * @param bridge
-     *            (can be null)
-     * @return thing
+     *            (can not be null)
+     * @return thing (can be null, if thing type is unknown)
      */
-    protected Thing createThing(ThingTypeUID thingTypeUID, ThingUID thingUID,
-            Configuration configuration, Bridge bridge) {
-    	ThingType thingType = getThingTypeByUID(thingTypeUID);
-    	return ThingFactory.createThing(thingType, thingUID, configuration, bridge);
+    protected Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID) {
+    	return createThing(thingTypeUID, configuration, thingUID, null);
     }
     
     /**
      * Creates a thing based on given thing type uid.
      * 
      * @param thingTypeUID
-     *            thing type uid (can not be null)
+     *            thing type uid (should not be null)
      * @param thingUID
-     *            thingUID (can not be null)
+     *            thingUID (should not be null)
      * @param configuration
-     *            (can not be null)
-     * @return thing
+     *            (should not be null)
+     * @param bridgeUID
+     *            (can be null)
+     * @return thing (can be null, if thing type is unknown)
      */
-    protected Thing createThing(ThingTypeUID thingTypeUID, ThingUID thingUID,
-    		Configuration configuration) {
-    	return createThing(thingTypeUID, thingUID, configuration, null);
+    public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration,
+            ThingUID thingUID, ThingUID bridgeUID) {
+        ThingType thingType = getThingTypeByUID(thingTypeUID);
+        if (thingType != null) {
+            return ThingFactory.createThing(thingType, thingUID, configuration, bridgeUID);
+        } else {
+            return null;
+        }
     }
     
-    
-
 }

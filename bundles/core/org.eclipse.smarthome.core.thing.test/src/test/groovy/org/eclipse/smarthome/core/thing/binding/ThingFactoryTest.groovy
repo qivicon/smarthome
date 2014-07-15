@@ -15,7 +15,6 @@ import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
-import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
 import org.eclipse.smarthome.core.thing.type.BridgeType
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition
 import org.eclipse.smarthome.core.thing.type.ChannelType
@@ -25,59 +24,59 @@ import org.junit.Test
 
 class ThingFactoryTest {
 
-	@Test
-	void 'create simple Thing'() {
+    @Test
+    void 'create simple Thing'() {
 
-		def thingType = new ThingType("bindingId", "thingTypeId", "label")
-		def configuration = new Configuration();
+        def thingType = new ThingType("bindingId", "thingTypeId", "label")
+        def configuration = new Configuration();
 
-		def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)
+        def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)
 
-		assertThat thing.getUID().toString(), is(equalTo("bindingId:thingTypeId:thingId"))
-		assertThat thing.getThingTypeUID().toString(), is(equalTo("bindingId:thingTypeId"))
-		assertThat thing.getConfiguration(), is(not(null))
-	}
+        assertThat thing.getUID().toString(), is(equalTo("bindingId:thingTypeId:thingId"))
+        assertThat thing.getThingTypeUID().toString(), is(equalTo("bindingId:thingTypeId"))
+        assertThat thing.getConfiguration(), is(not(null))
+    }
 
-	@Test
-	void 'create simple Bridge'() {
+    @Test
+    void 'create simple Bridge'() {
 
-		def thingType = new BridgeType("bindingId", "thingTypeId", "label")
-		def configuration = new Configuration();
+        def thingType = new BridgeType("bindingId", "thingTypeId", "label")
+        def configuration = new Configuration();
 
-		def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)
+        def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)
 
-		assertThat thing, is(instanceOf(Bridge))
-	}
+        assertThat thing, is(instanceOf(Bridge))
+    }
 
-	@Test
-	void 'create Thing with Bridge'() {
+    @Test
+    void 'create Thing with Bridge'() {
 
-		def bridge = BridgeBuilder.create(new ThingTypeUID("binding:bridge"), "1").build();
+        def bridgeUID = new ThingUID("binding:bridge:bridge1")
 
-		def thingType = new ThingType("bindingId", "thingTypeId", "label")
-		def configuration = new Configuration();
+        def thingType = new ThingType("bindingId", "thingTypeId", "label")
+        def configuration = new Configuration();
 
-		def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration, bridge)
+        def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration, bridgeUID)
 
-		assertThat thing.getBridge(), is(equalTo(bridge))
-	}
+        assertThat thing.getBridgeUID(), is(equalTo(bridgeUID))
+    }
 
-	@Test
-	void 'create Thing with Channels'() {
+    @Test
+    void 'create Thing with Channels'() {
 
-		ChannelType channelType1 = new ChannelType(new ChannelTypeUID("bindingId:channelTypeId1"), "Color", "label", "description", null)
-		ChannelType channelType2 = new ChannelType(new ChannelTypeUID("bindingId:channelTypeId2"), "Dimmer", "label", "description", null)
+        ChannelType channelType1 = new ChannelType(new ChannelTypeUID("bindingId:channelTypeId1"), "Color", "label", "description", null)
+        ChannelType channelType2 = new ChannelType(new ChannelTypeUID("bindingId:channelTypeId2"), "Dimmer", "label", "description", null)
 
-		ChannelDefinition channelDef1 = new ChannelDefinition("ch1", channelType1)
-		ChannelDefinition channelDef2 = new ChannelDefinition("ch2", channelType2)
-		
-		def thingType = new ThingType(new ThingTypeUID("bindingId:thingType"), [], "label", null, [channelDef1, channelDef2], null)
-		def configuration = new Configuration();
+        ChannelDefinition channelDef1 = new ChannelDefinition("ch1", channelType1)
+        ChannelDefinition channelDef2 = new ChannelDefinition("ch2", channelType2)
 
-		def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)
+        def thingType = new ThingType(new ThingTypeUID("bindingId:thingType"), [], "label", null, [channelDef1, channelDef2], null)
+        def configuration = new Configuration();
 
-		assertThat thing.getChannels().size, is(2)
-		assertThat thing.getChannels().get(0).getUID().toString(), is(equalTo("bindingId:thingType:thingId:ch1"))
-		assertThat thing.getChannels().get(0).getAcceptedItemType(), is(equalTo("Color"))
-	}
+        def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)
+
+        assertThat thing.getChannels().size, is(2)
+        assertThat thing.getChannels().get(0).getUID().toString(), is(equalTo("bindingId:thingType:thingId:ch1"))
+        assertThat thing.getChannels().get(0).getAcceptedItemType(), is(equalTo("Color"))
+    }
 }

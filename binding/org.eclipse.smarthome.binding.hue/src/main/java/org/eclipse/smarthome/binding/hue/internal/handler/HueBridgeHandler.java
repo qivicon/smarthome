@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Dennis Nobel - Initial contribution of hue binding
  * @author Oliver Libutzki
+ * @author Kai Kreuzer - improved state handling
  * 
  */
 public class HueBridgeHandler extends BaseBridgeHandler implements
@@ -92,6 +93,7 @@ public class HueBridgeHandler extends BaseBridgeHandler implements
         if (configuration.ipAddress != null && configuration.userName != null) {
         	if (bridge == null) {
         		bridge = new HueBridge(configuration.ipAddress);
+        		bridge.setTimeout(5000);
         	}
             try {
             	bridge.authenticate(configuration.userName);
@@ -125,7 +127,17 @@ public class HueBridgeHandler extends BaseBridgeHandler implements
         updateStatus(ThingStatus.ONLINE);
     }
 
-    public BridgeHeartbeatService getBridgeHeartbeatService() {
+    @Override
+	public void onNotAuthenticated(HueBridge bridge) {
+        HueBridgeConfiguration configuration = getConfigAs(HueBridgeConfiguration.class);
+    	try {
+			bridge.authenticate(configuration.userName);
+		} catch (Exception e) {
+			logger.debug("Hue bridge is not authenticated - please add user '{}'.", configuration.userName);
+		}
+	}
+
+	public BridgeHeartbeatService getBridgeHeartbeatService() {
         if (bridgeHeartbeatService == null) {
             throw new RuntimeException("The heartbeat service for bridge " + bridge.getIPAddress()
                     + " has not been initialized.");

@@ -11,16 +11,14 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import org.eclipse.smarthome.core.items.ItemFactory
-import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.items.ManagedItemProvider
 import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.test.OSGiTest
-import org.junit.Before
 import org.junit.After
+import org.junit.Before
 import org.junit.Test
-import org.junit.Ignore
 
 /**
  * The {@link ManagedItemProviderOSGiTest} runs inside an 
@@ -31,81 +29,82 @@ import org.junit.Ignore
  */
 class ManagedItemProviderOSGiTest extends OSGiTest {
 
-	ManagedItemProvider itemProvider
-	ItemRegistry itemRegistry
-		
-	@Before
-	void setUp() {
-		itemProvider = getService(ManagedItemProvider)
-		itemRegistry = getService(ItemRegistry)
-	}
+    ManagedItemProvider itemProvider
+    ItemRegistry itemRegistry
 
-	@After
-	void tearDown() {
-		itemProvider.getItems().each {
-			itemProvider.removeItem(it.name)
-		}
-		unregisterService(itemProvider)
-	}
+    @Before
+    void setUp() {
+        registerVolatileStorageService()
+        itemProvider = getService(ManagedItemProvider)
+        itemRegistry = getService(ItemRegistry)
+    }
 
-	@Test
-	void 'assert getItems returns item from registered ManagedItemProvider'() {
+    @After
+    void tearDown() {
+        itemProvider.getItems().each {
+            itemProvider.removeItem(it.name)
+        }
+        unregisterService(itemProvider)
+    }
 
-		assertThat itemProvider.getItems().size, is(0)
-		
-		itemProvider.addItem new SwitchItem('SwitchItem')
-		itemProvider.addItem new StringItem('StringItem')
+    @Test
+    void 'assert getItems returns item from registered ManagedItemProvider'() {
 
-		def items = itemProvider.getItems()
-		assertThat items.size, is(2)
-		
-		itemProvider.removeItem 'StringItem'		
-		itemProvider.removeItem 'SwitchItem'
-		
-		assertThat itemProvider.getItems().size, is(0)
-	}
+        assertThat itemProvider.getItems().size, is(0)
 
-	@Test
-	void 'assert adding twice returns first value'() {
+        itemProvider.addItem new SwitchItem('SwitchItem')
+        itemProvider.addItem new StringItem('StringItem')
 
-		assertThat itemProvider.getItems().size, is(0)
-		
-		itemProvider.addItem new StringItem('Item')
-		def result = itemProvider.addItem new SwitchItem('Item')
+        def items = itemProvider.getItems()
+        assertThat items.size, is(2)
 
-		assertThat result.type, is("String")
-		
-		itemProvider.removeItem 'Item'
-		
-		assertThat itemProvider.getItems().size, is(0)
-	}
+        itemProvider.removeItem 'StringItem'
+        itemProvider.removeItem 'SwitchItem'
 
-	@Test
-	void 'assert removal returns old value'() {
+        assertThat itemProvider.getItems().size, is(0)
+    }
 
-		assertThat itemProvider.getItems().size, is(0)
-		
-		itemProvider.addItem new StringItem('Item')
-		def result = itemProvider.removeItem 'Unknown'
+    @Test
+    void 'assert adding twice returns first value'() {
 
-		assertNull result
+        assertThat itemProvider.getItems().size, is(0)
 
-		result = itemProvider.removeItem 'Item'
+        itemProvider.addItem new StringItem('Item')
+        def result = itemProvider.addItem new SwitchItem('Item')
 
-		assertThat result.name, is('Item')
-						
-		assertThat itemProvider.getItems().size, is(0)
-	}
-	
-	@Test
-	void 'assert two items with same name can not be added'() {
+        assertThat result.type, is("String")
 
-		assertThat itemProvider.getItems().size, is(0)
-		
-		itemProvider.addItem new StringItem('Item')
-		itemProvider.addItem new StringItem('Item')
+        itemProvider.removeItem 'Item'
 
-		assertThat itemProvider.getItems().size(), is(1)
-		assertThat itemRegistry.getItems().size(), is(1)
-	}
+        assertThat itemProvider.getItems().size, is(0)
+    }
+
+    @Test
+    void 'assert removal returns old value'() {
+
+        assertThat itemProvider.getItems().size, is(0)
+
+        itemProvider.addItem new StringItem('Item')
+        def result = itemProvider.removeItem 'Unknown'
+
+        assertNull result
+
+        result = itemProvider.removeItem 'Item'
+
+        assertThat result.name, is('Item')
+
+        assertThat itemProvider.getItems().size, is(0)
+    }
+
+    @Test
+    void 'assert two items with same name can not be added'() {
+
+        assertThat itemProvider.getItems().size, is(0)
+
+        itemProvider.addItem new StringItem('Item')
+        itemProvider.addItem new StringItem('Item')
+
+        assertThat itemProvider.getItems().size(), is(1)
+        assertThat itemRegistry.getItems().size(), is(1)
+    }
 }

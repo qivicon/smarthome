@@ -33,6 +33,7 @@ import org.eclipse.smarthome.core.thing.util.ThingHelper
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
+import org.eclipse.smarthome.test.storage.VolatileStorageService
 import org.junit.Before
 import org.junit.Test
 
@@ -49,10 +50,11 @@ class HueLightHandlerOSGiTest extends OSGiTest {
     final ThingTypeUID LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "light")
 
     ManagedThingProvider managedThingProvider
-
+    VolatileStorageService volatileStorageService = new VolatileStorageService()
 
     @Before
     void setUp() {
+        registerService(volatileStorageService)
         managedThingProvider = getService(ThingProvider, ManagedThingProvider)
         assertThat managedThingProvider, is(notNullValue())
     }
@@ -84,7 +86,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         Thing hueLight = managedThingProvider.createThing(
                 LIGHT_THING_TYPE_UID,
                 new ThingUID(LIGHT_THING_TYPE_UID, "Light1"),
-                hueBridge, lightConfiguration)
+                hueBridge.getUID(), lightConfiguration)
 
         assertThat hueLight, is(notNullValue())
 
@@ -117,207 +119,207 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         managedThingProvider.removeThing(hueBridge.getUID())
     }
 
-	@Test
-	void 'assert command for color channel: on'() {
-		def expectedBody = 
-			"""
+    @Test
+    void 'assert command for color channel: on'() {
+        def expectedBody =
+                """
 				{
 					"on" : true
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, OnOffType.ON, expectedBody)
-	}
-	
-	@Test
-	void 'assert command for color temperature channel: on'() {
-		def expectedBody = 
-			"""
+        assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, OnOffType.ON, expectedBody)
+    }
+
+    @Test
+    void 'assert command for color temperature channel: on'() {
+        def expectedBody =
+                """
 				{
 					"on" : true
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, OnOffType.ON, expectedBody)
-	}
-	
-	@Test
-	void 'assert command for color channel: off'() {
-		def expectedBody = 
-			"""
+        assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, OnOffType.ON, expectedBody)
+    }
+
+    @Test
+    void 'assert command for color channel: off'() {
+        def expectedBody =
+                """
 				{
 					"on" : false
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, OnOffType.OFF, expectedBody)
-	}
-	
-	@Test
-	void 'assert command for color temperature channel: off'() {
-		def expectedBody = 
-			"""
+        assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, OnOffType.OFF, expectedBody)
+    }
+
+    @Test
+    void 'assert command for color temperature channel: off'() {
+        def expectedBody =
+                """
 				{
 					"on" : false
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, OnOffType.OFF, expectedBody)
-	}
-	
-	@Test
-	void 'assert command for color temperature channel: 0%'() {
-		def expectedBody = 
-			"""
+        assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, OnOffType.OFF, expectedBody)
+    }
+
+    @Test
+    void 'assert command for color temperature channel: 0%'() {
+        def expectedBody =
+                """
 				{
 					"ct" : 154
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR_TEMPERATURE, new PercentType(0), expectedBody)
-	}
-	
-	@Test
-	void 'assert command for color temperature channel: 50%'() {
-		def expectedBody = 
-			"""
+        assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR_TEMPERATURE, new PercentType(0), expectedBody)
+    }
+
+    @Test
+    void 'assert command for color temperature channel: 50%'() {
+        def expectedBody =
+                """
 				{
 					"ct" : 327
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR_TEMPERATURE, new PercentType(50), expectedBody)
-	}
-	
-	@Test
-	void 'assert command for color temperature channel: 100%'() {
-		def expectedBody = 
-			"""
+        assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR_TEMPERATURE, new PercentType(50), expectedBody)
+    }
+
+    @Test
+    void 'assert command for color temperature channel: 100%'() {
+        def expectedBody =
+                """
 				{
 					"ct" : 500
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR_TEMPERATURE, new PercentType(100), expectedBody)
-	}
-	
-	@Test
-	void 'assert command for color channel: 0%'() {
-		def expectedBody = 
-			"""
+        assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR_TEMPERATURE, new PercentType(100), expectedBody)
+    }
+
+    @Test
+    void 'assert command for color channel: 0%'() {
+        def expectedBody =
+                """
 				{
 					"bri" : 0,
 					"on" : false
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, new PercentType(0), expectedBody)	
-	}
-	
-	@Test
-	void 'assert command for color channel: 50%'() {
-		def expectedBody = 
-			"""
+        assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, new PercentType(0), expectedBody)
+    }
+
+    @Test
+    void 'assert command for color channel: 50%'() {
+        def expectedBody =
+                """
 				{
 					"bri" : 127,
 					"on" : true
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, new PercentType(50), expectedBody)	
-	}
-	
-	@Test
-	void 'assert command for color channel: 100%'() {
-		def expectedBody = 
-			"""
+        assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, new PercentType(50), expectedBody)
+    }
+
+    @Test
+    void 'assert command for color channel: 100%'() {
+        def expectedBody =
+                """
 				{
 					"bri" : 254,
 					"on" : true
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, new PercentType(100), expectedBody)
-	}
-	
-	@Test
-	void 'assert command for color channel: black'() {
-		def expectedBody = 
-			"""
+        assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, new PercentType(100), expectedBody)
+    }
+
+    @Test
+    void 'assert command for color channel: black'() {
+        def expectedBody =
+                """
 				{
 					"bri" : 0,
 					"sat" : 0,
 					"hue" : 0
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, HSBType.BLACK, expectedBody)	
-	}
-	
-	@Test
-	void 'assert command for color channel: red'() {
-		def expectedBody = 
-			"""
+        assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, HSBType.BLACK, expectedBody)
+    }
+
+    @Test
+    void 'assert command for color channel: red'() {
+        def expectedBody =
+                """
 				{
 					"bri" : 254,
 					"sat" : 254,
 					"hue" : 0
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, HSBType.RED, expectedBody)	
-	}
-	
-	@Test
-	void 'assert command for color channel: blue'() {
-		def expectedBody = 
-			"""
+        assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, HSBType.RED, expectedBody)
+    }
+
+    @Test
+    void 'assert command for color channel: blue'() {
+        def expectedBody =
+                """
 				{
 					"bri" : 254,
 					"sat" : 254,
 					"hue" : 43680
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, HSBType.BLUE, expectedBody)
-	}
-	
-	@Test
-	void 'assert command for color channel: white'() {
-		def expectedBody = 
-				"""
+        assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, HSBType.BLUE, expectedBody)
+    }
+
+    @Test
+    void 'assert command for color channel: white'() {
+        def expectedBody =
+                """
 				{
 				"bri" : 254,
 				"sat" : 0,
 				"hue" : 0
 				}
 				"""
-				assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, HSBType.WHITE, expectedBody)
-	}
-	
+        assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, HSBType.WHITE, expectedBody)
+    }
+
     private void assertSendCommand(String channel, Command command, String expectedBody) {
         Bridge hueBridge = createBridge()
 
-		HueLightHandler hueLightHandler = getService(ThingHandler, HueLightHandler)
-		assertThat hueLightHandler, is(nullValue())
+        HueLightHandler hueLightHandler = getService(ThingHandler, HueLightHandler)
+        assertThat hueLightHandler, is(nullValue())
 
         Thing hueLight = createLight(hueBridge)
 
         try {
-	        // wait for HueLightHandler to be registered
-	        waitForAssert({
-	            hueLightHandler = getService(ThingHandler, HueLightHandler)
-	            assertThat hueLightHandler, is(notNullValue())
-	        }, 10000)
+            // wait for HueLightHandler to be registered
+            waitForAssert({
+                hueLightHandler = getService(ThingHandler, HueLightHandler)
+                assertThat hueLightHandler, is(notNullValue())
+            }, 10000)
 
-	        def AsyncResultWrapper<String> addressWrapper = new AsyncResultWrapper<String>()
-	        def AsyncResultWrapper<String> bodyWrapper = new AsyncResultWrapper<String>()
+            def AsyncResultWrapper<String> addressWrapper = new AsyncResultWrapper<String>()
+            def AsyncResultWrapper<String> bodyWrapper = new AsyncResultWrapper<String>()
 
-	        MockedHttpClient mockedHttpClient =  [
-	            put: { String address, String body ->
-	                addressWrapper.set(address)
-	                bodyWrapper.set(body)
-	                new Result("", 200)
-	            },
-	            get: { String address ->
-	                if (address.endsWith("lights")) {
-	                    def body = """
+            MockedHttpClient mockedHttpClient =  [
+                put: { String address, String body ->
+                    addressWrapper.set(address)
+                    bodyWrapper.set(body)
+                    new Result("", 200)
+                },
+                get: { String address ->
+                    if (address.endsWith("lights")) {
+                        def body = """
 							{
 							  "1": {
 							    "name": "Hue Light 1"
 							  }
 							}
 						"""
-	                    new Result(body, 200)
-	                } else if (address.endsWith("lights/1")) {
-	                    def body = """
+                        new Result(body, 200)
+                    } else if (address.endsWith("lights/1")) {
+                        def body = """
 							{
 							  "state": {
 							    "on": true,
@@ -350,56 +352,56 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 							  }
 							}
 						"""
-	                    new Result(body, 200)
-	                }
-	            }
-	        ] as MockedHttpClient
+                        new Result(body, 200)
+                    }
+                }
+            ] as MockedHttpClient
 
-			installHttpClientMock(hueLightHandler.getHueBridgeHandler(), mockedHttpClient)
+            installHttpClientMock(hueLightHandler.getHueBridgeHandler(), mockedHttpClient)
 
-	        // create items and channel bindings
-	        ThingHelper thingHelper = new ThingHelper(bundleContext)
-	
-	        thingHelper.createAndBindItems(hueLight)
-	        def item = hueLight.getUID().toString().replace(":", "_") + "_" + channel
+            // create items and channel bindings
+            ThingHelper thingHelper = new ThingHelper(bundleContext)
 
-	        EventPublisher eventPublisher = getService(EventPublisher)
-	        assertThat eventPublisher, is(notNullValue())
+            thingHelper.createAndBindItems(hueLight)
+            def item = hueLight.getUID().toString().replace(":", "_") + "_" + channel
 
-	        eventPublisher.postCommand(item, command)
+            EventPublisher eventPublisher = getService(EventPublisher)
+            assertThat eventPublisher, is(notNullValue())
 
-	        waitForAssert({assertTrue addressWrapper.isSet}, 10000)
-	        waitForAssert({assertTrue bodyWrapper.isSet}, 10000)
+            eventPublisher.postCommand(item, command)
 
-	        assertThat addressWrapper.wrappedObject, is("http://1.2.3.4/api/testUserName/lights/1/state")
-			assertJson(expectedBody, bodyWrapper.wrappedObject)
+            waitForAssert({assertTrue addressWrapper.isSet}, 10000)
+            waitForAssert({assertTrue bodyWrapper.isSet}, 10000)
+
+            assertThat addressWrapper.wrappedObject, is("http://1.2.3.4/api/testUserName/lights/1/state")
+            assertJson(expectedBody, bodyWrapper.wrappedObject)
         } finally {
-        	managedThingProvider.removeThing(hueLight.getUID())
-        	managedThingProvider.removeThing(hueBridge.getUID())
+            managedThingProvider.removeThing(hueLight.getUID())
+            managedThingProvider.removeThing(hueBridge.getUID())
         }
     }
-	
-	private void assertJson(String expected, String actual) {
-		def jsonSlurper = Class.forName("groovy.json.JsonSlurper").newInstance()
-		def actualResult = jsonSlurper.parseText(actual)
-		def expectedResult = jsonSlurper.parseText(expected)
 
-		assertThat actualResult, is(expectedResult)
-	}
-	
-	private void installHttpClientMock(HueBridgeHandler hueBridgeHandler,
+    private void assertJson(String expected, String actual) {
+        def jsonSlurper = Class.forName("groovy.json.JsonSlurper").newInstance()
+        def actualResult = jsonSlurper.parseText(actual)
+        def expectedResult = jsonSlurper.parseText(expected)
+
+        assertThat actualResult, is(expectedResult)
+    }
+
+    private void installHttpClientMock(HueBridgeHandler hueBridgeHandler,
             MockedHttpClient mockedHttpClient) {
 
-		// mock HttpClient
-		def hueBridgeField = hueBridgeHandler.getClass().getDeclaredField("bridge")
-		hueBridgeField.accessible = true
-		def hueBridgeValue = hueBridgeField.get(hueBridgeHandler)
+        // mock HttpClient
+        def hueBridgeField = hueBridgeHandler.getClass().getDeclaredField("bridge")
+        hueBridgeField.accessible = true
+        def hueBridgeValue = hueBridgeField.get(hueBridgeHandler)
 
-		def httpClientField = hueBridgeValue.getClass().getDeclaredField("http")
-		httpClientField.accessible = true
-		httpClientField.set(hueBridgeValue, mockedHttpClient)
+        def httpClientField = hueBridgeValue.getClass().getDeclaredField("http")
+        httpClientField.accessible = true
+        httpClientField.set(hueBridgeValue, mockedHttpClient)
 
-		hueBridgeHandler.initialize()
+        hueBridgeHandler.initialize()
     }
 
 }
