@@ -21,6 +21,8 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.State;
 
+import com.google.common.collect.ImmutableList;
+
 public class ThingImpl implements Thing {
 
     private ThingUID bridgeUID;
@@ -86,7 +88,7 @@ public class ThingImpl implements Thing {
     }
 
     public List<Channel> getChannels() {
-        return channels;
+        return ImmutableList.copyOf(this.channels);
     }
 
     @Override
