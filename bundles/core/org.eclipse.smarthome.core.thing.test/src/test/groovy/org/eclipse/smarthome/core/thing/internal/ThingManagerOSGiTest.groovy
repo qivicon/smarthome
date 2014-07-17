@@ -105,4 +105,5 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         assertThat THING.getStatus(), is(ThingStatus.OFFLINE)
     }
+
 }

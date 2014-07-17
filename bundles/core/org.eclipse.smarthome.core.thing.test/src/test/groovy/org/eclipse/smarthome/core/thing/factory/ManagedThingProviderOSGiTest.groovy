@@ -28,11 +28,10 @@ import org.junit.Test
 
 /**
  * Tests for {@link ManagedThingProvider}.
- * @author Oliver Libutzki - Initital contribution
  *
+ * @author Oliver Libutzki - Initital contribution
  */
 class ManagedThingProviderOSGiTest extends OSGiTest {
-
 
     ManagedThingProvider managedThingProvider
 
@@ -205,4 +204,5 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
         waitForAssert{assertTrue thingResultWrapper.isSet}
         assertThat thing, is(thingResultWrapper.wrappedObject)
     }
+
 }

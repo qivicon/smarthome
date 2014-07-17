@@ -97,4 +97,5 @@ class ThingHelperTest {
 
         assertFalse ThingHelper.equals(thingA, thingB)
     }
+
 }

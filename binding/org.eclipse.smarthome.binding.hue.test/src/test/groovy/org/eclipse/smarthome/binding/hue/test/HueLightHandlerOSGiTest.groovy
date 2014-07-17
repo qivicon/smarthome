@@ -51,6 +51,10 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 
     ManagedThingProvider managedThingProvider
     VolatileStorageService volatileStorageService = new VolatileStorageService()
+<<<<<<< HEAD
+=======
+
+>>>>>>> b313bad... Refactored Thing to return bridge UID instead of bridge object. …
 
     @Before
     void setUp() {

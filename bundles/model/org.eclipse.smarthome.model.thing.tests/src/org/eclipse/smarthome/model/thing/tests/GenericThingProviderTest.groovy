@@ -54,6 +54,7 @@ class GenericThingProviderTest extends OSGiTest {
 				Switch : notification [ duration = "5" ]
 			}
 			'''
+
         modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
         def actualThings = thingRegistry.things
 
@@ -212,4 +213,5 @@ class GenericThingProviderTest extends OSGiTest {
         assertThat bulb2.thingTypeUID.toString(), is("hue:light")
 
     }
+
 }

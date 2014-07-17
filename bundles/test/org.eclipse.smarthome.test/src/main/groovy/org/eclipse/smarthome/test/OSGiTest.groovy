@@ -204,4 +204,5 @@ abstract class OSGiTest {
         }
         registeredServices.clear()
     }
+
 }

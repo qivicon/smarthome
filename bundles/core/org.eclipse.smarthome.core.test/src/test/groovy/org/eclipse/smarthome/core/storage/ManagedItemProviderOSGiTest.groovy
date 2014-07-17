@@ -107,4 +107,5 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
         assertThat itemProvider.getItems().size(), is(1)
         assertThat itemRegistry.getItems().size(), is(1)
     }
+
 }

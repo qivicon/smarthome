@@ -50,7 +50,6 @@ class ThingFactoryTest {
 
     @Test
     void 'create Thing with Bridge'() {
-
         def bridgeUID = new ThingUID("binding:bridge:bridge1")
 
         def thingType = new ThingType("bindingId", "thingTypeId", "label")
