@@ -47,4 +47,9 @@ public class ImageItem extends GenericItem {
 	public List<Class<? extends Command>> getAcceptedCommandTypes() {
 		return acceptedCommandTypes;
 	}
+	
+    public void send(RefreshType command) {
+        internalSend(command);
+    }
+
 }
