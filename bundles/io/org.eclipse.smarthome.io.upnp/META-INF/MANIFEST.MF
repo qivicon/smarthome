@@ -10,6 +10,13 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.osgi.framework,
  org.slf4j;version="1.6.1"
 Export-Package: org.eclipse.smarthome.io.upnp
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ lib/httpcore-4.2.3.jar,
+ lib/httpclient-4.2.2.jar,
+ lib/seamless-http-1.0-alpha3.jar,
+ lib/seamless-util-1.0-alpha3.jar,
+ lib/seamless-xml-1.0-alpha3.jar,
+ lib/commons-logging-1.1.1.jar,
+ lib/cling-core-2.0-SNAPSHOT.jar
 Bundle-Vendor: Eclipse.org/SmartHome
 

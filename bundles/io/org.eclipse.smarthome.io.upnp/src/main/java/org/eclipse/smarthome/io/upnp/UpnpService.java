@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.io.upnp;
 
-import org.cybergarage.upnp.device.ST;
 
 
 /**
@@ -17,12 +16,10 @@ import org.cybergarage.upnp.device.ST;
  */
 public interface UpnpService {
 	
-    void addUpnpListener(UpnpListener upnpListener);
+    void addUpnpListener(UpnpFilter upnpFilter, UpnpListener upnpListener);
 
-    void removeUpnpListener(UpnpListener upnpListener);
+    void removeUpnpListener(UpnpFilter upnpFilter, UpnpListener upnpListener);
     
-    void lookup(); 
+    void searchNow(UpnpFilter upnpFilter, UpnpListener upnpListener);
     
-    void lookup(ST st);
-	
 }

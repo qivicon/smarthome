@@ -1,6 +1,6 @@
 package org.eclipse.smarthome.io.upnp;
 
-import org.cybergarage.upnp.Device;
+import org.fourthline.cling.model.meta.Device;
 
 public interface UpnpListener {
 
