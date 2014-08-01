@@ -119,4 +119,5 @@ class DiscoveryResultTest {
         assertEquals("SOURCE", discoveryResult.getLabel())
         assertEquals(DiscoveryResultFlag.IGNORED, discoveryResult.getFlag())
     }
+
 }

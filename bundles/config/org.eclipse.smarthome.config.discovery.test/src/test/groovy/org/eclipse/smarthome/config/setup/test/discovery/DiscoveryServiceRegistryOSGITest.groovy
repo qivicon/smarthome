@@ -39,6 +39,8 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
 
     @Before
     void setup() {
+        registerVolatileStorageService()
+
         discoveryServiceMock = new DiscoveryServiceMock(
                 new ThingTypeUID('anyBindingId','anyThingType'), 10)
 
@@ -57,6 +59,7 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
         unregisterService(discoveryServiceMock)
 
         Inbox inbox = getService(Inbox)
+
         DiscoveryResult[] discoveryResults = inbox.getAll()
         discoveryResults.each { inbox.remove(it.getThingUID()) }
     }
@@ -165,4 +168,5 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
 
         assertFalse(listenerResult.isSet)
     }
+
 }
