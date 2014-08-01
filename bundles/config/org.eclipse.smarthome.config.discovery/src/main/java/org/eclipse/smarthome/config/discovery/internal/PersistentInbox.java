@@ -91,13 +91,13 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
                 logger.debug("Discovery result with thing '{}' not added as inbox entry."
                         + " It is already present as thing in the ThingRegistry.", thingUID);
 
-//                boolean updated = synchronizeConfiguration(
-//                        result.getProperties(), thing.getConfiguration());
-//
-//                if (updated) {
-//                    logger.debug("The configuration for thing '{}' is updated...", thingUID);
-//                    this.managedThingProvider.updateThing(thing);
-//                }
+                boolean updated = synchronizeConfiguration(
+                        result.getProperties(), thing.getConfiguration());
+
+                if (updated) {
+                    logger.debug("The configuration for thing '{}' is updated...", thingUID);
+                    this.managedThingProvider.updateThing(thing);
+                }
             }
         }
 
