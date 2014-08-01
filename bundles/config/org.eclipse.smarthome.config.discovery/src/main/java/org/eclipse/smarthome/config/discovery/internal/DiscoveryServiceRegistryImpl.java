@@ -45,14 +45,14 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     private Logger logger = LoggerFactory.getLogger(DiscoveryServiceRegistryImpl.class);
 
     @Override
-    public boolean abortForceDiscovery(ThingTypeUID thingTypeUID) throws IllegalStateException {
+    public boolean abortForcedDiscovery(ThingTypeUID thingTypeUID) throws IllegalStateException {
         DiscoveryService discoveryService = getDiscoveryService(thingTypeUID);
         if (discoveryService != null) {
             try {
                 this.logger.debug("Abort discovery for Thing type '{}' on '{}'...", thingTypeUID,
                         discoveryService.getClass().getName());
 
-                discoveryService.abortForceDiscovery();
+                discoveryService.abortForcedDiscovery();
 
                 this.logger.debug("Force discovery for Thing type '{}' aborted on '{}'.",
                         thingTypeUID, discoveryService.getClass().getName());
@@ -196,14 +196,14 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         this.discoveryServices.add(discoveryService);
     }
 
-    protected void deactivate(ComponentContext componentContext) {
-        this.discoveryServices.clear();
-        this.listeners.clear();
-    }
-
     protected void removeDiscoveryService(DiscoveryService discoveryService) {
         this.discoveryServices.remove(discoveryService);
         discoveryService.removeDiscoveryListener(this);
+    }
+
+    protected void deactivate(ComponentContext componentContext) {
+        this.discoveryServices.clear();
+        this.listeners.clear();
     }
 
 }

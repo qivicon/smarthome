@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2014 openHAB UG (haftungsbeschraenkt) and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.eclipse.smarthome.config.discovery;
 
 
@@ -77,15 +84,7 @@ public interface DiscoveryService {
      * <p>
      * This method returns silently, if the discovery process has not been started before.
      */
-    void abortForceDiscovery();
-
-    /**
-     * Returns {@code true} if the discovery process has been forced to be started before,
-     * while calling this method, otherwise {@code false}.
-     *
-     * @return true if the discovery process has been forced to be started, otherwise false
-     */
-    boolean isForced();
+    void abortForcedDiscovery();
 
     /**
      * Adds a {@link DiscoveryListener} to the listeners' registry.

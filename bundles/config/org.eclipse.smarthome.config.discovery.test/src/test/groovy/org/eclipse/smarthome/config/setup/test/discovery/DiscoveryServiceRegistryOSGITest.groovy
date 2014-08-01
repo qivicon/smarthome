@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2014 openHAB UG (haftungsbeschraenkt) and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.eclipse.smarthome.config.setup.test.discovery
 
 import static org.junit.Assert.*
@@ -114,7 +121,7 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
     void 'assert that a discovery cannot be aborted for a not existing DiscoveryService' () {
         boolean state
 
-        state = discoveryServiceRegistry.abortForceDiscovery(new ThingTypeUID('bindingId','thingType'))
+        state = discoveryServiceRegistry.abortForcedDiscovery(new ThingTypeUID('bindingId','thingType'))
         assertFalse(state)
     }
 
@@ -122,7 +129,7 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
     void 'assert that a discovery can be aborted for a known DiscoveryService' () {
         boolean state
 
-        state = discoveryServiceRegistry.abortForceDiscovery(new ThingTypeUID('anyBindingId','anyThingType'))
+        state = discoveryServiceRegistry.abortForcedDiscovery(new ThingTypeUID('anyBindingId','anyThingType'))
         assertTrue(state)
     }
 
@@ -130,7 +137,7 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
     void 'assert that a discovery cannot be aborted for a faulty known DiscoveryService' () {
         boolean state
 
-        state = discoveryServiceRegistry.abortForceDiscovery(new ThingTypeUID('faultyBindingId','faultyThingType'))
+        state = discoveryServiceRegistry.abortForcedDiscovery(new ThingTypeUID('faultyBindingId','faultyThingType'))
         assertFalse(state)
     }
 

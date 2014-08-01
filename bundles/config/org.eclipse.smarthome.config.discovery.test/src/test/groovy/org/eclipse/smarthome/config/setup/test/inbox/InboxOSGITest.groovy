@@ -42,7 +42,7 @@ class InboxOSGITest extends OSGiTest {
 
     @Before
     void setUp() {
-        registerVolatileStorageService()
+		registerVolatileStorageService()
 
         discoveryResults.clear()
         inboxListeners.clear()
@@ -97,13 +97,13 @@ class InboxOSGITest extends OSGiTest {
         List<DiscoveryResult> allDiscoveryResults = inbox.all
         assertThat allDiscoveryResults.size(), is(0)
 
-        Map<String, Object> props = new HashMap<>()
-        props.put("property1", "property1value1")
-        props.put("property2", "property2value1")
+		Map<String, Object> props = new HashMap<>()
+		props.put("property1", "property1value1")
+		props.put("property2", "property2value1")
 
         DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
             label = "DummyLabel1"
-            properties = props
+			properties = props
             it
         }
         assertTrue addDiscoveryResult(discoveryResult)
@@ -131,9 +131,9 @@ class InboxOSGITest extends OSGiTest {
         List<DiscoveryResult> allDiscoveryResults = inbox.all
         assertThat allDiscoveryResults.size(), is(0)
 
-        Map<String, Object> props = new HashMap<>()
-        props.put("property1", "property1value1")
-        props.put("property2", "property2value1")
+		Map<String, Object> props = new HashMap<>()
+		props.put("property1", "property1value1")
+		props.put("property2", "property2value1")
 
         DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
             label = "DummyLabel1"
@@ -142,9 +142,9 @@ class InboxOSGITest extends OSGiTest {
         }
         assertTrue addDiscoveryResult(discoveryResult)
 
-        props.clear()
-        props.put("property2", "property2value2")
-        props.put("property3", "property3value1")
+		props.clear()
+		props.put("property2", "property2value2")
+		props.put("property3", "property3value1")
 
         discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
             label = "DummyLabel2"
@@ -201,9 +201,9 @@ class InboxOSGITest extends OSGiTest {
         List<DiscoveryResult> allDiscoveryResults = inbox.all
         assertThat allDiscoveryResults.size(), is(0)
 
-        Map<String, Object> props = new HashMap<>()
-        props.put("property1", "property1value1")
-        props.put("property2", "property2value1")
+		Map<String, Object> props = new HashMap<>()
+		props.put("property1", "property1value1")
+		props.put("property2", "property2value1")
 
         DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
             label = "DummyLabel1"
@@ -229,9 +229,9 @@ class InboxOSGITest extends OSGiTest {
         List<DiscoveryResult> allDiscoveryResults = inbox.all
         assertThat allDiscoveryResults.size(), is(0)
 
-        Map<String, Object> props = new HashMap<>()
-        props.put("property1", "property1value1")
-        props.put("property2", "property2value1")
+		Map<String, Object> props = new HashMap<>()
+		props.put("property1", "property1value1")
+		props.put("property2", "property2value1")
 
         DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
             label = "DummyLabel1"
@@ -243,10 +243,10 @@ class InboxOSGITest extends OSGiTest {
         allDiscoveryResults = inbox.all
         assertThat allDiscoveryResults.size(), is(1)
 
-        props.clear()
-        props.put("property2", "property2value2")
-        props.put("property3", "property3value1")
-        
+		props.clear()
+		props.put("property2", "property2value2")
+		props.put("property3", "property3value1")
+		
         DiscoveryResult discoveryResultUpdate = new DiscoveryResult(thingTypeUID, thingUID).with {
             label = "DummyLabel2"
             properties = props
@@ -372,13 +372,13 @@ class InboxOSGITest extends OSGiTest {
         List<DiscoveryResult> allDiscoveryResults = inbox.all
         assertThat allDiscoveryResults.size(), is(0)
 
-        Map<String, Object> props = new HashMap<>()
-        props.put("property1", "property1value1")
-        props.put("property2", "property2value1")
+		Map<String, Object> props = new HashMap<>()
+		props.put("property1", "property1value1")
+		props.put("property2", "property2value1")
 
         DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
             label = "DummyLabel1"
-            properties = props
+			properties = props
             it
         }
 
@@ -433,20 +433,20 @@ class InboxOSGITest extends OSGiTest {
         List<DiscoveryResult> allDiscoveryResults = inbox.all
         assertThat allDiscoveryResults.size(), is(0)
 
-        Map<String, Object> props = new HashMap<>();
-        props.put("property1", "property1value1")
-        props.put("property2", "property2value1")
+		Map<String, Object> props = new HashMap<>();
+		props.put("property1", "property1value1")
+		props.put("property2", "property2value1")
 
         DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
             label = "DummyLabel1"
-            properties = props
-            it
+			properties = props
+			it
         }
         assertTrue addDiscoveryResult(discoveryResult)
 
-        props.clear()
-        props.put("property2", "property2value2")
-        props.put("property3", "property3value1")
+		props.clear()
+		props.put("property2", "property2value2")
+		props.put("property3", "property3value1")
 
         discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
             label = "DummyLabel2"
@@ -505,11 +505,11 @@ class InboxOSGITest extends OSGiTest {
         List<DiscoveryResult> allDiscoveryResults = inbox.all
         assertThat allDiscoveryResults.size(), is(0)
 
-        Map<String, Object> props = new HashMap<>()
-        props.put("property1", "property1value1")
-        props.put("property2", "property2value1")
+		Map<String, Object> props = new HashMap<>()
+		props.put("property1", "property1value1")
+		props.put("property2", "property2value1")
 
-            DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
+	        DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
             label = "DummyLabel1"
             properties = props
             it
@@ -566,9 +566,9 @@ class InboxOSGITest extends OSGiTest {
         ThingTypeUID thingTypeUID = new ThingTypeUID("dummyBindingId", "dummyThingType")
         ThingUID thingUID = new ThingUID(thingTypeUID, "dummyThingId")
 
-        Map<String, Object> props = new HashMap<>()
-        props.put("property1", "property1value1")
-        props.put("property2", "property2value1")
+		Map<String, Object> props = new HashMap<>()
+		props.put("property1", "property1value1")
+		props.put("property2", "property2value1")
 
         DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
             label = "DummyLabel1"
@@ -594,13 +594,13 @@ class InboxOSGITest extends OSGiTest {
 
         managedThingProvider.addThing ThingBuilder.create(thingTypeUID, "dummyThingId").build()
 
-        Map<String, Object> props = new HashMap<>()
-        props.put("property1", "property1value1")
-        props.put("property2", "property2value1")
+		Map<String, Object> props = new HashMap<>()
+		props.put("property1", "property1value1")
+		props.put("property2", "property2value1")
 
         DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
             label = "DummyLabel1"
-            properties = props
+			properties = props
             it
         }
 

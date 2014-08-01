@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2014 openHAB UG (haftungsbeschraenkt) and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.eclipse.smarthome.config.discovery;
 
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -27,7 +34,7 @@ public interface DiscoveryServiceRegistry {
      * If the specified {@code Thing} type is {@code null} or empty, or no according
      * {@link DiscoveryService} could be found, {@code null} is returned.
      *
-     * @param thingType the Thing type which points to the according discovery service
+     * @param thingTypeUID the Thing type UID which points to the according discovery service
      *     (could be null or empty)
      *
      * @return the discovery service meta information or null, if no according discovery
@@ -42,7 +49,7 @@ public interface DiscoveryServiceRegistry {
      * to start a discovery, otherwise {@code false}. If the discovery process has
      * already been started before, {@code true} is returned.
      *
-     * @param thingType the Thing type pointing to the discovery service to be forced
+     * @param thingTypeUID the Thing type UID pointing to the discovery service to be forced
      *     to start a discovery
      *
      * @return true if a discovery service could be found and forced to start a discovery,
@@ -57,13 +64,13 @@ public interface DiscoveryServiceRegistry {
      * discovery could be aborted, otherwise {@code false}. If the discovery process
      * has not been started before, {@code true} is returned.
      *
-     * @param thingType the Thing type pointing to the discovery service whose discovery
+     * @param thingTypeUID the Thing type UID pointing to the discovery service whose discovery
      *     should be aborted
      *
      * @return true if a discovery service could be found and whose discovery could be
      *     aborted, otherwise false
      */
-    boolean abortForceDiscovery(ThingTypeUID thingTypeUID);
+    boolean abortForcedDiscovery(ThingTypeUID thingTypeUID);
 
     /**
      * Adds a {@link DiscoveryListener} to the listeners' registry.
