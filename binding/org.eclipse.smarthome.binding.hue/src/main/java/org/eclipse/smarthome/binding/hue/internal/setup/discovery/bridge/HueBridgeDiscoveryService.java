@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.binding.hue.internal.setup.discovery.bridge;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -114,9 +115,10 @@ public class HueBridgeDiscoveryService extends AbstractDiscoveryService implemen
 
         DiscoveryResult discoveryResult = new DiscoveryResult(bridgeTypeUID, new ThingUID(
                 bridgeTypeUID, discoveredBridge.serialNumber));
-        Map<String, Object> properties = discoveryResult.getProperties();
+        Map<String, Object> properties = new HashMap<>(2);
         properties.put(HueBridgeConfiguration.IP_ADDRESS, discoveredBridge.ipAddress);
         properties.put(HueBridgeConfiguration.SERIAL_NUMBER, discoveredBridge.serialNumber);
+        discoveryResult.setProperties(properties);
         discoveryResult.setLabel(discoveredBridge.serialNumber + " (" + discoveredBridge.ipAddress
                 + ")");
         thingDiscovered(discoveryResult);
@@ -129,15 +131,10 @@ public class HueBridgeDiscoveryService extends AbstractDiscoveryService implemen
     }
 
     @Override
-    public void abortForceDiscovery() {
+    public void abortForcedDiscovery() {
         if (forceDiscoveryThread != null) {
             forceDiscoveryThread.interrupt();
         }
-    }
-
-    @Override
-    public boolean isForced() {
-        return forceMode;
     }
 
     @Override

@@ -4,8 +4,8 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import org.eclipse.smarthome.binding.hue.internal.HueBinding
 import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration
+import org.eclipse.smarthome.binding.hue.internal.HueBinding
 import org.eclipse.smarthome.binding.hue.internal.setup.discovery.bridge.HueBridgeDiscoveryService
 import org.eclipse.smarthome.config.discovery.DiscoveryListener
 import org.eclipse.smarthome.config.discovery.DiscoveryResult
@@ -198,7 +198,7 @@ class HueBridgeDiscoveryServiceOSGITest extends OSGiTest {
 
         discoveryService.forceDiscovery()
         waitForAssert{ assertTrue resultWrapper.isSet }
-        discoveryService.abortForceDiscovery()
+        discoveryService.abortForcedDiscovery()
 
         waitForAssert { assertTrue discoveryFinishedWrapper.isSet }
         assertTrue discoveryFinishedWrapper.wrappedObject == Boolean.TRUE

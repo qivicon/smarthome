@@ -8,6 +8,8 @@
 package org.eclipse.smarthome.binding.hue.internal.setup.discovery.bulb;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.smarthome.binding.hue.config.HueLightConfiguration;
 import org.eclipse.smarthome.binding.hue.internal.HueBinding;
@@ -152,15 +154,10 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     }
 
     @Override
-    public void abortForceDiscovery() {
+    public void abortForcedDiscovery() {
         if (forceDiscoveryThread != null) {
             forceDiscoveryThread.interrupt();
         }
-    }
-
-    @Override
-    public boolean isForced() {
-        return forceMode;
     }
 
     @Override
@@ -171,7 +168,9 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
         ThingTypeUID thingTypeUID = HueBinding.LIGHT_THING_TYPE_UID;
         ThingUID thingUID = new ThingUID(thingTypeUID, thingLightId);
         DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID);
-        discoveryResult.getProperties().put(HueLightConfiguration.LIGHT_ID, lightId);
+        Map<String, Object> properties = new HashMap<>(1);
+        properties.put(HueLightConfiguration.LIGHT_ID, lightId);
+        discoveryResult.setProperties(properties);
         discoveryResult.setBridgeUID(hueBridgeUID);
         discoveryResult.setLabel(lightName);
         thingDiscovered(discoveryResult);
