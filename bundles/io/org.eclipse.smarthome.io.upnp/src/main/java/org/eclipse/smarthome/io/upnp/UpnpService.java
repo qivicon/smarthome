@@ -10,13 +10,13 @@ package org.eclipse.smarthome.io.upnp;
 
 
 /**
- * 
+ * TODO please rename to UPnPService
  * 
  * @author Andre Fuechsel - Initial contribution and API
  */
 public interface UpnpService {
 	
-    void addUpnpListener(UpnpFilter upnpFilter, UpnpListener upnpListener);
+    void addUpnpListener(UPnPDeviceFilter upnpFilter, UpnpListener upnpListener);
 
     void removeUpnpListener(UpnpListener upnpListener);
     
