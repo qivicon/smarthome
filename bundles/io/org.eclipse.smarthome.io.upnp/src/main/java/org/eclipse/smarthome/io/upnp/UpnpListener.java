@@ -8,6 +8,6 @@ public interface UpnpListener {
 
     void deviceRemoved(Device device);
 
-    void deviceRefreshed(Device device);
+    void deviceUpdated(Device device);
 
 }

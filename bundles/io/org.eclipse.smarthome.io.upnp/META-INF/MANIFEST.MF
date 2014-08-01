@@ -5,9 +5,10 @@ Bundle-SymbolicName: org.eclipse.smarthome.io.upnp
 Bundle-Version: 0.7.0.qualifier
 Bundle-Activator: org.eclipse.smarthome.io.upnp.internal.UpnpServiceActivator
 Service-Component: OSGI-INF/upnp.xml
-Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
 Import-Package: org.osgi.framework,
+ org.osgi.service.component,
  org.slf4j;version="1.6.1"
 Export-Package: org.eclipse.smarthome.io.upnp
 Bundle-ClassPath: .,
@@ -19,4 +20,3 @@ Bundle-ClassPath: .,
  lib/commons-logging-1.1.1.jar,
  lib/cling-core-2.0-SNAPSHOT.jar
 Bundle-Vendor: Eclipse.org/SmartHome
-

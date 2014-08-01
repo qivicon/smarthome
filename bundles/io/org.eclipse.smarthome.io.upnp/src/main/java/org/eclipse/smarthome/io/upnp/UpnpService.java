@@ -18,8 +18,8 @@ public interface UpnpService {
 	
     void addUpnpListener(UpnpFilter upnpFilter, UpnpListener upnpListener);
 
-    void removeUpnpListener(UpnpFilter upnpFilter, UpnpListener upnpListener);
+    void removeUpnpListener(UpnpListener upnpListener);
     
-    void searchNow(UpnpFilter upnpFilter, UpnpListener upnpListener);
+    void triggerSearch();
     
 }
