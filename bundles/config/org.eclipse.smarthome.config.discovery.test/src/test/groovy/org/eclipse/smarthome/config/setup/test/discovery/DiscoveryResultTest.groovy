@@ -17,7 +17,7 @@ import org.junit.Test
 
 
 /**
- * The {@link DiscoveryResultTest} test checks if any invalid input parameters
+ * The {@link DiscoveryResultTest} checks if any invalid input parameters
  * and the synchronization of {@link DiscoveryResult}s work in a correct way.
  * 
  * @author Michael Grammling - Initial Contribution

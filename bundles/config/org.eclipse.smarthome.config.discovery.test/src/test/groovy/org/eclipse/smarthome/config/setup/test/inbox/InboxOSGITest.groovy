@@ -7,8 +7,6 @@
  */
 package org.eclipse.smarthome.config.setup.test.inbox
 
-import static org.junit.Assert.*;
-
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
