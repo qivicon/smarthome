@@ -14,11 +14,11 @@ package org.eclipse.smarthome.io.upnp;
  * 
  * @author Andre Fuechsel - Initial contribution and API
  */
-public interface UpnpService {
+public interface UPnPService {
 	
-    void addUpnpListener(UPnPDeviceFilter upnpFilter, UpnpListener upnpListener);
+    void addUpnpListener(UPnPDeviceFilter upnpFilter, UPnPListener upnpListener);
 
-    void removeUpnpListener(UpnpListener upnpListener);
+    void removeUpnpListener(UPnPListener upnpListener);
     
     void triggerSearch();
     

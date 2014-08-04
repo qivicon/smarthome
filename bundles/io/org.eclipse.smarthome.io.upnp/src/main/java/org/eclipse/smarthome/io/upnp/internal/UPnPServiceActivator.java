@@ -15,9 +15,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Extension of the default OSGi bundle activator
  */
-public final class UpnpServiceActivator implements BundleActivator {
+public final class UPnPServiceActivator implements BundleActivator {
 
-    private static Logger logger = LoggerFactory.getLogger(UpnpServiceActivator.class);
+    private static Logger logger = LoggerFactory.getLogger(UPnPServiceActivator.class);
 
     /**
      * Called whenever the OSGi framework starts our bundle

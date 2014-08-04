@@ -14,7 +14,7 @@ import org.fourthline.cling.model.meta.Device;
  * 
  *
  */
-public interface UpnpListener {
+public interface UPnPListener {
 
     // TODO should we abstract o.f.cling.m.m.Device here and introduce our Device bean? See UPnPDevice in this package
     // It would be nice to hide these types from o.e.smarthome.io.upnp users!

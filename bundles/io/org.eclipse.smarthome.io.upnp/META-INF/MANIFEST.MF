@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome UPnP Service Discovery Bundle
 Bundle-SymbolicName: org.eclipse.smarthome.io.upnp
 Bundle-Version: 0.7.0.qualifier
-Bundle-Activator: org.eclipse.smarthome.io.upnp.internal.UpnpServiceActivator
+Bundle-Activator: org.eclipse.smarthome.io.upnp.internal.UPnPServiceActivator
 Service-Component: OSGI-INF/upnp.xml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

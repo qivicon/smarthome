@@ -12,8 +12,8 @@ import java.util.Map;
 
 import org.eclipse.smarthome.io.upnp.DeviceProperties;
 import org.eclipse.smarthome.io.upnp.UPnPDeviceFilter;
-import org.eclipse.smarthome.io.upnp.UpnpListener;
-import org.eclipse.smarthome.io.upnp.UpnpService;
+import org.eclipse.smarthome.io.upnp.UPnPListener;
+import org.eclipse.smarthome.io.upnp.UPnPService;
 import org.fourthline.cling.model.meta.Device;
 import org.fourthline.cling.model.meta.RemoteDevice;
 import org.fourthline.cling.registry.DefaultRegistryListener;
@@ -28,16 +28,16 @@ import org.slf4j.LoggerFactory;
  * @author Andre Fuechsel
  * 
  */
-public class UpnpServiceImpl extends DefaultRegistryListener implements UpnpService {
+public class UPnPServiceImpl extends DefaultRegistryListener implements UPnPService {
 
-    private static Logger logger = LoggerFactory.getLogger(UpnpServiceImpl.class);
+    private static Logger logger = LoggerFactory.getLogger(UPnPServiceImpl.class);
 	
     private org.fourthline.cling.UpnpService upnpService;
-    private Map<UpnpListener, UPnPDeviceFilter> upnpListeners = new HashMap<>();
+    private Map<UPnPListener, UPnPDeviceFilter> upnpListeners = new HashMap<>();
 
     protected void activate(ComponentContext componentContext) {
         logger.debug("UPnP search has been initiated");
-        upnpService = new org.fourthline.cling.UpnpServiceImpl(new EshUpnpServiceConfiguration(), this);
+        upnpService = new org.fourthline.cling.UpnpServiceImpl(new EshUPnPServiceConfiguration(), this);
         upnpService.getControlPoint().search();
     }
 
@@ -53,7 +53,7 @@ public class UpnpServiceImpl extends DefaultRegistryListener implements UpnpServ
     public void deviceAdded(Registry registry, Device device) {
         logger.debug("ADDED: {}", device.toString());
         Map<String, String> deviceProperties = getProperties(device);
-        for (UpnpListener upnpListener : upnpListeners.keySet()) {
+        for (UPnPListener upnpListener : upnpListeners.keySet()) {
             if (upnpListeners.get(upnpListener).apply(deviceProperties)) {
                 upnpListener.deviceAdded(device);
             }
@@ -64,7 +64,7 @@ public class UpnpServiceImpl extends DefaultRegistryListener implements UpnpServ
     public void deviceRemoved(Registry registry, Device device) {
         logger.debug("REMOVED: {}", device.toString());
         Map<String, String> deviceProperties = getProperties(device);
-        for (UpnpListener upnpListener : upnpListeners.keySet()) {
+        for (UPnPListener upnpListener : upnpListeners.keySet()) {
             if (upnpListeners.get(upnpListener).apply(deviceProperties)) {
                 upnpListener.deviceRemoved(device);
             }
@@ -75,7 +75,7 @@ public class UpnpServiceImpl extends DefaultRegistryListener implements UpnpServ
     public void remoteDeviceUpdated(Registry registry, RemoteDevice device) {
         logger.debug("UPDATED: {}", device.toString());
         Map<String, String> deviceProperties = getProperties(device);
-        for (UpnpListener upnpListener : upnpListeners.keySet()) {
+        for (UPnPListener upnpListener : upnpListeners.keySet()) {
             if (upnpListeners.get(upnpListener).apply(deviceProperties)) {
                 upnpListener.deviceUpdated(device);
             }
@@ -83,12 +83,12 @@ public class UpnpServiceImpl extends DefaultRegistryListener implements UpnpServ
     }
 
     @Override
-    public synchronized void addUpnpListener(UPnPDeviceFilter upnpFilter, UpnpListener upnpListener) {
+    public synchronized void addUpnpListener(UPnPDeviceFilter upnpFilter, UPnPListener upnpListener) {
         upnpListeners.put(upnpListener, upnpFilter);
     }
 
     @Override
-    public synchronized void removeUpnpListener(UpnpListener upnpListener) {
+    public synchronized void removeUpnpListener(UPnPListener upnpListener) {
         upnpListeners.remove(upnpListener);
     }
 

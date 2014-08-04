@@ -9,7 +9,7 @@ import org.fourthline.cling.transport.spi.NetworkAddressFactory;
 import org.fourthline.cling.transport.spi.StreamClient;
 import org.fourthline.cling.transport.spi.StreamServer;
 
-public class EshUpnpServiceConfiguration extends DefaultUpnpServiceConfiguration {
+public class EshUPnPServiceConfiguration extends DefaultUpnpServiceConfiguration {
 
     @Override
     public StreamClient<?> createStreamClient() {
