@@ -36,6 +36,9 @@ public interface UPnPService {
      */
     void removeUpnpListener(UPnPListener upnpListener);
     
+    /**
+     * Trigger a new UPnP multicast request to initiate a new search.
+     */
     void triggerSearch();
     
 }
