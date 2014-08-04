@@ -7,26 +7,44 @@
  */
 package org.eclipse.smarthome.io.upnp;
 
-import java.util.Map;
+import java.util.Dictionary;
+
+import org.osgi.service.upnp.UPnPDevice;
 
 /**
- * TODO more doc on this.
+ * Implement this class to filter for specific devices.
  * 
- * See {@link DeviceProperties} for property keys. 
+ * See {@link UPnPDevice} for property keys.
  * 
- * dlinkDCS2332LCamFilter = new UPnPDeviceFilter() {
- *  @override
- *  public boolean apply(Map<String, String> deviceProperties) {
- *      return deviceProperties.get(DeviceProperties.PROP_DEVICE_TYPE).equals("DCS-2332L")
- *          && deviceProperties.get(DeviceProperties.PROP_MODEL_NAME).equals("DCS-2332L")
- *          && deviceProperties.get(DeviceProperties.PROP_MANUFACTURER).equals("D-Link");
- *  }
- * };
+ * Example:
+ * 
+ * <pre>
+ * public class DLinkDCS942LCamFilter implements UPnPDeviceFilter {
+ * 
+ *     &#064;Override
+ *     public boolean apply(Dictionary&lt;?, ?&gt; upnpDeviceDescriptions) {
+ *         return upnpDeviceDescriptions.get(UPnPDevice.MODEL_NAME).equals(&quot;DCS-942L&quot;)
+ *                 &amp;&amp; upnpDeviceDescriptions.get(UPnPDevice.TYPE).equals(&quot;DCS-942L&quot;)
+ *                 &amp;&amp; upnpDeviceDescriptions.get(UPnPDevice.MANUFACTURER).equals((&quot;DLink&quot;));
+ *     }
+ * 
+ * }
+ * </pre>
  * 
  * @author Alex Tugarev
+ * @author Andre Fuechsel
  * 
  */
 public interface UPnPDeviceFilter {
 
-    boolean apply(Map<String, String> deviceProperties);
+    /**
+     * Filter is based on specific properties out of the given set of
+     * {@code upnpDeviceDescriptions}.
+     * 
+     * @param upnpDeviceDescriptions
+     *            complete set of device descriptions of the default locale as
+     *            returned by {@link UPnPDevice#getDescriptions(String)}.
+     * @return {@code true}, if filter matches
+     */
+    boolean apply(Dictionary<?, ?> upnpDeviceDescriptions);
 }

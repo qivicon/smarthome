@@ -7,18 +7,20 @@
  */
 package org.eclipse.smarthome.io.upnp.internal;
 
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.smarthome.io.upnp.DeviceProperties;
 import org.eclipse.smarthome.io.upnp.UPnPDeviceFilter;
 import org.eclipse.smarthome.io.upnp.UPnPListener;
 import org.eclipse.smarthome.io.upnp.UPnPService;
+import org.eclipse.smarthome.io.upnp.device.UPnPDeviceImpl;
 import org.fourthline.cling.model.meta.Device;
 import org.fourthline.cling.model.meta.RemoteDevice;
 import org.fourthline.cling.registry.DefaultRegistryListener;
 import org.fourthline.cling.registry.Registry;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.upnp.UPnPDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +30,7 @@ import org.slf4j.LoggerFactory;
  * @author Andre Fuechsel
  * 
  */
+@SuppressWarnings("rawtypes")
 public class UPnPServiceImpl extends DefaultRegistryListener implements UPnPService {
 
     private static Logger logger = LoggerFactory.getLogger(UPnPServiceImpl.class);
@@ -52,10 +55,11 @@ public class UPnPServiceImpl extends DefaultRegistryListener implements UPnPServ
     @Override
     public void deviceAdded(Registry registry, Device device) {
         logger.debug("ADDED: {}", device.toString());
-        Map<String, String> deviceProperties = getProperties(device);
+        UPnPDevice upnpDevice = new UPnPDeviceImpl(device);
+        Dictionary deviceDescritions = upnpDevice.getDescriptions(null);
         for (UPnPListener upnpListener : upnpListeners.keySet()) {
-            if (upnpListeners.get(upnpListener).apply(deviceProperties)) {
-                upnpListener.deviceAdded(device);
+            if (upnpListeners.get(upnpListener).apply(deviceDescritions)) {
+                upnpListener.deviceAdded(upnpDevice);
             }
         }
     }
@@ -63,10 +67,11 @@ public class UPnPServiceImpl extends DefaultRegistryListener implements UPnPServ
     @Override
     public void deviceRemoved(Registry registry, Device device) {
         logger.debug("REMOVED: {}", device.toString());
-        Map<String, String> deviceProperties = getProperties(device);
+        UPnPDevice upnpDevice = new UPnPDeviceImpl(device);
+        Dictionary deviceDescritions = upnpDevice.getDescriptions(null);
         for (UPnPListener upnpListener : upnpListeners.keySet()) {
-            if (upnpListeners.get(upnpListener).apply(deviceProperties)) {
-                upnpListener.deviceRemoved(device);
+            if (upnpListeners.get(upnpListener).apply(deviceDescritions)) {
+                upnpListener.deviceRemoved(new UPnPDeviceImpl(device));
             }
         }
     }
@@ -74,10 +79,11 @@ public class UPnPServiceImpl extends DefaultRegistryListener implements UPnPServ
     @Override
     public void remoteDeviceUpdated(Registry registry, RemoteDevice device) {
         logger.debug("UPDATED: {}", device.toString());
-        Map<String, String> deviceProperties = getProperties(device);
+        UPnPDevice upnpDevice = new UPnPDeviceImpl(device);
+        Dictionary deviceDescritions = upnpDevice.getDescriptions(null);
         for (UPnPListener upnpListener : upnpListeners.keySet()) {
-            if (upnpListeners.get(upnpListener).apply(deviceProperties)) {
-                upnpListener.deviceUpdated(device);
+            if (upnpListeners.get(upnpListener).apply(deviceDescritions)) {
+                upnpListener.deviceUpdated(new UPnPDeviceImpl(device));
             }
         }
     }
@@ -97,13 +103,4 @@ public class UPnPServiceImpl extends DefaultRegistryListener implements UPnPServ
         upnpService.getControlPoint().search();
     }
 
-    private Map<String, String> getProperties(Device device) {
-        // TODO check the string properties
-        Map<String, String> result = new HashMap<>(4);
-        result.put(DeviceProperties.PROP_UDN, device.getIdentity().getUdn().getIdentifierString());
-        result.put(DeviceProperties.PROP_DEVICE_TYPE, device.getType().getDisplayString());
-        result.put(DeviceProperties.PROP_MODEL_NAME, device.getDetails().getModelDetails().getModelName());
-        result.put(DeviceProperties.PROP_MANUFACTURER, device.getDetails().getManufacturerDetails().getManufacturer());
-        return result;
-    }
 }

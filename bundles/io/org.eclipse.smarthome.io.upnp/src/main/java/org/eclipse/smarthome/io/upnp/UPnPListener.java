@@ -7,22 +7,20 @@
  */
 package org.eclipse.smarthome.io.upnp;
 
-import org.fourthline.cling.model.meta.Device;
+import org.osgi.service.upnp.UPnPDevice;
 
 /**
- * TODO please rename to UPnPListener
+ * Subscribe to this listener, if you want to be informed about changes in the
+ * UPnP devices.
  * 
- *
+ * @author Andre Fuechsel
  */
 public interface UPnPListener {
 
-    // TODO should we abstract o.f.cling.m.m.Device here and introduce our Device bean? See UPnPDevice in this package
-    // It would be nice to hide these types from o.e.smarthome.io.upnp users!
+    void deviceAdded(UPnPDevice device);
 
-    void deviceAdded(Device device);
+    void deviceRemoved(UPnPDevice device);
 
-    void deviceRemoved(Device device);
-
-    void deviceUpdated(Device device);
+    void deviceUpdated(UPnPDevice device);
 
 }
