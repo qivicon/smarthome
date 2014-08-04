@@ -140,7 +140,7 @@ public class ItemRegistryImpl implements ItemRegistry, ItemsChangeListener {
 
     @Override
 	public boolean isValidItemName(String name) {
-		return name.matches("[a-zA-Z0-9_]*");
+		return name.matches("[a-zA-Z0-9_#-]*");
 	}
 
 	public void removeItemProvider(ItemProvider itemProvider) {
