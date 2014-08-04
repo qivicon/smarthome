@@ -13,7 +13,7 @@ import java.util.Map;
 
 import org.eclipse.smarthome.io.upnp.UPnPDeviceFilter;
 import org.eclipse.smarthome.io.upnp.UPnPListener;
-import org.eclipse.smarthome.io.upnp.UPnPService;
+import org.eclipse.smarthome.io.upnp.UPnPDiscoveryService;
 import org.eclipse.smarthome.io.upnp.device.UPnPDeviceImpl;
 import org.fourthline.cling.model.meta.Device;
 import org.fourthline.cling.model.meta.RemoteDevice;
@@ -25,15 +25,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Implementation of the {@link UPnPDiscoveryService}.
  * 
- * 
- * @author Andre Fuechsel
- * 
+ * @author Andre Fuechsel - Initial contribution and API
  */
 @SuppressWarnings("rawtypes")
-public class UPnPServiceImpl extends DefaultRegistryListener implements UPnPService {
+public class UPnPDiscoveryServiceImpl extends DefaultRegistryListener implements UPnPDiscoveryService {
 
-    private static Logger logger = LoggerFactory.getLogger(UPnPServiceImpl.class);
+    private static Logger logger = LoggerFactory.getLogger(UPnPDiscoveryServiceImpl.class);
 	
     private org.fourthline.cling.UpnpService upnpService;
     private Map<UPnPListener, UPnPDeviceFilter> upnpListeners = new HashMap<>();

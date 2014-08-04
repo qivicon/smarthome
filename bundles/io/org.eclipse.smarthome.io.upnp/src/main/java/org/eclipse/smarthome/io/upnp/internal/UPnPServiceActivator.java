@@ -13,21 +13,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Extension of the default OSGi bundle activator
+ * Extension of the default OSGi bundle activator.
  */
 public final class UPnPServiceActivator implements BundleActivator {
 
     private static Logger logger = LoggerFactory.getLogger(UPnPServiceActivator.class);
 
     /**
-     * Called whenever the OSGi framework starts our bundle
+     * Called whenever the OSGi framework starts our bundle.
      */
     public void start(BundleContext context) throws Exception {
         logger.debug("Upnp service has been started.");
     }
 
     /**
-     * Called whenever the OSGi framework stops our bundle
+     * Called whenever the OSGi framework stops our bundle.
      */
     public void stop(BundleContext context) throws Exception {
         logger.debug("Upnp service has been stopped.");

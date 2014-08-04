@@ -9,8 +9,8 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="true" name="org.eclipse.smarthome.io.upnp">
-   <implementation class="org.eclipse.smarthome.io.upnp.internal.UPnPServiceImpl"/>
+   <implementation class="org.eclipse.smarthome.io.upnp.internal.UPnPDiscoveryServiceImpl"/>
    <service>
-	   <provide interface="org.eclipse.smarthome.io.upnp.UPnPService"/>
+	   <provide interface="org.eclipse.smarthome.io.upnp.UPnPDiscoveryService"/>
    </service>
 </scr:component>

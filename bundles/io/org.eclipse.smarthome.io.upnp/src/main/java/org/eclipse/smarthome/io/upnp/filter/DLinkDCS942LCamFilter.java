@@ -8,7 +8,7 @@ import org.osgi.service.upnp.UPnPDevice;
 /**
  * Implements a default filter for D-Link camera DCS-942L.
  * 
- * @author Andre Fuechsel
+ * @author Andre Fuechsel - Initial contribution and API
  * 
  */
 public class DLinkDCS942LCamFilter implements UPnPDeviceFilter {

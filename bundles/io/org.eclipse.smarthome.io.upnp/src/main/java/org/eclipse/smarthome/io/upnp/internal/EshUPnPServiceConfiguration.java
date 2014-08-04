@@ -9,6 +9,12 @@ import org.fourthline.cling.transport.spi.NetworkAddressFactory;
 import org.fourthline.cling.transport.spi.StreamClient;
 import org.fourthline.cling.transport.spi.StreamServer;
 
+/**
+ * Implements the UPnP service based on Apache HttpClient as the default
+ * configuration of HttpConnection does not work in OSGi.
+ * 
+ * @author Andre Fuechsel - Initial contribution and API
+ */
 public class EshUPnPServiceConfiguration extends DefaultUpnpServiceConfiguration {
 
     @Override

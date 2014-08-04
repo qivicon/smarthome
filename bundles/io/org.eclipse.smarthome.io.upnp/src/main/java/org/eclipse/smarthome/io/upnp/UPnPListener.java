@@ -10,17 +10,35 @@ package org.eclipse.smarthome.io.upnp;
 import org.osgi.service.upnp.UPnPDevice;
 
 /**
- * Subscribe to this listener, if you want to be informed about changes in the
+ * Subscribe to this listener, if you want to be informed about changes of the
  * UPnP devices.
  * 
- * @author Andre Fuechsel
+ * @author Andre Fuechsel - Initial contribution and API
  */
 public interface UPnPListener {
 
+    /**
+     * Called whenever a UPnP device has been added.
+     * 
+     * @param device
+     *            added device
+     */
     void deviceAdded(UPnPDevice device);
 
+    /**
+     * Called whenever a UPnP device has been removed.
+     * 
+     * @param device
+     *            removed device
+     */
     void deviceRemoved(UPnPDevice device);
 
+    /**
+     * Called whenever a UPnP device has been updated.
+     * 
+     * @param device
+     *            updated device
+     */
     void deviceUpdated(UPnPDevice device);
 
 }

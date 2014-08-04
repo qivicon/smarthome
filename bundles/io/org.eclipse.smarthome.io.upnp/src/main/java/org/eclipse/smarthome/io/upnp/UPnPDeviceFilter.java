@@ -12,7 +12,9 @@ import java.util.Dictionary;
 import org.osgi.service.upnp.UPnPDevice;
 
 /**
- * Implement this class to filter for specific devices.
+ * Implement this interface to filter for specific devices. Implementations may
+ * filter all properties that will be delivered by
+ * {@link UPnPDevice#getDescriptions(String)}.
  * 
  * See {@link UPnPDevice} for property keys.
  * 
@@ -27,11 +29,10 @@ import org.osgi.service.upnp.UPnPDevice;
  *                 &amp;&amp; upnpDeviceDescriptions.get(UPnPDevice.TYPE).equals(&quot;DCS-942L&quot;)
  *                 &amp;&amp; upnpDeviceDescriptions.get(UPnPDevice.MANUFACTURER).equals((&quot;DLink&quot;));
  *     }
- * 
  * }
  * </pre>
  * 
- * @author Alex Tugarev
+ * @author Alex Tugarev - Initial contribution and API
  * @author Andre Fuechsel
  * 
  */
