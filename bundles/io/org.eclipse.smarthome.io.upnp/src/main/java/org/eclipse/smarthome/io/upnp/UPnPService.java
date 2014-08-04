@@ -8,13 +8,13 @@
 package org.eclipse.smarthome.io.upnp;
 
 /**
- * The {@link UPnPDiscoveryService} provides interfaces to subscribe to UPnP
+ * The {@link UPnPService} provides interfaces to subscribe to UPnP
  * events for specific devices. It also provides a method to trigger a search
  * for specific devices.
  * 
  * @author Andre Fuechsel - Initial contribution and API
  */
-public interface UPnPDiscoveryService {
+public interface UPnPService {
 	
     /**
      * Add a listener for UPnP events. This listener will only be triggered, if
