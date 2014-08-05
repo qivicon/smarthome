@@ -70,7 +70,11 @@ public class ThingHelper {
 			if (itemFactory == null) {
 				logger.warn("No ItemFactory supports the item type '{}'. It's not possible to create an item for the channel '{}'.", acceptedItemType, channel.getUID());
 			} else {
-				GenericItem item = itemFactory.createItem(acceptedItemType, channel.getUID().toString().replace(":", "_"));
+				String itemName = channel.getUID().toString();
+				itemName = itemName.replace(":", "___");
+				itemName = itemName.replace("#", "__");
+				itemName = itemName.replace("-", "_");
+                GenericItem item = itemFactory.createItem(acceptedItemType, itemName);
 				if (item == null) {
 					logger.error("The item of type '{}' has not been created by the ItemFactory '{}'.", acceptedItemType, itemFactory.getClass().getName());
 				} else {
