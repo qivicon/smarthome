@@ -53,7 +53,8 @@ public class UPnPServiceImpl extends DefaultRegistryListener implements UPnPServ
 
     @Override
     public void deviceAdded(Registry registry, Device device) {
-        logger.debug("ADDED: {}", device.toString());
+        logger.debug("ADDED: [{}] - {}", device.getDetails().getBaseURL(), device.getDetails().getModelDetails()
+                .getModelName());
         UPnPDevice upnpDevice = new UPnPDeviceImpl(device);
         Dictionary deviceDescritions = upnpDevice.getDescriptions(null);
         for (UPnPListener upnpListener : upnpListeners.keySet()) {
@@ -65,7 +66,8 @@ public class UPnPServiceImpl extends DefaultRegistryListener implements UPnPServ
 
     @Override
     public void deviceRemoved(Registry registry, Device device) {
-        logger.debug("REMOVED: {}", device.toString());
+        logger.debug("REMOVED: [{}] - {}", device.getDetails().getBaseURL(), device.getDetails().getModelDetails()
+                .getModelName());
         UPnPDevice upnpDevice = new UPnPDeviceImpl(device);
         Dictionary deviceDescritions = upnpDevice.getDescriptions(null);
         for (UPnPListener upnpListener : upnpListeners.keySet()) {
@@ -77,7 +79,8 @@ public class UPnPServiceImpl extends DefaultRegistryListener implements UPnPServ
 
     @Override
     public void remoteDeviceUpdated(Registry registry, RemoteDevice device) {
-        logger.debug("UPDATED: {}", device.toString());
+        logger.debug("UPDATED: [{}] - {}", device.getDetails().getBaseURL(), device.getDetails().getModelDetails()
+                .getModelName());
         UPnPDevice upnpDevice = new UPnPDeviceImpl(device);
         Dictionary deviceDescritions = upnpDevice.getDescriptions(null);
         for (UPnPListener upnpListener : upnpListeners.keySet()) {
