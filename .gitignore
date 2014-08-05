@@ -9,3 +9,16 @@ bin/
 
 distribution/smarthome/logs/*.log
 distribution/smarthome/*.zip
+/bundles/config/org.eclipse.smarthome.config.setupflow/src/gen/java/org/eclipse/smarthome/config/setupflow/ConfigurationStep.java
+/bundles/config/org.eclipse.smarthome.config.setupflow/src/gen/java/org/eclipse/smarthome/config/setupflow/ExternalEventStep.java
+/bundles/config/org.eclipse.smarthome.config.setupflow/src/gen/java/org/eclipse/smarthome/config/setupflow/ObjectFactory.java
+/bundles/config/org.eclipse.smarthome.config.setupflow/src/gen/java/org/eclipse/smarthome/config/setupflow/Properties.java
+/bundles/config/org.eclipse.smarthome.config.setupflow/src/gen/java/org/eclipse/smarthome/config/setupflow/Property.java
+/bundles/config/org.eclipse.smarthome.config.setupflow/src/gen/java/org/eclipse/smarthome/config/setupflow/SearchStep.java
+/bundles/config/org.eclipse.smarthome.config.setupflow/src/gen/java/org/eclipse/smarthome/config/setupflow/SetupFlow.java
+/bundles/config/org.eclipse.smarthome.config.setupflow/src/gen/java/org/eclipse/smarthome/config/setupflow/SetupFlows.java
+/bundles/config/org.eclipse.smarthome.config.setupflow/src/gen/java/org/eclipse/smarthome/config/setupflow/SetupStep.java
+/bundles/config/org.eclipse.smarthome.config.setupflow/src/gen/java/org/eclipse/smarthome/config/setupflow/SetupSteps.java
+/bundles/config/org.eclipse.smarthome.config.setupflow/src/gen/java/org/eclipse/smarthome/config/setupflow/StepImplementation.java
+/bundles/config/org.eclipse.smarthome.config.setupflow/src/gen/java/org/eclipse/smarthome/config/setupflow/ThingTypes.java
+/bundles/config/org.eclipse.smarthome.config.setupflow/src/gen/java/org/eclipse/smarthome/config/setupflow/package-info.java
