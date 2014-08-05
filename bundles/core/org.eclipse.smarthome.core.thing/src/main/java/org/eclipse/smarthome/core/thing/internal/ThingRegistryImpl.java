@@ -146,7 +146,26 @@ public class ThingRegistryImpl implements ThingsChangeListener, ThingRegistry {
 
     @Override
     public void thingUpdated(ThingProvider provider, Thing oldThing, Thing newThing) {
-        notifyListenersAboutUpdatedThing(newThing);
+        Collection<Thing> things = thingMap.get(provider);
+
+        if (things != null) {
+            things.remove(oldThing);
+            ThingUID bridgeUID = oldThing.getBridgeUID();
+            if (bridgeUID != null) {
+                Thing bridge = this.getByUID(bridgeUID);
+                if (bridge instanceof BridgeImpl) {
+                    ((BridgeImpl) bridge).removeThing(oldThing);
+                }
+            }
+
+            things.add(newThing);
+            addThingToBridge(newThing);
+            if (newThing instanceof Bridge) {
+                addThingsToBridge((Bridge) newThing);
+            }
+
+            notifyListenersAboutUpdatedThing(newThing);
+        }
     }
 
     private void notifyListenerAboutAllThingsAdded(ThingTracker thingTracker) {
