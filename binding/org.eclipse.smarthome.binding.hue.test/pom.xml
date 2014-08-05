@@ -26,6 +26,8 @@
 				<artifactId>tycho-surefire-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
+					<appArgLine>-Dmaven.test.skip=true</appArgLine>
+					<skipTests>true</skipTests>
 					<dependencies>
 						<dependency>
 							<type>eclipse-plugin</type>
