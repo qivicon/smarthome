@@ -153,14 +153,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.smarthome.core.thing.xml"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.smarthome.config.discovery"
+         id="org.eclipse.smarthome.storage.mapdb"
          download-size="0"
          install-size="0"
          version="0.0.0"
