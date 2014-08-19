@@ -1,12 +1,12 @@
 package org.eclipse.smarthome.ui.thing.internal;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.ui.thing.ThingUIProvider;
 import org.eclipse.smarthome.ui.thing.ThingUIRegistry;
-
-import com.google.common.collect.Lists;
 
 /**
  * Implementation for {@link ThingUIRegistry}.
@@ -16,21 +16,21 @@ import com.google.common.collect.Lists;
  */
 public class ThingUIRegistryImpl implements ThingUIRegistry {
 
-    private List<ThingUIProvider> thingUIProviders = Lists.newCopyOnWriteArrayList();
+    private List<ThingUIProvider> thingUIProviders = new CopyOnWriteArrayList<>();
 
     @Override
-    public String getLabel(ThingUID thingUID) {
+    public String getLabel(ThingUID thingUID, Locale locale) {
 
         if (thingUID == null) {
             throw new IllegalArgumentException("Thing UID must not be null");
         }
 
-        return getLabelFromProviders(thingUID);
+        return getLabelFromProviders(thingUID, locale);
     }
 
-    private String getLabelFromProviders(ThingUID thingUID) {
+    private String getLabelFromProviders(ThingUID thingUID, Locale locale) {
         for (ThingUIProvider thingUIProvider : thingUIProviders) {
-            String label = thingUIProvider.getLabel(thingUID);
+            String label = thingUIProvider.getLabel(thingUID, locale);
             if (label != null) {
                 return label;
             }

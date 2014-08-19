@@ -35,12 +35,12 @@ class ThingUIRegistryOSGiTest extends OSGiTest {
     @Test
     void 'assert ThingUIRegistry tracks ThingUIProviders'() {
         
-        def label = thingUIRegistry.getLabel(THING_UID)
+        def label = thingUIRegistry.getLabel(THING_UID, Locale.US)
         assertThat label, is(null)
         
-        registerService ([ getLabel: { "myLabel" }] as ThingUIProvider)
+        registerService ([ getLabel: { a,b -> "myLabel" }] as ThingUIProvider)
         
-        label = thingUIRegistry.getLabel(THING_UID)
+        label = thingUIRegistry.getLabel(THING_UID, Locale.US)
         
         assertThat label, is(equalTo("myLabel"))
     }

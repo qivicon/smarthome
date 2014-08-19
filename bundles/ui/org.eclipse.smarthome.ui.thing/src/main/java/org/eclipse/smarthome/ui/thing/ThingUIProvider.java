@@ -1,5 +1,7 @@
 package org.eclipse.smarthome.ui.thing;
 
+import java.util.Locale;
+
 import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
@@ -16,8 +18,10 @@ public interface ThingUIProvider {
      * 
      * @param thingUID
      *            thing UID (must not be null)
+     * @param locale
+     *            locale of the label
      * @return label or null, if no label for the given UID exists
      */
-    String getLabel(ThingUID thingUID);
+    String getLabel(ThingUID thingUID, Locale locale);
 
 }

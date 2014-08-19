@@ -1,5 +1,7 @@
 package org.eclipse.smarthome.ui.thing;
 
+import java.util.Locale;
+
 import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
@@ -18,7 +20,9 @@ public interface ManagedThingUIProvider extends ThingUIProvider {
      *            thing UID (must not be null)
      * @param label
      *            (must not be null).
+     * @param locale
+     *            locale of the label
      */
-    void setLabel(ThingUID thingUID, String label);
+    void setLabel(ThingUID thingUID, String label, Locale locale);
 
 }

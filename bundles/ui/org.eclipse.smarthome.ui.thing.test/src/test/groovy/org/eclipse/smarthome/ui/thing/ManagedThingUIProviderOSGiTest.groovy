@@ -42,27 +42,27 @@ class ManagedThingUIProviderOSGiTest extends OSGiTest {
     @Test
     void 'assert provider stores labels'() {
 
-        managedThingUIProvider.setLabel THING_UID, "myLabel"
-        def label = managedThingUIProvider.getLabel(THING_UID)
+        managedThingUIProvider.setLabel THING_UID, "myLabel", Locale.US
+        def label = managedThingUIProvider.getLabel(THING_UID, Locale.US)
 
         assertThat label, is(equalTo("myLabel"))
     }
 
     @Test
     void 'assert registry uses label from provider'() {
-        managedThingUIProvider.setLabel THING_UID_2, "myLabel3"
-        def label =thingUIRegistry.getLabel(THING_UID_2)
+        managedThingUIProvider.setLabel THING_UID_2, "myLabel3", Locale.US
+        def label =thingUIRegistry.getLabel(THING_UID_2, Locale.US)
         assertThat label, is(equalTo("myLabel3"))
     }
 
     @Test
     void 'assert label is updated in registry'() {
-        managedThingUIProvider.setLabel THING_UID, "myLabel"
-        def label =thingUIRegistry.getLabel(THING_UID)
+        managedThingUIProvider.setLabel THING_UID, "myLabel", Locale.US
+        def label =thingUIRegistry.getLabel(THING_UID, Locale.US)
         assertThat label, is(equalTo("myLabel"))
 
-        managedThingUIProvider.setLabel THING_UID, "yourLabel"
-        label =thingUIRegistry.getLabel(THING_UID)
+        managedThingUIProvider.setLabel THING_UID, "yourLabel", Locale.US
+        label =thingUIRegistry.getLabel(THING_UID, Locale.US)
         assertThat label, is(equalTo("yourLabel"))
     }
 
@@ -84,8 +84,8 @@ class ManagedThingUIProviderOSGiTest extends OSGiTest {
         
         managedThingUIProvider = getService(ManagedThingUIProvider)
 
-        managedThingUIProvider.getLabel THING_UID_3
-        managedThingUIProvider.getLabel THING_UID_3
+        managedThingUIProvider.getLabel THING_UID_3, Locale.US
+        managedThingUIProvider.getLabel THING_UID_3, Locale.US
         
         assertThat numberOfStorageCalls, is(1)
     }
