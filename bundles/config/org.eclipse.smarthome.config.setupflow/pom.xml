@@ -38,7 +38,7 @@
 					<!-- The package in which the source files will be generated. -->
 					<packageName>org.eclipse.smarthome.config.setupflow</packageName>
 					<!-- The working directory to create the generated java source files. -->
-					<outputDirectory>${basedir}/src/gen/java</outputDirectory>
+					<outputDirectory>${basedir}/src-gen/main/java</outputDirectory>
 					<encoding>${project.build.sourceEncoding}</encoding>
 					<forceRegenerate>true</forceRegenerate>
 					<removeOldOutput>true</removeOldOutput>
