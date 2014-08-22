@@ -7,7 +7,9 @@
  */
 package org.eclipse.smarthome.config.setupflow.internal;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,6 +36,7 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
@@ -194,7 +197,8 @@ public class SetupFlowManagerImpl implements SetupFlowManager {
         ThingTypes thingTypes = new ThingTypes();
         setupFlow.setThingTypes(thingTypes);
         thingTypes.getThingTypes().add(thingTypeId);
-        setupFlow.setId(thingTypeUID.getId() + "-genericflow");
+        String flowId = getFlowId(thingTypeUID);
+        setupFlow.setId(flowId);
         setupFlow.setBindingId(bindingId);
         SetupSteps setupSteps = new SetupSteps();
         setupFlow.setSteps(setupSteps);
@@ -206,6 +210,10 @@ public class SetupFlowManagerImpl implements SetupFlowManager {
         }
         return setupFlow;
 
+    }
+    
+    private String getFlowId(ThingTypeUID thingTypeUID) {
+        return thingTypeUID.getId().replaceAll("[^a-zA-Z0-9_]", "-") + "-genericflow";
     }
 
     private ConfigurationStep createGenericConfigurationStep(

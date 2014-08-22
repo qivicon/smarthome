@@ -55,13 +55,14 @@ public class SetupFlowContext {
 					"The Thing type must not be null!");
 		}
 
-		this.contextId = (contextId != null) ? contextId : createContextId(
-				flowId, this.bindingId);
 
 		this.flowId = flowId;
         ThingTypeUID thingTypeUID2 = new ThingTypeUID(thingTypeUID);
         this.bindingId = thingTypeUID2.getBindingId();
         this.thingTypeId = thingTypeUID2.toString();
+
+        this.contextId = (contextId != null) ? contextId : createContextId(
+                flowId, this.bindingId);
 
 		this.thingId = thingUID;
 		this.bridgeId = bridgeUID;
@@ -77,8 +78,7 @@ public class SetupFlowContext {
 					System.currentTimeMillis(),
 					Integer.toHexString(randomNumber));
 
-			URI processURI = new URI("setup-flow-process", flowId, "/"
-					+ bindingId, identifier);
+            URI processURI = new URI("setup-flow-process", flowId, "/" + bindingId, identifier);
 
 			return processURI.toString();
 		} catch (URISyntaxException use) {
