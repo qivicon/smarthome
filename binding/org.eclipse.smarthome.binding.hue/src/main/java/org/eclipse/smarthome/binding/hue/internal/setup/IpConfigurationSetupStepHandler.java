@@ -90,10 +90,10 @@ public class IpConfigurationSetupStepHandler extends BaseHueSetupStepHandler {
                     // If the user name is not yet added in the flow, we try to
                     // obtain it from the stored configuration
                     Thing bridge = getThingRegistry().getByUID(
-                            new ThingUID(HueBindingConstants.BRIDGE_THING_TYPE_UID,
+                            new ThingUID(HueBindingConstants.THING_TYPE_BRIDGE,
                                     bridgeSerialNumber));
                     if (bridge != null) {
-                        Configuration hueBridgeConfiguration = bridge
+                        Configuration hueBridgeConfiguration = (Configuration) bridge
                                 .getConfiguration();
                         String userName = (String) hueBridgeConfiguration.get("userName");
                         if (hueBridgeConfiguration != null && userName != null) {
