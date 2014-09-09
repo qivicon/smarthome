@@ -77,7 +77,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing> implements ThingR
 
     @Override
     protected void notifyListenersAboutRemovedElement(Thing element) {
-        super.notifyListenersAboutRemovedElement(element);
+        super.notifyListenersAboutAddedElement(element);
         notifyTrackers(element, ThingTrackerEvent.THING_REMOVED);
     }
 
@@ -159,13 +159,13 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing> implements ThingR
 
     private void notifyTrackerAboutAllThingsAdded(ThingTracker thingTracker) {
         for (Thing thing : getAll()) {
-            thingTracker.thingAdded(thing, ThingTrackerEvent.THING_ADDED);
+            thingTracker.thingAdded(thing, ThingTrackerEvent.TRACKER_ADDED);
         }
     }
 
     private void notifyTrackerAboutAllThingsRemoved(ThingTracker thingTracker) {
         for (Thing thing : getAll()) {
-            thingTracker.thingRemoved(thing, ThingTrackerEvent.THING_REMOVED);
+            thingTracker.thingRemoved(thing, ThingTrackerEvent.TRACKER_REMOVED);
         }
     }
 
