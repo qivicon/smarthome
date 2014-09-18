@@ -70,7 +70,6 @@ class GenericThingProviderTest extends OSGiTest {
 		assertThat bridge1.configuration.values().size(), is(2)
 		assertThat bridge1.configuration.get("ip"), is("1.2.3.4")
 		assertThat bridge1.configuration.get("username"), is("123")
-		assertThat bridge1.name, is(nullValue())
 		assertThat bridge1.thingTypeUID.toString(), is("hue:bridge")
 
 		def bridge2 = actualThings.find {
@@ -82,7 +81,6 @@ class GenericThingProviderTest extends OSGiTest {
 		//assertThat bridge.status, is(ThingStatus.ONLINE)
 		assertThat bridge2.bridgeUID, is(bridge1.UID)
 		assertThat bridge2.configuration.values().size(), is(0)
-		assertThat bridge2.name, is(nullValue())
 		assertThat bridge2.thingTypeUID.toString(), is("hue:bridge")
 
 		def bulb1 = actualThings.find {
@@ -98,7 +96,6 @@ class GenericThingProviderTest extends OSGiTest {
 		assertThat bulb1.bridgeUID, is(bridge1.UID)
 		assertThat bulb1.configuration.values().size(), is(1)
 		assertThat bulb1.configuration.get("lightId"), is("1")
-		assertThat bulb1.name, is(nullValue())
 		assertThat bulb1.thingTypeUID.toString(), is("hue:light")
 
 		def bulb2 = actualThings.find {
@@ -110,7 +107,6 @@ class GenericThingProviderTest extends OSGiTest {
 		//assertThat bridge.status, is(ThingStatus.ONLINE)
 		assertThat bulb2.bridgeUID, is(bridge2.UID)
 		assertThat bulb2.configuration.values().size(), is(0)
-		assertThat bulb2.name, is(nullValue())
 		assertThat bulb2.thingTypeUID.toString(), is("hue:light")
 
 		def bulb3 = actualThings.find {
@@ -128,7 +124,6 @@ class GenericThingProviderTest extends OSGiTest {
 		assertThat bulb3.bridgeUID, is(nullValue())
 		assertThat bulb3.configuration.values().size(), is(1)
 		assertThat bulb3.configuration.get("lightId"), is("4")
-		assertThat bulb3.name, is(nullValue())
 		assertThat bulb3.thingTypeUID.toString(), is("hue:light")
 	}
 
@@ -180,7 +175,6 @@ class GenericThingProviderTest extends OSGiTest {
 		assertThat bridge1.configuration.values().size(), is(2)
 		assertThat bridge1.configuration.get("ip"), is("5.6.7.8")
 		assertThat bridge1.configuration.get("secret"), is("123")
-		assertThat bridge1.name, is(nullValue())
 		assertThat bridge1.thingTypeUID.toString(), is("hue:bridge")
 
 		def bulb1 = actualThings.find {
@@ -192,7 +186,6 @@ class GenericThingProviderTest extends OSGiTest {
 		//assertThat bridge.status, is(ThingStatus.ONLINE)
 		assertThat bulb1.bridgeUID, is(bridge1.UID)
 		assertThat bulb1.configuration.values().size(), is(0)
-		assertThat bulb1.name, is(nullValue())
 		assertThat bulb1.thingTypeUID.toString(), is("hue:light")
 
 		def bulb2 = actualThings.find {
@@ -208,7 +201,6 @@ class GenericThingProviderTest extends OSGiTest {
 		assertThat bulb2.bridgeUID, is(nullValue())
 		assertThat bulb2.configuration.values().size(), is(1)
 		assertThat bulb2.configuration.get("lightId"), is("2")
-		assertThat bulb2.name, is(nullValue())
 		assertThat bulb2.thingTypeUID.toString(), is("hue:light")
 
 	}
