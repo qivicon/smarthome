@@ -24,6 +24,7 @@ import nl.q42.jue.HueBridge;
 import nl.q42.jue.exceptions.ApiException;
 import nl.q42.jue.exceptions.UnauthorizedException;
 
+import org.eclipse.smarthome.binding.hue.HueBindingConstants;
 import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.setupflow.SetupFlowContext;
@@ -92,7 +93,7 @@ public class IpConfigurationSetupStepHandler extends BaseHueSetupStepHandler {
                             new ThingUID(HueBindingConstants.THING_TYPE_BRIDGE,
                                     bridgeSerialNumber));
                     if (bridge != null) {
-                        Configuration hueBridgeConfiguration = (Configuration) bridge
+                        Configuration hueBridgeConfiguration = bridge
                                 .getConfiguration();
                         String userName = (String) hueBridgeConfiguration.get("userName");
                         if (hueBridgeConfiguration != null && userName != null) {
