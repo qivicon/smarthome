@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.eclipse.smarthome.core.thing.binding.ThingTypeChangeListener;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.osgi.framework.Bundle;
@@ -37,12 +37,9 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
     private Logger logger = LoggerFactory.getLogger(XmlThingTypeProvider.class);
 
     private Map<Bundle, List<ThingType>> bundleThingTypesMap;
-    private List<ThingTypeChangeListener> thingTypeChangeListeners;
-
 
     public XmlThingTypeProvider() {
         this.bundleThingTypesMap = new HashMap<>(10);
-        this.thingTypeChangeListeners = new CopyOnWriteArrayList<>();
     }
 
     private List<ThingType> acquireThingTypes(Bundle bundle) {
@@ -76,7 +73,6 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
             List<ThingType> thingTypes = acquireThingTypes(bundle);
 
             if (thingTypes != null) {
-                sendThingTypeEvent(thingType, true);
                 thingTypes.add(thingType);
             }
         }
@@ -97,57 +93,42 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
             List<ThingType> thingTypes = this.bundleThingTypesMap.get(bundle);
 
             if (thingTypes != null) {
-                for (ThingType thingType : thingTypes) {
-                    sendThingTypeEvent(thingType, false);
-                }
-
                 this.bundleThingTypesMap.remove(bundle);
             }
         }
     }
 
-    @Override
-    public synchronized void addThingTypeChangeListener(ThingTypeChangeListener listener) {
-        if ((listener != null) && (!this.thingTypeChangeListeners.contains(listener))) {
-            this.thingTypeChangeListeners.add(listener);
-        }
-    }
 
     @Override
-    public synchronized void removeThingTypeChangeListener(ThingTypeChangeListener listener) {
-        if (listener != null) {
-            this.thingTypeChangeListeners.remove(listener);
-        }
-    }
-
-    @Override
-    public synchronized Collection<ThingType> getThingTypes() {
+    public synchronized Collection<ThingType> getThingTypes(Locale locale) {
         List<ThingType> allThingTypes = new ArrayList<>();
 
-        Collection<List<ThingType>> thingTypes = this.bundleThingTypesMap.values();
+        Collection<List<ThingType>> thingTypesList = this.bundleThingTypesMap.values();
 
-        if (thingTypes != null) {
-            for (List<ThingType> thingType : thingTypes) {
-                allThingTypes.addAll(thingType);
+        if (thingTypesList != null) {
+            for (List<ThingType> thingTypes : thingTypesList) {
+                allThingTypes.addAll(thingTypes);
             }
         }
 
         return allThingTypes;
     }
 
-    private void sendThingTypeEvent(ThingType thingType, boolean added) {
-        for (ThingTypeChangeListener listener : this.thingTypeChangeListeners) {
-            try {
-                if (added) {
-                    listener.thingTypeAdded(this, thingType);
-                } else {
-                    listener.thingTypeRemoved(this, thingType);
+    @Override
+    public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
+
+        Collection<List<ThingType>> thingTypesList = this.bundleThingTypesMap.values();
+
+        if (thingTypesList != null) {
+            for (List<ThingType> thingTypes : thingTypesList) {
+                for (ThingType thingType : thingTypes) {
+                    if (thingType.getUID().equals(thingTypeUID)) {
+                        return thingType;
+                    }
                 }
-            } catch (Exception ex) {
-                this.logger.error("Could not send an " + ((added) ? "added" : "removed")
-                        + " ThingType event to the listener '" + listener + "'!", ex);
             }
         }
+        return null;
     }
 
 }

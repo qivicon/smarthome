@@ -7,16 +7,16 @@
  */
 package org.eclipse.smarthome.config.xml;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
-import org.eclipse.smarthome.config.core.ConfigDescriptionsChangeListener;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,12 +37,10 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
     private Logger logger = LoggerFactory.getLogger(XmlConfigDescriptionProvider.class);
 
     private Map<Bundle, List<ConfigDescription>> bundleConfigDescriptionsMap;
-    private List<ConfigDescriptionsChangeListener> configDescriptionListeners;
 
 
     public XmlConfigDescriptionProvider() {
         this.bundleConfigDescriptionsMap = new HashMap<>(10);
-        this.configDescriptionListeners = new CopyOnWriteArrayList<>();
     }
 
     private List<ConfigDescription> acquireConfigDescriptions(Bundle bundle) {
@@ -80,7 +78,6 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
             List<ConfigDescription> configDescriptionList = acquireConfigDescriptions(bundle);
     
             if (configDescriptionList != null) {
-                sendConfigDescriptionEvent(configDescription, true);
                 configDescriptionList.add(configDescription);
             }
         }
@@ -105,7 +102,6 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
     
             if (currentConfigDescriptionList != null) {
                 for (ConfigDescription configDescription : configDescriptions) {
-                    sendConfigDescriptionEvent(configDescription, true);
                     currentConfigDescriptionList.add(configDescription);
                 }
             }
@@ -128,31 +124,13 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
                     this.bundleConfigDescriptionsMap.get(bundle);
 
             if (configDescriptions != null) {
-                for (ConfigDescription configDescription : configDescriptions) {
-                    sendConfigDescriptionEvent(configDescription, false);
-                }
-
                 this.bundleConfigDescriptionsMap.remove(bundle);
             }
         }
     }
 
     @Override
-    public synchronized void addConfigDescriptionsChangeListener(ConfigDescriptionsChangeListener listener) {
-        if ((listener != null) && (!this.configDescriptionListeners.contains(listener))) {
-            this.configDescriptionListeners.add(listener);
-        }
-    }
-
-    @Override
-    public synchronized void removeConfigDescriptionsChangeListener(ConfigDescriptionsChangeListener listener) {
-        if (listener != null) {
-            this.configDescriptionListeners.remove(listener);
-        }
-    }
-
-    @Override
-    public synchronized Collection<ConfigDescription> getConfigDescriptions() {
+    public synchronized Collection<ConfigDescription> getConfigDescriptions(Locale locale) {
         List<ConfigDescription> allConfigDescriptions = new ArrayList<>();
 
         Collection<List<ConfigDescription>> configDescriptions =
@@ -167,19 +145,24 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
         return allConfigDescriptions;
     }
 
-    private void sendConfigDescriptionEvent(ConfigDescription configDescription, boolean added) {
-        for (ConfigDescriptionsChangeListener listener : this.configDescriptionListeners) {
-            try {
-                if (added) {
-                    listener.configDescriptionAdded(this, configDescription);
-                } else {
-                    listener.configDescriptionRemoved(this, configDescription);
+    @Override
+    public synchronized ConfigDescription getConfigDescription(URI uri, Locale locale) {
+
+        Collection<List<ConfigDescription>> configDescriptionsList = this.bundleConfigDescriptionsMap.values();
+
+        if (configDescriptionsList != null) {
+            for (List<ConfigDescription> configDescriptions : configDescriptionsList) {
+                for (ConfigDescription configDescription : configDescriptions) {
+                    if (configDescription.getURI().equals(uri)) {
+                        return configDescription;
+                    }
                 }
-            } catch (Exception ex) {
-                this.logger.error("Could not send an " + ((added) ? "added" : "removed")
-                        + " ConfigDescription event to the listener '" + listener + "'!", ex);
             }
         }
+
+        return null;
     }
+
+
 
 }
