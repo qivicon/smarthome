@@ -164,14 +164,15 @@ public class HueBridgeHandler extends BaseBridgeHandler {
 				// note that InetAddress.isReachable is unreliable, see
 				// http://stackoverflow.com/questions/9922543/why-does-inetaddress-isreachable-return-false-when-i-can-ping-the-ip-address
 				// That's why we do an HTTP access instead
-	            URL url = new URL("http://" + ipAddress);
-	            HttpURLConnection urlConnect = (HttpURLConnection) url.openConnection();
 
 	            // If there is no connection, this line will fail
-	            urlConnect.getContent();
-	        } catch (Exception e) {              
+				bridge.getConfig();
+	        } catch (IOException e) {              
 	            return false;
-	        }
+	        } catch (ApiException e) {
+	        	// this seems to be only an authentication issue
+	        	return true;
+			}
 			return true;
 		}
     };
@@ -230,7 +231,8 @@ public class HueBridgeHandler extends BaseBridgeHandler {
         		bridge = new HueBridge((String) getConfig().get(HOST));
         		bridge.setTimeout(5000);
         	}
-        	onUpdate();
+        	pollingRunnable.run();
+        	onUpdate();        	
         } else {
             logger.warn("Cannot connect to hue bridge. IP address or user name not set.");
         }
@@ -239,7 +241,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
     private synchronized void onUpdate() {
     	if (bridge != null) {
 			if (pollingJob == null || pollingJob.isCancelled()) {
-				pollingJob = scheduler.scheduleAtFixedRate(pollingRunnable, 0, POLLING_FREQUENCY, TimeUnit.SECONDS);
+				pollingJob = scheduler.scheduleAtFixedRate(pollingRunnable, POLLING_FREQUENCY, POLLING_FREQUENCY, TimeUnit.SECONDS);
 			}
     	}
     }
@@ -307,7 +309,8 @@ public class HueBridgeHandler extends BaseBridgeHandler {
         }
         boolean result = lightStatusListeners.add(lightStatusListener);
         if (result) {
-            onUpdate();
+            pollingRunnable.run();
+        	onUpdate();
             // inform the listener initially about all lights and their states
             for (FullLight light : lastLightStates.values()) {
             	lightStatusListener.onLightAdded(bridge, light);
