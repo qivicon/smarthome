@@ -14,7 +14,7 @@ import nl.q42.jue.HueBridge;
 import nl.q42.jue.exceptions.ApiException;
 import nl.q42.jue.exceptions.LinkButtonException;
 
-import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 import org.eclipse.smarthome.config.setupflow.SetupFlowContext;
 import org.eclipse.smarthome.config.setupflow.SetupStepHandlerCallback;
 import org.osgi.framework.BundleContext;
@@ -38,13 +38,13 @@ public class PairingSetupStepHandler extends BaseHueSetupStepHandler {
     protected void startInternal(final SetupFlowContext setupFlowContext,
             final SetupStepHandlerCallback callback) {
         final Map<String, Object> properties = setupFlowContext.getProperties();
-        final String bridgeIpAddress = (String) properties.get(HueBridgeConfiguration.IP_ADDRESS);
+        final String bridgeIpAddress = (String) properties.get(HOST);
         setupFlowContext.setNextStepId(null);
 
         Task pairingTask = new AbstractTask("HueBridgePairing") {
             @Override
             public void executeTask(TaskExecutionState taskExecutionState) {
-                String bridgeUserName = (String) properties.get(HueBridgeConfiguration.USER_NAME);
+                String bridgeUserName = (String) properties.get(USER_NAME);
                 long startTime = System.currentTimeMillis();
                 HueBridge bridge = new HueBridge(bridgeIpAddress);
                 final String deviceType = "Eclipse SmartHome";
@@ -65,8 +65,8 @@ public class PairingSetupStepHandler extends BaseHueSetupStepHandler {
                             logger.debug("The task execution has been aborted.");
                             return;
                         }
-                        properties.put(HueBridgeConfiguration.IP_ADDRESS, bridgeIpAddress);
-                        properties.put(HueBridgeConfiguration.USER_NAME, linkedUserName);
+                        properties.put(HOST, bridgeIpAddress);
+                        properties.put(USER_NAME, linkedUserName);
                         callback.sendStepSucceededEvent(setupFlowContext);
                         return;
 

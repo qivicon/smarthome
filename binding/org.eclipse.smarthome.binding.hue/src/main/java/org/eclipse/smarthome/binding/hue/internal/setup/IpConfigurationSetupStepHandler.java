@@ -24,8 +24,7 @@ import nl.q42.jue.HueBridge;
 import nl.q42.jue.exceptions.ApiException;
 import nl.q42.jue.exceptions.UnauthorizedException;
 
-import org.eclipse.smarthome.binding.hue.HueBindingConstants;
-import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.setupflow.SetupFlowContext;
 import org.eclipse.smarthome.config.setupflow.SetupStepHandlerCallback;
@@ -56,7 +55,7 @@ public class IpConfigurationSetupStepHandler extends BaseHueSetupStepHandler {
     protected void startInternal(final SetupFlowContext setupFlowContext,
             final SetupStepHandlerCallback callback) {
         final Map<String, Object> properties = setupFlowContext.getProperties();
-        final String bridgeIpAddress = (String) properties.get(HueBridgeConfiguration.IP_ADDRESS);
+        final String bridgeIpAddress = (String) properties.get(HOST);
         if (bridgeIpAddress == null) {
             logger.error("No ip address has been provided.");
             HueErrorCode bridgeNotFoundErrorCode = HueErrorCode.IP_ADDRESS_MISSING;
@@ -79,18 +78,18 @@ public class IpConfigurationSetupStepHandler extends BaseHueSetupStepHandler {
                 }
 
                 // The hue bridge is reachable. So let's obtain the serialnumber
-                String bridgeSerialNumber = (String) properties.get(HueBridgeConfiguration.SERIAL_NUMBER);
+                String bridgeSerialNumber = (String) properties.get(SERIAL_NUMBER);
                 if (bridgeSerialNumber == null) {
                     bridgeSerialNumber = getHueBridgeSerialNumber(bridgeIpAddress);
                 }
 
-                String bridgeUserName = (String) properties.get(HueBridgeConfiguration.USER_NAME);
+                String bridgeUserName = (String) properties.get(USER_NAME);
 
                 if (bridgeUserName == null) {
                     // If the user name is not yet added in the flow, we try to
                     // obtain it from the stored configuration
                     Thing bridge = getThingRegistry().getByUID(
-                            new ThingUID(HueBindingConstants.THING_TYPE_BRIDGE,
+                            new ThingUID(THING_TYPE_BRIDGE,
                                     bridgeSerialNumber));
                     if (bridge != null) {
                         Configuration hueBridgeConfiguration = bridge
@@ -111,16 +110,16 @@ public class IpConfigurationSetupStepHandler extends BaseHueSetupStepHandler {
                         logger.debug("The task execution has been aborted.");
                         return;
                     }
-                    properties.put(HueBridgeConfiguration.IP_ADDRESS, bridgeIpAddress);
-                    properties.put(HueBridgeConfiguration.USER_NAME, bridgeUserName);
-                    properties.put(HueBridgeConfiguration.SERIAL_NUMBER, bridgeSerialNumber);
+                    properties.put(HOST, bridgeIpAddress);
+                    properties.put(USER_NAME, bridgeUserName);
+                    properties.put(SERIAL_NUMBER, bridgeSerialNumber);
                     callback.sendStepSucceededEvent(setupFlowContext);
                     return;
                 }
 
                 // If we have a user name, we can try to connect as the hue bridge
                 // might already been paired
-                properties.remove(HueBridgeConfiguration.SERIAL_NUMBER);
+                properties.remove(SERIAL_NUMBER);
 
                 try {
                     new HueBridge(bridgeIpAddress, bridgeUserName);
@@ -132,9 +131,9 @@ public class IpConfigurationSetupStepHandler extends BaseHueSetupStepHandler {
                         logger.debug("The task execution has been aborted.");
                         return;
                     }
-                    properties.put(HueBridgeConfiguration.IP_ADDRESS, bridgeIpAddress);
-                    properties.put(HueBridgeConfiguration.USER_NAME, bridgeUserName);
-                    properties.put(HueBridgeConfiguration.SERIAL_NUMBER, bridgeSerialNumber);
+                    properties.put(HOST, bridgeIpAddress);
+                    properties.put(USER_NAME, bridgeUserName);
+                    properties.put(SERIAL_NUMBER, bridgeSerialNumber);
                     // At this point we could also abort the flow (if this would be possible)
                     callback.sendStepSucceededEvent(setupFlowContext);
 
@@ -147,9 +146,9 @@ public class IpConfigurationSetupStepHandler extends BaseHueSetupStepHandler {
                         logger.debug("The task execution has been aborted.");
                         return;
                     }
-                    properties.put(HueBridgeConfiguration.IP_ADDRESS, bridgeIpAddress);
-                    properties.put(HueBridgeConfiguration.USER_NAME, bridgeUserName);
-                    properties.put(HueBridgeConfiguration.SERIAL_NUMBER, bridgeSerialNumber);
+                    properties.put(HOST, bridgeIpAddress);
+                    properties.put(USER_NAME, bridgeUserName);
+                    properties.put(SERIAL_NUMBER, bridgeSerialNumber);
                     callback.sendStepSucceededEvent(setupFlowContext);
                 } catch (IOException | ApiException e) {
                     // this exception is unexpected
