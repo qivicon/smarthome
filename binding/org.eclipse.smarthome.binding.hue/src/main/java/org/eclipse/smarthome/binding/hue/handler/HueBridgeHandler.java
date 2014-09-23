@@ -166,12 +166,16 @@ public class HueBridgeHandler extends BaseBridgeHandler {
 				// That's why we do an HTTP access instead
 
 	            // If there is no connection, this line will fail
-				bridge.getConfig();
+				bridge.authenticate("invalid");
 	        } catch (IOException e) {              
 	            return false;
 	        } catch (ApiException e) {
-	        	// this seems to be only an authentication issue
-	        	return true;
+	        	if(e.getMessage().contains("SocketTimeout")) {
+	        		return false;
+	        	} else {
+		        	// this seems to be only an authentication issue
+	        		return true;
+	        	}
 			}
 			return true;
 		}
