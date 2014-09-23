@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
+import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nProvider;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
@@ -37,6 +38,8 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
     private Logger logger = LoggerFactory.getLogger(XmlThingTypeProvider.class);
 
     private Map<Bundle, List<ThingType>> bundleThingTypesMap;
+
+    private ThingTypeI18nProvider thingTypeI18nProvider;
 
     public XmlThingTypeProvider() {
         this.bundleThingTypesMap = new HashMap<>(10);
@@ -101,18 +104,24 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
 
     @Override
     public synchronized Collection<ThingType> getThingTypes(Locale locale) {
+
+
         List<ThingType> allThingTypes = new ArrayList<>();
 
         Collection<List<ThingType>> thingTypesList = this.bundleThingTypesMap.values();
 
         if (thingTypesList != null) {
             for (List<ThingType> thingTypes : thingTypesList) {
-                allThingTypes.addAll(thingTypes);
+                for (ThingType thingType : thingTypes) {
+                    ThingType localizedThingType = createLocalizedThingType(locale, thingType);
+                    allThingTypes.add(localizedThingType);
+                }
             }
         }
 
         return allThingTypes;
     }
+
 
     @Override
     public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
@@ -123,12 +132,33 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
             for (List<ThingType> thingTypes : thingTypesList) {
                 for (ThingType thingType : thingTypes) {
                     if (thingType.getUID().equals(thingTypeUID)) {
-                        return thingType;
+                        return createLocalizedThingType(locale, thingType);
                     }
                 }
             }
         }
         return null;
+    }
+
+    private ThingType createLocalizedThingType(Locale locale, ThingType thingType) {
+        if (this.thingTypeI18nProvider != null) {
+            String label = this.thingTypeI18nProvider.getLabel(thingType.getUID(), thingType.getLabel(), locale);
+            String description = this.thingTypeI18nProvider.getDescription(thingType.getUID(),
+                    thingType.getDescription(), locale);
+            ThingType localizedThingType = new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(),
+                    label, description, thingType.getChannelDefinitions(), thingType.getConfigDescriptionURI());
+            return localizedThingType;
+        } else {
+            return thingType;
+        }
+    }
+
+    public void setThingTypeI18nProvider(ThingTypeI18nProvider thingTypeI18nProvider) {
+        this.thingTypeI18nProvider = thingTypeI18nProvider;
+    }
+
+    public void unsetThingTypeI18nProvider(ThingTypeI18nProvider thingTypeI18nProvider) {
+        this.thingTypeI18nProvider = null;
     }
 
 }

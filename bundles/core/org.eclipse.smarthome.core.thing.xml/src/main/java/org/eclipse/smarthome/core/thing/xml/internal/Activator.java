@@ -16,11 +16,13 @@ import org.eclipse.smarthome.config.xml.osgi.XmlDocumentBundleTracker;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
+import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nProvider;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-
+import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * The {@link Activator} class is responsible to activate this module.
@@ -48,7 +50,32 @@ public class Activator implements BundleActivator {
 
     private XmlDocumentBundleTracker<List<?>> thingTypeTracker;
 
+    private XmlThingTypeProvider thingTypeProvider;
 
+    private ServiceTracker thingTypeI18nProviderServiceTracker;
+
+    private class ThingTypeI18nProviderServiceTracker extends ServiceTracker {
+
+        public ThingTypeI18nProviderServiceTracker(BundleContext context) {
+            super(context, ThingTypeI18nProvider.class.getName(), null);
+        }
+
+        @Override
+        public Object addingService(ServiceReference reference) {
+            ThingTypeI18nProvider service = (ThingTypeI18nProvider) this.context.getService(reference);
+            thingTypeProvider.setThingTypeI18nProvider(service);
+            return service;
+        }
+
+        @Override
+        public void removedService(ServiceReference reference, Object service) {
+
+            thingTypeProvider.unsetThingTypeI18nProvider((ThingTypeI18nProvider) this.context.getService(reference));
+
+        }
+
+    };
+    
     @Override
     public void start(BundleContext context) throws Exception {
         XmlConfigDescriptionProvider configDescriptionProvider = new XmlConfigDescriptionProvider();
@@ -56,8 +83,10 @@ public class Activator implements BundleActivator {
         this.configDescriptionProviderReg = context.registerService(
                 ConfigDescriptionProvider.class.getName(), configDescriptionProvider, null);
 
-        XmlThingTypeProvider thingTypeProvider = new XmlThingTypeProvider();
-
+        this.thingTypeProvider = new XmlThingTypeProvider();
+        this.thingTypeI18nProviderServiceTracker = new ThingTypeI18nProviderServiceTracker(context);
+        this.thingTypeI18nProviderServiceTracker.open();
+        
         this.thingTypeProviderReg = context.registerService(
                 ThingTypeProvider.class.getName(), thingTypeProvider, null);
 
@@ -78,6 +107,9 @@ public class Activator implements BundleActivator {
 
         this.thingTypeProviderReg.unregister();
         this.thingTypeProviderReg = null;
+        
+        this.thingTypeI18nProviderServiceTracker.close();
+        this.thingTypeProvider = null;
 
         this.configDescriptionProviderReg.unregister();
         this.configDescriptionProviderReg = null;

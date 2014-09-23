@@ -14,7 +14,9 @@ Import-Package: com.thoughtworks.xstream,
  org.eclipse.smarthome.config.xml.util,
  org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.thing.binding,
+ org.eclipse.smarthome.core.thing.i18n,
  org.eclipse.smarthome.core.thing.type,
  org.osgi.framework,
+ org.osgi.util.tracker,
  org.slf4j
 Bundle-Activator: org.eclipse.smarthome.core.thing.xml.internal.Activator
