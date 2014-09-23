@@ -34,16 +34,33 @@ import org.osgi.util.tracker.ServiceTracker;
  */
 public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
+    protected BundleContext bundleContext;
+
     private Map<String, ServiceRegistration<ThingHandler>> thingHandlers = new HashMap<>();
-    private BundleContext bundleContext;
     private ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
 
+	/**
+	 * Initializes the {@link BaseThingHandlerFactory}. If this method is
+	 * overridden by a sub class, the implementing method must call
+	 * <code>super.activate(componentContext)</code> first.
+	 * 
+	 * @param componentContext
+	 *            component context (must not be null)
+	 */
     protected void activate(ComponentContext componentContext) {
         this.bundleContext = componentContext.getBundleContext();
         thingTypeRegistryServiceTracker = new ServiceTracker<>(bundleContext, ThingTypeRegistry.class.getName(), null);
         thingTypeRegistryServiceTracker.open();
     }
-
+	
+	/**
+	 * Disposes the {@link BaseThingHandlerFactory}. If this method is
+	 * overridden by a sub class, the implementing method must call
+	 * <code>super.deactivate(componentContext)</code> first.
+	 * 
+	 * @param componentContext
+	 *            component context (must not be null)
+	 */
     protected void deactivate(ComponentContext componentContext) {
         for (ServiceRegistration<ThingHandler> serviceRegistration : this.thingHandlers.values()) {
 
@@ -62,8 +79,8 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
     public void unregisterHandler(Thing thing) {
         ServiceRegistration<ThingHandler> serviceRegistration = thingHandlers.remove(thing.getUID().toString());
         if (serviceRegistration != null) {
-            ThingHandler thingHandler = bundleContext
-                    .getService(serviceRegistration.getReference());
+			ThingHandler thingHandler = (ThingHandler) bundleContext
+					.getService(serviceRegistration.getReference());
             serviceRegistration.unregister();
             removeHandler(thingHandler);
             thingHandler.dispose();
@@ -75,9 +92,11 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
     @Override
     public void registerHandler(Thing thing) {
-
         ThingHandler thingHandler = createHandler(thing);
         if (thingHandler instanceof BaseThingHandler) {
+        	if(bundleContext == null) {
+        		throw new IllegalStateException("Base thing handler factory has not been properly initialized. Did you forget to call super.activate()?");
+        	}
             ((BaseThingHandler) thingHandler).setBundleContext(bundleContext);
         }
         thingHandler.initialize();
@@ -145,8 +164,8 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
      * implementing caller can override this method to release specific
      * resources.
      * 
-     * @param thing
-     *            thing
+     * @param thingHandler
+     *            thing handler to be removed
      */
     protected void removeHandler(ThingHandler thingHandler) {
         // can be overridden
@@ -163,6 +182,9 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
      * @return the thing type represented by the given unique id
      */
     protected ThingType getThingTypeByUID(ThingTypeUID thingTypeUID) {
+    	if(thingTypeRegistryServiceTracker == null) {
+    		throw new IllegalStateException("Base thing handler factory has not been properly initialized. Did you forget to call super.activate()?");
+    	}
     	ThingTypeRegistry thingTypeRegistry = thingTypeRegistryServiceTracker.getService();
     	if (thingTypeRegistry != null) {
     		return thingTypeRegistry.getThingType(thingTypeUID);

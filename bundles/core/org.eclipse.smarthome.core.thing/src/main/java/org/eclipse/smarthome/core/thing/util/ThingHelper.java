@@ -70,17 +70,23 @@ public class ThingHelper {
 			if (itemFactory == null) {
 				logger.warn("No ItemFactory supports the item type '{}'. It's not possible to create an item for the channel '{}'.", acceptedItemType, channel.getUID());
 			} else {
-				GenericItem item = itemFactory.createItem(acceptedItemType, channel.getUID().toString().replace(":", "_"));
+				GenericItem item = itemFactory.createItem(acceptedItemType, toItemName(channel));
 				if (item == null) {
 					logger.error("The item of type '{}' has not been created by the ItemFactory '{}'.", acceptedItemType, itemFactory.getClass().getName());
 				} else {
-					managedItemProvider.addItem(item);
-                    managedItemChannelLinkProvider.addItemChannelLink(new ItemChannelLink(item
+					managedItemProvider.add(item);
+                    managedItemChannelLinkProvider.add(new ItemChannelLink(item
                             .getName(), channel.getUID()));
 				}
 			}
 		}
 	}
+	
+    private String toItemName(Channel channel) {
+        String channelUID = channel.getUID().toString();
+        String itemName = channelUID.replaceAll("[^a-zA-Z0-9_]", "_");
+        return itemName;
+    }
 	
 	@SuppressWarnings("unchecked")
 	private ManagedItemProvider getManagedItemProvider() {

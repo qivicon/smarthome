@@ -8,17 +8,13 @@
 package org.eclipse.smarthome.core.thing.link;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingRegistry;
 
 
 /**
@@ -28,12 +24,29 @@ import com.google.common.collect.Lists;
  * @author Dennis Nobel - Initial contribution
  * 
  */
-public class ItemChannelLinkRegistry implements ItemChannelLinksChangeListener {
+public class ItemChannelLinkRegistry extends AbstractRegistry<ItemChannelLink> {
 
-    private final static Logger logger = LoggerFactory.getLogger(ItemChannelLinkRegistry.class
-            .getName());
+    private ThingRegistry thingRegistry;
 
-    private Map<ItemChannelLinkProvider, Collection<ItemChannelLink>> itemChannelLinkMap = new ConcurrentHashMap<>();
+    /**
+     * Returns a set of bound channels for the given item name.
+     * 
+     * @param itemName
+     *            item name
+     * @return set of bound channels for the given item name
+     */
+    public Set<ChannelUID> getBoundChannels(String itemName) {
+
+        Set<ChannelUID> channelUIDs = new HashSet<>();
+
+        for (ItemChannelLink itemChannelLink : getAll()) {
+            if (itemChannelLink.getItemName().equals(itemName)) {
+                channelUIDs.add(itemChannelLink.getChannelUID());
+            }
+        }
+
+        return channelUIDs;
+    }
 
     /**
      * Returns the item name, which is bound to the given channel UID.
@@ -43,7 +56,7 @@ public class ItemChannelLinkRegistry implements ItemChannelLinksChangeListener {
      * @return item name or null if no item is bound to the given channel UID
      */
     public String getBoundItem(ChannelUID channelUID) {
-        for (ItemChannelLink itemChannelLink : getItemChannelLinks()) {
+        for (ItemChannelLink itemChannelLink : getAll()) {
             if (itemChannelLink.getChannelUID().equals(channelUID)) {
                 return itemChannelLink.getItemName();
             }
@@ -52,12 +65,25 @@ public class ItemChannelLinkRegistry implements ItemChannelLinksChangeListener {
     }
 
     /**
-     * Returns all item channel links.
+     * Returns a set of bound things for the given item name.
      * 
-     * @return all item channel links
+     * @param itemName
+     *            item name
+     * @return set of bound things for the given item name
      */
-    public List<ItemChannelLink> getItemChannelLinks() {
-        return Lists.newArrayList(Iterables.concat(itemChannelLinkMap.values()));
+    public Set<Thing> getBoundThings(String itemName) {
+
+        Set<Thing> things = new HashSet<>();
+        Collection<ChannelUID> boundChannels = getBoundChannels(itemName);
+
+        for (ChannelUID channelUID : boundChannels) {
+            Thing thing = thingRegistry.getByUID(channelUID.getThingUID());
+            if (thing != null) {
+                things.add(thing);
+            }
+        }
+
+        return things;
     }
 
     /**
@@ -72,7 +98,7 @@ public class ItemChannelLinkRegistry implements ItemChannelLinksChangeListener {
      */
     public boolean isLinked(String itemName, ChannelUID channelUID) {
 
-        for (ItemChannelLink itemChannelLink : getItemChannelLinks()) {
+        for (ItemChannelLink itemChannelLink : getAll()) {
             if (itemChannelLink.getChannelUID().equals(channelUID)
                     && itemChannelLink.getItemName().equals(itemName)) {
                 return true;
@@ -82,51 +108,11 @@ public class ItemChannelLinkRegistry implements ItemChannelLinksChangeListener {
         return false;
     }
 
-    @Override
-    public void itemChannelLinkAdded(ItemChannelLinkProvider provider,
-            ItemChannelLink itemChannelLink) {
-        Collection<ItemChannelLink> itemChannelLinks = itemChannelLinkMap.get(provider);
-        if (itemChannelLinks != null) {
-            itemChannelLinks.add(itemChannelLink);
-        }
+    protected void setThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = thingRegistry;
     }
 
-    @Override
-    public void itemChannelLinkRemoved(ItemChannelLinkProvider provider,
-            ItemChannelLink itemChannelLink) {
-        Collection<ItemChannelLink> itemChannelLinks = itemChannelLinkMap.get(provider);
-        if (itemChannelLinks != null) {
-            itemChannelLinks.remove(itemChannelLink);
-        }
+    protected void unsetThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = null;
     }
-
-	@Override
-	public void itemChannelLinkUpdated(ItemChannelLinkProvider provider,
-			ItemChannelLink oldItemChannelLink,
-			ItemChannelLink newItemChannelLink) {
-		itemChannelLinkRemoved(provider, oldItemChannelLink);
-		itemChannelLinkAdded(provider, newItemChannelLink);
-	}
-
-    protected void addItemChannelLinkProvider(ItemChannelLinkProvider itemChannelLinkProvider) {
-        // only add this provider if it does not already exist
-        if (!itemChannelLinkMap.containsKey(itemChannelLinkProvider)) {
-            Collection<ItemChannelLink> itemChannelLinks = new CopyOnWriteArraySet<ItemChannelLink>(
-                    itemChannelLinkProvider.getItemChannelLinks());
-            itemChannelLinkMap.put(itemChannelLinkProvider, itemChannelLinks);
-            itemChannelLinkProvider.addItemChannelLinksChangeListener(this);
-            logger.debug("ItemChannelLinkProvider '{}' has been added.", itemChannelLinkProvider
-                    .getClass().getName());
-        }
-    }
-
-    protected void removeItemChannelLinkProvider(ItemChannelLinkProvider itemChannelLinkProvider) {
-        if (itemChannelLinkMap.containsKey(itemChannelLinkProvider)) {
-            itemChannelLinkMap.remove(itemChannelLinkProvider);
-            itemChannelLinkProvider.removeItemChannelLinksChangeListener(this);
-            logger.debug("ItemChannelLinkProvider '{}' has been removed.", itemChannelLinkProvider
-                    .getClass().getName());
-        }
-    }
-
 }

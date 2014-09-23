@@ -47,7 +47,7 @@ import org.junit.Test
 class HueLightHandlerOSGiTest extends OSGiTest {
 
     final ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID("hue", "bridge")
-    final ThingTypeUID LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "light")
+    final ThingTypeUID LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "LCT001")
 
     ManagedThingProvider managedThingProvider
     VolatileStorageService volatileStorageService = new VolatileStorageService()
@@ -109,7 +109,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
             assertThat hueLightHandler, is(notNullValue())
         }, 10000)
 
-        managedThingProvider.removeThing(hueLight.getUID())
+        managedThingProvider.remove(hueLight.getUID())
 
         // wait for HueLightHandler to be unregistered
         waitForAssert({
@@ -117,7 +117,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
             assertThat hueLightHandler, is(nullValue())
         }, 10000)
 
-        managedThingProvider.removeThing(hueBridge.getUID())
+        managedThingProvider.remove(hueBridge.getUID())
     }
 
 	@Test
@@ -377,8 +377,8 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 	        assertThat addressWrapper.wrappedObject, is("http://1.2.3.4/api/testUserName/lights/1/state")
 			assertJson(expectedBody, bodyWrapper.wrappedObject)
         } finally {
-        	managedThingProvider.removeThing(hueLight.getUID())
-        	managedThingProvider.removeThing(hueBridge.getUID())
+        	managedThingProvider.remove(hueLight.getUID())
+        	managedThingProvider.remove(hueBridge.getUID())
         }
     }
 	
@@ -401,7 +401,11 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 		def httpClientField = hueBridgeValue.getClass().getDeclaredField("http")
 		httpClientField.accessible = true
 		httpClientField.set(hueBridgeValue, mockedHttpClient)
-
+		
+		def usernameField = hueBridgeValue.getClass().getDeclaredField("username")
+		usernameField.accessible = true
+		usernameField.set(hueBridgeValue, hueBridgeHandler.config.get(HueBridgeConfiguration.USER_NAME))
+		
 		hueBridgeHandler.initialize()
     }
 

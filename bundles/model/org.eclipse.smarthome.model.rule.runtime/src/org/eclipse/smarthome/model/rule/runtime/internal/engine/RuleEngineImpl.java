@@ -35,11 +35,11 @@ import org.eclipse.smarthome.core.types.EventType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
+import org.eclipse.smarthome.model.rule.RulesStandaloneSetup;
 import org.eclipse.smarthome.model.rule.jvmmodel.RulesJvmModelInferrer;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
 import org.eclipse.smarthome.model.rule.runtime.RuleEngine;
-import org.eclipse.smarthome.model.rule.runtime.internal.RuleRuntimeInjectorProvider;
 import org.eclipse.xtext.naming.QualifiedName;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
@@ -73,7 +73,7 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
 		private Injector injector;
 						
 		public void activate() {
-			injector = RuleRuntimeInjectorProvider.getInjector();
+			injector = RulesStandaloneSetup.getInjector();
 			triggerManager = injector.getInstance(RuleTriggerManager.class);
 
 			if(!isEnabled()) {
@@ -110,11 +110,11 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
 		
 		public void setItemRegistry(ItemRegistry itemRegistry) {
 			this.itemRegistry = itemRegistry;
-			itemRegistry.addItemRegistryChangeListener(this);
+			itemRegistry.addRegistryChangeListener(this);
 		}
 		
 		public void unsetItemRegistry(ItemRegistry itemRegistry) {
-			itemRegistry.removeItemRegistryChangeListener(this);
+			itemRegistry.removeRegistryChangeListener(this);
 			this.itemRegistry = null;
 		}
 		
@@ -151,7 +151,7 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
 		/**
 		 * {@inheritDoc}
 		 */
-		public void itemAdded(Item item) {
+		public void added(Item item) {
 			internalItemAdded(item);
 			runStartupRules();
 		}
@@ -159,7 +159,7 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
 		/**
 		 * {@inheritDoc}
 		 */
-		public void itemRemoved(Item item) {
+		public void removed(Item item) {
 			if (item instanceof GenericItem) {
 				GenericItem genericItem = (GenericItem) item;
 				genericItem.removeStateChangeListener(this);
@@ -323,7 +323,7 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
 		}
 
 		@Override
-		public void itemUpdated(Item oldItem, Item item) {
+		public void updated(Item oldItem, Item item) {
 			// nothing to do
 		}
 }

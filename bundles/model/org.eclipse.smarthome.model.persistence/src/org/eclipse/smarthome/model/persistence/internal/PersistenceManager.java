@@ -131,12 +131,12 @@ public class PersistenceManager extends AbstractEventSubscriber implements Model
 
 	public void setItemRegistry(ItemRegistry itemRegistry) {
 		this.itemRegistry = itemRegistry;
-		itemRegistry.addItemRegistryChangeListener(this);
+		itemRegistry.addRegistryChangeListener(this);
 		allItemsChanged(null);
 	}
 
 	public void unsetItemRegistry(ItemRegistry itemRegistry) {
-		itemRegistry.removeItemRegistryChangeListener(this);
+		itemRegistry.removeRegistryChangeListener(this);
 		this.itemRegistry = null;
 	}
 
@@ -174,18 +174,20 @@ public class PersistenceManager extends AbstractEventSubscriber implements Model
 	 * @param modelName the name of the persistence model without file extension
 	 */
 	private void startEventHandling(String modelName) {
-		PersistenceModel model = (PersistenceModel) modelRepository.getModel(modelName + ".persist");
-		if(model!=null) {
-			persistenceConfigurations.put(modelName, model.getConfigs());
-			defaultStrategies.put(modelName, model.getDefaults());
-			for(PersistenceConfiguration config : model.getConfigs()) {
-				if(hasStrategy(modelName, config, GlobalStrategies.RESTORE)) {
-					for(Item item : getAllItems(config)) {
-						initialize(item);
+		if(modelRepository!=null) {
+			PersistenceModel model = (PersistenceModel) modelRepository.getModel(modelName + ".persist");
+			if(model!=null) {
+				persistenceConfigurations.put(modelName, model.getConfigs());
+				defaultStrategies.put(modelName, model.getDefaults());
+				for(PersistenceConfiguration config : model.getConfigs()) {
+					if(hasStrategy(modelName, config, GlobalStrategies.RESTORE)) {
+						for(Item item : getAllItems(config)) {
+							initialize(item);
+						}
 					}
 				}
+				createTimers(modelName);
 			}
-			createTimers(modelName);
 		}
 	}
 
@@ -332,11 +334,11 @@ public class PersistenceManager extends AbstractEventSubscriber implements Model
 
 	public void allItemsChanged(Collection<String> oldItemNames) {
 		for(Item item : itemRegistry.getItems()) {
-			itemAdded(item);
+			added(item);
 		}
 	}
 
-	public void itemAdded(Item item) {
+	public void added(Item item) {
 		initialize(item);
 		if (item instanceof GenericItem) {
 			GenericItem genericItem = (GenericItem) item;
@@ -387,7 +389,7 @@ public class PersistenceManager extends AbstractEventSubscriber implements Model
 		}		
 	}
 
-	public void itemRemoved(Item item) {
+	public void removed(Item item) {
 		if (item instanceof GenericItem) {
 			GenericItem genericItem = (GenericItem) item;
 			genericItem.removeStateChangeListener(this);
@@ -423,7 +425,7 @@ public class PersistenceManager extends AbstractEventSubscriber implements Model
 			
 				        scheduler.scheduleJob(job, quartzTrigger);
 			
-						logger.debug("Scheduled strategy {} with cron expression {}", new String[] { jobKey.toString(), cronExpression });
+						logger.debug("Scheduled strategy {} with cron expression {}", new Object[] { jobKey.toString(), cronExpression });
 					} catch(SchedulerException e) {
 						logger.error("Failed to schedule job for strategy {} with cron expression {}", new String[] { jobKey.toString(), cronExpression }, e);
 					}
@@ -458,7 +460,7 @@ public class PersistenceManager extends AbstractEventSubscriber implements Model
 	}
 
     @Override
-    public void itemUpdated(Item oldItem, Item item) {
+    public void updated(Item oldItem, Item item) {
         // not needed here
     }
 		
