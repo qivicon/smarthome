@@ -11,7 +11,7 @@
         </supported-bridge-type-refs>
 
         <label>Philips LivingWhites Adapter</label>
-        <description>This is a Philips LigingWhites Smartplug</description>
+        <description>This is a Philips LivingWhites adapter</description>
 
         <channels>
             <channel id="brightness" typeId="brightness" />
