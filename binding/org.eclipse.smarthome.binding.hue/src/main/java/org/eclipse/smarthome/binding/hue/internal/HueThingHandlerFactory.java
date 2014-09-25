@@ -102,11 +102,13 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
     
     @Override
     protected void removeHandler(ThingHandler thingHandler) {
-    	if(this.discoveryServiceReg!=null) {
-    		HueLightDiscoveryService service = (HueLightDiscoveryService) bundleContext.getService(discoveryServiceReg.getReference());
-    		service.deactivate();
-    		discoveryServiceReg.unregister();
-    		discoveryServiceReg = null;
-    	}
+        if (thingHandler instanceof HueBridgeHandler && this.discoveryServiceReg != null) {
+            // remove discovery service, if bridge handler is removed
+            HueLightDiscoveryService service = (HueLightDiscoveryService) bundleContext
+                    .getService(discoveryServiceReg.getReference());
+            service.deactivate();
+            discoveryServiceReg.unregister();
+            discoveryServiceReg = null;
+        }
     }
 }

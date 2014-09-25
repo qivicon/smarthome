@@ -335,6 +335,16 @@ public class HueBridgeHandler extends BaseBridgeHandler {
     	return lastLightStates.get(lightId);        
     }
 
+    public void startSearch() {
+        if (bridge != null) {
+            try {
+                bridge.startSearch();
+            } catch (IOException | ApiException e) {
+                logger.error("Bridge cannot search for new lights.", e);
+            }
+        }
+    }
+
     private boolean isEqual(State state1, State state2) {
     	try {
 	    	return state1.getAlertMode().equals(state2.getAlertMode())
