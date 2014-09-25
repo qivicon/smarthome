@@ -63,6 +63,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 
 	@Override
 	public void startScan() {
+        hueBridgeHandler.startSearch();
 	}
 
 	@Override
