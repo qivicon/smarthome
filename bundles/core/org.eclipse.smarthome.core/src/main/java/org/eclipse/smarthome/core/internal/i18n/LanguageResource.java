@@ -11,9 +11,23 @@ import java.util.ResourceBundle;
 import org.osgi.framework.Bundle;
 
 
+/**
+ * The {@link LanguageResource} class manages all available i18n resources for one specific
+ * <i>OSGi</i> bundle. Any i18n resource is searched within the {@link RESOURCE_DIRECTORY}
+ * of the bundle and <i>not</i> within the general bundle classpath. For the translation, the
+ * i18n mechanism of Java ({@link ResourceBundle}) is used.
+ * <p>
+ * This implementation uses the used defined {@link ResourceBundleClassLoader} to map the
+ * bundle resource files to usual URLs which the Java {@link ResourceBundle} can handle.
+ * 
+ * @author Michael Grammling - Initial Contribution
+ */
 public class LanguageResource {
 
-    private static final String RESOURCE_DIRECTORY = "/ESH-INF/I18N";
+    /** The directory within the bundle where the resource files are searched. */
+    private static final String RESOURCE_DIRECTORY = "/ESH-INF/i18n";
+
+    /** The file pattern to filter out resource files. */
     private static final String RESOURCE_FILE_PATTERN = "*.properties";
 
     private Bundle bundle;
@@ -38,10 +52,35 @@ public class LanguageResource {
         return this.bundle;
     }
 
-    public boolean containsResource(String resource) {
-        return this.resourceNames.contains(resource);
+    /**
+     * Releases any cached resources which were managed by this class from the {@link ResourceBundle}.
+     */
+    public void clearCache() {
+        ResourceBundle.clearCache(this.resourceClassLoader);
     }
 
+    /**
+     * Returns {@code true} if the specified resource is managed by this instance
+     * and therefore the according module is responsible for translations,
+     * otherwise {@code false}.
+     * 
+     * @param resource the resource to check (could be null or empty)
+     * @return true if the specified resource is managed by this instance, otherwise false
+     */
+    public boolean containsResource(String resource) {
+        if (resource != null) {
+            return this.resourceNames.contains(resource);
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns {@code true} if this instance and therefore the according module provides
+     * resource information, otherwise {@code false}.
+     * 
+     * @return true if the according bundle provides resource information, otherwise false
+     */
     public boolean containsResources() {
         return (this.resourceNames.size() > 0);
     }
@@ -60,7 +99,7 @@ public class LanguageResource {
                 File resourceFile = new File(resourcePath);
                 String resourceFileName = resourceFile.getName();
                 String baseName = resourceFileName.replaceFirst("[._]+.*", "");
-    
+
                 if (!resourceNames.contains(baseName)) {
                     resourceNames.add(baseName);
                 }
@@ -70,31 +109,77 @@ public class LanguageResource {
         return resourceNames;
     }
 
+    /**
+     * Returns a translation for the specified key in the specified locale (language) by only
+     * considering the specified resource section. The resource is equal to a base name and
+     * therefore it is mapped to one translation package (all files which belong to the base
+     * name).
+     * <p>
+     * If no translation could be found, {@code null} is returned. If the location is not
+     * specified, the default location is used.
+     * 
+     * @param resource the resource to be used for look-up (could be null or empty)
+     * @param key the key to be translated (could be null or empty)
+     * @param locale the locale (language) to be used (could be null)
+     * 
+     * @return the translated text, or null if the key could not be translated
+     */
     public String getText(String resource, String key, Locale locale) {
-        try {
-            ResourceBundle resourceBundle = ResourceBundle.getBundle(
-                    resource, locale, this.resourceClassLoader);
+        if ((resource != null) && (!resource.isEmpty()) && (key != null) && (!key.isEmpty())) {
+            if (locale == null) {
+                locale = Locale.getDefault();
+            }
+
+            try {
+                ResourceBundle resourceBundle = ResourceBundle.getBundle(
+                        resource, locale, this.resourceClassLoader);
     
-            return resourceBundle.getString(key);
-        } catch (Exception ex) {
-            // nothing to do
+                if (resourceBundle != null) {
+                    String text = resourceBundle.getString(key);
+
+                    return text;
+                }
+            } catch (Exception ex) {
+                // nothing to do
+            }
         }
 
         return null;
     }
 
+    /**
+     * Returns a translation for the specified key in the specified locale (language)
+     * by considering all resources in the according bundle.
+     * <p>
+     * If no translation could be found, {@code null} is returned. If the location is not
+     * specified, the default location is used.
+     * 
+     * @param key the key to be translated (could be null or empty)
+     * @param locale the locale (language) to be used (could be null)
+     * 
+     * @return the translated text, or null if the key could not be translated
+     */
     public String getText(String key, Locale locale) {
-        for (String resourceName : this.resourceNames) {
-            try {
-                ResourceBundle resourceBundle = ResourceBundle.getBundle(
-                        resourceName, locale, this.resourceClassLoader);
+        if ((key != null) && (!key.isEmpty())) {
+            if (locale == null) {
+                locale = Locale.getDefault();
+            }
 
-                String text = resourceBundle.getString(key);
-                if (text != null) {
-                    return text;
+            for (String resourceName : this.resourceNames) {
+                try {
+                    ResourceBundle resourceBundle = ResourceBundle.getBundle(
+                            resourceName, locale, this.resourceClassLoader);
+
+                    if (resourceBundle != null) {
+                        String text = resourceBundle.getString(key);
+
+                        if (text != null) {
+                            return text;
+                        }
+                    }
+                } catch (Exception ex) {
+                    // nothing to do
                 }
-            } catch (Exception ex) {
-                // nothing to do
             }
         }
 
