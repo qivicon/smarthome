@@ -12,17 +12,17 @@ import org.osgi.framework.Bundle;
 
 
 /**
- * The {@link LanguageResource} class manages all available i18n resources for one specific
- * <i>OSGi</i> bundle. Any i18n resource is searched within the {@link RESOURCE_DIRECTORY}
+ * The {@link LanguageResourceBundleManager} class manages all available i18n resources for one
+ * specific <i>OSGi</i> bundle. Any i18n resource is searched within the {@link RESOURCE_DIRECTORY}
  * of the bundle and <i>not</i> within the general bundle classpath. For the translation, the
  * i18n mechanism of Java ({@link ResourceBundle}) is used.
  * <p>
- * This implementation uses the used defined {@link ResourceBundleClassLoader} to map the
+ * This implementation uses the user defined {@link ResourceBundleClassLoader} to map the
  * bundle resource files to usual URLs which the Java {@link ResourceBundle} can handle.
  * 
  * @author Michael Grammling - Initial Contribution
  */
-public class LanguageResource {
+public class LanguageResourceBundleManager {
 
     /** The directory within the bundle where the resource files are searched. */
     private static final String RESOURCE_DIRECTORY = "/ESH-INF/i18n";
@@ -35,7 +35,7 @@ public class LanguageResource {
     private List<String> resourceNames;
 
 
-    public LanguageResource(Bundle bundle) {
+    public LanguageResourceBundleManager(Bundle bundle) {
         if (bundle == null) {
             throw new IllegalArgumentException("The Bundle must not be null!");
         }

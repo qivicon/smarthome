@@ -20,16 +20,15 @@ public interface I18nProvider {
      * Returns a translation for the specified key in the specified locale (language) by only
      * considering the translations within the specified module.
      * <p>
-     * If no translation could be found, the specified default text is returned. If the default
-     * text is {@code null}, the key is returned and if the key is {@code null}, an empty string
-     * is returned.
+     * If no translation could be found, the specified default text is returned.<br>
+     * If the specified locale is {@code null}, the default locale is used.
      * 
      * @param bundle the module to be used for the look-up (could be null)
      * @param key the key to be translated (could be null or empty)
      * @param defaultText the default text to be used (could be null or empty)
      * @param locale the locale (language) to be used (could be null)
      *
-     * @return the translated text, or the default text, or an empty text
+     * @return the translated text or the default text (could be null or empty)
      */
     String getText(Bundle bundle, String key, String defaultText, Locale locale);
 

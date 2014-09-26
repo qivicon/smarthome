@@ -15,7 +15,8 @@ import org.osgi.framework.BundleContext;
  * This implementation uses the i18n mechanism of Java ({@link ResourceBundle}) to translate a
  * given key into text. The resources must be placed under a specific directory within the certain
  * modules. Each module is tracked in the platform by using the {@link ResourceBundleTracker} and
- * managed by using one certain {@link LanguageResource} which is responsible for the translation.
+ * managed by using one certain {@link LanguageResourceBundleManager} which is responsible for
+ * the translation.
  *
  * @author Michael Grammling - Initial Contribution
  */
@@ -35,7 +36,9 @@ public class I18nProviderImpl implements I18nProvider {
 
     @Override
     public String getText(Bundle bundle, String key, String defaultText, Locale locale) {
-        LanguageResource languageResource = this.resourceBundleTracker.getLanguageResource(bundle);
+        LanguageResourceBundleManager languageResource =
+                this.resourceBundleTracker.getLanguageResource(bundle);
+
         if (languageResource != null) {
             String text = languageResource.getText(key, locale);
             if (text != null) {

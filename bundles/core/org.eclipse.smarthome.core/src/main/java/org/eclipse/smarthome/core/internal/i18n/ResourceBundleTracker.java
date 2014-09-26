@@ -6,8 +6,6 @@ import java.util.Map;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleEvent;
-import org.osgi.util.tracker.BundleTracker;
 
 
 /**
@@ -15,22 +13,17 @@ import org.osgi.util.tracker.BundleTracker;
  * {@link Bundle.RESOLVED} state or which it already passed. Only bundles which contains
  * i18n resource files are considered within this tracker. 
  * <p>
- * This tracker must be started by calling {@link #open()} and stopped
- * by calling {@link #close()}.
+ * This tracker must be started by calling {@link #open()} and stopped by calling {@link #close()}.
  * 
  * @author Michael Grammling - Initial Contribution
  */
-public class ResourceBundleTracker extends BundleTracker {
+public class ResourceBundleTracker extends ResolvedBundleTracker {
 
-    private Map<Bundle, LanguageResource> bundleLanguageResourceMap;
+    private Map<Bundle, LanguageResourceBundleManager> bundleLanguageResourceMap;
 
 
-    public ResourceBundleTracker(BundleContext bundleContext) {
-        super(bundleContext, Bundle.RESOLVED | Bundle.ACTIVE, null);
-
-        if (bundleContext == null) {
-            throw new IllegalArgumentException("The BundleContext must not be null!");
-        }
+    public ResourceBundleTracker(BundleContext bundleContext)  throws IllegalArgumentException {
+        super(bundleContext);   // can throw an IllegalArgumentException
 
         this.bundleLanguageResourceMap = new LinkedHashMap<>();
     }
@@ -47,39 +40,37 @@ public class ResourceBundleTracker extends BundleTracker {
     }
 
     @Override
-    public synchronized Object addingBundle(Bundle bundle, BundleEvent event) {
+    public synchronized boolean addingBundle(Bundle bundle) {
         if (!this.bundleLanguageResourceMap.containsKey(bundle)) {
-            LanguageResource languageResource = new LanguageResource(bundle);
+            LanguageResourceBundleManager languageResource = new LanguageResourceBundleManager(bundle);
 
             if (languageResource.containsResources()) {
                 this.bundleLanguageResourceMap.put(bundle, languageResource);
-System.out.println("### ADDED: " + bundle.getBundleId());
-                return languageResource;
+System.out.println("############################################# ADDED: " + bundle.getBundleId());
+                return true;
             }
         }
 
-        return null;
+        return false;
     }
 
     @Override
-    public synchronized void removedBundle(Bundle bundle, BundleEvent event, Object object) {
-        if ((event == null) || (event.getType() == BundleEvent.UNRESOLVED)) {
-System.out.println("### REMOVED: " + bundle.getBundleId());
-            LanguageResource languageResource = this.bundleLanguageResourceMap.remove(bundle);
-            if (languageResource != null) {
-                languageResource.clearCache();
-            }
+    public synchronized void removedBundle(Bundle bundle) {
+        LanguageResourceBundleManager languageResource = this.bundleLanguageResourceMap.remove(bundle);
+        if (languageResource != null) {
+System.out.println("############################################# REMOVED: " + bundle.getBundleId());
+            languageResource.clearCache();
         }
     }
 
     /**
-     * Returns the {@link LanguageResource} instance for the specified bundle,
+     * Returns the {@link LanguageResourceBundleManager} instance for the specified bundle,
      * or {@code null} if it cannot be found within that tracker.
      * 
      * @param bundle the bundle which points to the specific resource manager (could be null)
      * @return the specific resource manager (could be null)
      */
-    public LanguageResource getLanguageResource(Bundle bundle) {
+    public LanguageResourceBundleManager getLanguageResource(Bundle bundle) {
         if (bundle != null) {
             return this.bundleLanguageResourceMap.get(bundle);
         }
@@ -88,11 +79,11 @@ System.out.println("### REMOVED: " + bundle.getBundleId());
     }
 
     /**
-     * Returns all {@link LanguageResource} instances managed by this tracker.
+     * Returns all {@link LanguageResourceBundleManager} instances managed by this tracker.
      * 
      * @return the list of all resource managers (not null, could be empty)
      */
-    public Collection<LanguageResource> getAllLanguageResources() {
+    public Collection<LanguageResourceBundleManager> getAllLanguageResources() {
         return this.bundleLanguageResourceMap.values();
     }
 
