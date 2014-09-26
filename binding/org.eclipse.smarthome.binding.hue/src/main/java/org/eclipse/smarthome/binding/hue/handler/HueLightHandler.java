@@ -152,13 +152,17 @@ public class HueLightHandler extends BaseThingHandler implements
             break;
         case CHANNEL_COLOR:
             if (command instanceof HSBType) {
-                lightState = LightStateConverter.toColorLightState((HSBType) command);
+                HSBType hsbCommand = (HSBType) command;
+                if (hsbCommand.getBrightness().intValue() == 0) {
+                    lightState = LightStateConverter.toColorLightState(OnOffType.OFF);
+                } else {
+                    lightState = LightStateConverter.toColorLightState(hsbCommand);
+                }
             } else if (command instanceof PercentType) {
                 lightState = LightStateConverter
                         .toColorLightState((PercentType) command);
             } else if (command instanceof OnOffType) {
-                lightState = LightStateConverter
-                        .toColorLightState((OnOffType) command);
+                lightState = LightStateConverter.toColorLightState((OnOffType) command);
             } else if(command instanceof IncreaseDecreaseType) {
             	Integer brightness = lastSentBrightness;
             	if(brightness==null) {
@@ -180,7 +184,10 @@ public class HueLightHandler extends BaseThingHandler implements
             			if(brightness>255) brightness = 255;
             		}
             		lastSentBrightness = brightness;
-            		lightState = new StateUpdate().setBrightness(brightness);
+                    lightState = new StateUpdate().setBrightness(brightness);
+                    if (brightness == 0) {
+                        lightState = lightState.setOn(false);
+                    }
             	}
             }
             break;
@@ -191,7 +198,6 @@ public class HueLightHandler extends BaseThingHandler implements
             logger.warn("Command send to an unknown channel id: " + channelUID);
         }
     }
-
 
     private synchronized HueBridgeHandler getHueBridgeHandler() {
     	if(this.bridgeHandler==null) {
@@ -217,6 +223,9 @@ public class HueLightHandler extends BaseThingHandler implements
         	lastSentBrightness = null;
         	
             HSBType hsbType = LightStateConverter.toHSBType(fullLight.getState());
+            if (!fullLight.getState().isOn()) {
+                hsbType = new HSBType(hsbType.getHue(), hsbType.getSaturation(), new PercentType(0));
+            }
             updateState(new ChannelUID(getThing().getUID(),  CHANNEL_COLOR), hsbType);
 
             PercentType percentType = LightStateConverter.toColorTemperaturePercentType(fullLight
