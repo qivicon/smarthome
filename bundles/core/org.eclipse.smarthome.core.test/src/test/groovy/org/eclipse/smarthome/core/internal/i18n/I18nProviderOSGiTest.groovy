@@ -40,55 +40,13 @@ class I18nProviderOSGiTest extends OSGiTest {
     }
 
     @Test
-    void 'assert that getText without a resource or bundle is working properly'() {
+    void 'assert that getText without bundle is working properly'() {
         def text
 
-        text = i18nProvider.getText((String) null, null, null, null)
-        assertThat text, is(notNullValue())
-        assertThat text, is(equalTo(""))
+        text = i18nProvider.getText(null, null, null, null)
+        assertThat text, is(nullValue())
 
-        text = i18nProvider.getText((String) null, null, "default", null)
-        assertThat text, is(notNullValue())
-        assertThat text, is(equalTo("default"))
-    }
-
-    @Test
-    void 'assert that getText via resource is working properly'() {
-        def text
-
-        text = i18nProvider.getText(RESOURCE, null, null, null)
-        assertThat text, is(notNullValue())
-        assertThat text, is(equalTo(""))
-
-        text = i18nProvider.getText(RESOURCE, null, "default", null)
-        assertThat text, is(notNullValue())
-        assertThat text, is(equalTo("default"))
-
-        text = i18nProvider.getText(RESOURCE, "UNKNOWN_HELLO", "default", null)
-        assertThat text, is(notNullValue())
-        assertThat text, is(equalTo("default"))
-
-        text = i18nProvider.getText(RESOURCE, "UNKNOWN_HELLO", null, null)
-        assertThat text, is(notNullValue())
-        assertThat text, is(equalTo("UNKNOWN_HELLO"))
-
-        text = i18nProvider.getText(RESOURCE, KEY_HELLO, "default", null)
-        assertThat text, is(notNullValue())
-        assertThat text, is(equalTo(HELLO_WORLD_DEFAULT))
-
-        text = i18nProvider.getText(RESOURCE, KEY_HELLO, "default", Locale.ITALIAN)
-        assertThat text, is(notNullValue())
-        assertThat text, is(equalTo(HELLO_WORLD_DEFAULT))
-
-        text = i18nProvider.getText(RESOURCE, KEY_HELLO, "default", Locale.FRENCH)
-        assertThat text, is(notNullValue())
-        assertThat text, is(equalTo(HELLO_WORLD_FR))
-
-        text = i18nProvider.getText(RESOURCE, KEY_HELLO, "default", Locale.ENGLISH)
-        assertThat text, is(notNullValue())
-        assertThat text, is(equalTo(HELLO_WORLD_EN))
-
-        text = i18nProvider.getText(RESOURCE, KEY_BYE, "default", Locale.ENGLISH)
+        text = i18nProvider.getText(null, null, "default", null)
         assertThat text, is(notNullValue())
         assertThat text, is(equalTo("default"))
     }
@@ -100,8 +58,7 @@ class I18nProviderOSGiTest extends OSGiTest {
         Bundle bundle = getBundleContext().bundle
 
         text = i18nProvider.getText(bundle, null, null, null)
-        assertThat text, is(notNullValue())
-        assertThat text, is(equalTo(""))
+        assertThat text, is(nullValue())
 
         text = i18nProvider.getText(bundle, null, "default", null)
         assertThat text, is(notNullValue())
@@ -112,8 +69,7 @@ class I18nProviderOSGiTest extends OSGiTest {
         assertThat text, is(equalTo("default"))
 
         text = i18nProvider.getText(bundle, "UNKNOWN_HELLO", null, null)
-        assertThat text, is(notNullValue())
-        assertThat text, is(equalTo("UNKNOWN_HELLO"))
+        assertThat text, is(nullValue())
 
         text = i18nProvider.getText(bundle, KEY_HELLO, "default", null)
         assertThat text, is(notNullValue())

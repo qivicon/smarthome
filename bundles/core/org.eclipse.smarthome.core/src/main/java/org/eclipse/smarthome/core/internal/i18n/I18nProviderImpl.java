@@ -1,6 +1,5 @@
 package org.eclipse.smarthome.core.internal.i18n;
 
-import java.util.Collection;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -35,25 +34,6 @@ public class I18nProviderImpl implements I18nProvider {
     }
 
     @Override
-    public String getText(String resource, String key, String defaultText, Locale locale) {
-        if (resource != null) {
-            Collection<LanguageResource> languageResources =
-                    this.resourceBundleTracker.getAllLanguageResources();
-    
-            for (LanguageResource languageResource : languageResources) {
-                if (languageResource.containsResource(resource)) {
-                    String text = languageResource.getText(resource, key, locale);
-                    if (text != null) {
-                        return text;   // otherwise continue, another bundle could contain the resource
-                    }
-                }
-            }
-        }
-
-        return (defaultText != null) ? defaultText : (key != null) ? key : "";
-    }
-
-    @Override
     public String getText(Bundle bundle, String key, String defaultText, Locale locale) {
         LanguageResource languageResource = this.resourceBundleTracker.getLanguageResource(bundle);
         if (languageResource != null) {
@@ -63,7 +43,7 @@ public class I18nProviderImpl implements I18nProvider {
             }
         }
 
-        return (defaultText != null) ? defaultText : (key != null) ? key : "";
+        return defaultText;
     }
 
 }
