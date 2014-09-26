@@ -9,6 +9,14 @@ import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.osgi.framework.Bundle;
 
+/**
+ * {@link DefaultThingTypeI18nProvider} is the default
+ * {@link ThingTypeI18nProvider} implementation that uses the
+ * {@link I18nProvider} to resolve the localized texts. It automatically infers
+ * the key if the default text is not a constant.
+ * 
+ * @author Dennis Nobel - Initial contribution
+ */
 public class DefaultThingTypeI18nProvider extends ContextSpecificI18nProvider implements ThingTypeI18nProvider {
 
     private I18nProvider i18nProvider;

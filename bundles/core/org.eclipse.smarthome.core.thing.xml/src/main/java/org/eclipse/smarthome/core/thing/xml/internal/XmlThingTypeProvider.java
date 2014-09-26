@@ -32,6 +32,7 @@ import org.osgi.framework.Bundle;
  * {@link ThingType} objects associated with that module are released.
  * 
  * @author Michael Grammling - Initial Contribution
+ * @author Dennis Nobel - Added locale support
  */
 public class XmlThingTypeProvider implements ThingTypeProvider {
 

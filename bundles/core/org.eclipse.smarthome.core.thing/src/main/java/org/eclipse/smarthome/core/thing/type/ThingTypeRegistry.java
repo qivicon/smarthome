@@ -15,8 +15,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
@@ -24,12 +22,10 @@ import com.google.common.collect.Lists;
  * The {@link ThingTypeRegistry} tracks all {@link ThingType}s provided by registered {@link ThingTypeProvider}s.
  * 
  * @author Oliver Libutzki - Initial contribution
- *
+ * @author Dennis Nobel - Added locale support
+ * 
  */
 public class ThingTypeRegistry {
-
-    private Logger logger = LoggerFactory.getLogger(ThingTypeRegistry.class
-			.getName());
 	
     private List<ThingTypeProvider> thingTypeProviders = new CopyOnWriteArrayList<>();
 	

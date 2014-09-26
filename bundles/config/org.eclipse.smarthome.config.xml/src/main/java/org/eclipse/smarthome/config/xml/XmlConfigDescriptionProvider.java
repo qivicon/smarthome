@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  * {@link ConfigDescription} objects associated with that module are released.
  * 
  * @author Michael Grammling - Initial Contribution
+ * @author Dennis Nobel - Added locale support
  */
 public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
 

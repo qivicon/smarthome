@@ -15,9 +15,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * {@link ConfigDescriptionRegistry} provides access to {@link ConfigDescription}s.
  * It tracks {@link ConfigDescriptionProvider} OSGi services to collect all
@@ -25,12 +22,10 @@ import org.slf4j.LoggerFactory;
  * 
  * @see ConfigDescriptionProvider
  * 
- * @author Dennis Nobel - Initial contribution
+ * @author Dennis Nobel - Initial contribution. Added locale support
  * @author Michael Grammling - Initial contribution
  */
 public class ConfigDescriptionRegistry {
-    
-    private Logger logger = LoggerFactory.getLogger(ConfigDescriptionRegistry.class.getName());
 
     private final List<ConfigDescriptionProvider> configDescriptionProviders = new CopyOnWriteArrayList<>();
 

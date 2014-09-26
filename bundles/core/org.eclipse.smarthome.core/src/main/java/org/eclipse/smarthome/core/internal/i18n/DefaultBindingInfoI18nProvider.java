@@ -7,6 +7,14 @@ import org.eclipse.smarthome.core.i18n.ContextSpecificI18nProvider;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.osgi.framework.Bundle;
 
+/**
+ * {@link DefaultBindingInfoI18nProvider} is the default
+ * {@link BindingInfoI18nProvider} implementation that uses the
+ * {@link I18nProvider} to resolve the localized texts. It automatically infers
+ * the key if the default text is not a constant.
+ * 
+ * @author Dennis Nobel - Initial contribution
+ */
 public class DefaultBindingInfoI18nProvider extends ContextSpecificI18nProvider implements BindingInfoI18nProvider {
 
     private I18nProvider i18nProvider;
