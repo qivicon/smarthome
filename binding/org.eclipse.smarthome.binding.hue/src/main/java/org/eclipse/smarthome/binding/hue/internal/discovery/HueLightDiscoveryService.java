@@ -7,9 +7,11 @@
  */
 package org.eclipse.smarthome.binding.hue.internal.discovery;
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.BINDING_ID;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.LIGHT_ID;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,13 +65,19 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 
 	@Override
 	public void startScan() {
-        hueBridgeHandler.startSearch();
+	    List<FullLight> lights = hueBridgeHandler.getFullLights(); 
+        for (FullLight l : lights) {
+            onLightAddedInternal(l);
+        }
 	}
 
 	@Override
 	public void onLightAdded(HueBridge bridge, FullLight light) {
-		
-		ThingUID thingUID = getThingUID(light);
+        onLightAddedInternal(light);
+    }
+
+    private void onLightAddedInternal(FullLight light) {
+        ThingUID thingUID = getThingUID(light);
 		if(thingUID!=null) {
 			ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
 	        Map<String, Object> properties = new HashMap<>(1);
@@ -84,7 +92,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 		} else {
 			logger.debug("discovered unsupported light of type '{}' with id {}", light.getModelID(), light.getId());
 		}
-	}
+    }
 
 	@Override
 	public void onLightRemoved(HueBridge bridge, FullLight light) {

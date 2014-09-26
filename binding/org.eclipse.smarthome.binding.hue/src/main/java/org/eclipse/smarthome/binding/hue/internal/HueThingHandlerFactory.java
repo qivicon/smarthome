@@ -10,7 +10,9 @@ package org.eclipse.smarthome.binding.hue.internal;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.LIGHT_ID;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.SERIAL_NUMBER;
 
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler;
@@ -40,7 +42,7 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
     		HueBridgeHandler.SUPPORTED_THING_TYPES,
     		HueLightHandler.SUPPORTED_THING_TYPES);
 
-    private ServiceRegistration<?> discoveryServiceReg;
+    private Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
     
     @Override
     public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration,
@@ -97,18 +99,24 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
     private void registerLightDiscoveryService(HueBridgeHandler bridgeHandler) {
     	HueLightDiscoveryService discoveryService = new HueLightDiscoveryService(bridgeHandler);
     	discoveryService.activate();
-    	this.discoveryServiceReg = bundleContext.registerService(DiscoveryService.class.getName(), discoveryService, new Hashtable<String, Object>());
+        this.discoveryServiceRegs.put(bridgeHandler.getThing().getUID(), bundleContext
+                .registerService(DiscoveryService.class.getName(), discoveryService,
+                        new Hashtable<String, Object>()));
     }
     
     @Override
     protected void removeHandler(ThingHandler thingHandler) {
-        if (thingHandler instanceof HueBridgeHandler && this.discoveryServiceReg != null) {
-            // remove discovery service, if bridge handler is removed
-            HueLightDiscoveryService service = (HueLightDiscoveryService) bundleContext
-                    .getService(discoveryServiceReg.getReference());
-            service.deactivate();
-            discoveryServiceReg.unregister();
-            discoveryServiceReg = null;
+        if (thingHandler instanceof HueBridgeHandler) {
+            ServiceRegistration<?> serviceReg = this.discoveryServiceRegs.get(thingHandler
+                    .getThing().getUID());
+            if (serviceReg != null) {
+                // remove discovery service, if bridge handler is removed
+                HueLightDiscoveryService service = (HueLightDiscoveryService) bundleContext
+                        .getService(serviceReg.getReference());
+                service.deactivate();
+                serviceReg.unregister();
+                discoveryServiceRegs.remove(thingHandler.getThing().getUID());
+            }
         }
     }
 }

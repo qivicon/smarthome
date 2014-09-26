@@ -12,8 +12,6 @@ import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_B
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.USER_NAME;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -335,14 +333,16 @@ public class HueBridgeHandler extends BaseBridgeHandler {
     	return lastLightStates.get(lightId);        
     }
 
-    public void startSearch() {
+    public List<FullLight> getFullLights() {
+        List<FullLight> lights = null;
         if (bridge != null) {
             try {
-                bridge.startSearch();
+                lights = bridge.getFullConfig().getLights();
             } catch (IOException | ApiException e) {
                 logger.error("Bridge cannot search for new lights.", e);
             }
         }
+        return lights;
     }
 
     private boolean isEqual(State state1, State state2) {
