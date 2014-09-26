@@ -36,7 +36,7 @@ public abstract class ResolvedBundleTracker implements BundleListener {
      * @throws IllegalArgumentException if the bundle context is null
      */
     public ResolvedBundleTracker(BundleContext bundleContext) throws IllegalArgumentException {
-        if (this.bundleContext == null) {
+        if (bundleContext == null) {
             throw new IllegalArgumentException("The bundle context must not be null!");
         }
 
@@ -95,11 +95,8 @@ public abstract class ResolvedBundleTracker implements BundleListener {
         int type = event.getType();
 
         if ((type & ((BundleEvent.STARTING | BundleEvent.STARTED | BundleEvent.RESOLVED))) > 0) {
-            System.out.println("bundleChanged.added: " + event.getType());
             add(bundle);
         } else if ((type & (BundleEvent.UNINSTALLED | BundleEvent.UNRESOLVED)) > 0) {
-
-            System.out.println("bundleChanged.removed: " + event.getType());
             remove(bundle);
         }
     }

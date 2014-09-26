@@ -7,6 +7,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.ResourceBundle.Control;
 
 import org.osgi.framework.Bundle;
 
@@ -167,8 +168,17 @@ public class LanguageResourceBundleManager {
 
             for (String resourceName : this.resourceNames) {
                 try {
+                    // Modify the search order so that the following applies:
+                    // 1.) baseName + "_" + language + "_" + country
+                    // 2.) baseName + "_" + language
+                    // 3.) baseName
+                    // 4.) null -> leads to a default text
+                    // Not using the default fallback strategy helps that not the default locale
+                    // search order is applied between 2.) and 3.).
                     ResourceBundle resourceBundle = ResourceBundle.getBundle(
-                            resourceName, locale, this.resourceClassLoader);
+                            resourceName, locale,
+                            this.resourceClassLoader,
+                            Control.getNoFallbackControl(Control.FORMAT_PROPERTIES));
 
                     if (resourceBundle != null) {
                         String text = resourceBundle.getString(key);
