@@ -22,7 +22,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * 
  * @see ConfigDescriptionProvider
  * 
- * @author Dennis Nobel - Initial contribution. Added locale support
+ * @author Dennis Nobel - Initial contribution, added locale support
  * @author Michael Grammling - Initial contribution
  */
 public class ConfigDescriptionRegistry {

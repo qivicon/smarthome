@@ -9,7 +9,7 @@ import org.osgi.framework.Bundle;
  * The {@link I18nProvider} is a service interface for internationalization support within
  * the platform. This service can be used to translate specific keys into its according
  * text by considering the specified {@link Locale} (language). Any module which supports
- * resource files are managed by this provider and used for translation. This service uses
+ * resource files is managed by this provider and used for translation. This service uses
  * the i18n mechanism of Java. 
  * 
  * @author Michael Grammling - Initial Contribution

@@ -46,7 +46,7 @@ public class ResourceBundleTracker extends ResolvedBundleTracker {
 
             if (languageResource.containsResources()) {
                 this.bundleLanguageResourceMap.put(bundle, languageResource);
-System.out.println("############################################# ADDED: " + bundle.getBundleId());
+
                 return true;
             }
         }
@@ -58,7 +58,6 @@ System.out.println("############################################# ADDED: " + bun
     public synchronized void removedBundle(Bundle bundle) {
         LanguageResourceBundleManager languageResource = this.bundleLanguageResourceMap.remove(bundle);
         if (languageResource != null) {
-System.out.println("############################################# REMOVED: " + bundle.getBundleId());
             languageResource.clearCache();
         }
     }

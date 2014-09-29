@@ -68,8 +68,8 @@ public class Activator implements BundleActivator {
 
     @Override
     public void start(BundleContext context) throws Exception {
-        this.configDescriptionProvider =
-                new XmlConfigDescriptionProvider();
+        this.configDescriptionProvider = new XmlConfigDescriptionProvider();
+
         this.configDescriptionI18nProviderServiceTracker = new ConfigDescriptionI18nProviderServiceTracker(context);
         this.configDescriptionI18nProviderServiceTracker.open();
         

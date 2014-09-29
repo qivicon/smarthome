@@ -21,8 +21,6 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
 import org.eclipse.smarthome.config.core.i18n.ConfigDescriptionI18nProvider;
 import org.osgi.framework.Bundle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The {@link XmlConfigDescriptionProvider} is a concrete implementation of the
@@ -36,8 +34,6 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Added locale support
  */
 public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
-
-    private Logger logger = LoggerFactory.getLogger(XmlConfigDescriptionProvider.class);
 
     private Map<Bundle, List<ConfigDescription>> bundleConfigDescriptionsMap;
 

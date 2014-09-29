@@ -86,7 +86,6 @@ public class LanguageResourceBundleManager {
         return (this.resourceNames.size() > 0);
     }
 
-    @SuppressWarnings("unchecked")
     private List<String> determineResourceNames() {
         List<String> resourceNames = new ArrayList<>();
 

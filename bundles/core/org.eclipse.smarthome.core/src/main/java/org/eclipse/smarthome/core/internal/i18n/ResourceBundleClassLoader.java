@@ -47,7 +47,6 @@ public class ResourceBundleClassLoader extends ClassLoader {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public URL getResource(String name) {
         Enumeration<URL> resourceFiles = this.bundle.findEntries(this.path, this.filePattern, true);
 

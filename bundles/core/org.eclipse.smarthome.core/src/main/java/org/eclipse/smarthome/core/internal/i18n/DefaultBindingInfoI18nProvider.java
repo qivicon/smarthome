@@ -8,27 +8,32 @@ import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.osgi.framework.Bundle;
 
 /**
- * {@link DefaultBindingInfoI18nProvider} is the default
- * {@link BindingInfoI18nProvider} implementation that uses the
- * {@link I18nProvider} to resolve the localized texts. It automatically infers
- * the key if the default text is not a constant.
+ * The {@link DefaultBindingInfoI18nProvider} is the default {@link BindingInfoI18nProvider}
+ * implementation that uses the {@link I18nProvider} to resolve the localized texts.
+ * It automatically infers the key if the default text is not a constant.
  * 
  * @author Dennis Nobel - Initial contribution
  */
-public class DefaultBindingInfoI18nProvider extends ContextSpecificI18nProvider implements BindingInfoI18nProvider {
+public class DefaultBindingInfoI18nProvider extends ContextSpecificI18nProvider
+        implements BindingInfoI18nProvider {
 
     private I18nProvider i18nProvider;
 
     @Override
-    public String getDescription(Bundle bundle, String bindingId, String defaultDescription, Locale locale) {
-        String key = isConstant(defaultDescription) ? stripConstant(defaultDescription) : inferKey(bindingId,
-                "description");
+    public String getDescription(
+            Bundle bundle, String bindingId, String defaultDescription, Locale locale) {
+
+        String key = isConstant(defaultDescription)
+                ? stripConstant(defaultDescription) : inferKey(bindingId, "description");
+
         return i18nProvider.getText(bundle, key, defaultDescription, locale);
     }
 
     @Override
     public String getLabel(Bundle bundle, String bindingId, String defaultLabel, Locale locale) {
-        String key = isConstant(defaultLabel) ? stripConstant(defaultLabel) : inferKey(bindingId, "label");
+        String key = isConstant(defaultLabel)
+                ? stripConstant(defaultLabel) : inferKey(bindingId, "label");
+
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 
