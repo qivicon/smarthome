@@ -125,22 +125,21 @@ public class LanguageResourceBundleManager {
      * @return the translated text, or null if the key could not be translated
      */
     public String getText(String resource, String key, Locale locale) {
-        if ((resource != null) && (!resource.isEmpty()) && (key != null) && (!key.isEmpty())) {
+        if ((key != null) && (!key.isEmpty())) {
             if (locale == null) {
                 locale = Locale.getDefault();
             }
 
-            try {
-                ResourceBundle resourceBundle = ResourceBundle.getBundle(
-                        resource, locale, this.resourceClassLoader);
-    
-                if (resourceBundle != null) {
-                    String text = resourceBundle.getString(key);
+            if (resource != null) {
+                return getTranslatedText(resource, key, locale);
+            } else {
+                for (String resourceName : this.resourceNames) {
+                    String text = getTranslatedText(resourceName, key, locale);
 
-                    return text;
+                    if (text != null) {
+                        return text;
+                    }
                 }
-            } catch (Exception ex) {
-                // nothing to do
             }
         }
 
@@ -160,36 +159,28 @@ public class LanguageResourceBundleManager {
      * @return the translated text, or null if the key could not be translated
      */
     public String getText(String key, Locale locale) {
-        if ((key != null) && (!key.isEmpty())) {
-            if (locale == null) {
-                locale = Locale.getDefault();
+        return getText(null, key, locale);
+    }
+
+    private String getTranslatedText(String resourceName, String key, Locale locale) {
+        try {
+            // Modify the search order so that the following applies:
+            // 1.) baseName + "_" + language + "_" + country
+            // 2.) baseName + "_" + language
+            // 3.) baseName
+            // 4.) null -> leads to a default text
+            // Not using the default fallback strategy helps that not the default locale
+            // search order is applied between 2.) and 3.).
+            ResourceBundle resourceBundle = ResourceBundle.getBundle(
+                    resourceName, locale,
+                    this.resourceClassLoader,
+                    Control.getNoFallbackControl(Control.FORMAT_PROPERTIES));
+
+            if (resourceBundle != null) {
+                return resourceBundle.getString(key);
             }
-
-            for (String resourceName : this.resourceNames) {
-                try {
-                    // Modify the search order so that the following applies:
-                    // 1.) baseName + "_" + language + "_" + country
-                    // 2.) baseName + "_" + language
-                    // 3.) baseName
-                    // 4.) null -> leads to a default text
-                    // Not using the default fallback strategy helps that not the default locale
-                    // search order is applied between 2.) and 3.).
-                    ResourceBundle resourceBundle = ResourceBundle.getBundle(
-                            resourceName, locale,
-                            this.resourceClassLoader,
-                            Control.getNoFallbackControl(Control.FORMAT_PROPERTIES));
-
-                    if (resourceBundle != null) {
-                        String text = resourceBundle.getString(key);
-
-                        if (text != null) {
-                            return text;
-                        }
-                    }
-                } catch (Exception ex) {
-                    // nothing to do
-                }
-            }
+        } catch (Exception ex) {
+            // nothing to do
         }
 
         return null;
