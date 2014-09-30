@@ -89,8 +89,7 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
      * <p>
      * Any added {@link ConfigDescription} object leads to a separate event.
      * <p>
-     * This method returns silently, if any of the parameters is {@code null} or
-     * empty.
+     * This method returns silently, if any of the parameters is {@code null} or empty.
      * 
      * @param bundle
      *            the module to which the list of config descriptions to be
@@ -98,7 +97,8 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
      * @param configDescriptions
      *            the list of config descriptions to be added
      */
-    public synchronized void addConfigDescriptions(Bundle bundle, List<ConfigDescription> configDescriptions) {
+    public synchronized void addConfigDescriptions(
+            Bundle bundle, List<ConfigDescription> configDescriptions) {
 
         if ((configDescriptions != null) && (configDescriptions.size() > 0)) {
             List<ConfigDescription> currentConfigDescriptionList = acquireConfigDescriptions(bundle);
@@ -137,8 +137,8 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
     public synchronized Collection<ConfigDescription> getConfigDescriptions(Locale locale) {
         List<ConfigDescription> allConfigDescriptions = new ArrayList<>();
 
-        Collection<Entry<Bundle, List<ConfigDescription>>> configDescriptionsList = this.bundleConfigDescriptionsMap
-                .entrySet();
+        Collection<Entry<Bundle, List<ConfigDescription>>> configDescriptionsList =
+                this.bundleConfigDescriptionsMap.entrySet();
 
         if (configDescriptionsList != null) {
             for (Entry<Bundle, List<ConfigDescription>> configDescriptions : configDescriptionsList) {
@@ -155,15 +155,15 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
 
     @Override
     public synchronized ConfigDescription getConfigDescription(URI uri, Locale locale) {
-
-        Collection<Entry<Bundle, List<ConfigDescription>>> configDescriptionsList = this.bundleConfigDescriptionsMap
-                .entrySet();
+        Collection<Entry<Bundle, List<ConfigDescription>>> configDescriptionsList =
+                this.bundleConfigDescriptionsMap.entrySet();
 
         if (configDescriptionsList != null) {
             for (Entry<Bundle, List<ConfigDescription>> configDescriptions : configDescriptionsList) {
                 for (ConfigDescription configDescription : configDescriptions.getValue()) {
                     if (configDescription.getURI().equals(uri)) {
-                        return getLocalizedConfigDescription(configDescriptions.getKey(), configDescription, locale);
+                        return getLocalizedConfigDescription(
+                                configDescriptions.getKey(), configDescription, locale);
                     }
                 }
             }
@@ -172,44 +172,56 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
         return null;
     }
 
-    public void setConfigDescriptionI18nProvider(ConfigDescriptionI18nProvider configDescriptionI18nProvider) {
+    public void setConfigDescriptionI18nProvider(
+            ConfigDescriptionI18nProvider configDescriptionI18nProvider) {
+
         this.configDescriptionI18nProvider = configDescriptionI18nProvider;
     }
 
-    public void unsetConfigDescriptionI18nProvider(ConfigDescriptionI18nProvider configDescriptionI18nProvider) {
+    public void unsetConfigDescriptionI18nProvider(
+            ConfigDescriptionI18nProvider configDescriptionI18nProvider) {
+
         this.configDescriptionI18nProvider = null;
     }
 
-    private ConfigDescription getLocalizedConfigDescription(Bundle bundle, ConfigDescription configDescription,
-            Locale locale) {
+    private ConfigDescription getLocalizedConfigDescription(
+            Bundle bundle, ConfigDescription configDescription, Locale locale) {
+
         if (this.configDescriptionI18nProvider != null) {
-            List<ConfigDescriptionParameter> localizedConfigDescriptionParameters = new ArrayList<>(configDescription
-                    .getParameters().size());
+            List<ConfigDescriptionParameter> localizedConfigDescriptionParameters =
+                    new ArrayList<>(configDescription.getParameters().size());
             for (ConfigDescriptionParameter configDescriptionParameter : configDescription.getParameters()) {
-                ConfigDescriptionParameter localizedConfigDescriptionParameter = getLocalizedConfigDescriptionParamter(
-                        bundle, configDescription, configDescriptionParameter, locale);
+                ConfigDescriptionParameter localizedConfigDescriptionParameter =
+                        getLocalizedConfigDescriptionParamter(
+                                bundle, configDescription, configDescriptionParameter, locale);
                 localizedConfigDescriptionParameters.add(localizedConfigDescriptionParameter);
             }
-            return new ConfigDescription(configDescription.getURI(), localizedConfigDescriptionParameters);
+            return new ConfigDescription(
+                    configDescription.getURI(), localizedConfigDescriptionParameters);
         } else {
             return configDescription;
         }
     }
 
-    private ConfigDescriptionParameter getLocalizedConfigDescriptionParamter(Bundle bundle,
-            ConfigDescription configDescription, ConfigDescriptionParameter configDescriptionParameter, Locale locale) {
+    private ConfigDescriptionParameter getLocalizedConfigDescriptionParamter(
+            Bundle bundle, ConfigDescription configDescription,
+            ConfigDescriptionParameter configDescriptionParameter, Locale locale) {
 
-        String label = this.configDescriptionI18nProvider.getParameterLabel(bundle, configDescription.getURI(),
-                configDescriptionParameter.getName(), configDescriptionParameter.getLabel(), locale);
+        String label = this.configDescriptionI18nProvider.getParameterLabel(
+                bundle, configDescription.getURI(), configDescriptionParameter.getName(),
+                configDescriptionParameter.getLabel(), locale);
 
         String description = this.configDescriptionI18nProvider.getParameterDescription(bundle,
                 configDescription.getURI(), configDescriptionParameter.getName(),
                 configDescriptionParameter.getDescription(), locale);
 
-        ConfigDescriptionParameter localizedConfigDescriptionParameter = new ConfigDescriptionParameter(
-                configDescriptionParameter.getName(), configDescriptionParameter.getType(),
-                configDescriptionParameter.getContext(), configDescriptionParameter.isRequired(),
-                configDescriptionParameter.getDefault(), label, description);
+        ConfigDescriptionParameter localizedConfigDescriptionParameter =
+                new ConfigDescriptionParameter(
+                        configDescriptionParameter.getName(),
+                        configDescriptionParameter.getType(),
+                        configDescriptionParameter.getContext(),
+                        configDescriptionParameter.isRequired(),
+                        configDescriptionParameter.getDefault(), label, description);
 
         return localizedConfigDescriptionParameter;
     }

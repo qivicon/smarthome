@@ -41,9 +41,9 @@ public class Activator implements BundleActivator {
     private ServiceRegistration<?> configDescriptionProviderReg;
 
     private XmlDocumentBundleTracker<List<ConfigDescription>> configDescriptionTracker;
-    
+
     private XmlConfigDescriptionProvider configDescriptionProvider;
-    
+
     private ServiceTracker configDescriptionI18nProviderServiceTracker;
 
     private class ConfigDescriptionI18nProviderServiceTracker extends ServiceTracker {
@@ -54,14 +54,16 @@ public class Activator implements BundleActivator {
 
         @Override
         public Object addingService(ServiceReference reference) {
-        	ConfigDescriptionI18nProvider service = (ConfigDescriptionI18nProvider) this.context.getService(reference);
+        	ConfigDescriptionI18nProvider service =
+        	        (ConfigDescriptionI18nProvider) this.context.getService(reference);
             configDescriptionProvider.setConfigDescriptionI18nProvider(service);
             return service;
         }
 
         @Override
         public void removedService(ServiceReference reference, Object service) {
-        	configDescriptionProvider.unsetConfigDescriptionI18nProvider((ConfigDescriptionI18nProvider) this.context.getService(reference));
+        	configDescriptionProvider.unsetConfigDescriptionI18nProvider(
+        	        (ConfigDescriptionI18nProvider) this.context.getService(reference));
         }
 
     };
@@ -70,7 +72,8 @@ public class Activator implements BundleActivator {
     public void start(BundleContext context) throws Exception {
         this.configDescriptionProvider = new XmlConfigDescriptionProvider();
 
-        this.configDescriptionI18nProviderServiceTracker = new ConfigDescriptionI18nProviderServiceTracker(context);
+        this.configDescriptionI18nProviderServiceTracker =
+                new ConfigDescriptionI18nProviderServiceTracker(context);
         this.configDescriptionI18nProviderServiceTracker.open();
         
         this.configDescriptionProviderReg = context.registerService(
@@ -90,12 +93,13 @@ public class Activator implements BundleActivator {
 
     @Override
     public void stop(BundleContext context) throws Exception {
-        this.configDescriptionTracker.close();
-
         this.configDescriptionProviderReg.unregister();
         this.configDescriptionProviderReg = null;
-        
+
+        this.configDescriptionTracker.close();
+
         this.configDescriptionI18nProviderServiceTracker.close();
+
         this.configDescriptionProvider = null;
     }
 
