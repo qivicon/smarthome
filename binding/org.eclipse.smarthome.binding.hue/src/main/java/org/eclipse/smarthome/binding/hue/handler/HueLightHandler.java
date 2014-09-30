@@ -46,7 +46,8 @@ import com.google.common.collect.Sets;
  * 
  * @author Dennis Nobel - Initial contribution of hue binding
  * @author Oliver Libutzki
- * @author Kai Kreuzer - stabelized code
+ * @author Kai Kreuzer - stabilized code
+ * @author Andre Fuechsel - implemented switch  off when brightness == 0
  * 
  */
 public class HueLightHandler extends BaseThingHandler implements

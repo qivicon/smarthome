@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Initial contribution of hue binding
  * @author Oliver Libutzki
  * @author Kai Kreuzer - improved state handling
+ * @author Andre Fuechsel - implemented getFullLights
  * 
  */
 public class HueBridgeHandler extends BaseBridgeHandler {

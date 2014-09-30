@@ -35,6 +35,8 @@ import com.google.common.collect.Sets;
  * 
  * @author Dennis Nobel - Initial contribution of hue binding
  * @author Kai Kreuzer - added supportsThingType method
+ * @author Andre Fuechsel - implemented to use one discovery service per bridge
+ * 
  */
 public class HueThingHandlerFactory extends BaseThingHandlerFactory {
 
