@@ -101,12 +101,8 @@ public abstract class ResolvedBundleTracker implements BundleListener {
         }
     }
 
-    private boolean isThisBundle(Bundle bundle) {
-        return (this.bundleContext.getBundle() == bundle);
-    }
-
     private void add(Bundle bundle) {
-        if ((!isThisBundle(bundle) && (!this.trackedBundles.contains(bundle)))) {
+        if (!this.trackedBundles.contains(bundle)) {
             try {
                 if (addingBundle(bundle)) {
                     this.trackedBundles.add(bundle);
