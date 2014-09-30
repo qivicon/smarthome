@@ -237,9 +237,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 		def expectedBody = 
 			"""
 				{
-					"bri" : 0,
-					"sat" : 0,
-					"hue" : 0
+					"on" : false
 				}
 			"""
 		assertSendCommand(CHANNEL_COLOR, HSBType.BLACK, expectedBody)	
