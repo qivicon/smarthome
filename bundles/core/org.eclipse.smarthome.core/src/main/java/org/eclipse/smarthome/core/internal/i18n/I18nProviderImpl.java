@@ -13,10 +13,11 @@ import org.osgi.framework.BundleContext;
  * service interface.
  * <p>
  * This implementation uses the i18n mechanism of Java ({@link ResourceBundle}) to translate a
- * given key into text. The resources must be placed under a specific directory within the certain
- * modules. Each module is tracked in the platform by using the {@link ResourceBundleTracker} and
- * managed by using one certain {@link LanguageResourceBundleManager} which is responsible for
- * the translation.
+ * given key into text. The resources must be placed under the specific directory
+ * {@link LanguageResourceBundleManager#RESOURCE_DIRECTORY} within the certain modules.
+ * Each module is tracked in the platform by using the {@link ResourceBundleTracker} and managed
+ * by using one certain {@link LanguageResourceBundleManager} which is responsible for the
+ * translation.
  *
  * @author Michael Grammling - Initial Contribution
  */

@@ -10,8 +10,9 @@ import org.osgi.framework.BundleContext;
 
 /**
  * The {@link ResourceBundleTracker} class tracks all <i>OSGi</i> bundles which are in the
- * {@link Bundle.RESOLVED} state or which it already passed. Only bundles which contains
- * i18n resource files are considered within this tracker. 
+ * {@link Bundle#RESOLVED} state or which it already passed (e.g. {@link Bundle#STARTING}
+ * or {@link Bundle#ACTIVE}). Only bundles which contains i18n resource files are considered
+ * within this tracker. 
  * <p>
  * This tracker must be started by calling {@link #open()} and stopped by calling {@link #close()}.
  * 

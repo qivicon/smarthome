@@ -69,7 +69,8 @@ public abstract class ResolvedBundleTracker implements BundleListener {
         Bundle[] bundles = this.bundleContext.getBundles();
         for (Bundle bundle : bundles) {
             int state = bundle.getState();
-            if ((state & (Bundle.INSTALLED | Bundle.UNINSTALLED)) > 0) {
+            boolean shouldNotBeTracked = (state & (Bundle.INSTALLED | Bundle.UNINSTALLED)) > 0;
+            if (shouldNotBeTracked) {
                 remove(bundle);
             } else {
                 add(bundle);
@@ -94,9 +95,14 @@ public abstract class ResolvedBundleTracker implements BundleListener {
         Bundle bundle = event.getBundle();
         int type = event.getType();
 
-        if ((type & ((BundleEvent.STARTING | BundleEvent.STARTED | BundleEvent.RESOLVED))) > 0) {
+        boolean shouldBeTracked =
+                (type & ((BundleEvent.STARTING | BundleEvent.STARTED | BundleEvent.RESOLVED))) > 0;
+        boolean shouldNotBeTracked =
+                (type & (BundleEvent.UNINSTALLED | BundleEvent.UNRESOLVED)) > 0;
+
+        if (shouldBeTracked) {
             add(bundle);
-        } else if ((type & (BundleEvent.UNINSTALLED | BundleEvent.UNRESOLVED)) > 0) {
+        } else if (shouldNotBeTracked) {
             remove(bundle);
         }
     }
