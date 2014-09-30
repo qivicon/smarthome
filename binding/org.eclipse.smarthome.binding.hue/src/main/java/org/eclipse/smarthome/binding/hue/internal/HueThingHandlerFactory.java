@@ -98,7 +98,7 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
         }
     }
     
-    private void registerLightDiscoveryService(HueBridgeHandler bridgeHandler) {
+    private synchronized void registerLightDiscoveryService(HueBridgeHandler bridgeHandler) {
     	HueLightDiscoveryService discoveryService = new HueLightDiscoveryService(bridgeHandler);
     	discoveryService.activate();
         this.discoveryServiceRegs.put(bridgeHandler.getThing().getUID(), bundleContext
@@ -107,7 +107,7 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
     }
     
     @Override
-    protected void removeHandler(ThingHandler thingHandler) {
+    protected synchronized void removeHandler(ThingHandler thingHandler) {
         if (thingHandler instanceof HueBridgeHandler) {
             ServiceRegistration<?> serviceReg = this.discoveryServiceRegs.get(thingHandler
                     .getThing().getUID());
