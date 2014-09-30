@@ -28,7 +28,7 @@ class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
     @Before
     void setUp() {
         configDescriptionRegistry = getService(ConfigDescriptionRegistry)
-        configDescription = new ConfigDescription(new URI("Dummy"))
+        configDescription = new ConfigDescription(new URI("config:dummy"))
         configDescriptionProviderMock = [
             addConfigDescriptionsChangeListener: { def ConfigDescriptionsChangeListener listener ->
                 listener.configDescriptionAdded(configDescriptionProviderMock, configDescription)
@@ -44,14 +44,13 @@ class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
 
     @Test
     void 'assert ConfigDescriptionRegistry tracks registered ConfigDescriptionProvider'() {
-
         assertThat configDescriptionRegistry.getConfigDescriptions().size(), is(0)
 
         registerService configDescriptionProviderMock
 
         def configDescriptions = configDescriptionRegistry.getConfigDescriptions()
         assertThat configDescriptions.size(), is(1)
-        assertThat configDescriptions[0].uri, is(equalTo(new URI("Dummy")))
+        assertThat configDescriptions[0].uri, is(equalTo(new URI("config:dummy")))
 
         unregisterService configDescriptionProviderMock
 
@@ -60,11 +59,11 @@ class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
 
     @Test
     void 'assert getConfigDescription returns according config description'() {
-
         registerService configDescriptionProviderMock
 
-        def configDescription = configDescriptionRegistry.getConfigDescription(new URI("Dummy"))
+        def configDescription = configDescriptionRegistry.getConfigDescription(new URI("config:dummy"))
         assertThat configDescription, is(not(null))
-        assertThat configDescription.uri, is(equalTo(new URI("Dummy")))
+        assertThat configDescription.uri, is(equalTo(new URI("config:dummy")))
     }
+
 }
