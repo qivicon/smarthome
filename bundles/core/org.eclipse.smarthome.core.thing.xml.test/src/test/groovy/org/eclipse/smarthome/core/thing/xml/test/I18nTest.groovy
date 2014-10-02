@@ -11,6 +11,8 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.config.core.ConfigDescription;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider
 import org.eclipse.smarthome.core.thing.type.BridgeType
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition
@@ -33,6 +35,7 @@ class I18nTest extends OSGiTest {
     void setUp() {
         thingTypeProvider = getService(ThingTypeProvider)
         assertThat thingTypeProvider, is(notNullValue())
+        
     }
 
     @After
@@ -41,7 +44,7 @@ class I18nTest extends OSGiTest {
     }
 
     @Test
-    void 'assert that ThingTypes were loaded'() {
+    void 'assert that thing type was localized'() {
         def bundleContext = getBundleContext()
         def initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size()
 
@@ -54,8 +57,25 @@ class I18nTest extends OSGiTest {
 
         def weatherType = thingTypes.find { it.toString().equals("yahooweather:weather") } as ThingType
         assertThat weatherType, is(notNullValue())
-        assertThat weatherType.label, is("Wetterinformation")
+        assertThat asString(weatherType), is(equalTo(
+"""
+# thing types
+thing-type.yahooweather.weather.label = Wetterinformation
+thing-type.yahooweather.weather.description = Stellt verschiedene Wetterdaten vom yahoo Wetterdienst bereit
+"""
+        ))
 
     }
+    
+    String asString(final ThingType self) {
+       def label = self.label
+       def description = self.description
+return """
+# thing types
+thing-type.yahooweather.weather.label = ${label}
+thing-type.yahooweather.weather.description = ${description}
+"""
+    }
+    
 
 }
