@@ -23,7 +23,6 @@ import org.junit.Ignore;
 import org.junit.Test
 import org.osgi.framework.Bundle
 
-@Ignore
 class I18nTest extends OSGiTest {
 
     static final String TEST_BUNDLE_NAME = "yahooweather.bundle"
