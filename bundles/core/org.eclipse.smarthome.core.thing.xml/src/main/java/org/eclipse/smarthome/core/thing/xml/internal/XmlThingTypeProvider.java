@@ -18,6 +18,7 @@ import java.util.Map.Entry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nProvider;
+import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
@@ -163,9 +164,15 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
                         channelDefinition, locale);
                 localizedChannelDefinitions.add(localizedChannelDefinition);
             }
-
-            return new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(), label, description,
-                    localizedChannelDefinitions, thingType.getConfigDescriptionURI());
+            
+            if (thingType instanceof BridgeType) {
+                BridgeType bridgeType = (BridgeType) thingType;
+                return new BridgeType(bridgeType.getUID(), bridgeType.getSupportedBridgeTypeUIDs(), label, description,
+                        localizedChannelDefinitions, bridgeType.getConfigDescriptionURI());
+            } else {
+                return new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(), label, description,
+                        localizedChannelDefinitions, thingType.getConfigDescriptionURI());
+            }
         } else {
             return thingType;
         }
