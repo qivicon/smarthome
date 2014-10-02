@@ -52,7 +52,7 @@ class ConfigDescriptionsTest extends OSGiTest {
 		assertThat bundle, is(notNullValue())
 		
         def configDescriptions = configDescriptionRegistry.getConfigDescriptions()
-        assertThat configDescriptions.size(), is(initialNumberOfConfigDescriptions + 1)
+        assertThat configDescriptions.size(), is(initialNumberOfConfigDescriptions + 3)
         
         ConfigDescription dummyConfigDescription = configDescriptions.find { it.uri.equals(new URI("dummyConfig")) }
         assertThat dummyConfigDescription, is(notNullValue())
