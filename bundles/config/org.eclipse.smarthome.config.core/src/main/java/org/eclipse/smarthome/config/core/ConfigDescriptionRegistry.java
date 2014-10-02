@@ -27,14 +27,23 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class ConfigDescriptionRegistry {
 
-    private final List<ConfigDescriptionProvider> configDescriptionProviders = new CopyOnWriteArrayList<>();
+    private final List<ConfigDescriptionProvider> configDescriptionProviders =
+            new CopyOnWriteArrayList<>();
 
-    protected void addConfigDescriptionProvider(ConfigDescriptionProvider configDescriptionProvider) {
-        configDescriptionProviders.add(configDescriptionProvider);
+    protected void addConfigDescriptionProvider(
+            ConfigDescriptionProvider configDescriptionProvider) {
+
+        if (configDescriptionProvider != null) {
+            configDescriptionProviders.add(configDescriptionProvider);
+        }
     }
 
-    protected void removeConfigDescriptionProvider(ConfigDescriptionProvider configDescriptionProvider) {
-        configDescriptionProviders.remove(configDescriptionProvider);
+    protected void removeConfigDescriptionProvider(
+            ConfigDescriptionProvider configDescriptionProvider) {
+
+        if (configDescriptionProvider != null) {
+            configDescriptionProviders.remove(configDescriptionProvider);
+        }
     }
 
     /**
@@ -46,7 +55,7 @@ public class ConfigDescriptionRegistry {
      *         description exists
      */
     public Collection<ConfigDescription> getConfigDescriptions(Locale locale) {
-        Collection<ConfigDescription> configDescriptions = new ArrayList<>();
+        Collection<ConfigDescription> configDescriptions = new ArrayList<>(10);
         for (ConfigDescriptionProvider configDescriptionProvider : this.configDescriptionProviders) {
             configDescriptions.addAll(configDescriptionProvider.getConfigDescriptions(locale));
         }
@@ -76,7 +85,9 @@ public class ConfigDescriptionRegistry {
      */
     public ConfigDescription getConfigDescription(URI uri, Locale locale) {
         for (ConfigDescriptionProvider configDescriptionProvider : this.configDescriptionProviders) {
-            ConfigDescription configDescription = configDescriptionProvider.getConfigDescription(uri, locale);
+            ConfigDescription configDescription =
+                    configDescriptionProvider.getConfigDescription(uri, locale);
+
             if (configDescription != null) {
                 return configDescription;
             }

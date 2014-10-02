@@ -1,4 +1,4 @@
-package org.eclipse.smarthome.core.internal.i18n;
+package org.eclipse.smarthome.core.common;
 
 import java.io.File;
 import java.net.URL;

@@ -19,11 +19,11 @@ import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import com.google.common.collect.Lists;
 
 /**
- * The {@link ThingTypeRegistry} tracks all {@link ThingType}s provided by registered {@link ThingTypeProvider}s.
+ * The {@link ThingTypeRegistry} tracks all {@link ThingType}s provided by registered
+ * {@link ThingTypeProvider}s.
  * 
  * @author Oliver Libutzki - Initial contribution
  * @author Dennis Nobel - Added locale support
- * 
  */
 public class ThingTypeRegistry {
 	
@@ -96,7 +96,6 @@ public class ThingTypeRegistry {
      *         was found
      */
     public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
-
         for (ThingType thingType : getThingTypes()) {
             if (thingType.getUID().equals(thingTypeUID)) {
                 return thingType;
@@ -118,13 +117,16 @@ public class ThingTypeRegistry {
         return getThingType(thingTypeUID, null);
     }
 
-	
     protected void addThingTypeProvider(ThingTypeProvider thingTypeProvider) {
-        this.thingTypeProviders.add(thingTypeProvider);
+        if (thingTypeProvider != null) {
+            this.thingTypeProviders.add(thingTypeProvider);
+        }
     }
 
     protected void removeThingTypeProvider(ThingTypeProvider thingTypeProvider) {
-        this.thingTypeProviders.remove(thingTypeProvider);
+        if (thingTypeProvider != null) {
+            this.thingTypeProviders.remove(thingTypeProvider);
+        }
     }
 
 }

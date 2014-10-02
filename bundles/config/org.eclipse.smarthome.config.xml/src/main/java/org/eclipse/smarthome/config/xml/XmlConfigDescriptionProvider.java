@@ -20,6 +20,8 @@ import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
 import org.eclipse.smarthome.config.core.i18n.ConfigDescriptionI18nProvider;
+import org.eclipse.smarthome.core.common.ServiceBinder.Bind;
+import org.eclipse.smarthome.core.common.ServiceBinder.Unbind;
 import org.osgi.framework.Bundle;
 
 /**
@@ -73,7 +75,6 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
      *            the config description to be added
      */
     public synchronized void addConfigDescription(Bundle bundle, ConfigDescription configDescription) {
-
         if (configDescription != null) {
             List<ConfigDescription> configDescriptionList = acquireConfigDescriptions(bundle);
 
@@ -135,7 +136,7 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
 
     @Override
     public synchronized Collection<ConfigDescription> getConfigDescriptions(Locale locale) {
-        List<ConfigDescription> allConfigDescriptions = new ArrayList<>();
+        List<ConfigDescription> allConfigDescriptions = new ArrayList<>(10);
 
         Collection<Entry<Bundle, List<ConfigDescription>>> configDescriptionsList =
                 this.bundleConfigDescriptionsMap.entrySet();
@@ -172,16 +173,12 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
         return null;
     }
 
+    @Bind
+    @Unbind
     public void setConfigDescriptionI18nProvider(
             ConfigDescriptionI18nProvider configDescriptionI18nProvider) {
 
         this.configDescriptionI18nProvider = configDescriptionI18nProvider;
-    }
-
-    public void unsetConfigDescriptionI18nProvider(
-            ConfigDescriptionI18nProvider configDescriptionI18nProvider) {
-
-        this.configDescriptionI18nProvider = null;
     }
 
     private ConfigDescription getLocalizedConfigDescription(
@@ -192,7 +189,7 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
                     new ArrayList<>(configDescription.getParameters().size());
             for (ConfigDescriptionParameter configDescriptionParameter : configDescription.getParameters()) {
                 ConfigDescriptionParameter localizedConfigDescriptionParameter =
-                        getLocalizedConfigDescriptionParamter(
+                        getLocalizedConfigDescriptionParameter(
                                 bundle, configDescription, configDescriptionParameter, locale);
                 localizedConfigDescriptionParameters.add(localizedConfigDescriptionParameter);
             }
@@ -203,7 +200,7 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
         }
     }
 
-    private ConfigDescriptionParameter getLocalizedConfigDescriptionParamter(
+    private ConfigDescriptionParameter getLocalizedConfigDescriptionParameter(
             Bundle bundle, ConfigDescription configDescription,
             ConfigDescriptionParameter configDescriptionParameter, Locale locale) {
 

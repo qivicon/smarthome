@@ -11,16 +11,14 @@ import java.util.List;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
-import org.eclipse.smarthome.config.core.i18n.ConfigDescriptionI18nProvider;
 import org.eclipse.smarthome.config.xml.XmlConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentBundleTracker;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
+import org.eclipse.smarthome.core.common.ServiceBinder;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.util.tracker.ServiceTracker;
 
 
 /**
@@ -42,43 +40,16 @@ public class Activator implements BundleActivator {
 
     private XmlDocumentBundleTracker<List<ConfigDescription>> configDescriptionTracker;
 
-    private XmlConfigDescriptionProvider configDescriptionProvider;
+    private ServiceBinder configDescriptionI18nProviderServiceBinder;
 
-    private ServiceTracker configDescriptionI18nProviderServiceTracker;
-
-    private class ConfigDescriptionI18nProviderServiceTracker extends ServiceTracker {
-
-        public ConfigDescriptionI18nProviderServiceTracker(BundleContext context) {
-            super(context, ConfigDescriptionI18nProvider.class.getName(), null);
-        }
-
-        @Override
-        public Object addingService(ServiceReference reference) {
-        	ConfigDescriptionI18nProvider service =
-        	        (ConfigDescriptionI18nProvider) this.context.getService(reference);
-            configDescriptionProvider.setConfigDescriptionI18nProvider(service);
-            return service;
-        }
-
-        @Override
-        public void removedService(ServiceReference reference, Object service) {
-        	configDescriptionProvider.unsetConfigDescriptionI18nProvider(
-        	        (ConfigDescriptionI18nProvider) this.context.getService(reference));
-        }
-
-    };
 
     @Override
     public void start(BundleContext context) throws Exception {
-        this.configDescriptionProvider = new XmlConfigDescriptionProvider();
-
-        this.configDescriptionI18nProviderServiceTracker =
-                new ConfigDescriptionI18nProviderServiceTracker(context);
-        this.configDescriptionI18nProviderServiceTracker.open();
+        XmlConfigDescriptionProvider configDescriptionProvider = new XmlConfigDescriptionProvider();
+        this.configDescriptionI18nProviderServiceBinder =
+                new ServiceBinder(context, configDescriptionProvider);
+        this.configDescriptionI18nProviderServiceBinder.open();
         
-        this.configDescriptionProviderReg = context.registerService(
-                ConfigDescriptionProvider.class.getName(), configDescriptionProvider, null);
-
         XmlDocumentReader<List<ConfigDescription>> configDescriptionReader =
                 new ConfigDescriptionReader();
 
@@ -87,8 +58,10 @@ public class Activator implements BundleActivator {
 
         this.configDescriptionTracker = new XmlDocumentBundleTracker<>(
                 context, XML_DIRECTORY, configDescriptionReader, configDescriptionProviderFactory);
-
         this.configDescriptionTracker.open();
+
+        this.configDescriptionProviderReg = context.registerService(
+                ConfigDescriptionProvider.class.getName(), configDescriptionProvider, null);
     }
 
     @Override
@@ -98,9 +71,7 @@ public class Activator implements BundleActivator {
 
         this.configDescriptionTracker.close();
 
-        this.configDescriptionI18nProviderServiceTracker.close();
-
-        this.configDescriptionProvider = null;
+        this.configDescriptionI18nProviderServiceBinder.close();
     }
 
 }

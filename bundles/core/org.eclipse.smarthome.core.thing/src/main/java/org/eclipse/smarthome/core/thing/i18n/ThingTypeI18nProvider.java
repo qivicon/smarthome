@@ -7,8 +7,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.osgi.framework.Bundle;
 
 /**
- * {@link ThingTypeI18nProvider} provides localized labels and descriptions for
- * thing types.
+ * The {@link ThingTypeI18nProvider} provides localized labels and descriptions for thing types.
  * 
  * @author Dennis Nobel - Initial contribution
  */

@@ -1,6 +1,6 @@
 package org.eclipse.smarthome.core.binding;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Locale;
 
 
@@ -33,6 +33,6 @@ public interface BindingInfoProvider {
      * @return a localized list of all binding information this provider contains
      *     (not null, could be empty)
      */
-    List<BindingInfo> getBindingInfos(Locale locale);
+    Collection<BindingInfo> getBindingInfos(Locale locale);
 
 }

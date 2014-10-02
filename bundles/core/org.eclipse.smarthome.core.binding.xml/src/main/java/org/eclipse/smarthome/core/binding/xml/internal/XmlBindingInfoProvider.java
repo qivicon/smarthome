@@ -10,6 +10,8 @@ import java.util.Map.Entry;
 
 import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoProvider;
+import org.eclipse.smarthome.core.common.ServiceBinder.Bind;
+import org.eclipse.smarthome.core.common.ServiceBinder.Unbind;
 import org.eclipse.smarthome.core.i18n.BindingInfoI18nProvider;
 import org.osgi.framework.Bundle;
 
@@ -96,10 +98,7 @@ public class XmlBindingInfoProvider implements BindingInfoProvider {
             for (Entry<Bundle, List<BindingInfo>> bindingInfos : bindingInfoList) {
                 for (BindingInfo bindingInfo : bindingInfos.getValue()) {
                     if (bindingInfo.getId().equals(id)) {
-                        BindingInfo localizedBindingInfo = createLocalizedBindingInfo(
-                                bindingInfos.getKey(), bindingInfo, locale);
-
-                        return localizedBindingInfo;
+                        return createLocalizedBindingInfo(bindingInfos.getKey(), bindingInfo, locale);
                     }
                 }
             }
@@ -109,7 +108,7 @@ public class XmlBindingInfoProvider implements BindingInfoProvider {
     }
 
     @Override
-    public synchronized List<BindingInfo> getBindingInfos(Locale locale) {
+    public synchronized Collection<BindingInfo> getBindingInfos(Locale locale) {
         List<BindingInfo> allBindingInfos = new ArrayList<>(10);
 
         Collection<Entry<Bundle, List<BindingInfo>>> bindingInfoList =
@@ -129,7 +128,9 @@ public class XmlBindingInfoProvider implements BindingInfoProvider {
         return allBindingInfos;
     }
 
-    protected void setBindingInfoI18nProvider(BindingInfoI18nProvider bindingInfoI18nProvider) {
+    @Bind
+    @Unbind
+    public void setBindingInfoI18nProvider(BindingInfoI18nProvider bindingInfoI18nProvider) {
         this.bindingInfoI18nProvider = bindingInfoI18nProvider;
     }
 

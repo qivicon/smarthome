@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.eclipse.smarthome.core.common.ResolvedBundleTracker;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 

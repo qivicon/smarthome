@@ -11,19 +11,16 @@ import java.util.List;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
-import org.eclipse.smarthome.config.core.i18n.ConfigDescriptionI18nProvider;
 import org.eclipse.smarthome.config.xml.XmlConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentBundleTracker;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
+import org.eclipse.smarthome.core.common.ServiceBinder;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
-import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nProvider;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * The {@link Activator} class is responsible to activate this module.
@@ -49,72 +46,23 @@ public class Activator implements BundleActivator {
     private ServiceRegistration<?> configDescriptionProviderReg;
     private ServiceRegistration<?> thingTypeProviderReg;
 
+    private ServiceBinder thingTypeI18nProviderServiceBinder;
+    private ServiceBinder configDescriptionI18nProviderServiceBinder;
+
     private XmlDocumentBundleTracker<List<?>> thingTypeTracker;
 
-    private XmlThingTypeProvider thingTypeProvider;
 
-    private ServiceTracker thingTypeI18nProviderServiceTracker;
-    
-    private XmlConfigDescriptionProvider configDescriptionProvider;
-    
-    private ServiceTracker configDescriptionI18nProviderServiceTracker;
-
-    private class ConfigDescriptionI18nProviderServiceTracker extends ServiceTracker {
-
-        public ConfigDescriptionI18nProviderServiceTracker(BundleContext context) {
-            super(context, ConfigDescriptionI18nProvider.class.getName(), null);
-        }
-
-        @Override
-        public Object addingService(ServiceReference reference) {
-        	ConfigDescriptionI18nProvider service = (ConfigDescriptionI18nProvider) this.context.getService(reference);
-            configDescriptionProvider.setConfigDescriptionI18nProvider(service);
-            return service;
-        }
-
-        @Override
-        public void removedService(ServiceReference reference, Object service) {
-        	configDescriptionProvider.unsetConfigDescriptionI18nProvider((ConfigDescriptionI18nProvider) this.context.getService(reference));
-        }
-
-    };
-    
-    private class ThingTypeI18nProviderServiceTracker extends ServiceTracker {
-
-        public ThingTypeI18nProviderServiceTracker(BundleContext context) {
-            super(context, ThingTypeI18nProvider.class.getName(), null);
-        }
-
-        @Override
-        public Object addingService(ServiceReference reference) {
-            ThingTypeI18nProvider service = (ThingTypeI18nProvider) this.context.getService(reference);
-            thingTypeProvider.setThingTypeI18nProvider(service);
-            return service;
-        }
-
-        @Override
-        public void removedService(ServiceReference reference, Object service) {
-            thingTypeProvider.unsetThingTypeI18nProvider((ThingTypeI18nProvider) this.context.getService(reference));
-        }
-    };  
-    
     @Override
     public void start(BundleContext context) throws Exception {
-        
-    	this.configDescriptionProvider = new XmlConfigDescriptionProvider();
-        this.configDescriptionI18nProviderServiceTracker = new ConfigDescriptionI18nProviderServiceTracker(context);
-        this.configDescriptionI18nProviderServiceTracker.open();
-        
-        this.configDescriptionProviderReg = context.registerService(
-                ConfigDescriptionProvider.class.getName(), configDescriptionProvider, null);
+        XmlThingTypeProvider thingTypeProvider = new XmlThingTypeProvider();
+        this.thingTypeI18nProviderServiceBinder = new ServiceBinder(context, thingTypeProvider);
+        this.thingTypeI18nProviderServiceBinder.open();
 
-        this.thingTypeProvider = new XmlThingTypeProvider();
-        this.thingTypeI18nProviderServiceTracker = new ThingTypeI18nProviderServiceTracker(context);
-        this.thingTypeI18nProviderServiceTracker.open();
+        XmlConfigDescriptionProvider configDescriptionProvider = new XmlConfigDescriptionProvider();
+        this.configDescriptionI18nProviderServiceBinder =
+                new ServiceBinder(context, configDescriptionProvider);
+        this.configDescriptionI18nProviderServiceBinder.open();
         
-        this.thingTypeProviderReg = context.registerService(
-                ThingTypeProvider.class.getName(), thingTypeProvider, null);
-
         XmlDocumentReader<List<?>> thingTypeReader = new ThingDescriptionReader();
 
         XmlDocumentProviderFactory<List<?>> thingTypeProviderFactory =
@@ -124,23 +72,26 @@ public class Activator implements BundleActivator {
                 context, XML_DIRECTORY, thingTypeReader, thingTypeProviderFactory);
 
         this.thingTypeTracker.open();
+
+        this.configDescriptionProviderReg = context.registerService(
+                ConfigDescriptionProvider.class.getName(), configDescriptionProvider, null);
+
+        this.thingTypeProviderReg = context.registerService(
+                ThingTypeProvider.class.getName(), thingTypeProvider, null);
     }
 
     @Override
     public void stop(BundleContext context) throws Exception {
-        this.thingTypeTracker.close();
-
         this.thingTypeProviderReg.unregister();
         this.thingTypeProviderReg = null;
-        
-        this.thingTypeI18nProviderServiceTracker.close();
-        this.thingTypeProvider = null;
 
         this.configDescriptionProviderReg.unregister();
         this.configDescriptionProviderReg = null;
-        
-        this.configDescriptionI18nProviderServiceTracker.close();
-        this.configDescriptionProvider = null;
+
+        this.thingTypeTracker.close();
+
+        this.configDescriptionI18nProviderServiceBinder.close();
+        this.thingTypeI18nProviderServiceBinder.close();
     }
 
 }

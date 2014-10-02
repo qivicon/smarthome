@@ -9,19 +9,16 @@ package org.eclipse.smarthome.core.binding.xml.internal;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
-import org.eclipse.smarthome.config.core.i18n.ConfigDescriptionI18nProvider;
 import org.eclipse.smarthome.config.xml.XmlConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentBundleTracker;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
 import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoProvider;
-import org.eclipse.smarthome.core.i18n.BindingInfoI18nProvider;
+import org.eclipse.smarthome.core.common.ServiceBinder;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.util.tracker.ServiceTracker;
 
 
 /**
@@ -48,80 +45,22 @@ public class Activator implements BundleActivator {
     private ServiceRegistration<?> bindingInfoProviderReg;
     private ServiceRegistration<?> configDescriptionProviderReg;
 
-    private ConfigDescriptionI18nProviderServiceTracker configDescriptionI18nProviderServiceTracker;
-    private BindingInfoI18nProviderServiceTracker bindinginfoI18nProviderServiceTracker;
+    private ServiceBinder bindinginfoI18nProviderServiceBinder;
+    private ServiceBinder configDescriptionI18nProviderServiceBinder;
 
     private XmlDocumentBundleTracker<BindingInfoXmlResult> bindingInfoTracker;
-
-
-    private class ConfigDescriptionI18nProviderServiceTracker extends ServiceTracker {
-
-        private XmlConfigDescriptionProvider configDescriptionProvider;
-
-        public ConfigDescriptionI18nProviderServiceTracker(
-                BundleContext context, XmlConfigDescriptionProvider configDescriptionProvider) {
-
-            super(context, ConfigDescriptionI18nProvider.class.getName(), null);
-
-            this.configDescriptionProvider = configDescriptionProvider;
-        }
-
-        @Override
-        public Object addingService(ServiceReference reference) {
-            ConfigDescriptionI18nProvider service =
-                    (ConfigDescriptionI18nProvider) this.context.getService(reference);
-
-            this.configDescriptionProvider.setConfigDescriptionI18nProvider(service);
-            return service;
-        }
-
-        @Override
-        public void removedService(ServiceReference reference, Object service) {
-            this.configDescriptionProvider.unsetConfigDescriptionI18nProvider(
-                    (ConfigDescriptionI18nProvider) this.context.getService(reference));
-        }
-
-    };
-
-
-    private class BindingInfoI18nProviderServiceTracker extends ServiceTracker {
-
-        private XmlBindingInfoProvider bindingInfoProvider;
-
-        public BindingInfoI18nProviderServiceTracker(
-                BundleContext context, BindingInfoProvider bindingInfoProvider) {
-
-            super(context, BindingInfoI18nProvider.class.getName(), null);
-        }
-
-        @Override
-        public Object addingService(ServiceReference reference) {
-            BindingInfoI18nProvider service =
-                    (BindingInfoI18nProvider) this.context.getService(reference);
-
-            this.bindingInfoProvider.setBindingInfoI18nProvider(service);
-            return service;
-        }
-
-        @Override
-        public void removedService(ServiceReference reference, Object service) {
-            this.bindingInfoProvider.setBindingInfoI18nProvider(null);
-        }
-
-    };
 
 
     @Override
     public void start(BundleContext context) throws Exception {
         XmlBindingInfoProvider bindingInfoProvider = new XmlBindingInfoProvider();
-        this.bindinginfoI18nProviderServiceTracker =
-                new BindingInfoI18nProviderServiceTracker(context, bindingInfoProvider);
-        this.bindinginfoI18nProviderServiceTracker.open();
+        this.bindinginfoI18nProviderServiceBinder = new ServiceBinder(context, bindingInfoProvider);
+        this.bindinginfoI18nProviderServiceBinder.open();
 
         XmlConfigDescriptionProvider configDescriptionProvider = new XmlConfigDescriptionProvider();
-        this.configDescriptionI18nProviderServiceTracker =
-                new ConfigDescriptionI18nProviderServiceTracker(context, configDescriptionProvider);
-        this.configDescriptionI18nProviderServiceTracker.open();
+        this.configDescriptionI18nProviderServiceBinder =
+                new ServiceBinder(context, configDescriptionProvider);
+        this.configDescriptionI18nProviderServiceBinder.open();
 
         XmlDocumentReader<BindingInfoXmlResult> bindingInfoReader = new BindingInfoReader();
 
@@ -150,8 +89,8 @@ public class Activator implements BundleActivator {
 
         this.bindingInfoTracker.close();
 
-        this.configDescriptionI18nProviderServiceTracker.close();
-        this.bindinginfoI18nProviderServiceTracker.close();
+        this.configDescriptionI18nProviderServiceBinder.close();
+        this.bindinginfoI18nProviderServiceBinder.close();
     }
 
 }

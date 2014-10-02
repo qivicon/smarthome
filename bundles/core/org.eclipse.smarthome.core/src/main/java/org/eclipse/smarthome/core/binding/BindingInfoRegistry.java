@@ -8,7 +8,8 @@
 package org.eclipse.smarthome.core.binding;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -23,7 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class BindingInfoRegistry {
 
-    private List<BindingInfoProvider> bindingInfoProviders = new CopyOnWriteArrayList<>();
+    private Collection<BindingInfoProvider> bindingInfoProviders = new CopyOnWriteArrayList<>();
 
 
     protected void addBindingInfoProvider(BindingInfoProvider bindingInfoProvider) {
@@ -76,7 +77,7 @@ public class BindingInfoRegistry {
      * 
      * @return a list of all binding information this registry contains (not null, could be empty)
      */
-    public List<BindingInfo> getBindingInfos() {
+    public Collection<BindingInfo> getBindingInfos() {
         return getBindingInfos(null);
     }
 
@@ -87,15 +88,15 @@ public class BindingInfoRegistry {
      * @return a localized list of all binding information this registry contains
      *     (not null, could be empty)
      */
-    public List<BindingInfo> getBindingInfos(Locale locale) {
-        List<BindingInfo> allBindingInfos = new ArrayList<>(10);
+    public Collection<BindingInfo> getBindingInfos(Locale locale) {
+        Collection<BindingInfo> allBindingInfos = new ArrayList<>(10);
 
         for (BindingInfoProvider bindingInfoProvider : this.bindingInfoProviders) {
-            List<BindingInfo> bindingInfos = bindingInfoProvider.getBindingInfos(locale);
+            Collection<BindingInfo> bindingInfos = bindingInfoProvider.getBindingInfos(locale);
             allBindingInfos.addAll(bindingInfos);
         }
 
-        return allBindingInfos;
+        return Collections.unmodifiableCollection(allBindingInfos);
     }
 
 }
