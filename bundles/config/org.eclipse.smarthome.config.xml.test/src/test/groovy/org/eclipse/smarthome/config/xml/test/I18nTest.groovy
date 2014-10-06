@@ -51,18 +51,18 @@ class I18nTest extends OSGiTest {
         def configDescriptions = configDescriptionRegistry.getConfigDescriptions(Locale.GERMAN)
         assertThat configDescriptions.size(), is(initialNumberOfConfigDescriptions + 1)
         
-        def config = configDescriptions.find { it.uri.equals(new URI("thing-type://yahooweather:weather")) } as ConfigDescription
+        def config = configDescriptions.first() as ConfigDescription
         
 
         assertThat config, is(notNullValue())
         assertThat asString(config), is(equalTo(
 """
-thing-type.config.yahooweather.weather.location.label = Ort
-thing-type.config.yahooweather.weather.location.description = Ort der Wetterinformation.
-thing-type.config.yahooweather.weather.unit.label = Einheit
-thing-type.config.yahooweather.weather.unit.description = Spezifiziert die Einheit der Daten. Valide Werte sind 'us' und 'metric'
-thing-type.config.yahooweather.weather.refresh.label = Aktualisierungsintervall
-thing-type.config.yahooweather.weather.refresh.description = Spezifiziert das Aktualisierungsintervall in Sekunden
+config.config.Dummy.location.label = Ort
+config.config.Dummy.location.description = Ort der Wetterinformation.
+config.config.Dummy.unit.label = Einheit
+config.config.Dummy.unit.description = Spezifiziert die Einheit der Daten. Valide Werte sind 'us' und 'metric'
+config.config.Dummy.refresh.label = Aktualisierungsintervall
+config.config.Dummy.refresh.description = Spezifiziert das Aktualisierungsintervall in Sekunden
 """
         ))
 
@@ -79,12 +79,12 @@ thing-type.config.yahooweather.weather.refresh.description = Spezifiziert das Ak
        def refresh_label = refresh.getLabel()
        def refresh_description = refresh.getDescription() 
 return """
-thing-type.config.yahooweather.weather.location.label = ${location_label}
-thing-type.config.yahooweather.weather.location.description = ${location_description}
-thing-type.config.yahooweather.weather.unit.label = ${unit_label}
-thing-type.config.yahooweather.weather.unit.description = ${unit_description}
-thing-type.config.yahooweather.weather.refresh.label = ${refresh_label}
-thing-type.config.yahooweather.weather.refresh.description = ${refresh_description}
+config.config.Dummy.location.label = ${location_label}
+config.config.Dummy.location.description = ${location_description}
+config.config.Dummy.unit.label = ${unit_label}
+config.config.Dummy.unit.description = ${unit_description}
+config.config.Dummy.refresh.label = ${refresh_label}
+config.config.Dummy.refresh.description = ${refresh_description}
 """
     }
     
