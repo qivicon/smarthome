@@ -25,7 +25,7 @@ import org.junit.Ignore;
 import org.junit.Test
 import org.osgi.framework.Bundle
 
-class I18nTest extends OSGiTest {
+class ThingTypeI18nTest extends OSGiTest {
 
     static final String TEST_BUNDLE_NAME = "yahooweather.bundle"
 
@@ -56,24 +56,19 @@ class I18nTest extends OSGiTest {
 
         def weatherType = thingTypes.find { it.toString().equals("yahooweather:weather") } as ThingType
         assertThat weatherType, is(notNullValue())
-        assertThat asString(weatherType), is(equalTo(
-"""
-# thing types
-thing-type.yahooweather.weather.label = Wetterinformation
-thing-type.yahooweather.weather.description = Stellt verschiedene Wetterdaten vom yahoo Wetterdienst bereit
-"""
-        ))
-
+        assertEquals("""
+        label = Wetterinformation
+        description = Stellt verschiedene Wetterdaten vom yahoo Wetterdienst bereit
+        """, asString(weatherType))
     }
     
     String asString(final ThingType self) {
-       def label = self.label
-       def description = self.description
-return """
-# thing types
-thing-type.yahooweather.weather.label = ${label}
-thing-type.yahooweather.weather.description = ${description}
-"""
+        def label = self.label
+        def description = self.description
+        return """
+        label = ${label}
+        description = ${description}
+        """
     }
     
 

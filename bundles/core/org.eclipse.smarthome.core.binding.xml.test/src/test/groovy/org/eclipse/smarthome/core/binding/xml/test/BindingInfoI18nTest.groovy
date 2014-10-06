@@ -24,7 +24,7 @@ import org.junit.Ignore;
 import org.junit.Test
 import org.osgi.framework.Bundle
 
-class I18nTest extends OSGiTest {
+class BindingInfoI18nTest extends OSGiTest {
 
     static final String TEST_BUNDLE_NAME = "yahooweather.bundle"
 
@@ -55,12 +55,10 @@ class I18nTest extends OSGiTest {
         BindingInfo bindingInfo = bindingInfos.first()
 
         assertThat bindingInfo, is(notNullValue())
-        assertThat asString(bindingInfo), is(equalTo(
-"""
-binding.yahooweather.name = Yahoo Wetter Binding
-binding.yahooweather.description = Das Yahoo Wetter Binding stellt verschiedene Wetterdaten wie die Temperatur, die Luftfeuchtigkeit und den Luftdruck für konfigurierbare Orte vom yahoo Wetterdienst bereit
-"""
-        ))
+        assertEquals("""
+        name = Yahoo Wetter Binding
+        description = Das Yahoo Wetter Binding stellt verschiedene Wetterdaten wie die Temperatur, die Luftfeuchtigkeit und den Luftdruck für konfigurierbare Orte vom yahoo Wetterdienst bereit
+        """, asString(bindingInfo))
     }
     
     @Test
@@ -77,12 +75,10 @@ binding.yahooweather.description = Das Yahoo Wetter Binding stellt verschiedene 
         BindingInfo bindingInfo = bindingInfos.first()
 
         assertThat bindingInfo, is(notNullValue())
-        assertThat asString(bindingInfo), is(equalTo(
-"""
-binding.yahooweather.name = Yahoo Weer Binding
-binding.yahooweather.description = De Yahoo Weer Binding biedt verschillende meteorologische gegevens zoals temperatuur, vochtigheid en luchtdruk voor configureerbare locaties uit yahoo weerdienst klaar
-"""
-        ))
+        assertEquals("""
+        name = Yahoo Weer Binding
+        description = De Yahoo Weer Binding biedt verschillende meteorologische gegevens zoals temperatuur, vochtigheid en luchtdruk voor configureerbare locaties uit yahoo weerdienst klaar
+        """, asString(bindingInfo))
     }
     
     @Test
@@ -99,12 +95,10 @@ binding.yahooweather.description = De Yahoo Weer Binding biedt verschillende met
         BindingInfo bindingInfo = bindingInfos.first()
 
         assertThat bindingInfo, is(notNullValue())
-        assertThat asString(bindingInfo), is(equalTo(
-"""
-binding.yahooweather.name = YahooWeather Binding
-binding.yahooweather.description = The Yahoo Weather Binding requests the Yahoo Weather Service to show the current temperature, humidity and pressure.
-"""
-        ))
+        assertEquals("""
+        name = YahooWeather Binding
+        description = The Yahoo Weather Binding requests the Yahoo Weather Service to show the current temperature, humidity and pressure.
+        """, asString(bindingInfo))
     }
     
     @Test
@@ -122,21 +116,19 @@ binding.yahooweather.description = The Yahoo Weather Binding requests the Yahoo 
         BindingInfo bindingInfo = bindingInfos.first()
 
         assertThat bindingInfo, is(notNullValue())
-        assertThat asString(bindingInfo), is(equalTo(
-"""
-binding.yahooweather.name = Yahoo Wetter Binding
-binding.yahooweather.description = Das Yahoo Wetter Binding stellt verschiedene Wetterdaten wie die Temperatur, die Luftfeuchtigkeit und den Luftdruck für konfigurierbare Orte vom yahoo Wetterdienst bereit
-"""
-        ))
+        assertEquals("""
+        name = Yahoo Wetter Binding
+        description = Das Yahoo Wetter Binding stellt verschiedene Wetterdaten wie die Temperatur, die Luftfeuchtigkeit und den Luftdruck für konfigurierbare Orte vom yahoo Wetterdienst bereit
+        """, asString(bindingInfo))
     }
     
     String asString(final BindingInfo self) {
        def name = self.getName()
        def description = self.getDescription() 
-return """
-binding.yahooweather.name = ${name}
-binding.yahooweather.description = ${description}
-"""
+        return """
+        name = ${name}
+        description = ${description}
+        """
     }
     
 

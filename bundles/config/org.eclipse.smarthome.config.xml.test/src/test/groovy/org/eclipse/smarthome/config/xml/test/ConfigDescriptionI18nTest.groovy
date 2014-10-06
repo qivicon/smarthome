@@ -17,12 +17,13 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.SyntheticBundleInstaller
 import org.junit.After
+import org.junit.Assert;
 import org.junit.Before
 import org.junit.Ignore;
 import org.junit.Test
 import org.osgi.framework.Bundle
 
-class I18nTest extends OSGiTest {
+class ConfigDescriptionI18nTest extends OSGiTest {
 
     static final String TEST_BUNDLE_NAME = "yahooweather.bundle"
 
@@ -43,50 +44,47 @@ class I18nTest extends OSGiTest {
     void 'assert config decriptions were localized'() {
         def bundleContext = getBundleContext()
         def initialNumberOfConfigDescriptions = configDescriptionRegistry.getConfigDescriptions().size()
-        
+
         // install test bundle
         Bundle bundle = SyntheticBundleInstaller.install(bundleContext, TEST_BUNDLE_NAME)
         assertThat bundle, is(notNullValue())
-        
+
         def configDescriptions = configDescriptionRegistry.getConfigDescriptions(Locale.GERMAN)
         assertThat configDescriptions.size(), is(initialNumberOfConfigDescriptions + 1)
-        
+
         def config = configDescriptions.first() as ConfigDescription
-        
+
 
         assertThat config, is(notNullValue())
-        assertThat asString(config), is(equalTo(
-"""
-config.config.Dummy.location.label = Ort
-config.config.Dummy.location.description = Ort der Wetterinformation.
-config.config.Dummy.unit.label = Einheit
-config.config.Dummy.unit.description = Spezifiziert die Einheit der Daten. Valide Werte sind 'us' und 'metric'
-config.config.Dummy.refresh.label = Aktualisierungsintervall
-config.config.Dummy.refresh.description = Spezifiziert das Aktualisierungsintervall in Sekunden
-"""
-        ))
+        assertEquals("""
+        location.label = Ort
+        location.description = Ort der Wetterinformation.
+        unit.label = Einheit
+        unit.description = Spezifiziert die Einheit der Daten. Valide Werte sind 'us' und 'metric'
+        refresh.label = Aktualisierungsintervall
+        refresh.description = Spezifiziert das Aktualisierungsintervall in Sekunden
+        """, asString(config))
+
 
     }
-    
+
     String asString(final ConfigDescription self) {
-       def location = self.getParameters().find { it.getName().equals("location") } as ConfigDescriptionParameter
-       def location_label = location.getLabel()
-       def location_description = location.getDescription() 
-       def unit = self.getParameters().find { it.getName().equals("unit") } as ConfigDescriptionParameter
-       def unit_label = unit.getLabel()
-       def unit_description = unit.getDescription() 
-       def refresh = self.getParameters().find { it.getName().equals("refresh") } as ConfigDescriptionParameter
-       def refresh_label = refresh.getLabel()
-       def refresh_description = refresh.getDescription() 
-return """
-config.config.Dummy.location.label = ${location_label}
-config.config.Dummy.location.description = ${location_description}
-config.config.Dummy.unit.label = ${unit_label}
-config.config.Dummy.unit.description = ${unit_description}
-config.config.Dummy.refresh.label = ${refresh_label}
-config.config.Dummy.refresh.description = ${refresh_description}
-"""
+        def location = self.getParameters().find { it.getName().equals("location") } as ConfigDescriptionParameter
+        def location_label = location.getLabel()
+        def location_description = location.getDescription()
+        def unit = self.getParameters().find { it.getName().equals("unit") } as ConfigDescriptionParameter
+        def unit_label = unit.getLabel()
+        def unit_description = unit.getDescription()
+        def refresh = self.getParameters().find { it.getName().equals("refresh") } as ConfigDescriptionParameter
+        def refresh_label = refresh.getLabel()
+        def refresh_description = refresh.getDescription()
+        return """
+        location.label = ${location_label}
+        location.description = ${location_description}
+        unit.label = ${unit_label}
+        unit.description = ${unit_description}
+        refresh.label = ${refresh_label}
+        refresh.description = ${refresh_description}
+        """
     }
-    
-
 }
