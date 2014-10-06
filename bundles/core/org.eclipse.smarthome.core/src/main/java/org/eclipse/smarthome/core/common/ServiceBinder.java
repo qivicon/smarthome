@@ -11,6 +11,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -62,6 +64,8 @@ public class ServiceBinder {
 
     private ServiceTracker<?, ?> serviceTracker;
     private Object trackedService;
+    
+    private Logger logger = LoggerFactory.getLogger(ServiceBinder.class);
 
 
     /**
@@ -189,7 +193,7 @@ public class ServiceBinder {
                     method.invoke(object);
                 }
             } catch (Exception ex) {
-                // nothing to do
+                logger.error("Error while executing inject method: " + ex.getMessage(), ex);
             }
         }
     }
