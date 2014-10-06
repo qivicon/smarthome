@@ -27,9 +27,9 @@ public class BindingI18nUtil {
         return i18nProvider.getText(bundle, key, defaultDescription, locale);
     }
 
-    public String getLabel(Bundle bundle, String bindingId, String defaultLabel, Locale locale) {
+    public String getName(Bundle bundle, String bindingId, String defaultLabel, Locale locale) {
         String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel) : inferKey(bindingId,
-                "label");
+                "name");
 
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
