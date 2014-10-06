@@ -35,7 +35,6 @@ class I18nTest extends OSGiTest {
     void setUp() {
         thingTypeProvider = getService(ThingTypeProvider)
         assertThat thingTypeProvider, is(notNullValue())
-        
     }
 
     @After

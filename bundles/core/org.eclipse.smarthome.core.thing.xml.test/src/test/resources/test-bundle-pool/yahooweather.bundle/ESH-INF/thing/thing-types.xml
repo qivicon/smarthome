@@ -7,7 +7,7 @@
     <!-- YahooWeather Binding -->
     <thing-type id="weather">
         <label>Weather Information *</label>
-        <description>Provides various weather data from the Yahoo service</description>
+        <description>@text/CUSTOM_KEY</description>
 
 		<channels>
 			<channel id="temperature" typeId="temperature" />
