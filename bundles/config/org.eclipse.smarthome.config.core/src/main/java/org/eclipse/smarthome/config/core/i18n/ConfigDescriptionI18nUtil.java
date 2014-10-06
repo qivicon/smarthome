@@ -38,8 +38,6 @@ public class ConfigDescriptionI18nUtil {
 
     private String inferKey(URI configDescriptionURI, String parameterName, String lastSegment) {
         String uri = configDescriptionURI.getSchemeSpecificPart().replace(":", ".");
-        // TODO: remove this workaround when URI fixed is applied
-        uri = uri.replace("//", "");
         return configDescriptionURI.getScheme() + ".config." + uri + "." + parameterName + "." + lastSegment;
     }
 
