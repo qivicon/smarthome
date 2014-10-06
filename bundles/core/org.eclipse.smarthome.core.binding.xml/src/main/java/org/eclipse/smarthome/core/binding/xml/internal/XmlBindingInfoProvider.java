@@ -143,12 +143,12 @@ public class XmlBindingInfoProvider implements BindingInfoProvider {
             Bundle bundle, BindingInfo bindingInfo, Locale locale) {
 
         if (this.bindingI18nUtil != null) {
-            String label = this.bindingI18nUtil.getLabel(
+            String name = this.bindingI18nUtil.getName(
                     bundle, bindingInfo.getId(), bindingInfo.getName(), locale);
             String description = this.bindingI18nUtil.getDescription(
                     bundle, bindingInfo.getId(), bindingInfo.getDescription(), locale);
 
-            return new BindingInfo(bindingInfo.getId(), label, description,
+            return new BindingInfo(bindingInfo.getId(), name, description,
                     bindingInfo.getAuthor(), bindingInfo.getConfigDescriptionURI());
         } else {
             return bindingInfo;
