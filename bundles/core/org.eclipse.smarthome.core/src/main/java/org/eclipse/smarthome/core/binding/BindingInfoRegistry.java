@@ -33,7 +33,7 @@ public class BindingInfoRegistry {
         }
     }
 
-    protected void removeBindingInfo(BindingInfoProvider bindingInfoProvider) {
+    protected void removeBindingInfoProvider(BindingInfoProvider bindingInfoProvider) {
         if (bindingInfoProvider != null) {
             this.bindingInfoProviders.remove(bindingInfoProvider);
         }
