@@ -42,7 +42,7 @@ class I18nTest extends OSGiTest {
     }
 
     @Test
-    void 'assert binding infos were localized'() {
+    void 'assert binding infos were localized in German'() {
         def bundleContext = getBundleContext()
         def initialNumberOfBindingInfos = bindingInfoRegistry.getBindingInfos().size()
         
@@ -57,19 +57,85 @@ class I18nTest extends OSGiTest {
         assertThat bindingInfo, is(notNullValue())
         assertThat asString(bindingInfo), is(equalTo(
 """
-binding.name = Yahoo Wetter Binding
-binding.description = Das Yahoo Wetter Binding stellt verschiedene Wetterdaten wie die Temperatur, die Luftfeuchtigkeit und den Luftdruck für konfigurierbare Orte vom yahoo Wetterdienst bereit
+binding.yahooweather.name = Yahoo Wetter Binding
+binding.yahooweather.description = Das Yahoo Wetter Binding stellt verschiedene Wetterdaten wie die Temperatur, die Luftfeuchtigkeit und den Luftdruck für konfigurierbare Orte vom yahoo Wetterdienst bereit
 """
         ))
+    }
+    
+    @Test
+    void 'assert binding infos were localized in Dutch'() {
+        def bundleContext = getBundleContext()
+        def initialNumberOfBindingInfos = bindingInfoRegistry.getBindingInfos().size()
+        
+        // install test bundle
+        Bundle bundle = SyntheticBundleInstaller.install(bundleContext, TEST_BUNDLE_NAME)
+        assertThat bundle, is(notNullValue())
+        
+        def bindingInfos = bindingInfoRegistry.getBindingInfos(new Locale("nl"))
+        assertThat bindingInfos.size(), is(initialNumberOfBindingInfos + 1)
+        BindingInfo bindingInfo = bindingInfos.first()
 
+        assertThat bindingInfo, is(notNullValue())
+        assertThat asString(bindingInfo), is(equalTo(
+"""
+binding.yahooweather.name = Yahoo Weer Binding
+binding.yahooweather.description = De Yahoo Weer Binding biedt verschillende meteorologische gegevens zoals temperatuur, vochtigheid en luchtdruk voor configureerbare locaties uit yahoo weerdienst klaar
+"""
+        ))
+    }
+    
+    @Test
+    void 'assert using original binding infos, if provided locale is not supported'() {
+        def bundleContext = getBundleContext()
+        def initialNumberOfBindingInfos = bindingInfoRegistry.getBindingInfos().size()
+        
+        // install test bundle
+        Bundle bundle = SyntheticBundleInstaller.install(bundleContext, TEST_BUNDLE_NAME)
+        assertThat bundle, is(notNullValue())
+        
+        def bindingInfos = bindingInfoRegistry.getBindingInfos(Locale.FRENCH)
+        assertThat bindingInfos.size(), is(initialNumberOfBindingInfos + 1)
+        BindingInfo bindingInfo = bindingInfos.first()
+
+        assertThat bindingInfo, is(notNullValue())
+        assertThat asString(bindingInfo), is(equalTo(
+"""
+binding.yahooweather.name = YahooWeather Binding
+binding.yahooweather.description = The Yahoo Weather Binding requests the Yahoo Weather Service to show the current temperature, humidity and pressure.
+"""
+        ))
+    }
+    
+    @Test
+    void 'assert using default locale'() {
+        def bundleContext = getBundleContext()
+        def initialNumberOfBindingInfos = bindingInfoRegistry.getBindingInfos().size()
+        
+        // install test bundle
+        Bundle bundle = SyntheticBundleInstaller.install(bundleContext, TEST_BUNDLE_NAME)
+        assertThat bundle, is(notNullValue())
+        
+        Locale.setDefault(Locale.GERMAN)
+        def bindingInfos = bindingInfoRegistry.getBindingInfos(/*use default locale*/ null)
+        assertThat bindingInfos.size(), is(initialNumberOfBindingInfos + 1)
+        BindingInfo bindingInfo = bindingInfos.first()
+
+        assertThat bindingInfo, is(notNullValue())
+        assertThat asString(bindingInfo), is(equalTo(
+"""
+binding.yahooweather.name = Yahoo Wetter Binding
+binding.yahooweather.description = Das Yahoo Wetter Binding stellt verschiedene Wetterdaten wie die Temperatur, die Luftfeuchtigkeit und den Luftdruck für konfigurierbare Orte vom yahoo Wetterdienst bereit
+"""
+        ))
     }
     
     String asString(final BindingInfo self) {
        def name = self.getName()
        def description = self.getDescription() 
 return """
-binding.name = ${name}
-binding.description = ${description}
+binding.yahooweather.name = ${name}
+binding.yahooweather.description = ${description}
 """
     }
     
