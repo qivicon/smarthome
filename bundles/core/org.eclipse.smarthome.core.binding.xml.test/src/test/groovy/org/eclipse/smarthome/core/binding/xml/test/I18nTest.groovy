@@ -42,7 +42,7 @@ class I18nTest extends OSGiTest {
     }
 
     @Test
-    void 'assert config decriptions were localized'() {
+    void 'assert binding infos were localized'() {
         def bundleContext = getBundleContext()
         def initialNumberOfBindingInfos = bindingInfoRegistry.getBindingInfos().size()
         
