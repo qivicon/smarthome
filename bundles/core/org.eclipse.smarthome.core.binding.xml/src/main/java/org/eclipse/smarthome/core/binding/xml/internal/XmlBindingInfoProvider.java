@@ -12,7 +12,8 @@ import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoProvider;
 import org.eclipse.smarthome.core.common.ServiceBinder.Bind;
 import org.eclipse.smarthome.core.common.ServiceBinder.Unbind;
-import org.eclipse.smarthome.core.i18n.BindingInfoI18nProvider;
+import org.eclipse.smarthome.core.i18n.BindingI18nUtil;
+import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.osgi.framework.Bundle;
 
 
@@ -30,7 +31,7 @@ import org.osgi.framework.Bundle;
 public class XmlBindingInfoProvider implements BindingInfoProvider {
 
     private Map<Bundle, List<BindingInfo>> bundleBindingInfoMap;
-    private BindingInfoI18nProvider bindingInfoI18nProvider;
+    private BindingI18nUtil bindingI18nUtil;
 
 
     public XmlBindingInfoProvider() {
@@ -129,19 +130,22 @@ public class XmlBindingInfoProvider implements BindingInfoProvider {
     }
 
     @Bind
+    public void setI18nProvider(I18nProvider i18nProvider) {
+        this.bindingI18nUtil = new BindingI18nUtil(i18nProvider);
+    }
+    
     @Unbind
-    public void setBindingInfoI18nProvider(BindingInfoI18nProvider bindingInfoI18nProvider) {
-        this.bindingInfoI18nProvider = bindingInfoI18nProvider;
+    public void unsetI18nProvider(I18nProvider i18nProvider) {
+        this.bindingI18nUtil = null;
     }
 
     private BindingInfo createLocalizedBindingInfo(
             Bundle bundle, BindingInfo bindingInfo, Locale locale) {
 
-        BindingInfoI18nProvider bindingInfoI18nProvider = this.bindingInfoI18nProvider;
-        if (bindingInfoI18nProvider != null) {
-            String label = bindingInfoI18nProvider.getLabel(
+        if (this.bindingI18nUtil != null) {
+            String label = this.bindingI18nUtil.getLabel(
                     bundle, bindingInfo.getId(), bindingInfo.getName(), locale);
-            String description = bindingInfoI18nProvider.getDescription(
+            String description = this.bindingI18nUtil.getDescription(
                     bundle, bindingInfo.getId(), bindingInfo.getDescription(), locale);
 
             return new BindingInfo(bindingInfo.getId(), label, description,

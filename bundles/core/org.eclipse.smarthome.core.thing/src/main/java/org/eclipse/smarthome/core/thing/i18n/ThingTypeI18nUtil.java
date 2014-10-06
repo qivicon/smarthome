@@ -1,59 +1,52 @@
-package org.eclipse.smarthome.core.thing.internal.i18n;
+package org.eclipse.smarthome.core.thing.i18n;
 
 import java.util.Locale;
 
-import org.eclipse.smarthome.core.i18n.ContextSpecificI18nProvider;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.I18nUtil;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.osgi.framework.Bundle;
 
 /**
- * {@link DefaultThingTypeI18nProvider} is the default
- * {@link ThingTypeI18nProvider} implementation that uses the
- * {@link I18nProvider} to resolve the localized texts. It automatically infers
- * the key if the default text is not a constant.
+ * {@link ThingTypeI18nUtil} uses the {@link I18nProvider} to resolve
+ * the localized texts. It automatically infers the key if the default text is
+ * not a constant.
  * 
  * @author Dennis Nobel - Initial contribution
  */
-public class DefaultThingTypeI18nProvider extends ContextSpecificI18nProvider implements ThingTypeI18nProvider {
+public class ThingTypeI18nUtil {
 
     private I18nProvider i18nProvider;
 
-    @Override
-    public String getChannelDescription(Bundle bundle, ChannelTypeUID channelTypeUID, String defaultDescription,
-            Locale locale) {
-        String key = isConstant(defaultDescription) ? stripConstant(defaultDescription) : inferChannelKey(
-                channelTypeUID, "description");
-        return i18nProvider.getText(bundle, key, defaultDescription, locale);
-    }
-
-    @Override
-    public String getChannelLabel(Bundle bundle, ChannelTypeUID channelTypeUID, String defaultLabel, Locale locale) {
-        String key = isConstant(defaultLabel) ? stripConstant(defaultLabel) : inferChannelKey(channelTypeUID, "label");
-        return i18nProvider.getText(bundle, key, defaultLabel, locale);
-    }
-
-    @Override
-    public String getDescription(Bundle bundle, ThingTypeUID thingTypeUID, String defaultDescription, Locale locale) {
-        String key = isConstant(defaultDescription) ? stripConstant(defaultDescription) : inferThingTypeKey(
-                thingTypeUID, "description");
-        return i18nProvider.getText(bundle, key, defaultDescription, locale);
-    }
-
-    @Override
-    public String getLabel(Bundle bundle, ThingTypeUID thingTypeUID, String defaultLabel, Locale locale) {
-        String key = isConstant(defaultLabel) ? stripConstant(defaultLabel) : inferThingTypeKey(thingTypeUID, "label");
-        return i18nProvider.getText(bundle, key, defaultLabel, locale);
-    }
-
-    protected void setI18nProvider(I18nProvider i18nProvider) {
+      
+    public ThingTypeI18nUtil(I18nProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }
 
-    protected void unsetI18nProvider(I18nProvider i18nProvider) {
-        this.i18nProvider = null;
+    public String getChannelDescription(Bundle bundle, ChannelTypeUID channelTypeUID, String defaultDescription,
+            Locale locale) {
+        String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription)
+                : inferChannelKey(channelTypeUID, "description");
+        return i18nProvider.getText(bundle, key, defaultDescription, locale);
+    }
+
+    public String getChannelLabel(Bundle bundle, ChannelTypeUID channelTypeUID, String defaultLabel, Locale locale) {
+        String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel) : inferChannelKey(
+                channelTypeUID, "label");
+        return i18nProvider.getText(bundle, key, defaultLabel, locale);
+    }
+
+    public String getDescription(Bundle bundle, ThingTypeUID thingTypeUID, String defaultDescription, Locale locale) {
+        String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription)
+                : inferThingTypeKey(thingTypeUID, "description");
+        return i18nProvider.getText(bundle, key, defaultDescription, locale);
+    }
+
+    public String getLabel(Bundle bundle, ThingTypeUID thingTypeUID, String defaultLabel, Locale locale) {
+        String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel) : inferThingTypeKey(
+                thingTypeUID, "label");
+        return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 
     private String inferChannelKey(ChannelTypeUID channelTypeUID, String lastSegment) {

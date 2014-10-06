@@ -17,9 +17,10 @@ import java.util.Map.Entry;
 
 import org.eclipse.smarthome.core.common.ServiceBinder.Bind;
 import org.eclipse.smarthome.core.common.ServiceBinder.Unbind;
+import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
-import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nProvider;
+import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nUtil;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
@@ -41,7 +42,7 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
 
     private Map<Bundle, List<ThingType>> bundleThingTypesMap;
 
-    private ThingTypeI18nProvider thingTypeI18nProvider;
+    private ThingTypeI18nUtil thingTypeI18nUtil;
 
     public XmlThingTypeProvider() {
         this.bundleThingTypesMap = new HashMap<>(10);
@@ -142,16 +143,20 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
     }
 
     @Bind
+    public void setI18nProvider(I18nProvider i18nProvider) {
+        this.thingTypeI18nUtil = new ThingTypeI18nUtil(i18nProvider);
+    }
+    
     @Unbind
-    public void setThingTypeI18nProvider(ThingTypeI18nProvider thingTypeI18nProvider) {
-        this.thingTypeI18nProvider = thingTypeI18nProvider;
+    public void unsetI18nProvider(I18nProvider i18nProvider) {
+        this.thingTypeI18nUtil = null;
     }
 
     private ThingType createLocalizedThingType(Bundle bundle, ThingType thingType, Locale locale) {
-        if (this.thingTypeI18nProvider != null) {
-            String label = this.thingTypeI18nProvider.getLabel(
+        if (this.thingTypeI18nUtil != null) {
+            String label = this.thingTypeI18nUtil.getLabel(
                     bundle, thingType.getUID(), thingType.getLabel(), locale);
-            String description = this.thingTypeI18nProvider.getDescription(
+            String description = this.thingTypeI18nUtil.getDescription(
                     bundle, thingType.getUID(), thingType.getDescription(), locale);
 
             List<ChannelDefinition> localizedChannelDefinitions = new ArrayList<>(
@@ -181,12 +186,12 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
     private ChannelDefinition createLocalizedChannelDefinition(
             Bundle bundle, ChannelDefinition channelDefinition, Locale locale) {
 
-        if (this.thingTypeI18nProvider != null) {
+        if (this.thingTypeI18nUtil != null) {
             ChannelType channelType = channelDefinition.getType();
 
-            String label = this.thingTypeI18nProvider.getChannelLabel(
+            String label = this.thingTypeI18nUtil.getChannelLabel(
                     bundle, channelType.getUID(), channelType.getLabel(), locale);
-            String description = this.thingTypeI18nProvider.getChannelDescription(
+            String description = this.thingTypeI18nUtil.getChannelDescription(
                     bundle, channelType.getUID(), channelType.getDescription(), locale);
 
             ChannelType localizedChannelType = new ChannelType(channelType.getUID(),

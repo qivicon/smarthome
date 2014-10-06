@@ -19,9 +19,10 @@ import java.util.Map.Entry;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
-import org.eclipse.smarthome.config.core.i18n.ConfigDescriptionI18nProvider;
+import org.eclipse.smarthome.config.core.i18n.ConfigDescriptionI18nUtil;
 import org.eclipse.smarthome.core.common.ServiceBinder.Bind;
 import org.eclipse.smarthome.core.common.ServiceBinder.Unbind;
+import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.osgi.framework.Bundle;
 
 /**
@@ -39,7 +40,7 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
 
     private Map<Bundle, List<ConfigDescription>> bundleConfigDescriptionsMap;
 
-    private ConfigDescriptionI18nProvider configDescriptionI18nProvider;
+    private ConfigDescriptionI18nUtil configDescriptionI18nUtil;
 
     public XmlConfigDescriptionProvider() {
         this.bundleConfigDescriptionsMap = new HashMap<>(10);
@@ -173,18 +174,22 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
         return null;
     }
 
+    
     @Bind
-    @Unbind
-    public void setConfigDescriptionI18nProvider(
-            ConfigDescriptionI18nProvider configDescriptionI18nProvider) {
-
-        this.configDescriptionI18nProvider = configDescriptionI18nProvider;
+    public void seI18nProvider(I18nProvider i18nProvider) {
+        this.configDescriptionI18nUtil = new ConfigDescriptionI18nUtil(i18nProvider);
     }
+
+    @Unbind
+    public void unsetI18nProvider(I18nProvider i18nProvider) {
+        this.configDescriptionI18nUtil = null;
+    }
+
 
     private ConfigDescription getLocalizedConfigDescription(
             Bundle bundle, ConfigDescription configDescription, Locale locale) {
 
-        if (this.configDescriptionI18nProvider != null) {
+        if (this.configDescriptionI18nUtil != null) {
             List<ConfigDescriptionParameter> localizedConfigDescriptionParameters =
                     new ArrayList<>(configDescription.getParameters().size());
             for (ConfigDescriptionParameter configDescriptionParameter : configDescription.getParameters()) {
@@ -204,11 +209,11 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
             Bundle bundle, ConfigDescription configDescription,
             ConfigDescriptionParameter configDescriptionParameter, Locale locale) {
 
-        String label = this.configDescriptionI18nProvider.getParameterLabel(
+        String label = this.configDescriptionI18nUtil.getParameterLabel(
                 bundle, configDescription.getURI(), configDescriptionParameter.getName(),
                 configDescriptionParameter.getLabel(), locale);
 
-        String description = this.configDescriptionI18nProvider.getParameterDescription(bundle,
+        String description = this.configDescriptionI18nUtil.getParameterDescription(bundle,
                 configDescription.getURI(), configDescriptionParameter.getName(),
                 configDescriptionParameter.getDescription(), locale);
 
