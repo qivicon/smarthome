@@ -27,7 +27,7 @@ class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
     @Before
     void setUp() {
         configDescriptionRegistry = getService(ConfigDescriptionRegistry)
-        configDescription = new ConfigDescription(new URI("Dummy"))
+        configDescription = new ConfigDescription(new URI("config:Dummy"))
         configDescriptionProviderMock = [
             getConfigDescriptions: {p -> [configDescription]},
             getConfigDescription: {p1,p2 -> configDescription }
@@ -43,7 +43,7 @@ class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
 
         def configDescriptions = configDescriptionRegistry.getConfigDescriptions()
         assertThat configDescriptions.size(), is(1)
-        assertThat configDescriptions[0].uri, is(equalTo(new URI("Dummy")))
+        assertThat configDescriptions[0].uri, is(equalTo(new URI("config:Dummy")))
 
         unregisterService configDescriptionProviderMock
 
@@ -55,8 +55,8 @@ class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
 
         registerService configDescriptionProviderMock
 
-        def configDescription = configDescriptionRegistry.getConfigDescription(new URI("Dummy"))
+        def configDescription = configDescriptionRegistry.getConfigDescription(new URI("config:Dummy"))
         assertThat configDescription, is(not(null))
-        assertThat configDescription.uri, is(equalTo(new URI("Dummy")))
+        assertThat configDescription.uri, is(equalTo(new URI("config:Dummy")))
     }
 }
