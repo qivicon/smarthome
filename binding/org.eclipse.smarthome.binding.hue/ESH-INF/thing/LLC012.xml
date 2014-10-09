@@ -15,7 +15,6 @@
 
         <channels>
             <channel id="color" typeId="color" />
-            <channel id="color_temperature" typeId="color_temperature" />
         </channels>
 
         <config-description>
