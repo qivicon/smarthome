@@ -21,6 +21,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  * @author Dennis Nobel - Initial contribution
  * @author Oliver Libutzki - Adjustments
  * @author Kai Kreuzer - made code static
+ * @author Andre Fuechsel - added method for brightness 
  *
  */
 public class LightStateConverter {
@@ -103,6 +104,19 @@ public class LightStateConverter {
      */
     public static PercentType toColorTemperaturePercentType(State lightState) {
         int percent = (int) ((lightState.getColorTemperature() - COLOR_TEMPERATURE_OFFSET) / COLOR_TEMPERATURE_FACTOR);
+        return new PercentType(restrictToBounds(percent));
+    }
+
+    /**
+     * Transforms {@link HueLightState} into {@link PercentType} representing
+     * the brightness.
+     * 
+     * @param lightState
+     *            light state
+     * @return percent type representing the brightness
+     */
+    public static PercentType toBrightnessPercentType(State lightState) {
+        int percent = (int) (lightState.getBrightness() / SATURATION_AND_BRIGHTNESS_FACTOR);
         return new PercentType(restrictToBounds(percent));
     }
 

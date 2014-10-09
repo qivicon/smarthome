@@ -7,13 +7,17 @@
  */
 package org.eclipse.smarthome.binding.hue.handler;
 
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.CHANNEL_BRIGHTNESS;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.CHANNEL_COLOR;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.CHANNEL_COLORTEMPERATURE;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.LIGHT_ID;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LCT001;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LCT003;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LLC007;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LLC010;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LLC012;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LST001;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LWB004;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LWL001;
 
 import java.util.Set;
@@ -47,15 +51,15 @@ import com.google.common.collect.Sets;
  * @author Dennis Nobel - Initial contribution of hue binding
  * @author Oliver Libutzki
  * @author Kai Kreuzer - stabilized code
- * @author Andre Fuechsel - implemented switch  off when brightness == 0
+ * @author Andre Fuechsel - implemented switch off when brightness == 0
  * 
  */
 public class HueLightHandler extends BaseThingHandler implements
         LightStatusListener {
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = 
-    		Sets.newHashSet(THING_TYPE_LCT001, THING_TYPE_LLC007, THING_TYPE_LLC010, 
-    				THING_TYPE_LLC012, THING_TYPE_LWL001);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(
+            THING_TYPE_LCT001, THING_TYPE_LLC007, THING_TYPE_LLC010, THING_TYPE_LLC012,
+            THING_TYPE_LWL001, THING_TYPE_LST001, THING_TYPE_LCT003, THING_TYPE_LWB004);
 
 	private static final int DIM_STEPSIZE = 30;
 
@@ -151,6 +155,41 @@ public class HueLightHandler extends BaseThingHandler implements
             	}
             }
             break;
+        case CHANNEL_BRIGHTNESS:
+            if (command instanceof PercentType) {
+                lightState = LightStateConverter
+                        .toColorLightState((PercentType) command);
+            } else if (command instanceof OnOffType) {
+                lightState = LightStateConverter
+                        .toColorLightState((OnOffType) command);
+            } else if(command instanceof IncreaseDecreaseType) {
+            	Integer brightness = lastSentBrightness;
+            	if(brightness==null) {
+	            	State currentState = light.getState();
+	            	if(currentState!=null) {
+	            		if(!currentState.isOn()) {
+	            			brightness = 0;
+	            		} else {
+	            			brightness = currentState.getBrightness();
+	            		}
+	            	}
+            	}
+            	if(brightness!=null) {
+            		if(command==IncreaseDecreaseType.DECREASE) {
+            			brightness -= DIM_STEPSIZE;
+            			if(brightness<0) brightness = 0;
+            		} else {
+            			brightness += DIM_STEPSIZE;
+            			if(brightness>255) brightness = 255;
+            		}
+            		lastSentBrightness = brightness;
+                    lightState = new StateUpdate().setBrightness(brightness);
+                    if (brightness == 0) {
+                        lightState = lightState.setOn(false);
+                    }
+            	}
+            }
+            break;
         case CHANNEL_COLOR:
             if (command instanceof HSBType) {
                 HSBType hsbCommand = (HSBType) command;
@@ -232,6 +271,9 @@ public class HueLightHandler extends BaseThingHandler implements
             PercentType percentType = LightStateConverter.toColorTemperaturePercentType(fullLight
                     .getState());
             updateState(new ChannelUID(getThing().getUID(),  CHANNEL_COLORTEMPERATURE), percentType);
+            
+            percentType = LightStateConverter.toBrightnessPercentType(fullLight.getState()); 
+            updateState(new ChannelUID(getThing().getUID(),  CHANNEL_BRIGHTNESS), percentType);
         }
 
     }
