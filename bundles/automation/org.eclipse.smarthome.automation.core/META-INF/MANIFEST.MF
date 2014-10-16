@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Automation Core
+Bundle-SymbolicName: org.eclipse.smarthome.automation.core
+Bundle-Version: 0.8.0.qualifier
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Service-Component: OSGI-INF/*
+Import-Package: org.codehaus.jackson;version="1.6.0",
+ org.codehaus.jackson.annotate;version="1.6.0",
+ org.codehaus.jackson.map;version="1.6.0"
