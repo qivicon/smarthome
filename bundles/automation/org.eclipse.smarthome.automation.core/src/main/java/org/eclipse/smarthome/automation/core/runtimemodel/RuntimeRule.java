@@ -20,7 +20,7 @@ public class RuntimeRule implements ITriggerListener {
 		for (ModuleRef trigger : ruleDescription.getOn()) {
 			IModuleHandler handler = ModuleHandlerResolver.resolve(trigger);
 			if (handler instanceof ITriggerModuleHandler) {
-				((ITriggerModuleHandler) handler).addListener(this);
+				((ITriggerModuleHandler) handler).addListener(trigger.getParameters(), this);
 			}
 		}
 	}

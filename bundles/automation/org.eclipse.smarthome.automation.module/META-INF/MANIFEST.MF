@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Automation Modules
+Bundle-SymbolicName: org.eclipse.smarthome.automation.module
+Bundle-Version: 0.8.0.qualifier
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Service-Component: OSGI-INF/*
+Import-Package: org.eclipse.smarthome.automation.core.runtimemodel,
+ org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.types,
+ org.osgi.service.event
