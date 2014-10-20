@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.automation.module.condition.StateConditionHandler">
+   <implementation class="org.eclipse.smarthome.automation.module.condition.StateConditionHandler"/>
+   <property name="module.name" type="String" value="state"/>
+   <reference bind="setItemRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="static"/>
+   <service>
+      <provide interface="org.eclipse.smarthome.automation.core.runtimemodel.IConditionModuleHandler"/>
+   </service>
+</scr:component>
