@@ -9,3 +9,4 @@ Service-Component: OSGI-INF/*
 Import-Package: org.codehaus.jackson;version="1.6.0",
  org.codehaus.jackson.annotate;version="1.6.0",
  org.codehaus.jackson.map;version="1.6.0"
+Export-Package: org.eclipse.smarthome.automation.core.runtimemodel

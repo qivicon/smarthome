@@ -17,6 +17,7 @@
 
   <modules>
     <module>org.eclipse.smarthome.automation.core</module>
+    <module>org.eclipse.smarthome.automation.module</module>
   </modules>
 
 </project>
