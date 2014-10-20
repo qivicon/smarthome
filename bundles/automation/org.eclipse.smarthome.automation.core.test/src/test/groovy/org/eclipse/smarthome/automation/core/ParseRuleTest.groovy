@@ -1,14 +1,18 @@
 package org.eclipse.smarthome.automation.core;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.*
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.eclipse.smarthome.automation.core.jsonmodel.ModuleRef;
-import org.eclipse.smarthome.automation.core.jsonmodel.Rule;
-import org.junit.Test;
+import org.codehaus.jackson.map.ObjectMapper
+import org.eclipse.smarthome.automation.core.jsonmodel.ModuleRef
+import org.eclipse.smarthome.automation.core.jsonmodel.Rule
+import org.junit.Test
 
 class ParseRuleTest {
 
+	private RulesParser getRuleParser(){
+		return new RulesParser();
+	}
+	
 	@Test
 	public void test() {
 		def json = """{
@@ -27,7 +31,7 @@ class ParseRuleTest {
 						      "type": "Compare",
 						      "parameters": {
 						        "operator": "<",
-						        "left:": "TemperatureItem",
+						        "left": "TemperatureItem",
 						        "right": "18"
 						      }
 						    }
@@ -44,8 +48,7 @@ class ParseRuleTest {
 						}
 		 """
 
-		def mapper = new ObjectMapper()
-		def Rule rule = mapper.readValue(json, Rule)
+		def Rule rule = getRuleParser().parseRule(json)
 		assertNotNull rule
 		assertEquals(rule.name, "Heat up in the Morning")
 		assertEquals(rule.enabled, true)
@@ -62,7 +65,7 @@ class ParseRuleTest {
 		def ModuleRef timer = rule.on.get(0)
 		assertEquals(timer.type,"Timer")
 		assertNotNull(timer.parameters)
-		assertFalse(timer.parameters.empty)
+		assertFalse(timer.parameters.isEmpty())
 		assertEquals(timer.parameters.get("time"),"30 6 * * *")
 		
 		def ModuleRef compare = rule._if.get(0)

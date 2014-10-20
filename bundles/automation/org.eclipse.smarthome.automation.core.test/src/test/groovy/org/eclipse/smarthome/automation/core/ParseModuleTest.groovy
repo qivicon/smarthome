@@ -13,7 +13,11 @@ import org.junit.Test
  *
  */
 class ParseModuleTest {
-
+	
+	private RulesParser getRuleParser(){
+		return new RulesParser();
+	}
+	
 	@Test
 	public void testMailModule() {
 		String json = """{
@@ -44,8 +48,7 @@ class ParseModuleTest {
                 }
             ]
         }"""
-		def objectMapper = new ObjectMapper();
-		def Module module = objectMapper.readValue(json, Module);
+		def Module module = getRuleParser().parseModule(json);
 		assertThat module, is(notNullValue())
 		assertEquals(module.name, "SendMail")
 		assertEquals(module.moduleType,"action")
@@ -103,8 +106,7 @@ class ParseModuleTest {
 				}
 			]
 		}"""
-		def objectMapper = new ObjectMapper();
-		def Module module = objectMapper.readValue(json, Module);
+		def Module module = getRuleParser().parseModule(json);
 		assertThat module, is(notNullValue())
 		assertEquals(module.name, "Timer")
 		assertEquals(module.moduleType, "trigger")
