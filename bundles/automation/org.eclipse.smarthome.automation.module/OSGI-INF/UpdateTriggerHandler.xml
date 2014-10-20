@@ -6,4 +6,5 @@
       <provide interface="org.osgi.service.event.EventHandler"/>
    </service>
    <property name="module.name" type="String" value="update"/>
+   <property name="event.topics" type="String" value="smarthome/*"/>
 </scr:component>

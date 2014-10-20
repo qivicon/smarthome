@@ -9,7 +9,7 @@ import java.util.Map;
  * @author niehues
  *
  */
-public interface ITriggerModuleHandler {
+public interface ITriggerModuleHandler extends IModuleHandler {
 
 	/**
 	 * adds a listener to the TriggerHandler

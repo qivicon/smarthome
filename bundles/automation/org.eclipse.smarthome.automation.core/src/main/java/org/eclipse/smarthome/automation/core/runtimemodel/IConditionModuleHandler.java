@@ -8,7 +8,7 @@ import java.util.Map;
  * @author niehues
  *
  */
-public interface IConditionModuleHandler {
+public interface IConditionModuleHandler extends IModuleHandler {
 	
 	/**
 	 * evaluate the condition regarding the properties

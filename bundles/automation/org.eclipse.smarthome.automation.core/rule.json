@@ -1,0 +1,21 @@
+{
+						  "name" : "Heat up in the Morning",
+						  "enabled": true,
+						  "on": [
+						    {
+						      "type": "update",
+						      "parameters": {
+						          "itemName": "switch"
+						      }
+						    }
+						  ],
+						  "then": [
+						    {
+						      "type": "post",
+						      "parameters": {
+						        "itemName": "number",
+						        "command": "23"
+						      }
+						    }
+						  ]
+						}

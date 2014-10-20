@@ -4,6 +4,7 @@
 package org.eclipse.smarthome.automation.core;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.smarthome.automation.core.jsonmodel.Module;
@@ -49,4 +50,19 @@ public class RulesParser {
 			throw new RuleParserException(e);
 		}
 	}
+	
+	/**
+     * parses a json formatted inputStream
+     * 
+     * @param inputStream
+     * @return
+     * @throws RuleParserException
+     */
+    public Rule parseRule(InputStream inputStream) throws RuleParserException {
+        try {
+            return objectMapper.readValue(inputStream, Rule.class);
+        } catch (IOException e) {
+            throw new RuleParserException(e);
+        }
+    }
 }
