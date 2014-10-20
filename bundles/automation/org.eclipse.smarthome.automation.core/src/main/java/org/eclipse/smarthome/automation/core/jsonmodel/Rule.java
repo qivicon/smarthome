@@ -62,5 +62,5 @@ public class Rule {
 	public void set_then(List<ModuleRef> _then) {
 		this._then = _then;
 	}
-
+	
 }
