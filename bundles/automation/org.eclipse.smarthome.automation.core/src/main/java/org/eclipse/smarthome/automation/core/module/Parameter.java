@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.eclipse.smarthome.automation.core.jsonmodel;
+package org.eclipse.smarthome.automation.core.module;
 
 /**
  * @author niehues

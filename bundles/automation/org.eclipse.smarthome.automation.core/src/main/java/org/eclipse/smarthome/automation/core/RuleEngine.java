@@ -3,14 +3,12 @@ package org.eclipse.smarthome.automation.core;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.smarthome.automation.core.jsonmodel.Rule;
-import org.eclipse.smarthome.automation.core.runtimemodel.IRuleActivationListener;
-import org.eclipse.smarthome.automation.core.runtimemodel.RuntimeRule;
+import org.eclipse.smarthome.automation.core.internal.RuntimeRule;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RuleEngine implements IRuleActivationListener {
+public class RuleEngine {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RuleEngine.class);
 	
@@ -35,7 +33,6 @@ public class RuleEngine implements IRuleActivationListener {
     }
 
     /* Rule Activation Listener */
-    @Override
     public void activate(Rule rule) {
     	if (LOGGER.isDebugEnabled()){
     		LOGGER.debug("Rule {} was activated", rule.getName());
@@ -44,7 +41,6 @@ public class RuleEngine implements IRuleActivationListener {
 
     }
 
-    @Override
     public void deactivate(Rule rule) {
     	if (LOGGER.isDebugEnabled()){
     		LOGGER.debug("Rule {} was deactivated", rule.getName());

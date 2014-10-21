@@ -1,9 +1,11 @@
-package org.eclipse.smarthome.automation.core;
+package org.eclipse.smarthome.automation.core.internal;
 
 import java.io.InputStream;
 import java.net.URL;
 
-import org.eclipse.smarthome.automation.core.jsonmodel.Rule;
+import org.eclipse.smarthome.automation.core.Rule;
+import org.eclipse.smarthome.automation.core.RuleEngine;
+import org.eclipse.smarthome.automation.core.parser.RulesParser;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 

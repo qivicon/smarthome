@@ -1,4 +1,4 @@
-package org.eclipse.smarthome.automation.core;
+package org.eclipse.smarthome.automation.core.parser;
 
 public class RuleParserException extends Exception {
 

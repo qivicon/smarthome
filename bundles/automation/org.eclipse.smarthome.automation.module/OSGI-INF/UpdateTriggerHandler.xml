@@ -2,7 +2,7 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.automation.module.trigger.UpdateTriggerHandler">
    <implementation class="org.eclipse.smarthome.automation.module.trigger.UpdateTriggerHandler"/>
    <service>
-      <provide interface="org.eclipse.smarthome.automation.core.runtimemodel.ITriggerModuleHandler"/>
+      <provide interface="org.eclipse.smarthome.automation.core.module.handler.TriggerHandler"/>
       <provide interface="org.osgi.service.event.EventHandler"/>
    </service>
    <property name="module.name" type="String" value="update"/>

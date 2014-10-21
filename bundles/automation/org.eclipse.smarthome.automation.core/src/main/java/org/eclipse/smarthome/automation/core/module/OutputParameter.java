@@ -1,4 +1,4 @@
-package org.eclipse.smarthome.automation.core.jsonmodel;
+package org.eclipse.smarthome.automation.core.module;
 
 /**
  * This is the concrete class for modules output parameter.

@@ -1,4 +1,4 @@
-package org.eclipse.smarthome.automation.core.runtimemodel;
+package org.eclipse.smarthome.automation.core.module.handler;
 
 import java.util.Map;
 
@@ -8,7 +8,7 @@ import java.util.Map;
  * @author niehues
  *
  */
-public interface IConditionModuleHandler extends IModuleHandler {
+public interface ConditionHandler extends ModuleHandler {
 	
 	/**
 	 * evaluate the condition regarding the properties
@@ -16,7 +16,7 @@ public interface IConditionModuleHandler extends IModuleHandler {
 	 * @param properties
 	 * @return
 	 */
-	public boolean evaluate(Map<String, String> properties);
+	public boolean evaluate(Map<String, Object> properties);
 	
 
 }

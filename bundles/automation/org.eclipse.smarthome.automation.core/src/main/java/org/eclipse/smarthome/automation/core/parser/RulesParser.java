@@ -1,14 +1,14 @@
 /**
  * 
  */
-package org.eclipse.smarthome.automation.core;
+package org.eclipse.smarthome.automation.core.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.eclipse.smarthome.automation.core.jsonmodel.Module;
-import org.eclipse.smarthome.automation.core.jsonmodel.Rule;
+import org.eclipse.smarthome.automation.core.Rule;
+import org.eclipse.smarthome.automation.core.module.Module;
 
 /**
  * @author niehues

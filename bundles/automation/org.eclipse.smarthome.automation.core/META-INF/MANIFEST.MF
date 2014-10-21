@@ -9,8 +9,12 @@ Service-Component: OSGI-INF/*
 Import-Package: org.codehaus.jackson;version="1.6.0",
  org.codehaus.jackson.annotate;version="1.6.0",
  org.codehaus.jackson.map;version="1.6.0",
+ org.codehaus.jackson.map.annotate;version="1.6.0",
  org.osgi.framework;version="1.8.0",
  org.slf4j
-Export-Package: org.eclipse.smarthome.automation.core.runtimemodel
-Bundle-Activator: org.eclipse.smarthome.automation.core.Activator
+Export-Package: org.eclipse.smarthome.automation.core,
+ org.eclipse.smarthome.automation.core.module,
+ org.eclipse.smarthome.automation.core.module.handler,
+ org.eclipse.smarthome.automation.core.parser
+Bundle-Activator: org.eclipse.smarthome.automation.core.internal.Activator
 Bundle-ActivationPolicy: lazy

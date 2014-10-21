@@ -3,8 +3,11 @@ package org.eclipse.smarthome.automation.core;
 import static org.junit.Assert.*
 
 import org.codehaus.jackson.map.ObjectMapper
-import org.eclipse.smarthome.automation.core.jsonmodel.Module
+import org.eclipse.smarthome.automation.core.module.Module;
+import org.eclipse.smarthome.automation.core.parser.RulesParser;
+
 import static org.hamcrest.CoreMatchers.*;
+
 import org.junit.Test
 
 /**

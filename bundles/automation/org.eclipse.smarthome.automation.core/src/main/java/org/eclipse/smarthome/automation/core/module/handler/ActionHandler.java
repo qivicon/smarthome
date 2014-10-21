@@ -1,4 +1,4 @@
-package org.eclipse.smarthome.automation.core.runtimemodel;
+package org.eclipse.smarthome.automation.core.module.handler;
 
 import java.util.Map;
 
@@ -7,12 +7,12 @@ import java.util.Map;
  * @author niehues
  *
  */
-public interface IActionModuleHandler extends IModuleHandler{
+public interface ActionHandler extends ModuleHandler{
 
 	
 	/**
 	 * Performs an action during RuleEvaluation
 	 * @param parameters
 	 */
-	public void execute(Map<String, String> parameters);
+	public void execute(Map<String, Object> parameters);
 }

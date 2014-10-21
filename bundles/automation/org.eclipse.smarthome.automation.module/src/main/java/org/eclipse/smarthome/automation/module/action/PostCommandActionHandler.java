@@ -2,7 +2,7 @@ package org.eclipse.smarthome.automation.module.action;
 
 import java.util.Map;
 
-import org.eclipse.smarthome.automation.core.runtimemodel.IActionModuleHandler;
+import org.eclipse.smarthome.automation.core.module.handler.ActionHandler;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -10,7 +10,7 @@ import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.TypeParser;
 
-public class PostCommandActionHandler implements IActionModuleHandler {
+public class PostCommandActionHandler implements ActionHandler {
 
     private EventPublisher eventPublisher;
     private ItemRegistry itemRegistry;
@@ -24,11 +24,11 @@ public class PostCommandActionHandler implements IActionModuleHandler {
     }
 
     @Override
-    public void execute(Map<String, String> parameters) {
+    public void execute(Map<String, Object> parameters) {
         try {
-            String itemName = parameters.get("itemName");
+            String itemName = (String)parameters.get("itemName");
             Item item = itemRegistry.getItem(itemName);
-            String command = parameters.get("command");
+            String command = (String)parameters.get("command");
             Command commandObj = TypeParser.parseCommand(item.getAcceptedCommandTypes(), command);
             eventPublisher.postCommand(itemName, commandObj);
         } catch (ItemNotFoundException e) {

@@ -1,11 +1,11 @@
-package org.eclipse.smarthome.automation.core.runtimemodel;
+package org.eclipse.smarthome.automation.core.module.handler;
 
 /**
  * Listener interface for Triggers
  * @author niehues
  *
  */
-public interface ITriggerListener {
+public interface TriggerListener {
 
 	/**
 	 * executes the Listener

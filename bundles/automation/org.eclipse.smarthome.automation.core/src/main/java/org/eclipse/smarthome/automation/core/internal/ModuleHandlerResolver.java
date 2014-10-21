@@ -1,12 +1,12 @@
 /**
  * 
  */
-package org.eclipse.smarthome.automation.core;
+package org.eclipse.smarthome.automation.core.internal;
 
 import java.util.Collection;
 
-import org.eclipse.smarthome.automation.core.jsonmodel.ModuleRef;
-import org.eclipse.smarthome.automation.core.runtimemodel.IModuleHandler;
+import org.eclipse.smarthome.automation.core.ModuleRef;
+import org.eclipse.smarthome.automation.core.module.handler.ModuleHandler;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -26,12 +26,12 @@ public class ModuleHandlerResolver {
 	 * @param moduleRef
 	 * @return
 	 */
-	public static IModuleHandler resolve(Class<? extends IModuleHandler> moduleHandlerClass, ModuleRef moduleRef, BundleContext bundleContext) {
+	public static ModuleHandler resolve(Class<? extends ModuleHandler> moduleHandlerClass, ModuleRef moduleRef, BundleContext bundleContext) {
 		
 	    try {
 	        Collection<?> serviceReferences = bundleContext.getServiceReferences(moduleHandlerClass, "(module.name="+moduleRef.getType()+")");
             for (Object serviceReference : serviceReferences) {
-                return (IModuleHandler) bundleContext.getService((ServiceReference<?>) serviceReference);
+                return (ModuleHandler) bundleContext.getService((ServiceReference<?>) serviceReference);
             }
         } catch (InvalidSyntaxException e) {
             e.printStackTrace();
