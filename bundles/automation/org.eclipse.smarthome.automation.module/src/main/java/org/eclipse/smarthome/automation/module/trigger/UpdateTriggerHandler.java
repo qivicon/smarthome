@@ -15,8 +15,11 @@ public class UpdateTriggerHandler extends AbstractEventSubscriber implements ITr
     @Override
     public boolean addListener(Map<String, String> parameters, ITriggerListener listener) {
         String itemName = parameters.get("itemName");
-        listeners.put(itemName, listener);
-        return true;
+        if (itemName!=null && !itemName.trim().isEmpty()){
+        	listeners.put(itemName, listener);
+        	return true;
+        }
+        return false;
     }
 
     @Override
@@ -26,5 +29,15 @@ public class UpdateTriggerHandler extends AbstractEventSubscriber implements ITr
             triggerListener.execute();
         }
     }
+
+	@Override
+	public boolean removeListener(Map<String, String> parameters,
+			ITriggerListener listener) {
+		String itemName = parameters.get("itemName");
+		if (itemName!=null && !itemName.trim().isEmpty()){
+			listeners.remove(itemName);
+		}
+		return false;
+	}
 
 }

@@ -16,4 +16,6 @@ public interface ITriggerModuleHandler extends IModuleHandler {
 	 * @return
 	 */
 	public boolean addListener(Map<String, String> parameters,  ITriggerListener listener);
+	
+	public boolean removeListener(Map<String, String> parameters, ITriggerListener listener);
 }
