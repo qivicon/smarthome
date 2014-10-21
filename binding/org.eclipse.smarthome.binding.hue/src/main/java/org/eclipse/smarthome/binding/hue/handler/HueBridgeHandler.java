@@ -12,8 +12,6 @@ import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_B
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.USER_NAME;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +51,7 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Initial contribution of hue binding
  * @author Oliver Libutzki
  * @author Kai Kreuzer - improved state handling
+ * @author Andre Fuechsel - implemented getFullLights(), startSearch()
  * 
  */
 public class HueBridgeHandler extends BaseBridgeHandler {
@@ -62,7 +61,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
 
     private static final int POLLING_FREQUENCY = 10; // in seconds
 
-	private static final String DEFAULT_USERNAME = "EclipseSmartHome";
+    private static final String DEFAULT_USERNAME = "EclipseSmartHome";
 
 	private Logger logger = LoggerFactory.getLogger(HueBridgeHandler.class);
 
@@ -159,19 +158,24 @@ public class HueBridgeHandler extends BaseBridgeHandler {
         	}
         }
 
-		private boolean isReachable(String ipAddress) {
-			try {
+        private boolean isReachable(String ipAddress) {
+            try {
 				// note that InetAddress.isReachable is unreliable, see
 				// http://stackoverflow.com/questions/9922543/why-does-inetaddress-isreachable-return-false-when-i-can-ping-the-ip-address
 				// That's why we do an HTTP access instead
-	            URL url = new URL("http://" + ipAddress);
-	            HttpURLConnection urlConnect = (HttpURLConnection) url.openConnection();
 
 	            // If there is no connection, this line will fail
-	            urlConnect.getContent();
-	        } catch (Exception e) {              
+				bridge.authenticate("invalid");
+	        } catch (IOException e) {              
 	            return false;
-	        }
+	        } catch (ApiException e) {
+	        	if(e.getMessage().contains("SocketTimeout")) {
+	        		return false;
+	        	} else {
+		        	// this seems to be only an authentication issue
+	        		return true;
+	        	}
+			}
 			return true;
 		}
     };
@@ -208,9 +212,9 @@ public class HueBridgeHandler extends BaseBridgeHandler {
     @Override
     public void dispose() {
         logger.debug("Handler disposed.");
-        if(pollingJob!=null && !pollingJob.isCancelled()) {
-        	pollingJob.cancel(true);
-        	pollingJob = null;
+        if (pollingJob != null && !pollingJob.isCancelled()) {
+            pollingJob.cancel(true);
+            pollingJob = null;
         }
         if (bridge != null) {
             bridge = null;
@@ -230,7 +234,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
         		bridge = new HueBridge((String) getConfig().get(HOST));
         		bridge.setTimeout(5000);
         	}
-        	onUpdate();
+        	onUpdate();        	
         } else {
             logger.warn("Cannot connect to hue bridge. IP address or user name not set.");
         }
@@ -239,7 +243,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
     private synchronized void onUpdate() {
     	if (bridge != null) {
 			if (pollingJob == null || pollingJob.isCancelled()) {
-				pollingJob = scheduler.scheduleAtFixedRate(pollingRunnable, 0, POLLING_FREQUENCY, TimeUnit.SECONDS);
+				pollingJob = scheduler.scheduleAtFixedRate(pollingRunnable, 1, POLLING_FREQUENCY, TimeUnit.SECONDS);
 			}
     	}
     }
@@ -307,7 +311,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
         }
         boolean result = lightStatusListeners.add(lightStatusListener);
         if (result) {
-            onUpdate();
+        	onUpdate();
             // inform the listener initially about all lights and their states
             for (FullLight light : lastLightStates.values()) {
             	lightStatusListener.onLightAdded(bridge, light);
@@ -326,6 +330,28 @@ public class HueBridgeHandler extends BaseBridgeHandler {
 
     public FullLight getLightById(String lightId) {
     	return lastLightStates.get(lightId);        
+    }
+
+    public List<FullLight> getFullLights() {
+        List<FullLight> lights = null;
+        if (bridge != null) {
+            try {
+                lights = bridge.getFullConfig().getLights();
+            } catch (IOException | ApiException e) {
+                logger.error("Bridge cannot search for new lights.", e);
+            }
+        }
+        return lights;
+    }
+
+    public void startSearch() {
+        if (bridge != null) {
+            try {
+                bridge.startSearch();
+            } catch (IOException | ApiException e) {
+                logger.error("Bridge cannot start search mode", e);
+            }
+        }
     }
 
     private boolean isEqual(State state1, State state2) {

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Core Binding XML
 Bundle-SymbolicName: org.eclipse.smarthome.core.binding.xml
-Bundle-Version: 0.7.0.qualifier
+Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.thoughtworks.xstream,
@@ -13,6 +13,8 @@ Import-Package: com.thoughtworks.xstream,
  org.eclipse.smarthome.config.xml.osgi,
  org.eclipse.smarthome.config.xml.util,
  org.eclipse.smarthome.core.binding,
+ org.eclipse.smarthome.core.common.osgi,
+ org.eclipse.smarthome.core.i18n,
  org.osgi.framework,
  org.slf4j
 Bundle-Activator: org.eclipse.smarthome.core.binding.xml.internal.Activator

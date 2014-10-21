@@ -7,9 +7,11 @@
  */
 package org.eclipse.smarthome.binding.hue.internal.discovery;
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.BINDING_ID;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.LIGHT_ID;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,17 +31,22 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The {@link HueBridgeServiceTracker} tracks for hue lights which are connected
- * to a paired hue bridge.
+ * to a paired hue bridge. The default search time for hue is 60 seconds. 
+ * 
+ * @author Kai Kreuzer - Initial contribution
+ * @author Andre Fuechsel - changed search timeout
  * 
  */
 public class HueLightDiscoveryService extends AbstractDiscoveryService implements LightStatusListener {
 
     private final static Logger logger = LoggerFactory.getLogger(HueLightDiscoveryService.class);
 
+    private final static int SEARCH_TIME = 60; 
+    
 	private HueBridgeHandler hueBridgeHandler;
 
     public HueLightDiscoveryService(HueBridgeHandler hueBridgeHandler) {
-        super(5);
+        super(SEARCH_TIME);
     	this.hueBridgeHandler = hueBridgeHandler;
     }
 
@@ -57,18 +64,24 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 	}
 
 	@Override
-	public int getScanTimeout() {
-		return 1;
-	}
-
-	@Override
 	public void startScan() {
+	    List<FullLight> lights = hueBridgeHandler.getFullLights(); 
+	    if (lights != null) {
+            for (FullLight l : lights) {
+                onLightAddedInternal(l);
+            }
+	    }
+        // search for unpaired lights
+        hueBridgeHandler.startSearch();
 	}
 
 	@Override
 	public void onLightAdded(HueBridge bridge, FullLight light) {
-		
-		ThingUID thingUID = getThingUID(light);
+        onLightAddedInternal(light);
+    }
+
+    private void onLightAddedInternal(FullLight light) {
+        ThingUID thingUID = getThingUID(light);
 		if(thingUID!=null) {
 			ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
 	        Map<String, Object> properties = new HashMap<>(1);
@@ -83,7 +96,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 		} else {
 			logger.debug("discovered unsupported light of type '{}' with id {}", light.getModelID(), light.getId());
 		}
-	}
+    }
 
 	@Override
 	public void onLightRemoved(HueBridge bridge, FullLight light) {
@@ -101,7 +114,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 
 	private ThingUID getThingUID(FullLight light) {
         ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
-		ThingTypeUID thingTypeUID = new ThingTypeUID(BINDING_ID, light.getModelID());
+		ThingTypeUID thingTypeUID = new ThingTypeUID(BINDING_ID, light.getModelID().replaceAll("[^a-zA-Z0-9_]", "_"));
 				
 		if(getSupportedThingTypes().contains(thingTypeUID)) {
 		    String thingLightId = light.getId();

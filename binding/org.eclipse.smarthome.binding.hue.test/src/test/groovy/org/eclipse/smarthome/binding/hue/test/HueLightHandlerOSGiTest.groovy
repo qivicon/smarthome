@@ -7,16 +7,15 @@
  */
 package org.eclipse.smarthome.binding.hue.test
 
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 import nl.q42.jue.MockedHttpClient
 import nl.q42.jue.HttpClient.Result
 
-import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration
-import org.eclipse.smarthome.binding.hue.config.HueLightConfiguration
-import org.eclipse.smarthome.binding.hue.internal.handler.HueBridgeHandler
-import org.eclipse.smarthome.binding.hue.internal.handler.HueLightHandler
+import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
+import org.eclipse.smarthome.binding.hue.handler.HueLightHandler
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.library.types.HSBType
@@ -26,6 +25,7 @@ import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingProvider
+import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
@@ -62,9 +62,9 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 
     Bridge createBridge() {
         Configuration bridgeConfiguration = new Configuration().with {
-            put(HueBridgeConfiguration.IP_ADDRESS, "1.2.3.4")
-            put(HueBridgeConfiguration.USER_NAME, "testUserName")
-            put(HueBridgeConfiguration.SERIAL_NUMBER, "testSerialNumber")
+            put(HOST, "1.2.3.4")
+            put(USER_NAME, "testUserName")
+            put(SERIAL_NUMBER, "testSerialNumber")
             it
         }
 
@@ -80,7 +80,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 
     Thing createLight(hueBridge) {
         Configuration lightConfiguration = new Configuration().with {
-            put(HueLightConfiguration.LIGHT_ID, "1")
+            put(LIGHT_ID, "1")
             it
         }
 
@@ -128,7 +128,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 					"on" : true
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, OnOffType.ON, expectedBody)
+		assertSendCommand(CHANNEL_COLOR, OnOffType.ON, expectedBody)
 	}
 	
 	@Test
@@ -139,7 +139,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 					"on" : true
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, OnOffType.ON, expectedBody)
+		assertSendCommand(CHANNEL_COLOR, OnOffType.ON, expectedBody)
 	}
 	
 	@Test
@@ -150,7 +150,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 					"on" : false
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, OnOffType.OFF, expectedBody)
+		assertSendCommand(CHANNEL_COLOR, OnOffType.OFF, expectedBody)
 	}
 	
 	@Test
@@ -161,7 +161,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 					"on" : false
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, OnOffType.OFF, expectedBody)
+		assertSendCommand(CHANNEL_COLOR, OnOffType.OFF, expectedBody)
 	}
 	
 	@Test
@@ -172,7 +172,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 					"ct" : 154
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR_TEMPERATURE, new PercentType(0), expectedBody)
+		assertSendCommand(CHANNEL_COLORTEMPERATURE, new PercentType(0), expectedBody)
 	}
 	
 	@Test
@@ -183,7 +183,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 					"ct" : 327
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR_TEMPERATURE, new PercentType(50), expectedBody)
+		assertSendCommand(CHANNEL_COLORTEMPERATURE, new PercentType(50), expectedBody)
 	}
 	
 	@Test
@@ -194,7 +194,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 					"ct" : 500
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR_TEMPERATURE, new PercentType(100), expectedBody)
+		assertSendCommand(CHANNEL_COLORTEMPERATURE, new PercentType(100), expectedBody)
 	}
 	
 	@Test
@@ -206,7 +206,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 					"on" : false
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, new PercentType(0), expectedBody)	
+		assertSendCommand(CHANNEL_COLOR, new PercentType(0), expectedBody)	
 	}
 	
 	@Test
@@ -218,7 +218,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 					"on" : true
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, new PercentType(50), expectedBody)	
+		assertSendCommand(CHANNEL_COLOR, new PercentType(50), expectedBody)	
 	}
 	
 	@Test
@@ -230,7 +230,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 					"on" : true
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, new PercentType(100), expectedBody)
+		assertSendCommand(CHANNEL_COLOR, new PercentType(100), expectedBody)
 	}
 	
 	@Test
@@ -238,12 +238,10 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 		def expectedBody = 
 			"""
 				{
-					"bri" : 0,
-					"sat" : 0,
-					"hue" : 0
+					"on" : false
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, HSBType.BLACK, expectedBody)	
+		assertSendCommand(CHANNEL_COLOR, HSBType.BLACK, expectedBody)	
 	}
 	
 	@Test
@@ -256,7 +254,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 					"hue" : 0
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, HSBType.RED, expectedBody)	
+		assertSendCommand(CHANNEL_COLOR, HSBType.RED, expectedBody)	
 	}
 	
 	@Test
@@ -269,7 +267,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 					"hue" : 43680
 				}
 			"""
-		assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, HSBType.BLUE, expectedBody)
+		assertSendCommand(CHANNEL_COLOR, HSBType.BLUE, expectedBody)
 	}
 	
 	@Test
@@ -282,7 +280,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 				"hue" : 0
 				}
 				"""
-				assertSendCommand(HueLightHandler.CHANNEL_ID_COLOR, HSBType.WHITE, expectedBody)
+				assertSendCommand(CHANNEL_COLOR, HSBType.WHITE, expectedBody)
 	}
 	
     private void assertSendCommand(String channel, Command command, String expectedBody) {
@@ -310,55 +308,54 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 	                new Result("", 200)
 	            },
 	            get: { String address ->
-	                if (address.endsWith("lights")) {
+	                if (address.endsWith("testUserName/")) {
 	                    def body = """
-							{
-							  "1": {
-							    "name": "Hue Light 1"
+							{"lights":
+							  {
+							    "1": {
+								  "state": {
+								    "on": true,
+								    "bri": 200,
+								    "hue": 50000,
+								    "sat": 0,
+								    "xy": [
+								      0,
+								      0
+								    ],
+								    "ct": 0,
+								    "alert": "none",
+								    "effect": "none",
+								    "colormode": "hs",
+								    "reachable": true
+								  },
+								  "type": "Extended color light",
+								  "name": "Hue Light 1",
+								  "modelid": "LCT001",
+								  "swversion": "65003148",
+								  "pointsymbol": {
+								    "1": "none",
+								    "2": "none",
+								    "3": "none",
+								    "4": "none",
+								    "5": "none",
+								    "6": "none",
+								    "7": "none",
+								    "8": "none"
+								  }
+							    }
 							  }
 							}
 						"""
 	                    new Result(body, 200)
-	                } else if (address.endsWith("lights/1")) {
-	                    def body = """
-							{
-							  "state": {
-							    "on": true,
-							    "bri": 200,
-							    "hue": 50000,
-							    "sat": 0,
-							    "xy": [
-							      0,
-							      0
-							    ],
-							    "ct": 0,
-							    "alert": "none",
-							    "effect": "none",
-							    "colormode": "hs",
-							    "reachable": true
-							  },
-							  "type": "Extended color light",
-							  "name": "Hue Light 1",
-							  "modelid": "LCT001",
-							  "swversion": "65003148",
-							  "pointsymbol": {
-							    "1": "none",
-							    "2": "none",
-							    "3": "none",
-							    "4": "none",
-							    "5": "none",
-							    "6": "none",
-							    "7": "none",
-							    "8": "none"
-							  }
-							}
-						"""
-	                    new Result(body, 200)
-	                }
-	            }
+					}
+				}
 	        ] as MockedHttpClient
-
+	
 			installHttpClientMock(hueLightHandler.getHueBridgeHandler(), mockedHttpClient)
+			
+	        waitForAssert({
+	            assertThat hueLightHandler.getBridge().getStatus(), is(ThingStatus.ONLINE)
+	        }, 10000)
 
 	        // create items and channel bindings
 	        ThingHelper thingHelper = new ThingHelper(bundleContext)
@@ -368,12 +365,12 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 
 	        EventPublisher eventPublisher = getService(EventPublisher)
 	        assertThat eventPublisher, is(notNullValue())
-
+						
 	        eventPublisher.postCommand(item, command)
-
+			
 	        waitForAssert({assertTrue addressWrapper.isSet}, 10000)
 	        waitForAssert({assertTrue bodyWrapper.isSet}, 10000)
-
+			
 	        assertThat addressWrapper.wrappedObject, is("http://1.2.3.4/api/testUserName/lights/1/state")
 			assertJson(expectedBody, bodyWrapper.wrappedObject)
         } finally {
@@ -404,7 +401,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 		
 		def usernameField = hueBridgeValue.getClass().getDeclaredField("username")
 		usernameField.accessible = true
-		usernameField.set(hueBridgeValue, hueBridgeHandler.config.get(HueBridgeConfiguration.USER_NAME))
+		usernameField.set(hueBridgeValue, hueBridgeHandler.config.get(USER_NAME))
 		
 		hueBridgeHandler.initialize()
     }

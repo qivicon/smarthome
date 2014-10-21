@@ -2,7 +2,7 @@
 <thing:thing-descriptions bindingId="hue"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
-    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 org.eclipse.smarthome.thing-description.xsd">
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
     <!-- Philips LivingWhites Adapter (see http://www.philips.de/c-p/6916531PH/livingwhites) -->
     <thing-type id="LWL001">
@@ -11,7 +11,7 @@
         </supported-bridge-type-refs>
 
         <label>Philips LivingWhites Adapter</label>
-        <description>This is a Philips LigingWhites Smartplug</description>
+        <description>This is a Philips LivingWhites adapter</description>
 
         <channels>
             <channel id="brightness" typeId="brightness" />

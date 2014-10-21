@@ -11,7 +11,7 @@
 
 	<groupId>org.eclipse.smarthome</groupId>
 	<artifactId>smarthome</artifactId>
-	<version>0.7.0-SNAPSHOT</version>
+	<version>0.8.0-SNAPSHOT</version>
 
 	<name>Eclipse SmartHome</name>
 
@@ -324,5 +324,17 @@
 			<url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
 		</pluginRepository>
 	</pluginRepositories>
+
+	<repositories>
+		<repository>
+			<id>eclipse</id>
+			<name>Eclipse Snapshot Repository</name>
+			<layout>default</layout>
+			<url>https://repo.eclipse.org/content/repositories/snapshots/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
 
 </project>
