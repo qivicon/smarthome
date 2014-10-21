@@ -1,22 +1,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.eclipse.smarthome.binding</groupId>
-	<artifactId>org.eclipse.smarthome.binding.hue.test</artifactId>
+	<groupId>org.eclipse.smarthome.config</groupId>
+	<artifactId>org.eclipse.smarthome.config.setupflow.test</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
-	<name>Eclipse SmartHome hue Binding Tests</name>
-
+	<name>Eclipse SmartHome Configuration Setupflow Tests</name>
 	<parent>
-		<groupId>org.eclipse.smarthome</groupId>
-		<artifactId>binding</artifactId>
-		<version>0.8.0-SNAPSHOT</version>
+		<groupId>org.eclipse.smarthome.bundles</groupId>
+		<artifactId>config</artifactId>
+		<version>0.7.0-SNAPSHOT</version>
 	</parent>
 
 
     <properties>
-        <bundle.symbolicName>org.eclipse.smarthome.binding.hue.test</bundle.symbolicName>
-        <bundle.namespace>org.eclipse.smarthome.binding.hue.test</bundle.namespace>
+        <bundle.symbolicName>org.eclipse.smarthome.config.setupflow.test</bundle.symbolicName>
+        <bundle.namespace>org.eclipse.smarthome.config.setupflow.test</bundle.namespace>
     </properties>
 	
 	<build>
@@ -29,17 +27,12 @@
 					<dependencies>
 						<dependency>
 							<type>eclipse-plugin</type>
-							<artifactId>org.eclipse.equinox.event</artifactId>
-							<version>0.0.0</version>
-						</dependency>
-						<dependency>
-							<type>eclipse-plugin</type>
 							<artifactId>org.eclipse.equinox.ds</artifactId>
 							<version>0.0.0</version>
 						</dependency>
 						<dependency>
 							<type>eclipse-plugin</type>
-							<artifactId>org.eclipse.smarthome.config.setupflow</artifactId>
+							<artifactId>org.eclipse.equinox.event</artifactId>
 							<version>0.0.0</version>
 						</dependency>
 						<dependency>
@@ -66,16 +59,6 @@
 						</bundle>
 						<bundle>
 							<id>org.eclipse.equinox.event</id>
-							<level>2</level>
-							<autoStart>true</autoStart>
-						</bundle>
-						<bundle>
-							<id>org.eclipse.smarthome.core</id>
-							<level>4</level>
-							<autoStart>true</autoStart>
-						</bundle>
-						<bundle>
-							<id>org.eclipse.smarthome.core.thing</id>
 							<level>4</level>
 							<autoStart>true</autoStart>
 						</bundle>
@@ -104,5 +87,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
