@@ -23,7 +23,7 @@ import org.osgi.framework.BundleContext;
 public class RuntimeRule implements TriggerListener {
 
 	private Rule rule;
-    
+
 	public Rule getRule() {
 		return rule;
 	}
@@ -36,46 +36,48 @@ public class RuntimeRule implements TriggerListener {
 
 	public RuntimeRule(Rule ruleDescription, BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
-	    this.rule = ruleDescription;
+		this.rule = ruleDescription;
 	}
 
 	public void enable() {
-	    this.rule.setEnabled(true);
+		this.rule.setEnabled(true);
 		for (TriggerRef trigger : rule.getTriggers()) {
-			ModuleHandler handler = ModuleHandlerResolver.resolve(TriggerHandler.class, trigger, this.bundleContext);
+			ModuleHandler handler = ModuleHandlerResolver.resolve(trigger,
+					this.bundleContext);
 			if (handler instanceof TriggerHandler) {
-				((TriggerHandler) handler).addListener(trigger.getParameters(), this);
+				((TriggerHandler) handler).addListener(trigger.getParameters(),
+						this);
 			}
 		}
 	}
-	
+
 	public void onTriggerHandlerAdded(TriggerHandler triggerHandler) {
-        for (TriggerRef trigger : rule.getTriggers()) {
-            if (triggerHandler.getName().equals(trigger.getType())) {
-                triggerHandler.addListener(trigger.getParameters(), this);
-            }
-        }
-	}
-	
-	public void onTriggerHandlerRemoved(TriggerHandler triggerHandler) {
-        for (TriggerRef trigger : rule.getTriggers()) {
-            if (triggerHandler.getName().equals(trigger.getType())) {
-                triggerHandler.removeListener(trigger.getParameters(), this);
-            }
-        }
-    }
-	
-	public void disable(){
-	    this.rule.setEnabled(false);
-	    for (TriggerRef trigger : rule.getTriggers()) {
-			ModuleHandler handler = ModuleHandlerResolver.resolve(TriggerHandler.class, trigger, this.bundleContext);
-			if (handler instanceof TriggerHandler){
-				((TriggerHandler) handler).removeListener(trigger.getParameters(), this);
+		for (TriggerRef trigger : rule.getTriggers()) {
+			if (triggerHandler.getName().equals(trigger.getType())) {
+				triggerHandler.addListener(trigger.getParameters(), this);
 			}
 		}
 	}
-	
-	
+
+	public void onTriggerHandlerRemoved(TriggerHandler triggerHandler) {
+		for (TriggerRef trigger : rule.getTriggers()) {
+			if (triggerHandler.getName().equals(trigger.getType())) {
+				triggerHandler.removeListener(trigger.getParameters(), this);
+			}
+		}
+	}
+
+	public void disable() {
+		this.rule.setEnabled(false);
+		for (TriggerRef trigger : rule.getTriggers()) {
+			ModuleHandler handler = ModuleHandlerResolver.resolve(trigger,
+					this.bundleContext);
+			if (handler instanceof TriggerHandler) {
+				((TriggerHandler) handler).removeListener(
+						trigger.getParameters(), this);
+			}
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -100,11 +102,12 @@ public class RuntimeRule implements TriggerListener {
 	private boolean ifCondition() {
 		// at a first step conditions are logically AND combined
 		List<ConditionRef> conditions = rule.getConditions();
-		if(conditions == null) {
-		    return true;
+		if (conditions == null) {
+			return true;
 		}
-        for (ConditionRef condition : conditions) {
-			ModuleHandler handler = ModuleHandlerResolver.resolve(ConditionHandler.class, condition, this.bundleContext);
+		for (ConditionRef condition : conditions) {
+			ModuleHandler handler = ModuleHandlerResolver.resolve(condition,
+					this.bundleContext);
 			if (handler instanceof ConditionHandler) {
 				if (!((ConditionHandler) handler).evaluate(condition
 						.getParameters())) {
@@ -122,10 +125,10 @@ public class RuntimeRule implements TriggerListener {
 	 */
 	private boolean thenExecute() {
 		for (ActionRef action : rule.getActions()) {
-			ModuleHandler handler = ModuleHandlerResolver.resolve(ActionHandler.class, action, this.bundleContext);
+			ModuleHandler handler = ModuleHandlerResolver.resolve(action,
+					this.bundleContext);
 			if (handler instanceof ActionHandler) {
-				((ActionHandler) handler)
-						.execute(action.getParameters());
+				((ActionHandler) handler).execute(action.getParameters());
 			}
 		}
 		return true;
