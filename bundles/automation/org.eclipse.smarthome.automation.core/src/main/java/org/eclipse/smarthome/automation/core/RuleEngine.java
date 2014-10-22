@@ -23,19 +23,22 @@ public class RuleEngine {
      * Registers a rule to the RuleEngine
      * @param rule
      */
-    public void register(Rule rule) {
-        if (rule.isEnabled()) {
-            this.rules.put(rule.getName(), new RuntimeRule(rule, bundleContext));
+    public void add(Rule rule) {
+    	RuntimeRule rRule = rules.get(rule.getId());
+    	if (rRule ==null && rule.isEnabled()){
+            this.rules.put(rule.getId(), new RuntimeRule(rule, bundleContext));
             if (LOGGER.isDebugEnabled()){
             	LOGGER.debug("Rule {} registered", rule.getName());
             }
+        }else{
+        	LOGGER.warn("Rule {} with Id: {} was already registered.",rule.getName(), rule.getId());
         }
     }
 
     /* Rule Activation Listener */
     public void activate(Rule rule) {
     	if (LOGGER.isDebugEnabled()){
-    		LOGGER.debug("Rule {} was activated", rule.getName());
+    		LOGGER.debug("Rule {} with Id: {} was activated", rule.getName(), rule.getId());
     	}
         // TODO Auto-generated method stub
 
@@ -43,7 +46,7 @@ public class RuleEngine {
 
     public void deactivate(Rule rule) {
     	if (LOGGER.isDebugEnabled()){
-    		LOGGER.debug("Rule {} was deactivated", rule.getName());
+    		LOGGER.debug("Rule {} with Id: {} was deactivated", rule.getName(), rule.getId());
     	}
         // TODO Auto-generated method stub
 

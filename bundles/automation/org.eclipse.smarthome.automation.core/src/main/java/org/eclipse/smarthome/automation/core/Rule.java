@@ -18,6 +18,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class Rule {
 
 	private String name;
+	private String id;
 	private boolean enabled;
 	@JsonProperty("on")
 	private List<TriggerRef> triggers = new ArrayList<TriggerRef>();
@@ -67,6 +68,14 @@ public class Rule {
 
 	public void addAction(ActionRef action) {
 		actions.add(action);
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 }

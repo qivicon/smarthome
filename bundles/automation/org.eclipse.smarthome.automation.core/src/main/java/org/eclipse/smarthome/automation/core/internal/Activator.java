@@ -36,7 +36,7 @@ public class Activator implements BundleActivator, Runnable {
 
             inputStream.close();
             RuleEngine ruleEngine = new RuleEngine(context);
-            ruleEngine.register(rule);
+            ruleEngine.add(rule);
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
