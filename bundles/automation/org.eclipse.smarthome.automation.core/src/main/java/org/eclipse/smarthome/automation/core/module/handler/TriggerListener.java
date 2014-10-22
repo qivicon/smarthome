@@ -10,5 +10,5 @@ public interface TriggerListener {
 	/**
 	 * executes the Listener
 	 */
-	public void execute();
+	void execute(ModuleContext context);
 }

@@ -1,7 +1,5 @@
 package org.eclipse.smarthome.automation.core.module.handler;
 
-import java.util.Map;
-
 
 /**
  * Interface for Triggering module during RuleEvaluation
@@ -13,9 +11,11 @@ public interface TriggerHandler extends ModuleHandler {
 
 	/**
 	 * adds a listener to the TriggerHandler
+	 * 
 	 * @return
 	 */
-	public boolean addListener(Map<String, Object> parameters,  TriggerListener listener);
-	
-	public boolean removeListener(Map<String, Object> parameters, TriggerListener listener);
+	public void addListener(ModuleContext context, TriggerListener listener);
+
+	public void removeListener(ModuleContext context,
+			TriggerListener listener);
 }

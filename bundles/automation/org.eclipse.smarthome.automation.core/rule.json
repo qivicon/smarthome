@@ -17,6 +17,13 @@
 						        "itemName": "number",
 						        "command": "23"
 						      }
+						    },
+						    {
+						      "type": "post",
+						      "parameters": {
+						        "itemName": "switch2",
+						        "command": "${on.0.state}"
+						      }
 						    }
 						  ]
 						}

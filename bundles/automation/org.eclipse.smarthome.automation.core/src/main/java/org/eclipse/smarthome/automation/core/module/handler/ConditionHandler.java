@@ -1,6 +1,5 @@
 package org.eclipse.smarthome.automation.core.module.handler;
 
-import java.util.Map;
 
 /**
  * Interface for a condition which can be evaluated during RuleEvaluation
@@ -16,7 +15,7 @@ public interface ConditionHandler extends ModuleHandler {
 	 * @param properties
 	 * @return
 	 */
-	public boolean evaluate(Map<String, Object> properties);
+	public boolean evaluate(ModuleContext context);
 	
 
 }

@@ -1,8 +1,7 @@
 package org.eclipse.smarthome.automation.module.action;
 
-import java.util.Map;
-
 import org.eclipse.smarthome.automation.core.module.handler.ActionHandler;
+import org.eclipse.smarthome.automation.core.module.handler.ModuleContext;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -24,11 +23,11 @@ public class PostCommandActionHandler implements ActionHandler {
 	}
 
 	@Override
-	public void execute(Map<String, Object> parameters) {
+	public void execute(ModuleContext context) {
 		try {
-			String itemName = (String) parameters.get("itemName");
+			String itemName = (String) context.getInputParameter("itemName");
 			Item item = itemRegistry.getItem(itemName);
-			String command = (String) parameters.get("command");
+			String command = (String) context.getInputParameter("command");
 			Command commandObj = TypeParser.parseCommand(
 					item.getAcceptedCommandTypes(), command);
 			eventPublisher.postCommand(itemName, commandObj);

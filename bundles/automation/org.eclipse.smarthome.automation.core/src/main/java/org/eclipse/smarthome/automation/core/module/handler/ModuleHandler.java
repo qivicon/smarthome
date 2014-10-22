@@ -3,6 +3,7 @@
  */
 package org.eclipse.smarthome.automation.core.module.handler;
 
+
 /**
  * @author niehues
  *
@@ -10,5 +11,5 @@ package org.eclipse.smarthome.automation.core.module.handler;
 public interface ModuleHandler {
 	
 	public String getName();
-
+	
 }
