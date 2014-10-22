@@ -3,7 +3,7 @@
 <booleanAttribute key="append.args" value="true"/>
 <stringAttribute key="application" value="org.eclipse.pde.junit.runtime.coretestapplication"/>
 <booleanAttribute key="askclear" value="false"/>
-<booleanAttribute key="automaticAdd" value="true"/>
+<booleanAttribute key="automaticAdd" value="false"/>
 <booleanAttribute key="automaticValidate" value="false"/>
 <stringAttribute key="bootstrap" value=""/>
 <stringAttribute key="checked" value="[NONE]"/>
@@ -13,7 +13,6 @@
 <stringAttribute key="configLocation" value="${workspace_loc}/.metadata/.plugins/org.eclipse.pde.core/pde-junit"/>
 <booleanAttribute key="default" value="false"/>
 <booleanAttribute key="default_auto_start" value="true"/>
-<stringAttribute key="deselected_workspace_plugins" value="org.eclipse.smarthome.config.discovery,org.eclipse.smarthome.config.discovery.test,org.eclipse.smarthome.config.dispatch,org.eclipse.smarthome.config.xml.test,org.eclipse.smarthome.core.binding.xml.test,org.eclipse.smarthome.core.scriptengine,org.eclipse.smarthome.core.thing.xml,org.eclipse.smarthome.core.thing.xml.test,org.eclipse.smarthome.core.transform,org.eclipse.smarthome.core.transform.test,org.eclipse.smarthome.designer.core,org.eclipse.smarthome.designer.ui,org.eclipse.smarthome.io.multimedia,org.eclipse.smarthome.io.net,org.eclipse.smarthome.io.net.test,org.eclipse.smarthome.io.rest,org.eclipse.smarthome.io.rest.core,org.eclipse.smarthome.io.rest.sitemap,org.eclipse.smarthome.io.transport.mqtt,org.eclipse.smarthome.model.codegen,org.eclipse.smarthome.model.core,org.eclipse.smarthome.model.item,org.eclipse.smarthome.model.item.runtime,org.eclipse.smarthome.model.item.ui,org.eclipse.smarthome.model.persistence,org.eclipse.smarthome.model.persistence.runtime,org.eclipse.smarthome.model.persistence.tests,org.eclipse.smarthome.model.persistence.ui,org.eclipse.smarthome.model.rule,org.eclipse.smarthome.model.rule.runtime,org.eclipse.smarthome.model.rule.tests,org.eclipse.smarthome.model.rule.ui,org.eclipse.smarthome.model.script,org.eclipse.smarthome.model.script.runtime,org.eclipse.smarthome.model.script.tests,org.eclipse.smarthome.model.script.ui,org.eclipse.smarthome.model.sitemap,org.eclipse.smarthome.model.sitemap.runtime,org.eclipse.smarthome.model.sitemap.ui,org.eclipse.smarthome.model.thing,org.eclipse.smarthome.model.thing.runtime,org.eclipse.smarthome.model.thing.tests,org.eclipse.smarthome.model.thing.ui,org.eclipse.smarthome.ui,org.eclipse.smarthome.ui.icon,org.eclipse.smarthome.ui.test,org.eclipse.smarthome.ui.webapp"/>
 <booleanAttribute key="includeOptional" value="false"/>
 <stringAttribute key="location" value="${workspace_loc}/../junit-workspace"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">

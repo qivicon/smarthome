@@ -3,17 +3,21 @@ package org.eclipse.smarthome.automation.core;
 
 import static org.junit.Assert.*
 
+import static org.hamcrest.CoreMatchers.*
+import static org.junit.Assert.*
+import static org.junit.matchers.JUnitMatchers.*
+
 import org.eclipse.smarthome.core.events.EventPublisher
-import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemProvider
 import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.library.items.NumberItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
-import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before
 import org.junit.Test
+import org.osgi.service.event.Event
+import org.osgi.service.event.EventHandler
 
 class RuntimeRuleTest extends OSGiTest{
 
@@ -30,15 +34,26 @@ class RuntimeRuleTest extends OSGiTest{
 	
 	@Test
 	public void test() {
+        
+        Thread.sleep(100)
+        
 		def EventPublisher eventPublisher = getService(EventPublisher)
 		def ItemRegistry itemRegistry = getService(ItemRegistry)
 		SwitchItem swItem = itemRegistry.getItem("switch")
-		Thread.sleep(2000)
+        
+        Event event = null
+       
+        def eventHandler = [
+            handleEvent: { Event e -> event = e}
+        ] as EventHandler
+        
+        registerService(eventHandler, ["event.topics": "smarthome/command/number"] as Hashtable)
+        
 		eventPublisher.postUpdate("switch", OnOffType.ON)
-		Thread.sleep(1100)
-		Item number = itemRegistry.getItem("number")
-		assertEquals(number.getState().intValue(),23)
-		
+        waitFor { event != null }
+        
+        assertThat event.topic, is(equalTo("smarthome/command/number"))
+        assertThat event.getProperty("command").intValue(), is(23)
 	}
 	
 	

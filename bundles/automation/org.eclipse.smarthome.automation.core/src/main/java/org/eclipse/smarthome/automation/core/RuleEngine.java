@@ -7,77 +7,89 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.automation.core.internal.RuntimeRule;
 import org.eclipse.smarthome.automation.core.module.handler.TriggerHandler;
+import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RuleEngine {
+public class RuleEngine extends AbstractRegistry<Rule> {
 
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(RuleEngine.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RuleEngine.class);
 
-	private Map<String, RuntimeRule> rules = new HashMap<String, RuntimeRule>();
-	private List<TriggerHandler> triggerHandlers = new CopyOnWriteArrayList<TriggerHandler>();
-	private BundleContext bundleContext;
+    private Map<String, RuntimeRule> rules = new HashMap<String, RuntimeRule>();
+    private List<TriggerHandler> triggerHandlers = new CopyOnWriteArrayList<TriggerHandler>();
+    private BundleContext bundleContext;
 
-	protected void activate(ComponentContext context) {
-		this.bundleContext = context.getBundleContext();
+    protected void activate(ComponentContext context) {
+        this.bundleContext = context.getBundleContext();
 
-	}
+    }
 
-	protected void deactivate(ComponentContext context) {
-		this.bundleContext = null;
-	}
+    protected void deactivate(ComponentContext context) {
+        this.bundleContext = null;
+    }
 
-	protected void addTriggerHandler(TriggerHandler handler) {
-		triggerHandlers.add(handler);
-		for (RuntimeRule rRule : rules.values()) {
-			for (TriggerRef triggerRef : rRule.getRule().getTriggers()) {
-				//add RuntimeRule as Listener to triggerRef
-			}
-		}
-	}
+    protected void addTriggerHandler(TriggerHandler handler) {
+        for (RuntimeRule rRule : rules.values()) {
+            rRule.onTriggerHandlerAdded(handler);
+        }
+        triggerHandlers.add(handler);
+    }
 
-	protected void removeTriggerHandler(TriggerHandler handler) {
-		triggerHandlers.remove(handler);
-	}
+    protected void removeTriggerHandler(TriggerHandler handler) {
+        for (RuntimeRule rRule : rules.values()) {
+            rRule.onTriggerHandlerRemoved(handler);
+        }
+        triggerHandlers.remove(handler);
+    }
 
-	/**
-	 * Registers a rule to the RuleEngine
-	 * 
-	 * @param rule
-	 */
-	public void add(Rule rule) {
-		RuntimeRule rRule = rules.get(rule.getId());
-		if (rRule == null && rule.isEnabled()) {
-			this.rules.put(rule.getId(), new RuntimeRule(rule, bundleContext));
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Rule {} registered", rule.getName());
-			}
-		} else {
-			LOGGER.warn("Rule {} with Id: {} was already registered.",
-					rule.getName(), rule.getId());
-		}
-	}
+    @Override
+    protected void onAddElement(Rule rule) throws IllegalArgumentException {
+        RuntimeRule rRule = rules.get(rule.getId());
+        if (rRule == null) {
+            this.rules.put(rule.getId(), new RuntimeRule(rule, getBundleContext()));
+            enable(rule);
+        } else {
+            LOGGER.warn("Rule {} with Id: {} was already registered.", rule.getName(), rule.getId());
+        }
+    }
 
-	/* Rule Activation Listener */
-	public void activate(Rule rule) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Rule {} with Id: {} was activated", rule.getName(),
-					rule.getId());
-		}
-		// TODO Auto-generated method stub
+    private BundleContext getBundleContext() {
+        /**
+         * TODO: consider other mechanism to get bundle context
+         */
+        if(this.bundleContext == null) {
+            this.bundleContext = FrameworkUtil.getBundle(RuleEngine.class).getBundleContext();
+        }
+        
+        return this.bundleContext;
+    }
 
-	}
+    @Override
+    protected void onRemoveElement(Rule rule) {
+        disable(rule);
+        this.rules.remove(rule.getId());
+    }
 
-	public void deactivate(Rule rule) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Rule {} with Id: {} was deactivated", rule.getName(),
-					rule.getId());
-		}
-		// TODO Auto-generated method stub
+    /* Rule Activation Listener */
+    public void enable(Rule rule) {
+        RuntimeRule rRule = rules.get(rule.getId());
+        if (rRule != null) {
+            rRule.enable();
+            LOGGER.debug("Rule {} with Id: {} was activated", rule.getName(), rule.getId());
+        }
+    }
 
-	}
+    public void disable(Rule rule) {
+
+        RuntimeRule rRule = rules.get(rule.getId());
+        if (rRule != null) {
+            rRule.disable();
+            LOGGER.debug("Rule {} with Id: {} was deactivated", rule.getName(), rule.getId());
+        }
+
+    }
 
 }

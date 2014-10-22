@@ -5,12 +5,13 @@ Bundle-SymbolicName: org.eclipse.smarthome.automation.core
 Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Service-Component: OSGI-INF/*,
- OSGI-INF/RuleEngine.xml
-Import-Package: org.codehaus.jackson;version="1.6.0",
+Service-Component: OSGI-INF/*
+Import-Package: com.google.common.collect;version="10.0.1",
+ org.codehaus.jackson;version="1.6.0",
  org.codehaus.jackson.annotate;version="1.6.0",
  org.codehaus.jackson.map;version="1.6.0",
  org.codehaus.jackson.map.annotate;version="1.6.0",
+ org.eclipse.smarthome.core.common.registry,
  org.osgi.framework;version="1.8.0",
  org.osgi.service.component;version="1.2.2",
  org.osgi.util.tracker;version="1.5.1",
@@ -19,5 +20,4 @@ Export-Package: org.eclipse.smarthome.automation.core,
  org.eclipse.smarthome.automation.core.module,
  org.eclipse.smarthome.automation.core.module.handler,
  org.eclipse.smarthome.automation.core.parser
-Bundle-Activator: org.eclipse.smarthome.automation.core.internal.Activator
 Bundle-ActivationPolicy: lazy

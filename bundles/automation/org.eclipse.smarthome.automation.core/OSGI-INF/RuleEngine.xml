@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.automation.core.RuleEngine">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.automation.core.RuleEngine">
    <implementation class="org.eclipse.smarthome.automation.core.RuleEngine"/>
    <service>
       <provide interface="org.eclipse.smarthome.automation.core.RuleEngine"/>
    </service>
+   <reference bind="addProvider" cardinality="0..n" interface="org.eclipse.smarthome.automation.core.RuleProvider" name="RuleProvider" policy="dynamic" unbind="removeProvider"/>
+   <reference bind="addTriggerHandler" cardinality="0..n" interface="org.eclipse.smarthome.automation.core.module.handler.TriggerHandler" name="TriggerHandler" policy="dynamic" unbind="removeTriggerHandler"/>
 </scr:component>
