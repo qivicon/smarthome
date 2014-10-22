@@ -52,4 +52,9 @@ public class StateConditionHandler implements ConditionHandler {
         }
     }
 
+	@Override
+	public String getName() {
+		return "state";
+	}
+
 }

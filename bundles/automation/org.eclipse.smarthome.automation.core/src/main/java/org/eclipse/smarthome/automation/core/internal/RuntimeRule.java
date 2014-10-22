@@ -23,15 +23,36 @@ import org.osgi.framework.BundleContext;
 public class RuntimeRule implements TriggerListener {
 
 	private Rule rule;
-    private BundleContext bundleContext;
+    public Rule getRule() {
+		return rule;
+	}
+
+	public void setRule(Rule rule) {
+		this.rule = rule;
+	}
+
+	private BundleContext bundleContext;
 
 	public RuntimeRule(Rule ruleDescription, BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
 	    this.rule = ruleDescription;
-		for (TriggerRef trigger : ruleDescription.getTriggers()) {
+		enable();
+	}
+
+	public void enable() {
+		for (TriggerRef trigger : rule.getTriggers()) {
 			ModuleHandler handler = ModuleHandlerResolver.resolve(TriggerHandler.class, trigger, this.bundleContext);
 			if (handler instanceof TriggerHandler) {
 				((TriggerHandler) handler).addListener(trigger.getParameters(), this);
+			}
+		}
+	}
+	
+	public void disable(){
+		for (TriggerRef trigger : rule.getTriggers()) {
+			ModuleHandler handler = ModuleHandlerResolver.resolve(TriggerHandler.class, trigger, this.bundleContext);
+			if (handler instanceof TriggerHandler){
+				((TriggerHandler) handler).removeListener(trigger.getParameters(), this);
 			}
 		}
 	}

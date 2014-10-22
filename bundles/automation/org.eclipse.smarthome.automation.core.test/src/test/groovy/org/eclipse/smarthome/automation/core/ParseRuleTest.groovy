@@ -17,6 +17,7 @@ class ParseRuleTest {
 		def json = """{
 						  "name" : "Heat up in the Morning",
 						  "enabled": true,
+						  "id":"xyz",
 						  "on": [
 						    {
 						      "type": "Timer",
@@ -51,6 +52,7 @@ class ParseRuleTest {
 		assertNotNull rule
 		assertEquals(rule.name, "Heat up in the Morning")
 		assertEquals(rule.enabled, true)
+		assertEquals(rule.id, "xyz")
 		assertNotNull(rule.triggers)
 		assertNotNull(rule.actions)
 		assertNotNull(rule.triggers)

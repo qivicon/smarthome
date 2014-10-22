@@ -8,5 +8,7 @@ package org.eclipse.smarthome.automation.core.module.handler;
  *
  */
 public interface ModuleHandler {
+	
+	public String getName();
 
 }

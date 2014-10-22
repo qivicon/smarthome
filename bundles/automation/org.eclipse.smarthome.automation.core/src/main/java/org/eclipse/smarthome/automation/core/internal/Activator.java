@@ -27,20 +27,7 @@ public class Activator implements BundleActivator, Runnable {
 
     @Override
     public void run() {
-        try {
-            Thread.sleep(2000);
-            URL url = context.getBundle().getEntry("rule.json");
-            InputStream inputStream = url.openStream();
-            Rule rule;
-            rule = new RulesParser().parseRule(inputStream);
-
-            inputStream.close();
-            RuleEngine ruleEngine = new RuleEngine(context);
-            ruleEngine.add(rule);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+     
     }
 
 }

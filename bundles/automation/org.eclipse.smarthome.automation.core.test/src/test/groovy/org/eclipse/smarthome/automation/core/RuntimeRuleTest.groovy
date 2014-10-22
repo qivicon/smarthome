@@ -35,7 +35,7 @@ class RuntimeRuleTest extends OSGiTest{
 		SwitchItem swItem = itemRegistry.getItem("switch")
 		Thread.sleep(2000)
 		eventPublisher.postUpdate("switch", OnOffType.ON)
-		Thread.sleep(1000)
+		Thread.sleep(1100)
 		Item number = itemRegistry.getItem("number")
 		assertEquals(number.getState().intValue(),23)
 		

@@ -40,4 +40,10 @@ public class UpdateTriggerHandler extends AbstractEventSubscriber implements Tri
 		return false;
 	}
 
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return "update";
+	}
+
 }
