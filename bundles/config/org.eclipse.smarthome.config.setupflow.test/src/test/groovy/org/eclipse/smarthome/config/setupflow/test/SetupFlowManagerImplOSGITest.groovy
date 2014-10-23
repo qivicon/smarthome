@@ -5,10 +5,8 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.config.core.ConfigDescription
-import org.eclipse.smarthome.config.core.ConfigDescriptionListener
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider
-import org.eclipse.smarthome.config.core.ConfigDescriptionsChangeListener
 import org.eclipse.smarthome.config.setupflow.ConfigurationStep
 import org.eclipse.smarthome.config.setupflow.Property
 import org.eclipse.smarthome.config.setupflow.SetupFlowManager
@@ -38,14 +36,11 @@ class SetupFlowManagerImplOSGITest extends OSGiTest {
         def ConfigDescription configDescriptionWithoutExplicitFlow = createConfigDescription(new ThingTypeUID(BINDING_ID_WITHOUT_EXPLICIT_FLOW, THING_TYPE_WITHOUT_EXPLICIT_FLOW))
 
         configDescriptionProviderMock = [
-            addConfigDescriptionsChangeListener: { def ConfigDescriptionsChangeListener listener ->
-                // listener.configDescriptionAdded(configDescriptionProviderMock, configDescriptionWithoutExplicitFlow)
-            },
-            removeConfigDescriptionsChangeListener: { def ConfigDescriptionsChangeListener listener ->
-                // listener.configDescriptionRemoved(configDescriptionProviderMock, configDescriptionWithoutExplicitFlow)
-            },
             getConfigDescriptions: {
                 -> [ configDescriptionWithoutExplicitFlow ]
+            },
+            getConfigDescription: {uri,b -> 
+                !uri.toString().contains("unknown") ? configDescriptionWithoutExplicitFlow : null
             }
         ] as ConfigDescriptionProvider
         registerService configDescriptionProviderMock
