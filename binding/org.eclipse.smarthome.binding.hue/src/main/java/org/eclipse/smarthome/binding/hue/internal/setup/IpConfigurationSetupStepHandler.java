@@ -80,7 +80,21 @@ public class IpConfigurationSetupStepHandler extends BaseHueSetupStepHandler {
                 // The hue bridge is reachable. So let's obtain the serialnumber
                 String bridgeSerialNumber = (String) properties.get(SERIAL_NUMBER);
                 if (bridgeSerialNumber == null) {
-                    bridgeSerialNumber = getHueBridgeSerialNumber(bridgeIpAddress);
+                    try {
+                        bridgeSerialNumber = getHueBridgeSerialNumber(bridgeIpAddress);
+                    } catch (Exception e) {
+                        logger.error(
+                                "Cannot get the bridge's serial number, may be it is not a Hue bridge",
+                                e);
+                        HueErrorCode unexpectedErrorCode = HueErrorCode.NOT_A_HUE_DEVICE;
+                        callback.sendErrorOccurredEvent(setupFlowContext,
+                                unexpectedErrorCode.getCode(), unexpectedErrorCode.getMessage());
+                        return;
+                    }
+                    if (taskExecutionState.isAborted()) {
+                        logger.debug("The task execution has been aborted.");
+                        return;
+                    }
                 }
 
                 String bridgeUserName = (String) properties.get(USER_NAME);
