@@ -21,7 +21,8 @@ public enum HueErrorCode {
             2, "The connection to the hue bridge failed."), PUSHLINK_BUTTON_NOT_PRESSED(3,
             "The pushlink button on the hue bridge has not been pressed"), UNEXPECTED_ERROR(4,
             "An unexpected error occurred."), IP_ADDRESS_MISSING(1,
-            "No ip address for the hue bridge has been provided."), ;
+            "No ip address for the hue bridge has been provided."), NOT_A_HUE_DEVICE(5,
+            "This is not a hue device");
     
     private int code;
     private String message;
