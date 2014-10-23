@@ -51,7 +51,7 @@ class RuntimeRuleTest extends OSGiTest{
         
 		eventPublisher.postUpdate("switch", OnOffType.ON)
         waitFor { event != null }
-        
+        Thread.sleep(60000)
         assertThat event.topic, is(equalTo("smarthome/command/number"))
         assertThat event.getProperty("command").intValue(), is(23)
 	}

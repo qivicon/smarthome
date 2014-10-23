@@ -1,0 +1,22 @@
+{
+						  "name" : "Test the Cron Trigger",
+						  "enabled": true,
+						  "id":"testCronTrigger",
+						  "on": [
+						    {
+						      "type": "timer",
+						      "parameters": {
+						          "cron": "0/10 * * * * ?"
+						      }
+						    }
+						  ],
+						  "then": [
+						    {
+						      "type": "log",
+						      "parameters": {
+						        "level": "info",
+						        "message": "it was scheduled"
+						      }
+						    }
+						  ]
+						}
