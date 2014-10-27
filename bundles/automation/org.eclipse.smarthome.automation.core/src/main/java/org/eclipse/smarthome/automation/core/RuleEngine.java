@@ -59,6 +59,7 @@ public class RuleEngine extends AbstractRegistry<Rule> {
     private BundleContext getBundleContext() {
         /**
          * TODO: consider other mechanism to get bundle context
+         * Do it in the activator...
          */
         if(this.bundleContext == null) {
             this.bundleContext = FrameworkUtil.getBundle(RuleEngine.class).getBundleContext();

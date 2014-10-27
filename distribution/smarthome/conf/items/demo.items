@@ -6,3 +6,6 @@ Number Weather_Temp_Max 		"Todays Maximum [%.1f °C]"	<temperature> (Weather_Cha
 Number Weather_Temp_Min 		"Todays Minimum [%.1f °C]"	<temperature> (Weather_Chart)
 Number Weather_Chart_Period		"Chart Period"
 DateTime Weather_LastUpdate		"Last Update [%1$ta %1$tR]"	<clock>
+Switch switch
+Switch switch2
+Number number
