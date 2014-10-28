@@ -1,10 +1,10 @@
 {
     "enabled": true,
-    "id": "xyz",
+    "id": "blaBlub",
     "if": [
         {
             "parameters": {
-                "itemName": "dlink_camera_DCS_2132L_28107b1f9809_motion",
+                "itemName": "dlink_camera_DCS_2330L_b0c5540047f5_motion",
                 "operator": "EQ",
                 "state": "ON"
             },
@@ -15,7 +15,7 @@
     "on": [
         {
             "parameters": {
-                "itemName": "dlink_camera_DCS_2132L_28107b1f9809_motion"
+                "itemName": "dlink_camera_DCS_2330L_b0c5540047f5_motion"
             },
             "type": "update"
         }
@@ -23,7 +23,7 @@
     "then": [
         {
             "parameters": {
-                "command": "0,100,100",
+                "command": "120,100,100",
                 "itemName": "hue_LST001_001788142732_1_color"
             },
             "type": "post"

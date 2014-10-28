@@ -1,0 +1,38 @@
+{
+    "enabled": true,
+    "id": "xyz",
+    "if": [
+        {
+            "parameters": {
+                "itemName": "dlink_camera_DCS_2132L_28107b1f9809_motion",
+                "operator": "EQ",
+                "state": "ON"
+            },
+            "type": "state"
+        }
+    ],
+    "name": "Heat up in the Morning",
+    "on": [
+        {
+            "parameters": {
+                "itemName": "dlink_camera_DCS_2132L_28107b1f9809_motion"
+            },
+            "type": "update"
+        }
+    ],
+    "then": [
+        {
+            "parameters": {
+                "command": "30,100,100",
+                "itemName": "hue_LST001_001788142732_1_color"
+            },
+            "type": "post"
+        },
+        {
+            "parameters": {
+                "script": "var setTimeout, clearTimeout, setInterval, clearInterval;\n\n(function () {\n    var executor = new java.util.concurrent.Executors.newScheduledThreadPool(1);\n    var counter = 1;\n    var ids = {};\n\n    setTimeout = function (fn,delay) {\n        var id = counter++;\n        var runnable = new JavaAdapter(java.lang.Runnable, {run: fn});\n        ids[id] = executor.schedule(runnable, delay, \n            java.util.concurrent.TimeUnit.MILLISECONDS);\n        return id;\n    }\n\n    clearTimeout = function (id) {\n        ids[id].cancel(false);\n        executor.purge();\n        delete ids[id];\n    }\n\n    setInterval = function (fn,delay) {\n        var id = counter++;\n        var runnable = new JavaAdapter(java.lang.Runnable, {run: fn});\n        ids[id] = executor.scheduleAtFixedRate(runnable, delay, delay, \n            java.util.concurrent.TimeUnit.MILLISECONDS);\n        return id;\n    }\n\n    clearInterval = clearTimeout;\n\n})();\n\nimportClass(org.eclipse.smarthome.core.types.TypeParser);\nvar stripe = itemRegistry.getItem('hue_LST001_001788142732_1_color');\nvar command = TypeParser.parseCommand(stripe.getAcceptedCommandTypes(), '0,100,100');\n\nsetTimeout(\n	function() {\n		if (stripe.getState().toString() == '30,100,100') {\n			eventPublisher.postCommand('hue_LST001_001788142732_1_color', command);\n		}\n	}, 20000\n);"
+            },
+            "type": "JavaScript"
+        }
+    ]
+}

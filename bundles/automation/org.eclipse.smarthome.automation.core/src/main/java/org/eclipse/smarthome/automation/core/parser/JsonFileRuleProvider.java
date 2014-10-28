@@ -22,7 +22,7 @@ public class JsonFileRuleProvider extends AbstractProvider<Rule> implements
 
 	protected void activate(ComponentContext componentContext) {
 		URL resource = componentContext.getBundleContext().getBundle()
-				.getResource("rule.json");
+				.getResource("ruleMotionDetected.json");
 		try (InputStream inputStream = resource.openStream()) {
 			rules.add(new RulesParser().parseRule(inputStream));
 		} catch (RuleParserException | IOException ex) {
@@ -39,6 +39,14 @@ public class JsonFileRuleProvider extends AbstractProvider<Rule> implements
 		
 		resource = componentContext.getBundleContext().getBundle()
                 .getResource("resetLightStripe.json");
+        try (InputStream inputStream = resource.openStream()) {
+            rules.add(new RulesParser().parseRule(inputStream));
+        } catch (RuleParserException | IOException ex) {
+            logger.error("Could not parse rule: " + ex.getMessage(), ex);
+        }
+
+        resource = componentContext.getBundleContext().getBundle()
+                .getResource("ruleAlarmOff.json");
         try (InputStream inputStream = resource.openStream()) {
             rules.add(new RulesParser().parseRule(inputStream));
         } catch (RuleParserException | IOException ex) {
