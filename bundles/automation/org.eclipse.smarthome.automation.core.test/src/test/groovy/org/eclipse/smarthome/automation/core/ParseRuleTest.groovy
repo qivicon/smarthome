@@ -2,7 +2,6 @@ package org.eclipse.smarthome.automation.core;
 
 import static org.junit.Assert.*
 
-import org.codehaus.jackson.map.ObjectMapper
 import org.eclipse.smarthome.automation.core.parser.RulesParser;
 import org.junit.Test
 
@@ -82,6 +81,6 @@ class ParseRuleTest {
 		assertNotNull(sendCommand.parameters)
 		assertEquals(sendCommand.parameters.size(),2)
 		assertEquals(sendCommand.parameters.get("itemName"),"TemperatureActuator")
-		assertEquals(sendCommand.parameters.get("command"),23)
+		assertEquals(sendCommand.parameters.get("command") as double, 23.0, 0.0)
 	}
 }

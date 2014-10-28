@@ -7,14 +7,12 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Service-Component: OSGI-INF/*
 Import-Package: com.google.common.collect;version="10.0.1",
- org.codehaus.jackson;version="1.6.0",
- org.codehaus.jackson.annotate;version="1.6.0",
- org.codehaus.jackson.map;version="1.6.0",
- org.codehaus.jackson.map.annotate;version="1.6.0",
+ com.google.gson;version="2.2.4",
+ com.google.gson.annotations;version="2.2.4",
  org.eclipse.smarthome.core.common.registry,
- org.osgi.framework;version="1.8.0",
- org.osgi.service.component;version="1.2.2",
- org.osgi.util.tracker;version="1.5.1",
+ org.osgi.framework,
+ org.osgi.service.component,
+ org.osgi.util.tracker,
  org.slf4j
 Export-Package: org.eclipse.smarthome.automation.core,
  org.eclipse.smarthome.automation.core.module,

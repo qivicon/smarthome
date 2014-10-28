@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 
 /**
  * This class represents the Rule which can be specified in json-Format
@@ -20,11 +20,11 @@ public class Rule {
 	private String name;
 	private String id;
 	private boolean enabled;
-	@JsonProperty("on")
+	@SerializedName("on")
 	private List<TriggerRef> triggers = new ArrayList<TriggerRef>();
-	@JsonProperty("if")
+	@SerializedName("if")
 	private List<ConditionRef> conditions = new ArrayList<ConditionRef>();
-	@JsonProperty("then")
+	@SerializedName("then")
 	private List<ActionRef> actions = new ArrayList<ActionRef>();
 	
 	

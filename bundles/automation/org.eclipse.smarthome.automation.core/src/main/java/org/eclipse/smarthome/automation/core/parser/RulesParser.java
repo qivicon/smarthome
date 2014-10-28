@@ -3,22 +3,25 @@
  */
 package org.eclipse.smarthome.automation.core.parser;
 
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.smarthome.automation.core.Rule;
 import org.eclipse.smarthome.automation.core.module.Module;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * @author niehues
  *
  */
 public class RulesParser {
-	ObjectMapper objectMapper;
+    private Gson gson;
 
 	public RulesParser() {
-		this.objectMapper = new ObjectMapper();
+	    final GsonBuilder gsonBuilder = new GsonBuilder();
+	    this.gson = gsonBuilder.create();
 	}
 
 	/**
@@ -30,8 +33,8 @@ public class RulesParser {
 	 */
 	public Module parseModule(String jsonString) throws RuleParserException {
 		try {
-			return objectMapper.readValue(jsonString, Module.class);
-		} catch (IOException e) {
+		    return gson.fromJson(jsonString, Module.class);
+		} catch (Exception e) {
 			throw new RuleParserException(e);
 		}
 	}
@@ -45,8 +48,8 @@ public class RulesParser {
 	 */
 	public Rule parseRule(String jsonString) throws RuleParserException {
 		try {
-			return objectMapper.readValue(jsonString, Rule.class);
-		} catch (IOException e) {
+		    return gson.fromJson(jsonString, Rule.class);
+		} catch (Exception e) {
 			throw new RuleParserException(e);
 		}
 	}
@@ -60,8 +63,8 @@ public class RulesParser {
      */
     public Rule parseRule(InputStream inputStream) throws RuleParserException {
         try {
-            return objectMapper.readValue(inputStream, Rule.class);
-        } catch (IOException e) {
+            return gson.fromJson(new InputStreamReader(inputStream), Rule.class);
+        } catch (Exception e) {
             throw new RuleParserException(e);
         }
     }

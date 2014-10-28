@@ -3,8 +3,6 @@ package org.eclipse.smarthome.automation.core;
 import java.util.Collections;
 import java.util.Map;
 
-import org.codehaus.jackson.map.annotate.JsonDeserialize;
-
 /**
  * This class represents a reference to a module within the json representation
  * 
@@ -14,7 +12,7 @@ import org.codehaus.jackson.map.annotate.JsonDeserialize;
 public abstract class ModuleRef {
 
 	private String type;
-	@JsonDeserialize(keyAs = String.class, contentAs = Object.class)
+//	@JsonDeserialize(keyAs = String.class, contentAs = Object.class)
 	private Map<String, Object> parameters;
 
 	public String getType() {
