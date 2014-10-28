@@ -1,29 +1,37 @@
 {
     "enabled": true,
-    "id": "xyz",
+    "id": "resetLightStripe",
+    "name": "Test the Cron Trigger",
+    "on": [
+        {
+            "parameters": {
+                "cron": "0/10 * * * * ?"
+            },
+            "type": "timer"
+        }
+    ],
     "if": [
         {
             "parameters": {
                 "itemName": "dlink_camera_DCS_2132L_28107b1f9809_motion",
                 "operator": "EQ",
-                "state": "ON"
+                "state": "OFF"
             },
             "type": "state"
-        }
-    ],
-    "name": "Heat up in the Morning",
-    "on": [
+        },
         {
             "parameters": {
-                "itemName": "dlink_camera_DCS_2132L_28107b1f9809_motion"
+                "itemName": "hue_LST001_001788142732_1_color",
+                "operator": "EQ",
+                "state": "0,100,100"
             },
-            "type": "update"
+            "type": "state"
         }
     ],
     "then": [
         {
             "parameters": {
-                "command": "0,100,100",
+                "command": "120,100,100",
                 "itemName": "hue_LST001_001788142732_1_color"
             },
             "type": "post"

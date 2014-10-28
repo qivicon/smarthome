@@ -3,8 +3,6 @@
  */
 package org.eclipse.smarthome.automation.core.internal;
 
-import java.util.Collection;
-
 import org.eclipse.smarthome.automation.core.ActionRef;
 import org.eclipse.smarthome.automation.core.ConditionRef;
 import org.eclipse.smarthome.automation.core.ModuleRef;
@@ -47,12 +45,13 @@ public class ModuleHandlerResolver {
 			return null;
 		}
 		try {
-			Collection<?> serviceReferences = bundleContext
-					.getServiceReferences(moduleHandlerClass, "(module.name="
+			ServiceReference[] serviceReferences = bundleContext
+					.getAllServiceReferences(moduleHandlerClass.getName(), "(module.name="
 							+ moduleRef.getType() + ")");
+			LOGGER.debug("module ref: " + moduleRef.getType());
 			for (Object serviceReference : serviceReferences) {
 				return (ModuleHandler) bundleContext
-						.getService((ServiceReference<?>) serviceReference);
+						.getService((ServiceReference) serviceReference);
 			}
 		} catch (InvalidSyntaxException e) {
 			e.printStackTrace();

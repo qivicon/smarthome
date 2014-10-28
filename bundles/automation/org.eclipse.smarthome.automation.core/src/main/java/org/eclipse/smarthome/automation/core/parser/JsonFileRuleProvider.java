@@ -36,6 +36,14 @@ public class JsonFileRuleProvider extends AbstractProvider<Rule> implements
 		} catch (RuleParserException | IOException ex) {
 			logger.error("Could not parse rule: " + ex.getMessage(), ex);
 		}
+		
+		resource = componentContext.getBundleContext().getBundle()
+                .getResource("resetLightStripe.json");
+        try (InputStream inputStream = resource.openStream()) {
+            rules.add(new RulesParser().parseRule(inputStream));
+        } catch (RuleParserException | IOException ex) {
+            logger.error("Could not parse rule: " + ex.getMessage(), ex);
+        }
 	}
 
 	protected void deactivate(ComponentContext componentContext) {

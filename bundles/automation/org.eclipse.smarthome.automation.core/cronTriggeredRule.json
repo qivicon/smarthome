@@ -17,13 +17,6 @@
 						        "level": "info",
 						        "message": "it was scheduled"
 						      }
-						    },
-						    {
-						      "type": "JavaScript",
-						      "parameters": {
-						        "script": "importClass(org.eclipse.smarthome.core.types.TypeParser);\nimportClass(org.eclipse.smarthome.core.library.items.NumberItem);\nprint('this is a JavaScript ' + itemRegistry.getItem('number').getType());\nvar item = itemRegistry.getItem('number');\nvar command = TypeParser.parseCommand(item.getAcceptedCommandTypes(), 22);\neventPublisher.postCommand('number', command);\nprint('numberItemValue: ' + item.getState());\n"
-						        			
-						      }
 						    }
 						    
 						  ]
