@@ -67,15 +67,18 @@ public class JavaScriptActionHandler implements ActionHandler {
 	 */
 	@Override
 	public void execute(ModuleContext context) {
+		
 		LOGGER.debug("ececuting JavaScript");
 		String script = (String) context.getInputParameter("script");
 		ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
 		ScriptEngine engine = scriptEngineManager.getEngineByName("JavaScript");
-		ScriptContext scriptContext = new SimpleScriptContext();
+		
+		SimpleScriptContext scriptContext = new SimpleScriptContext();
 		Bindings bindings = scriptContext
 				.getBindings(ScriptContext.ENGINE_SCOPE);
 		bindings.put("itemRegistry", itemRegistry);
 		bindings.put("eventPublisher", eventPublisher);
+		bindings.put("ruleContext", context);
 		try {
 			engine.eval(script, scriptContext);
 		} catch (ScriptException e) {
