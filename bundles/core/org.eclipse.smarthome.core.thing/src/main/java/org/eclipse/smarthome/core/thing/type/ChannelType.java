@@ -8,6 +8,9 @@
 package org.eclipse.smarthome.core.thing.type;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.smarthome.core.thing.Channel;
 
@@ -25,30 +28,34 @@ import org.eclipse.smarthome.core.thing.Channel;
 public class ChannelType extends AbstractDescriptionType {
 
     private String itemType;
+    private List<String> tags;
 
 
     /**
      * Creates a new instance of this class with the specified parameters.
-     * 
+     *
      * @param uid the unique identifier which identifies this Channel type within
      *     the overall system (must neither be null, nor empty)
-     * 
+     *
      * @param itemType the item type of this Channel type, e.g. {@code ColorItem}
      *     (must neither be null nor empty)
-     * 
+     *
      * @param label the human readable label for the according type
      *     (must neither be null nor empty)
-     * 
+     *
      * @param description the human readable description for the according type
      *     (could be null or empty)
-     *  
+     *
+     * @param tags all tags of this {@link ChannelType}, e.g. {@code Alarm}
+     *     (could be null or empty)
+     *
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
-     * 
+     *
      * @throws IllegalArgumentException if the UID or the item type is null or empty,
      *     or the the meta information is null
      */
     public ChannelType(ChannelTypeUID uid, String itemType, String label, String description,
-            URI configDescriptionURI) throws IllegalArgumentException {
+            List<String> tags, URI configDescriptionURI) throws IllegalArgumentException {
 
         super(uid, label, description, configDescriptionURI);
 
@@ -57,6 +64,12 @@ public class ChannelType extends AbstractDescriptionType {
         }
 
         this.itemType = itemType;
+
+        if (tags != null) {
+            this.tags = Collections.unmodifiableList(tags);
+        } else {
+            this.tags = Collections.unmodifiableList(new ArrayList<String>(0));
+        }
     }
 
     @Override
@@ -71,6 +84,15 @@ public class ChannelType extends AbstractDescriptionType {
      */
     public String getItemType() {
         return this.itemType;
+    }
+
+    /**
+     * Returns all tags of this {@link ChannelType}, e.g. {@code Alarm}.
+     * 
+     * @return all tags of this Channel type, e.g. {@code Alarm} (not null, could be empty)
+     */
+    public List<String> getTags() {
+        return this.tags;
     }
 
     @Override
