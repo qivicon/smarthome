@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.items;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -21,6 +22,7 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 /** 
  * The abstract base class for all items. It provides all relevant logic
@@ -28,6 +30,7 @@ import com.google.common.collect.ImmutableList;
  * or notifying listeners.
  *  
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Andre Fuechsel - Added tags
  *
  */
 abstract public class GenericItem implements Item {
@@ -37,6 +40,8 @@ abstract public class GenericItem implements Item {
 	protected Set<StateChangeListener> listeners = new CopyOnWriteArraySet<StateChangeListener>(Collections.newSetFromMap(new WeakHashMap<StateChangeListener, Boolean>()));
 	
 	protected List<String> groupNames = new ArrayList<String>();
+	
+	protected Set<String> tags = new HashSet<String>(); 
 	
 	final protected String name;
 	
@@ -199,33 +204,28 @@ abstract public class GenericItem implements Item {
     }
     
     @Override
-    public List<String> getTags() {
-        // TODO Auto-generated method stub
-        return null;
+    public Set<String> getTags() {
+        return ImmutableSet.copyOf(tags);
     }
 
     @Override
     public boolean hasTag(String tag) {
-        // TODO Auto-generated method stub
-        return false;
+        return (tags.contains(tag)); 
     }
 
     @Override
     public void addTag(String tag) {
-        // TODO Auto-generated method stub
-        
+        tags.add(tag); 
     }
 
     @Override
     public void removeTag(String tag) {
-        // TODO Auto-generated method stub
-        
-    }
+        tags.remove(tag); 
+   }
 
     @Override
     public void removeAllTags() {
-        // TODO Auto-generated method stub
-        
+        tags.clear();
     }
 	
 }

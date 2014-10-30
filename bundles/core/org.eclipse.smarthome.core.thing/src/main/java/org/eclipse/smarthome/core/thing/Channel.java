@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing;
 
-import java.util.List;
+import java.util.Set;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
@@ -19,6 +19,7 @@ import org.eclipse.smarthome.core.items.Item;
  * {@link Channel#getAcceptedItemType()} methods.
  * 
  * @author Dennis Nobel - Initial contribution and API
+ * @author Alex Tugarev - Extended about default tags
  */
 public class Channel {
 
@@ -28,16 +29,27 @@ public class Channel {
 
     private Configuration configuration;
 
-    private List<String> defaultTags;    
+    private Set<String> defaultTags;    
 
-    public Channel(ChannelUID uid, String acceptedItemType, List<String> defaultTags) {
+    public Channel(ChannelUID uid, String acceptedItemType) {
+        this.uid = uid;
+        this.acceptedItemType = acceptedItemType;
+    }
+
+    public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration) {
+        this.uid = uid;
+        this.acceptedItemType = acceptedItemType;
+        this.configuration = configuration;
+    }
+
+    public Channel(ChannelUID uid, String acceptedItemType, Set<String> defaultTags) {
         this.uid = uid;
         this.acceptedItemType = acceptedItemType;
         this.defaultTags = defaultTags;
     }
 
     public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration,
-            List<String> defaultTags) {
+            Set<String> defaultTags) {
         this.uid = uid;
         this.acceptedItemType = acceptedItemType;
         this.configuration = configuration;
@@ -76,7 +88,7 @@ public class Channel {
      * 
      * @return default tags of this channel.
      */
-    public List<String> getDefaultTags() {
+    public Set<String> getDefaultTags() {
         return defaultTags;
     }
 }

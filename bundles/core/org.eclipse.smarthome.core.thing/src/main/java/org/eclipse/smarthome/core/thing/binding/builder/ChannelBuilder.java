@@ -7,27 +7,28 @@
  */
 package org.eclipse.smarthome.core.thing.binding.builder;
 
-import java.util.List;
+import java.util.Set;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * {@link ChannelBuilder} is responsible for creating {@link Channel}s.
  * 
  * @author Dennis Nobel - Initial contribution
+ * @author Alex Tugarev - Extended about default tags
  */
 public class ChannelBuilder {
 
     private ChannelUID channelUID;
     private String acceptedItemType;
     private Configuration configuration;
-    private List<String> defaultTags;
+    private Set<String> defaultTags;
 
-    private ChannelBuilder(ChannelUID channelUID, String acceptedItemType, List<String> defaultTags) {
+    private ChannelBuilder(ChannelUID channelUID, String acceptedItemType, Set<String> defaultTags) {
         this.channelUID = channelUID;
         this.acceptedItemType = acceptedItemType;
         this.defaultTags = defaultTags;
@@ -40,10 +41,10 @@ public class ChannelBuilder {
      *            channel UID
      * @param acceptedItemType
      *            item type that is accepted by this channel
-     * @return channe builder
+     * @return channel builder
      */
     public static ChannelBuilder create(ChannelUID channelUID, String acceptedItemType) {
-        return new ChannelBuilder(channelUID, acceptedItemType, Lists.<String> newLinkedList());
+        return new ChannelBuilder(channelUID, acceptedItemType, Sets.<String> newHashSet());
     }
 
     /**
@@ -65,7 +66,7 @@ public class ChannelBuilder {
      *            default tags
      * @return channel builder
      */
-    public ChannelBuilder withDefaultTags(List<String> defaultTags) {
+    public ChannelBuilder withDefaultTags(Set<String> defaultTags) {
         this.defaultTags = defaultTags;
         return this;
     }
