@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.thing;
 
+import java.util.List;
+
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
 
@@ -26,15 +28,20 @@ public class Channel {
 
     private Configuration configuration;
 
-    public Channel(ChannelUID uid, String acceptedItemType) {
+    private List<String> defaultTags;    
+
+    public Channel(ChannelUID uid, String acceptedItemType, List<String> defaultTags) {
         this.uid = uid;
         this.acceptedItemType = acceptedItemType;
+        this.defaultTags = defaultTags;
     }
 
-    public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration) {
+    public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration,
+            List<String> defaultTags) {
         this.uid = uid;
         this.acceptedItemType = acceptedItemType;
         this.configuration = configuration;
+        this.defaultTags = defaultTags;
     }
 
     /**
@@ -62,5 +69,14 @@ public class Channel {
      */
     public Configuration getConfiguration() {
         return configuration;
+    }
+    
+    /**
+     * Returns default tags of this channel.
+     * 
+     * @return default tags of this channel.
+     */
+    public List<String> getDefaultTags() {
+        return defaultTags;
     }
 }

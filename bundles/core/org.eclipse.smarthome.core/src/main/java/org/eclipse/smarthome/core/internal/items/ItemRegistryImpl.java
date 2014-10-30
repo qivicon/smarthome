@@ -249,4 +249,16 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
         }
     }
 
+    @Override
+    public Collection<Item> getItemsByTag(String... tags) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <T extends GenericItem> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

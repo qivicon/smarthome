@@ -220,4 +220,5 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 	public void stateUpdated(Item item, State state) {
 		setState(function.calculate(members));
 	}
+
 }

@@ -78,4 +78,36 @@ public interface Item {
 	 * @return list of item group names
 	 */
 	public List<String> getGroupNames();
+	
+	/**
+	 * Returns a list of tags. 
+	 * 
+	 * @return list of tags.
+	 */
+	public List<String> getTags();
+	
+	/**
+	 * Returns true if the item's tags contains the specific tag, otherwise false.
+	 * 
+	 * @param tag - a tag whose presence in the item's tags is to be tested.
+	 * @return true if the item's tags contains the specific tag, otherwise false.
+	 */
+	public boolean hasTag(String tag);
+	
+	/**
+	 * 
+	 * @param tag - a tag that is to be added to item's tags.
+	 */
+	public void addTag(String tag);
+	
+	/**
+	 * 
+	 * @param tag - a tag that is to be removed from item's tags. 
+	 */
+	public void removeTag(String tag);
+	
+	/**
+	 * Clears all tags of this item.
+	 */
+	public void removeAllTags();
 }

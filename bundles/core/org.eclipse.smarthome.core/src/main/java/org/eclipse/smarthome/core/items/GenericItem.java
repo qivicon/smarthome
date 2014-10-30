@@ -197,5 +197,35 @@ abstract public class GenericItem implements Item {
             return false;
         return true;
     }
+    
+    @Override
+    public List<String> getTags() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public boolean hasTag(String tag) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void addTag(String tag) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void removeTag(String tag) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void removeAllTags() {
+        // TODO Auto-generated method stub
+        
+    }
 	
 }
