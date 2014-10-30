@@ -168,7 +168,7 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
 	}
 
 	private Item createItemFromModelItem(ModelItem modelItem) {
-		Item item = null;
+		GenericItem item = null;
 		if (modelItem instanceof ModelGroupItem) {
 			ModelGroupItem modelGroupItem = (ModelGroupItem) modelItem;
 			String baseItemType = modelGroupItem.getType();
@@ -188,8 +188,16 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
 			String itemName = normalItem.getName();
 			item = createItemOfType(normalItem.getType(), itemName);
 		}
+		assignTags(modelItem, item);
 		return item;
 	}
+
+    private void assignTags(ModelItem modelItem, GenericItem item) {
+        List<String> tags = modelItem.getTags();
+		for (String tag : tags) {
+		    item.addTag(tag);
+        }
+    }
 	
 	private GroupItem applyGroupFunction(GenericItem baseItem, ModelGroupItem modelGroupItem, ModelGroupFunction function) {
 		List<State> args = new ArrayList<State>();
