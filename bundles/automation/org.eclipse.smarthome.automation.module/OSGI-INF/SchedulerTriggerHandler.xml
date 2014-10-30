@@ -4,5 +4,5 @@
    <service>
       <provide interface="org.eclipse.smarthome.automation.core.module.handler.TriggerHandler"/>
    </service>
-   <property name="module.name" type="String" value="schedule"/>
+   <property name="module.name" type="String" value="timer"/>
 </scr:component>

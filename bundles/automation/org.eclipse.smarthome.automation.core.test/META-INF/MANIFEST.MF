@@ -6,6 +6,7 @@ Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse/SmartHome
 Fragment-Host: org.eclipse.smarthome.automation.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Service-Component: OSGI-INF/*
 Import-Package: groovy.lang,
  org.codehaus.groovy.reflection,
  org.codehaus.groovy.runtime,

@@ -24,7 +24,7 @@ class RuntimeRuleTest extends OSGiTest{
 	@Before
 	void before() {
 		def itemProvider = [
-			getAll: {[new SwitchItem("switch"), new NumberItem("number")]},
+			getAll: {[new SwitchItem("sample1Button"), new SwitchItem("lamp")]},
 			addProviderChangeListener: {},
 			removeProviderChangeListener: {},
 			allItemsChanged: {}] as ItemProvider
@@ -39,7 +39,7 @@ class RuntimeRuleTest extends OSGiTest{
         
 		def EventPublisher eventPublisher = getService(EventPublisher)
 		def ItemRegistry itemRegistry = getService(ItemRegistry)
-		SwitchItem swItem = itemRegistry.getItem("switch")
+		SwitchItem swItem = itemRegistry.getItem("sample1Button")
         
         Event event = null
        
@@ -47,13 +47,18 @@ class RuntimeRuleTest extends OSGiTest{
             handleEvent: { Event e -> event = e}
         ] as EventHandler
         
-        registerService(eventHandler, ["event.topics": "smarthome/command/number"] as Hashtable)
+        registerService(eventHandler, ["event.topics": "smarthome/command/lamp"] as Hashtable)
         
-		eventPublisher.postUpdate("switch", OnOffType.ON)
+		eventPublisher.postUpdate("sample1Button", OnOffType.ON)
         waitFor { event != null }
-        Thread.sleep(60000)
-        assertThat event.topic, is(equalTo("smarthome/command/number"))
-        assertThat event.getProperty("command").intValue(), is(23)
+        assertThat event.topic, is(equalTo("smarthome/command/lamp"))
+        assertThat event.getProperty("command"), is(OnOffType.ON)
+		event = null;
+		
+		eventPublisher.postUpdate("sample1Button", OnOffType.OFF);
+		waitFor{event !=null}
+		assertThat event.topic, is(equalTo("smarthome/command/lamp"))
+		assertThat event.getProperty("command"), is(OnOffType.OFF)
 	}
 	
 	

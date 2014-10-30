@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.automation.module.action.ToggleOnOffActionHandler">
+   <implementation class="org.eclipse.smarthome.automation.module.action.ToggleOnOffActionHandler"/>
+   <service>
+      <provide interface="org.eclipse.smarthome.automation.core.module.handler.ActionHandler"/>
+   </service>
+   <reference bind="setEventPublisher" cardinality="1..1" interface="org.eclipse.smarthome.core.events.EventPublisher" name="EventPublisher" policy="static"/>
+   <reference bind="setItemRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="static"/>
+   <property name="module.name" type="String" value="toggle"/>
+   <property name="event.topics" type="String" value="smarthome/*"/>
+</scr:component>

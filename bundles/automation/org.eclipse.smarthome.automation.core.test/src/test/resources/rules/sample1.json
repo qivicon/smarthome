@@ -1,0 +1,22 @@
+{
+    "enabled": true,
+    "id": "sample1",
+    "name": "Switch Hue On/Off based on an item",
+    "on": [
+        {
+            "type": "update",
+            "parameters": {
+                "itemName": "sample1Button"
+            }
+        }
+    ],
+    "then": [
+        {
+            "parameters": {
+                "command": "${on.0.state}",
+                "itemName": "lamp"
+            },
+            "type": "post"
+        }
+    ]
+}

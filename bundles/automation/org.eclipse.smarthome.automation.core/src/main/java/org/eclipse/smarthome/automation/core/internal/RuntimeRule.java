@@ -20,12 +20,16 @@ import org.eclipse.smarthome.automation.core.module.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.core.module.handler.TriggerHandler;
 import org.eclipse.smarthome.automation.core.module.handler.TriggerListener;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author niehues
  *
  */
 public class RuntimeRule implements TriggerListener {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(RuntimeRule.class);
 
 	private Map<String, ModuleContext> moduleContexts = new HashMap<String, ModuleContext>();
 
@@ -57,7 +61,10 @@ public class RuntimeRule implements TriggerListener {
 			if (handler instanceof TriggerHandler) {
 				ModuleContext mc = createModuleContext(trigger, index++);
 				((TriggerHandler) handler).addListener(mc, this);
+			}else {
+				LOGGER.error("Rule could not be activated because no Implementation of Trigger {} was found.", trigger.getType());
 			}
+			
 		}
 	}
 

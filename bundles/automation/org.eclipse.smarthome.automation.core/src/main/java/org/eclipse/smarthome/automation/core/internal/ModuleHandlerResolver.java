@@ -48,6 +48,9 @@ public class ModuleHandlerResolver {
 			ServiceReference[] serviceReferences = bundleContext
 					.getAllServiceReferences(moduleHandlerClass.getName(), "(module.name="
 							+ moduleRef.getType() + ")");
+			if (serviceReferences==null){
+				return null;
+			}
 			LOGGER.debug("module ref: " + moduleRef.getType());
 			for (Object serviceReference : serviceReferences) {
 				return (ModuleHandler) bundleContext
