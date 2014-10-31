@@ -21,6 +21,7 @@ import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
@@ -163,7 +164,8 @@ abstract public class GenericItem implements Item {
 	public String toString() {
 		return getName() + " (" +
 			"Type=" + getClass().getSimpleName() + ", " +
-			"State=" + getState() + ")";
+			"State=" + getState() + ", " +
+			"Tags=[" + Joiner.on(", ").join(getTags()) + "] )";
 	}
 
 	public void addStateChangeListener(StateChangeListener listener) {
