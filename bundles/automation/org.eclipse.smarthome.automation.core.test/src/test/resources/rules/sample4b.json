@@ -1,0 +1,40 @@
+{
+    "enabled": true,
+    "id": "sample4b",
+    "name": "Combine multiple states",
+    "on": [
+        {
+            "type": "update",
+            "parameters": {
+            	"itemName":"sample4Button"
+            }
+        }
+    ],
+    "if": [
+    	{
+    		"type":"state",
+    		"parameters":{
+    			"itemName":"sample4Button",
+    			"operator":"EQ",
+    			"state":"OFF"
+    		}
+    	},
+    	{
+    		"type":"state",
+    		"parameters":{
+    			"itemName":"presence",
+    			"operator":"EQ",
+    			"state":"ON"
+    		}
+    	}
+    ], 
+    "then": [
+        {
+            "type": "post",
+            "parameters": {
+                "itemName": "lamp4",
+                "command":"OFF"
+            }
+        }
+    ]
+}

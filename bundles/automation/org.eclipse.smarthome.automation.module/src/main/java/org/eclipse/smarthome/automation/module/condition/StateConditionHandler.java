@@ -8,8 +8,12 @@ import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StateConditionHandler implements ConditionHandler {
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(StateConditionHandler.class);
 
 	private ItemRegistry itemRegistry;
 
@@ -27,7 +31,9 @@ public class StateConditionHandler implements ConditionHandler {
 			State state = TypeParser.parseState(item.getAcceptedDataTypes(),
 					stateString);
 			String operator = (String) context.getInputParameter("operator");
-
+			LOGGER.debug(
+					"--> comparing current state of item {}:  {} - {} - {}",
+					itemName, itemState, operator, state);
 			switch (operator) {
 			case "EQ":
 				return itemState.equals(state);
