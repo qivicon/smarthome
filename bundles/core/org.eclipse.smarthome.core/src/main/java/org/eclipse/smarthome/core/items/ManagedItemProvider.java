@@ -17,6 +17,8 @@ import org.eclipse.smarthome.core.storage.StorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
+
 /**
  * {@link ManagedItemProvider} is an OSGi service, that allows to add or remove
  * items at runtime by calling {@link ManagedItemProvider#addItem(Item)} or
@@ -38,15 +40,26 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
         public List<String> groupNames;
 
         public String itemType;
+        
+        public List<String> tags;
 
         public PersistedItem(String itemType, List<String> groupNames) {
-            this(itemType, groupNames, null);
+            this(itemType, groupNames, null, null);
+        }
+
+        public PersistedItem(String itemType, List<String> groupNames, List<String> tags) {
+            this(itemType, groupNames, null, tags);
         }
 
         public PersistedItem(String itemType, List<String> groupNames, String baseItemType) {
+            this(itemType, groupNames, baseItemType, null);
+        }
+
+        public PersistedItem(String itemType, List<String> groupNames, String baseItemType, List<String> tags) {
             this.itemType = itemType;
             this.groupNames = groupNames;
             this.baseItemType = baseItemType;
+            this.tags = tags;
         }
     }
 
@@ -120,11 +133,20 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
         } else {
             item = createItem(persistedItem.itemType, itemName);
         }
+        
+        if (item != null) {
+            List<String> groupNames = persistedItem.groupNames;
+            if (groupNames != null) {
+                for (String groupName : groupNames) {
+                    item.addGroupName(groupName);
+                }
+            }
 
-        List<String> groupNames = persistedItem.groupNames;
-        if (item != null && groupNames != null) {
-            for (String groupName : groupNames) {
-                item.addGroupName(groupName);
+            List<String> tags = persistedItem.tags;
+            if (tags != null) {                
+                for (String tag : tags) {
+                    item.addTag(tag);
+                }
             }
         }
 
@@ -153,6 +175,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
         } else {
             persistedItem = new PersistedItem(itemType, item.getGroupNames());
         }
+        persistedItem.tags = Lists.newArrayList(item.getTags());
 
         return persistedItem;
     }
