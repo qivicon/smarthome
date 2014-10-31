@@ -8,6 +8,13 @@ import org.eclipse.smarthome.core.thing.xml.internal.ThingDescriptionReader
 import org.junit.Test
 
 
+/**
+ * The {@link Example} test case is a usage example how the according {@code ThingType} parser
+ * can be used. This example can also be used for manual tests when the schema is extended or
+ * changed.
+ * 
+ * @author Michael Grammling
+ */
 class Example {
 
     @Test
@@ -26,7 +33,7 @@ class Example {
             }
 
             print "\n"
-        }        
+        }
     }
 
 }
