@@ -30,6 +30,7 @@ import com.google.common.collect.Lists;
  * @author Dennis Nobel - Initial contribution, added support for GroupItems
  * @author Thomas Eichstaedt-Engelen
  * @author Kai Kreuzer - improved return values
+ * @author Alex Tugarev - added tags
  */
 public class ManagedItemProvider extends AbstractManagedProvider<Item, String, PersistedItem> implements ItemProvider {
 
