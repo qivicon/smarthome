@@ -47,7 +47,7 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         return (String) nodeIterator.nextValue("item-type", true);
     }
 
-    private List<String> readTags(NodeIterator nodeIterator) throws ConversionException {
+    private Set<String> readTags(NodeIterator nodeIterator) throws ConversionException {
         Set<String> tags = null;
 
         List<?> tagsNode = nodeIterator.nextList("tags", false);
@@ -70,7 +70,7 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
             }
         }
 
-        return (tags != null) ? new ArrayList<>(tags) : null;
+        return tags; 
     }
 
     @Override
@@ -83,7 +83,7 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         String itemType = readItemType(nodeIterator);
         String label = super.readLabel(nodeIterator);
         String description = super.readDescription(nodeIterator);
-        List<String> tags = readTags(nodeIterator);
+        Set<String> tags = readTags(nodeIterator);
         Object[] configDescriptionObjects = super.getConfigDescriptionObjects(nodeIterator);
 
         ChannelType channelType = new ChannelType(

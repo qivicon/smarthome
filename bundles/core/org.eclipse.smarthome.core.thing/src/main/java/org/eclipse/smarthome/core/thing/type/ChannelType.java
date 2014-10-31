@@ -8,9 +8,9 @@
 package org.eclipse.smarthome.core.thing.type;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.smarthome.core.thing.Channel;
 
@@ -28,7 +28,7 @@ import org.eclipse.smarthome.core.thing.Channel;
 public class ChannelType extends AbstractDescriptionType {
 
     private String itemType;
-    private List<String> tags;
+    private Set<String> tags;
 
 
     /**
@@ -55,7 +55,7 @@ public class ChannelType extends AbstractDescriptionType {
      *     or the the meta information is null
      */
     public ChannelType(ChannelTypeUID uid, String itemType, String label, String description,
-            List<String> tags, URI configDescriptionURI) throws IllegalArgumentException {
+            Set<String> tags, URI configDescriptionURI) throws IllegalArgumentException {
 
         super(uid, label, description, configDescriptionURI);
 
@@ -66,9 +66,9 @@ public class ChannelType extends AbstractDescriptionType {
         this.itemType = itemType;
 
         if (tags != null) {
-            this.tags = Collections.unmodifiableList(tags);
+            this.tags = Collections.unmodifiableSet(tags);
         } else {
-            this.tags = Collections.unmodifiableList(new ArrayList<String>(0));
+            this.tags = Collections.unmodifiableSet(new HashSet<String>(0));
         }
     }
 
@@ -91,7 +91,7 @@ public class ChannelType extends AbstractDescriptionType {
      * 
      * @return all tags of this Channel type, e.g. {@code Alarm} (not null, could be empty)
      */
-    public List<String> getTags() {
+    public Set<String> getTags() {
         return this.tags;
     }
 
