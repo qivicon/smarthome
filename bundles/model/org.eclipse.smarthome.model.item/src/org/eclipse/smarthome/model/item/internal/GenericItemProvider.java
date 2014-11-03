@@ -360,12 +360,22 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
 	@Override
 	public void modelChanged(String modelName, EventType type) {
 		if (modelName.endsWith("items")) {
-			processBindingConfigsFromModel(modelName);
-			for (ProviderChangeListener<Item> listener : listeners) {
-				if(listener instanceof ItemsChangeListener) {
-					((ItemsChangeListener) listener).allItemsChanged(this, null);
-				}
-			}
+			switch (type) {
+            case ADDED:
+                processBindingConfigsFromModel(modelName);
+                for (ProviderChangeListener<Item> listener : listeners) {
+                    if(listener instanceof ItemsChangeListener) {
+                        ((ItemsChangeListener) listener).allItemsChanged(this, null);
+                    }
+                }
+                break;
+            case MODIFIED:
+                // TODO
+                break;
+            case REMOVED:
+                
+                break;
+            }
 		}
 	}
 	
