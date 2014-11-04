@@ -8,15 +8,15 @@
   </parent>
 
   <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.model.thing.tests</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.model.thing.tests</bundle.namespace>
+    <bundle.symbolicName>org.eclipse.smarthome.model.item.tests</bundle.symbolicName>
+    <bundle.namespace>org.eclipse.smarthome.model.item.tests</bundle.namespace>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.smarthome.model</groupId>
-  <artifactId>org.eclipse.smarthome.model.thing.tests</artifactId>
+  <artifactId>org.eclipse.smarthome.model.item.tests</artifactId>
 
-  <name>Eclipse SmartHome Thing Model Tests</name>
+  <name>Eclipse SmartHome Items Model Tests</name>
 
   <packaging>eclipse-test-plugin</packaging>
 
@@ -40,7 +40,7 @@
                         </dependency>
                         <dependency>
                             <type>eclipse-plugin</type>
-                            <artifactId>org.eclipse.smarthome.model.thing.runtime</artifactId>
+                            <artifactId>org.eclipse.smarthome.model.item</artifactId>
                             <version>0.0.0</version>
                         </dependency>
                         <dependency>
@@ -66,7 +66,7 @@
                             <autoStart>true</autoStart>
                         </bundle>
                         <bundle>
-							<id>org.eclipse.smarthome.core.thing</id>
+							<id>org.eclipse.smarthome.core.item</id>
 							<level>4</level>
 							<autoStart>true</autoStart>
 						</bundle>
@@ -92,16 +92,6 @@
                         </bundle>
                         <bundle>
                             <id>org.eclipse.smarthome.model.item.runtime</id>
-                            <level>4</level>
-                            <autoStart>true</autoStart>
-                        </bundle>
-                        <bundle>
-                            <id>org.eclipse.smarthome.model.thing</id>
-                            <level>4</level>
-                            <autoStart>true</autoStart>
-                        </bundle>
-                        <bundle>
-                            <id>org.eclipse.smarthome.model.thing.runtime</id>
                             <level>4</level>
                             <autoStart>true</autoStart>
                         </bundle>
