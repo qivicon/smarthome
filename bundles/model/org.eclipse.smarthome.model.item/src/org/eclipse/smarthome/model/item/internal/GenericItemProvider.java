@@ -370,10 +370,13 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
                 }
                 break;
             case MODIFIED:
-                // TODO
+                // TODO update modified items
                 break;
             case REMOVED:
-                
+                Collection<Item> itemsFromModel = getItemsFromModel(modelName);
+                for (Item item : itemsFromModel) {
+                    notifyListenersAboutRemovedElement(item);
+                }
                 break;
             }
 		}
