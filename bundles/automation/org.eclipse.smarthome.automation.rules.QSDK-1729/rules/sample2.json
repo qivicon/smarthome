@@ -1,0 +1,21 @@
+{
+    "enabled": true,
+    "id": "sample2",
+    "name": "Toggle lamp on/off every 10 Seconds",
+    "on": [
+        {
+            "type": "timer",
+            "parameters": {
+                "cron": "* 0/1 * * * ?"
+            }
+        }
+    ],
+    "then": [
+        {
+            "type": "toggle",
+            "parameters": {
+                "itemName": "hue_LST001_001788142732_1_color"
+            }
+        }
+    ]
+}

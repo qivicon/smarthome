@@ -26,10 +26,11 @@ public class StateConditionHandler implements ConditionHandler {
 		String itemName = (String) context.getInputParameter("itemName");
 		try {
 			Item item = itemRegistry.getItem(itemName);
-			State itemState = item.getState();
+//			State itemState = item.getState();
 			String stateString = (String) context.getInputParameter("state");
 			State state = TypeParser.parseState(item.getAcceptedDataTypes(),
 					stateString);
+			State itemState = item.getStateAs(state.getClass());
 			String operator = (String) context.getInputParameter("operator");
 			LOGGER.debug(
 					"--> comparing current state of item {}:  {} - {} - {}",

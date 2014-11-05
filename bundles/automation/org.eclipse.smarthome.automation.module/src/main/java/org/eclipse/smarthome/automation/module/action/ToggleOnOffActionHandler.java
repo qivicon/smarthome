@@ -60,8 +60,10 @@ public class ToggleOnOffActionHandler implements ActionHandler {
 			String itemName = (String) context.getInputParameter("itemName");
 			Item item = itemRegistry.getItem(itemName);
 			Command command = OnOffType.ON;
-			LOGGER.debug("Toggle: Items previous State: {}", item.getState());
-			if (item.getState().equals(OnOffType.ON)) {
+			OnOffType previousState = (OnOffType) item
+					.getStateAs(OnOffType.class);
+			LOGGER.debug("Toggle: Items previous State: {}", previousState);
+			if (previousState.equals(OnOffType.ON)) {
 				command = OnOffType.OFF;
 			}
 			eventPublisher.postCommand(itemName, command);

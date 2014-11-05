@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: QSDK-1729
+Bundle-SymbolicName: org.eclipse.smarthome.automation.rules.QSDK-1729
+Bundle-Version: 0.8.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Service-Component: OSGI-INF/*,
+ OSGI-INF/ExampleRuleProvider.xml
+Import-Package: org.eclipse.smarthome.automation.core,
+ org.eclipse.smarthome.automation.core.parser,
+ org.eclipse.smarthome.core.common.registry,
+ org.eclipse.smarthome.core.items,
+ org.osgi.framework,
+ org.osgi.service.component,
+ org.slf4j;version="1.7.2"

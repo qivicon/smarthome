@@ -1,0 +1,40 @@
+{
+    "enabled": true,
+    "id": "sample4a",
+    "name": "Combine multiple states",
+    "on": [
+        {
+            "type": "update",
+            "parameters": {
+            	"itemName":"dlink_camera_DCS_2330L_b0c5540047f5_motion"
+            }
+        }
+    ],
+    "if": [
+    	{
+    		"type":"state",
+    		"parameters":{
+    			"itemName":"dlink_camera_DCS_2330L_b0c5540047f5_motion",
+    			"operator":"EQ",
+    			"state":"ON"
+    		}
+    	},
+    	{
+    		"type":"state",
+    		"parameters":{
+    			"itemName":"hue_LST001_001788142732_1_color",
+    			"operator":"EQ",
+    			"state":"ON"
+    		}
+    	}
+    ], 
+    "then": [
+        {
+            "type": "post",
+            "parameters": {
+                "itemName": "hue_LST001_001788142732_1_color",
+                "command":"122,100,70"
+            }
+        }
+    ]
+}

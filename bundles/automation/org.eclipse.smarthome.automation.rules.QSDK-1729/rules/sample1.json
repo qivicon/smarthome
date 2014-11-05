@@ -1,0 +1,22 @@
+{
+    "enabled": true,
+    "id": "sample1",
+    "name": "Switch Hue On/Off based on an item",
+    "on": [
+        {
+            "type": "update",
+            "parameters": {
+                "itemName": "dlink_camera_DCS_2330L_b0c5540047f5_motion"
+            }
+        }
+    ],
+    "then": [
+        {
+            "parameters": {
+                "command": "${on.0.state}",
+                "itemName": "hue_LCT001_001788142732_4_color"
+            },
+            "type": "post"
+        }
+    ]
+}
