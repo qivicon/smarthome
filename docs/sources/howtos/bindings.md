@@ -89,6 +89,20 @@ Eclipse SmartHome allows you to define your *ThingTypes* in a declarative way th
 </channel-type>
 ```
 
+A channel can also specify some default tags that will be added automatically to all *Items* bound to this *Channel*. Defining default tags can be done with the &lt;tag&gt; notation shown below: 
+
+```xml
+<channel-type id="temperature">
+    <item-type>Number</item-type>
+    <label>Temperature</label>
+    <description>Current temperature in degrees celsius (metric) or fahrenheit (us)</description>
+    <tags>
+    	<tag>service</tag>
+    	<tag>temperature</tag>
+	</tags>
+</channel-type>
+```
+
 ## The ThingHandlerFactory
 
 The `ThingHandlerFactory` is responsible for creating `ThingHandler` instances. Every binding must implement a `ThingHandlerFactory` and register it as OSGi service, so that the runtime knows which class needs to be called for creating and handling things. From the generated archetype there already exists a `ThingHandlerFactory`, which can be enhanced about further *ThingTypes*.
