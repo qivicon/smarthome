@@ -235,6 +235,9 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
         <item-type>Dimmer</item-type>
         <label>String</label>
         <description>String</description>
+	    <tags>
+	        <tag>...</tag>
+		</tags>
 
         <config-description>
           ...
@@ -276,6 +279,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <tr><td>channel-type.id</td><td>An identifier for the channel type (mandatory).</td></tr>
   <tr><td>item-type</td><td>An item type of the channel (mandatory). All item types are specified in <code>ItemFactory</code> instances. The following items belong to the core: <code>Switch, Rollershutter, Contact, String, Number, Dimmer, DateTime, Color, Image</code>.</td></tr>
   <tr><td>label</td><td>A human readable label for the channel (mandatory).</td></tr>
+  <tr><td>tags</td><td>A list of default tags to be assigned to bound items (optional).</td></tr>
   <tr><td>description</td><td>A human readable description for the channel (optional).</td></tr>
   <tr><td>config-description</td><td>The configuration description for the channel within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref</td><td>The reference to a configuration description for the channel within the ConfigDescriptionRegistry (optional).</td></tr>

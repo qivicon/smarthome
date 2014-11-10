@@ -25,7 +25,7 @@ The XML definition of a *ThingType* allows to assign default tags to *Channels* 
 	// adding a tag to an item
 	item.addTag("MotionSensor"); 
 	
-	// removing a tags 
+	// removing tags 
 	item.removeTag("Sensor"); 
 	item.removeAllTags();  
 	
@@ -45,6 +45,6 @@ The XML definition of a *ThingType* allows to assign default tags to *Channels* 
 	Collection<Item> alarmMotionSensors = itemRegistry.getItemsByTag("MotionSensor", "Alarm"); 
 	
 	// get all alarming switch items
-	Collection<SwitchItem> = itemRegistry.getItemsByTag(SwitchItem.class, "Alarm"); 
+	Collection<SwitchItem> alarmSwitchItems = itemRegistry.getItemsByTag(SwitchItem.class, "Alarm"); 
 ```
 
