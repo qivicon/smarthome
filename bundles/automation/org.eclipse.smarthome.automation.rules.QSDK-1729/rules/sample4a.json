@@ -33,7 +33,7 @@
             "type": "post",
             "parameters": {
                 "itemName": "hue_LST001_001788142732_1_color",
-                "command":"122,100,70"
+                "command":"60,100,80"
             }
         }
     ]
