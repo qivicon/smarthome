@@ -1,0 +1,7 @@
+hue_LCT001_001788142732_4_color (Type=ColorItem, State=Uninitialized)
+hue_LCT001_001788142732_4_color_temperature (Type=DimmerItem, State=Uninitialized)
+hue_LST001_001788142732_1_color (Type=ColorItem, State=Uninitialized)
+hue_LLC012_001788142732_2_color (Type=ColorItem, State=Uninitialized)
+hue_LLC010_001788142732_3_color (Type=ColorItem, State=Uninitialized)
+dlink_camera_DCS_2330L_b0c5540047f5_image (Type=ImageItem, State=Uninitialized)
+dlink_camera_DCS_2330L_b0c5540047f5_motion (Type=SwitchItem, State=Uninitialized)
