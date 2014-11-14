@@ -21,6 +21,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -109,13 +110,13 @@ public class ItemResource implements RESTResource {
 	}
 
 	@Context UriInfo uriInfo;
-	@GET
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getItems() {
-		logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
+    public Response getItemsByTags(@QueryParam("type") String type, @QueryParam("tags") String tags) {
+        logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());        
 
-    	Object responseObject = getItemBeans();
-    	return Response.ok(responseObject).build();
+        Object responseObject = getItemBeans(type, tags);
+        return Response.ok(responseObject).build();
     }
 
     @GET @Path("/{itemname: [a-zA-Z_0-9]*}/state") 
@@ -301,13 +302,30 @@ public class ItemResource implements RESTResource {
         return null;
     }
 
-	private List<ItemBean> getItemBeans() {
-		List<ItemBean> beans = new LinkedList<ItemBean>();
-		for(Item item : itemRegistry.getItems()) {
-			beans.add(createItemBean(item, false, uriInfo.getBaseUri().toASCIIString()));
-		}
-		return beans;
-	}
+    private List<ItemBean> getItemBeans(String type, String tags) {
+        List<ItemBean> beans = new LinkedList<ItemBean>();
+        Collection<Item> items; 
+        if (tags == null) {
+            if (type == null) {
+                items = itemRegistry.getItems(); 
+            } else {
+                items = itemRegistry.getItemsOfType(type); 
+            }
+        } else {
+            String[] tagList = tags.split(","); 
+            if (type == null) {
+                items = itemRegistry.getItemsByTag(tagList); 
+            } else {
+                items = itemRegistry.getItemsByTagAndType(type, tagList); 
+            }
+        }
+        if (items != null) {
+            for (Item item : items) {
+                beans.add(createItemBean(item, false, uriInfo.getBaseUri().toASCIIString()));
+            }
+        }
+        return beans;
+    }
 
 	private ItemBean getItemDataBean(String itemname) {
 		Item item = getItem(itemname);
