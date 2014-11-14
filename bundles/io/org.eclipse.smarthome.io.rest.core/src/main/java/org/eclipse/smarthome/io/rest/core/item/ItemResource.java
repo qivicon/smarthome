@@ -61,6 +61,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Dennis Nobel - Added methods for item management
+ * @author Andre Fuechsel - added tag support
  */
 @Path(ItemResource.PATH_ITEMS)
 public class ItemResource implements RESTResource {
@@ -231,6 +232,42 @@ public class ItemResource implements RESTResource {
         return Response.ok().build();
     }
 
+    @PUT
+    @Path("/{itemname: [a-zA-Z_0-9]*}/tags/{tag: [a-zA-Z_0-9]*}")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response addTag(@PathParam("itemname") String itemname, @PathParam("tag") String tag) {
+
+        Item item = getItem(itemname);
+
+        if (item == null) {
+            logger.info("Received HTTP PUT request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
+            throw new WebApplicationException(404);
+        }
+
+        item.addTag(tag);
+        managedItemProvider.update(item);
+
+        return Response.ok().build();
+    }
+    
+    @DELETE
+    @Path("/{itemname: [a-zA-Z_0-9]*}/tags/{tag: [a-zA-Z_0-9]*}")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response removeTag(@PathParam("itemname") String itemname, @PathParam("tag") String tag) {
+
+        Item item = getItem(itemname);
+
+        if (item == null) {
+            logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
+            throw new WebApplicationException(404);
+        }
+
+        item.removeTag(tag);
+        managedItemProvider.update(item);
+
+        return Response.ok().build();
+    }
+
     public static ItemBean createItemBean(Item item, boolean drillDown, String uriPath) {
     	ItemBean bean;
     	if(item instanceof GroupItem && drillDown) {
@@ -249,6 +286,7 @@ public class ItemResource implements RESTResource {
     	bean.state = item.getState().toString();
     	bean.type = item.getClass().getSimpleName();
     	bean.link = UriBuilder.fromUri(uriPath).path(ItemResource.PATH_ITEMS).path(bean.name).build().toASCIIString();
+        bean.tags = item.getTags(); 
     	
     	return bean;
     }
