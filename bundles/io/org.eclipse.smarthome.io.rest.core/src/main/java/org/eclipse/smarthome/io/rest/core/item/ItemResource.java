@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Dennis Nobel - Added methods for item management
- * @author Andre Fuechsel - added tag support
+ * @author Andre Fuechsel - Added tag support
  */
 @Path(ItemResource.PATH_ITEMS)
 public class ItemResource implements RESTResource {
