@@ -20,6 +20,8 @@
     <module>org.eclipse.smarthome.ui.test</module>
     <module>org.eclipse.smarthome.ui.classic</module>
     <module>org.eclipse.smarthome.ui.icon</module>
+    <module>org.eclipse.smarthome.ui.thing</module>
+    <module>org.eclipse.smarthome.ui.thing.test</module>
   </modules>
 
 </project>

@@ -178,12 +178,6 @@ public class ThingHelper {
 		if (!a.getUID().equals(b.getUID())) {
 			return false;
 		}
-		if (a.getName() == null && b.getName() != null) {
-			return false;
-		}
-		if (a.getName() != null && !a.getName().equals(b.getName())) {
-			return false;
-		}
         if (a.getBridgeUID() == null && b.getBridgeUID() != null) {
             return false;
         }
