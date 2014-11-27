@@ -7,22 +7,23 @@
  */
 package org.eclipse.smarthome.io.rest.core.item.beans;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Set;
+
 
 /**
- * This is a java bean that is used with JAXB to serialize items
- * to XML or JSON.
+ * This is a java bean that is used with JAXB to serialize items to JSON.
  *  
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Andre Fuechsel - added tag support
  *
  */
-@XmlRootElement(name="item")
 public class ItemBean {
 
 	public String type;
 	public String name;	
 	public String state;
 	public String link;
+	public Set<String> tags; 
 	
 	public ItemBean() {}
 		

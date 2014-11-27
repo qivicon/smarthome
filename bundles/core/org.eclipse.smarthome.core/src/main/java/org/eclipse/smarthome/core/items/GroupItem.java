@@ -7,18 +7,20 @@
  */
 package org.eclipse.smarthome.core.items;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSet;
 
 public class GroupItem extends GenericItem implements StateChangeListener {
 	
@@ -26,7 +28,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 	
 	protected final GenericItem baseItem;
 	
-	protected final List<Item> members;
+	protected final Set<Item> members;
 	
 	protected GroupFunction function;
 
@@ -40,7 +42,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 
 	public GroupItem(String name, GenericItem baseItem, GroupFunction function) {
 		super("Group", name);
-		members = new CopyOnWriteArrayList<Item>();
+		members = new CopyOnWriteArraySet<Item>();
 		this.function = function;
 		this.baseItem = baseItem;
 	}
@@ -62,8 +64,8 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 	 * 
 	 * @return the direct members of this {@link GroupItem}
 	 */
-	public List<Item> getMembers() {
-		return ImmutableList.copyOf(members);
+	public Set<Item> getMembers() {
+		return ImmutableSet.copyOf(members);
 	}
 	
 	/**
@@ -73,13 +75,13 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 	 * 
 	 * @return all members of this and all contained {@link GroupItem}s
 	 */
-	public List<Item> getAllMembers() {
+	public Set<Item> getAllMembers() {
 		Set<Item> allMembers = new HashSet<Item>();
 		collectMembers(allMembers, members);
-		return ImmutableList.copyOf(allMembers);
+		return ImmutableSet.copyOf(allMembers);
 	}
 	
-	private void collectMembers(Set<Item> allMembers, List<Item> members) {
+	private void collectMembers(Set<Item> allMembers, Set<Item> members) {
 		for (Item member : members) {
 			if (member instanceof GroupItem) {
 				collectMembers(allMembers, ((GroupItem) member).members);
@@ -122,12 +124,12 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 			
 			for(Item item : members) {
 				if(acceptedDataTypes==null) {
-					acceptedDataTypes = item.getAcceptedDataTypes();
+					acceptedDataTypes = new ArrayList<>(item.getAcceptedDataTypes());
 				} else {
 					acceptedDataTypes.retainAll(item.getAcceptedDataTypes());
 				}
 			}
-			return acceptedDataTypes == null ? Collections.EMPTY_LIST : acceptedDataTypes;
+			return acceptedDataTypes == null ? Collections.unmodifiableList(Collections.EMPTY_LIST) : Collections.unmodifiableList(acceptedDataTypes);
 		}
 	}
 
@@ -147,12 +149,12 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 			
 			for(Item item : members) {
 				if(acceptedCommandTypes==null) {
-					acceptedCommandTypes = item.getAcceptedCommandTypes();
+					acceptedCommandTypes = new ArrayList<>(item.getAcceptedCommandTypes());
 				} else {
 					acceptedCommandTypes.retainAll(item.getAcceptedCommandTypes());
 				}
 			}
-			return acceptedCommandTypes == null ? Collections.EMPTY_LIST : acceptedCommandTypes;
+			return acceptedCommandTypes == null ? Collections.unmodifiableList(Collections.EMPTY_LIST) : Collections.unmodifiableList(acceptedCommandTypes);
 		}
 	}
 	
@@ -198,13 +200,32 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 	 * @{inheritDoc
 	 */
 	@Override
-	public String toString() {
-		return getName() + " (" +
-		"Type=" + getClass().getSimpleName() + ", " +
-		(baseItem != null ? "BaseType=" + baseItem.getClass().getSimpleName() + ", " : "") +
-		"Members=" + members.size() + ", " +
-		"State=" + getState() + ")";
-	}
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getName());
+        sb.append(" (");
+        sb.append("Type=");
+        sb.append(getClass().getSimpleName());
+        sb.append(", ");
+        if (getBaseItem() != null) {
+            sb.append("BaseType=");
+            sb.append(baseItem.getClass().getSimpleName());
+            sb.append(", ");
+        }
+        sb.append("Members=");
+        sb.append(members.size());
+        sb.append(", ");
+        sb.append("State=");
+        sb.append(getState());
+        if (!getTags().isEmpty()) {
+            sb.append(", ");
+            sb.append("Tags=[");
+            sb.append(Joiner.on(", ").join(getTags()));
+            sb.append("]");
+        }
+        sb.append(")");
+        return sb.toString();
+    }
 
 	/**
 	 * @{inheritDoc
@@ -219,4 +240,5 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 	public void stateUpdated(Item item, State state) {
 		setState(function.calculate(members));
 	}
+
 }

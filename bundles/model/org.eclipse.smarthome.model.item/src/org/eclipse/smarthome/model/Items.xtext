@@ -11,6 +11,7 @@ ModelItem :
 	(label=STRING)?
 	('<' icon=(ID|STRING) '>')?
 	('(' groups+=ID (',' groups+=ID)* ')')? 
+	('[' tags+=ID (',' tags+=ID)* ']')?
 	('{' bindings+=ModelBinding (',' bindings+=ModelBinding)* '}')? 
 ;
 
@@ -27,7 +28,7 @@ ModelNormalItem :
 ;
 
 ModelItemType :
-	'Switch' | 'Rollershutter' | 'Number' | 'String' | 'Dimmer' | 'Contact' | 'DateTime' | 'Color' | ID
+	'Switch' | 'Rollershutter' | 'Number' | 'String' | 'Dimmer' | 'Contact' | 'DateTime' | 'Color' | 'Player' | ID
 ;
 
 ModelBinding:

@@ -132,6 +132,19 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
         return getAll();
     }
 
+    @Override
+    public Collection<Item> getItemsOfType(String type) {
+        Collection<Item> matchedItems = new ArrayList<Item>();
+
+        for (Item item : getItems()) {
+            if (item.getType().equals(type)) {
+                matchedItems.add(item);
+            }
+        }
+
+        return matchedItems;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -249,4 +262,48 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
         }
     }
 
+    @Override
+    public Collection<Item> getItemsByTag(String... tags) {
+        List<Item> filteredItems = new ArrayList<Item>();
+        for (Item item : getItems()) {
+            if (itemHasTags(item, tags)) {
+                filteredItems.add(item); 
+            }
+        }
+        return filteredItems; 
+    }
+
+    private boolean itemHasTags(Item item, String... tags) {
+        for (String tag : tags) {
+            if (!item.hasTag(tag)) {
+                return false; 
+            }
+        }
+        return true; 
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T extends GenericItem> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags) {
+        Collection<T> filteredItems = new ArrayList<T>();
+
+        Collection<Item> items = getItemsByTag(tags);
+        for (Item item : items) {
+            if (typeFilter.isInstance(item)) {
+                filteredItems.add((T) filteredItems);
+            }
+        }
+        return filteredItems;
+    }
+
+    @Override
+    public Collection<Item> getItemsByTagAndType(String type, String... tags) {
+        List<Item> filteredItems = new ArrayList<Item>();
+        for (Item item : getItemsOfType(type)) {
+            if (itemHasTags(item, tags)) {
+                filteredItems.add(item); 
+            }
+        }
+        return filteredItems; 
+    }
 }

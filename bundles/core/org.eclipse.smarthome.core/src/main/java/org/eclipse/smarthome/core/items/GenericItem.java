@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.items;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -20,7 +21,9 @@ import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 /** 
  * The abstract base class for all items. It provides all relevant logic
@@ -28,6 +31,7 @@ import com.google.common.collect.ImmutableList;
  * or notifying listeners.
  *  
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Andre Fuechsel - Added tags
  *
  */
 abstract public class GenericItem implements Item {
@@ -37,6 +41,8 @@ abstract public class GenericItem implements Item {
 	protected Set<StateChangeListener> listeners = new CopyOnWriteArraySet<StateChangeListener>(Collections.newSetFromMap(new WeakHashMap<StateChangeListener, Boolean>()));
 	
 	protected List<String> groupNames = new ArrayList<String>();
+	
+	protected Set<String> tags = new HashSet<String>(); 
 	
 	final protected String name;
 	
@@ -95,7 +101,7 @@ abstract public class GenericItem implements Item {
 	}
 
     /**
-     * Adds a group name to the generic item.
+     * Adds a group name to the {@link GenericItem}.
      * 
      * @param groupItemName
      *            group item name to add
@@ -107,7 +113,7 @@ abstract public class GenericItem implements Item {
     }
 
     /**
-     * Removes a group name from the generic
+     * Removes a group item name from the {@link GenericItem}.
      * 
      * @param groupItemName
      *            group item name to remove
@@ -127,6 +133,12 @@ abstract public class GenericItem implements Item {
 		}		
 	}
 	
+    /**
+     * Sets new state and notifies listeners.
+     * 
+     * @param state
+     *            new state of this item
+     */
 	public void setState(State state) {
 		State oldState = this.state;
 		this.state = state;
@@ -156,9 +168,22 @@ abstract public class GenericItem implements Item {
 	 */
 	@Override
 	public String toString() {
-		return getName() + " (" +
-			"Type=" + getClass().getSimpleName() + ", " +
-			"State=" + getState() + ")";
+	    StringBuilder sb = new StringBuilder();
+        sb.append(getName());
+        sb.append(" (");
+        sb.append("Type=");
+        sb.append(getClass().getSimpleName());
+        sb.append(", ");
+        sb.append("State=");
+        sb.append(getState());
+        if (!getTags().isEmpty()) {
+            sb.append(", ");
+            sb.append("Tags=[");
+            sb.append(Joiner.on(", ").join(getTags()));
+            sb.append("]");
+        }
+        sb.append(")");
+	    return sb.toString();
 	}
 
 	public void addStateChangeListener(StateChangeListener listener) {
@@ -196,6 +221,31 @@ abstract public class GenericItem implements Item {
         } else if (!name.equals(other.name))
             return false;
         return true;
+    }
+    
+    @Override
+    public Set<String> getTags() {
+        return ImmutableSet.copyOf(tags);
+    }
+
+    @Override
+    public boolean hasTag(String tag) {
+        return (tags.contains(tag)); 
+    }
+
+    @Override
+    public void addTag(String tag) {
+        tags.add(tag); 
+    }
+
+    @Override
+    public void removeTag(String tag) {
+        tags.remove(tag); 
+   }
+
+    @Override
+    public void removeAllTags() {
+        tags.clear();
     }
 	
 }

@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.ui.internal.items;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -18,25 +17,31 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
+import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.core.library.items.ColorItem;
 import org.eclipse.smarthome.core.library.items.ContactItem;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
 import org.eclipse.smarthome.core.library.items.NumberItem;
+import org.eclipse.smarthome.core.library.items.PlayerItem;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
 import org.eclipse.smarthome.core.library.items.StringItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.NextPreviousType;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.library.types.PlayPauseType;
+import org.eclipse.smarthome.core.library.types.RewindFastforwardType;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationHelper;
 import org.eclipse.smarthome.core.transform.TransformationService;
@@ -50,12 +55,13 @@ import org.eclipse.smarthome.ui.items.ItemUIRegistry;
 import org.eclipse.smarthome.model.sitemap.ColorArray;
 import org.eclipse.smarthome.model.sitemap.Group;
 import org.eclipse.smarthome.model.sitemap.LinkableWidget;
+import org.eclipse.smarthome.model.sitemap.Mapping;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapFactory;
 import org.eclipse.smarthome.model.sitemap.Slider;
+import org.eclipse.smarthome.model.sitemap.Switch;
 import org.eclipse.smarthome.model.sitemap.VisibilityRule;
 import org.eclipse.smarthome.model.sitemap.Widget;
-import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -215,9 +221,30 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 		if (itemType.equals(ColorItem.class)) {
 			return SitemapFactory.eINSTANCE.createColorpicker();
 		}
+		if (itemType.equals(PlayerItem.class)) {
+		    return createSwitchWithButtons(
+		            PlayPauseType.PLAY,
+		            PlayPauseType.PAUSE,
+		            RewindFastforwardType.REWIND,
+		            RewindFastforwardType.FASTFORWARD,
+		            NextPreviousType.NEXT,
+		            NextPreviousType.PREVIOUS);
+		}
 
 		return null;
 	}
+
+    private Switch createSwitchWithButtons(Enum<?>... commands) {
+        Switch playerItemSwitch = SitemapFactory.eINSTANCE.createSwitch();
+        List<Mapping> mappings = playerItemSwitch.getMappings();
+        Mapping commandMapping = null;
+        for (Enum<?> command : commands) {
+            mappings.add(commandMapping = SitemapFactory.eINSTANCE.createMapping());
+            commandMapping.setCmd(command.name());
+            commandMapping.setLabel(StringUtils.capitalize(command.name().toLowerCase()));
+        }
+        return playerItemSwitch;
+    }
 
 	/**
 	 * {@inheritDoc}
@@ -562,7 +589,16 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 		}
 	}
 
-	/**
+	@Override
+    public Collection<Item> getItemsOfType(String type) {
+        if(itemRegistry!=null) {
+            return itemRegistry.getItemsOfType(type);
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    /**
 	 * {@inheritDoc}
 	 */
 	public Collection<Item> getItems(String pattern) {
@@ -902,5 +938,32 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 			return this.value;
 		}
 	}
+
+    @Override
+    public Collection<Item> getItemsByTag(String... tags) {
+        if (itemRegistry != null) {
+            return itemRegistry.getItemsByTag(tags); 
+        } else {
+            return Collections.emptyList(); 
+        }
+    }
+
+    @Override
+    public Collection<Item> getItemsByTagAndType(String type, String... tags) {
+        if (itemRegistry != null) {
+            return itemRegistry.getItemsByTagAndType(type, tags); 
+        } else {
+            return Collections.emptyList(); 
+        }
+    }
+
+    @Override
+    public <T extends GenericItem> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags) {
+        if (itemRegistry != null) {
+            return itemRegistry.getItemsByTag(typeFilter, tags);
+        } else {
+            return Collections.emptyList(); 
+        }
+    }
 
 }
