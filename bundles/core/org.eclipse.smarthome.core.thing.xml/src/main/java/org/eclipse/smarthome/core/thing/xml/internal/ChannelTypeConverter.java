@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.core.thing.xml.internal;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +18,7 @@ import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
+import org.eclipse.smarthome.core.thing.type.SimpleChannelType;
 
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
@@ -86,7 +86,7 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         Set<String> tags = readTags(nodeIterator);
         Object[] configDescriptionObjects = super.getConfigDescriptionObjects(nodeIterator);
 
-        ChannelType channelType = new ChannelType(
+        ChannelType channelType = new SimpleChannelType(
                 channelTypeUID,
                 itemType,
                 label,

@@ -24,6 +24,7 @@ import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nUtil;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.SimpleChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.osgi.framework.Bundle;
 
@@ -183,22 +184,26 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
         }
     }
 
-    private ChannelDefinition createLocalizedChannelDefinition(
-            Bundle bundle, ChannelDefinition channelDefinition, Locale locale) {
+    private ChannelDefinition createLocalizedChannelDefinition(Bundle bundle, ChannelDefinition channelDefinition,
+            Locale locale) {
 
         if (this.thingTypeI18nUtil != null) {
             ChannelType channelType = channelDefinition.getType();
 
-            String label = this.thingTypeI18nUtil.getChannelLabel(
-                    bundle, channelType.getUID(), channelType.getLabel(), locale);
-            String description = this.thingTypeI18nUtil.getChannelDescription(
-                    bundle, channelType.getUID(), channelType.getDescription(), locale);
+            if (channelType instanceof SimpleChannelType) {
+                SimpleChannelType simpleChannelType = (SimpleChannelType) channelType;
+                String label = this.thingTypeI18nUtil.getChannelLabel(bundle, channelType.getUID(),
+                        channelType.getLabel(), locale);
+                String description = this.thingTypeI18nUtil.getChannelDescription(bundle, channelType.getUID(),
+                        channelType.getDescription(), locale);
 
-            ChannelType localizedChannelType = new ChannelType(channelType.getUID(),
-                    channelType.getItemType(), label, description, channelType.getTags(),
-                    channelType.getConfigDescriptionURI());
-
-            return new ChannelDefinition(channelDefinition.getId(), localizedChannelType);
+                ChannelType localizedChannelType = new SimpleChannelType(channelType.getUID(),
+                        simpleChannelType.getItemType(), label, description, simpleChannelType.getTags(),
+                        channelType.getConfigDescriptionURI());
+                return new ChannelDefinition(channelDefinition.getId(), localizedChannelType);
+            } else {
+                return null;
+            } 
         } else {
             return channelDefinition;
         }

@@ -24,6 +24,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.SimpleChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 
 import com.google.common.collect.Lists;
@@ -141,25 +142,30 @@ public class ThingFactory {
             ConfigDescriptionRegistry configDescriptionRegistry) {
         ChannelType type = channelDefinition.getType();
 
-        ChannelBuilder channelBuilder = ChannelBuilder.create(new ChannelUID(thingUID, channelDefinition.getId()),
-                type.getItemType()).withDefaultTags(type.getTags());
+        if (type instanceof SimpleChannelType) {
+            SimpleChannelType simpleChannelType = (SimpleChannelType) type;
+            ChannelBuilder channelBuilder = ChannelBuilder.create(new ChannelUID(thingUID, channelDefinition.getId()),
+                    simpleChannelType.getItemType()).withDefaultTags(simpleChannelType.getTags());
 
-        // initializing channels with default-values
-        if (configDescriptionRegistry != null) {
-            ConfigDescription cd = configDescriptionRegistry.getConfigDescription(type.getConfigDescriptionURI());
-            if (cd != null) {
-                Configuration config = new Configuration();
-                for (ConfigDescriptionParameter param : cd.getParameters()) {
-                    if (param.getDefault() != null) {
-                        config.put(param.getName(), param.getDefault());
+            // initializing channels with default-values
+            if (configDescriptionRegistry != null) {
+                ConfigDescription cd = configDescriptionRegistry.getConfigDescription(type.getConfigDescriptionURI());
+                if (cd != null) {
+                    Configuration config = new Configuration();
+                    for (ConfigDescriptionParameter param : cd.getParameters()) {
+                        if (param.getDefault() != null) {
+                            config.put(param.getName(), param.getDefault());
+                        }
                     }
+                    channelBuilder = channelBuilder.withConfiguration(config);
                 }
-                channelBuilder = channelBuilder.withConfiguration(config);
             }
-        }
 
-        Channel channel = channelBuilder.build();
-        return channel;
+            Channel channel = channelBuilder.build();
+            return channel;
+        } else {
+            return null;
+        }
     }
 
 }

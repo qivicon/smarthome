@@ -16,6 +16,7 @@ import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.thing.Channel;
+import org.eclipse.smarthome.core.thing.SimpleChannel;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.internal.ThingImpl;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
@@ -70,21 +71,27 @@ public class ThingHelper {
 		
 		List<Channel> channels = thing.getChannels();
 		
-		for (Channel channel : channels) {
-			String acceptedItemType = channel.getAcceptedItemType();
-			ItemFactory itemFactory = getItemFactoryForItemType(itemFactories, acceptedItemType);
-			if (itemFactory == null) {
-				logger.warn("No ItemFactory supports the item type '{}'. It's not possible to create an item for the channel '{}'.", acceptedItemType, channel.getUID());
-			} else {
-				GenericItem item = itemFactory.createItem(acceptedItemType, toItemName(channel));
-				if (item == null) {
-					logger.error("The item of type '{}' has not been created by the ItemFactory '{}'.", acceptedItemType, itemFactory.getClass().getName());
-				} else {
-                    createItemIfNecessary(managedItemProvider, item);
-                    createLinkIfNecessary(managedItemChannelLinkProvider, item, channel);
-				}
-			}
-		}
+        for (Channel channel : channels) {
+            if (channel instanceof SimpleChannel) {
+                SimpleChannel simpleChannel = (SimpleChannel) channel;
+                String acceptedItemType = simpleChannel.getAcceptedItemType();
+                ItemFactory itemFactory = getItemFactoryForItemType(itemFactories, acceptedItemType);
+                if (itemFactory == null) {
+                    logger.warn(
+                            "No ItemFactory supports the item type '{}'. It's not possible to create an item for the channel '{}'.",
+                            acceptedItemType, channel.getUID());
+                } else {
+                    GenericItem item = itemFactory.createItem(acceptedItemType, toItemName(channel));
+                    if (item == null) {
+                        logger.error("The item of type '{}' has not been created by the ItemFactory '{}'.",
+                                acceptedItemType, itemFactory.getClass().getName());
+                    } else {
+                        createItemIfNecessary(managedItemProvider, item);
+                        createLinkIfNecessary(managedItemChannelLinkProvider, item, channel);
+                    }
+                }
+            }
+        }
 	}
 	
     private void createItemIfNecessary(ManagedItemProvider managedItemProvider, GenericItem item) {
@@ -212,7 +219,9 @@ public class ThingHelper {
 	private static String toString(List<Channel> channels) {
 		List<String> strings = new ArrayList<>(channels.size());
 		for (Channel channel : channels) {
-			strings.add(channel.getUID().toString() + '#' + channel.getAcceptedItemType());
+		    if(channel instanceof SimpleChannel) {
+		        strings.add(channel.getUID().toString() + '#' + ((SimpleChannel)channel).getAcceptedItemType());
+		    }
 		}
 		Collections.sort(strings);
 		return Joiner.on(',').join(strings);

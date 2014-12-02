@@ -13,6 +13,7 @@ import java.util.Set;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.SimpleChannel;
 
 /**
  * {@link ChannelBuilder} is responsible for creating {@link Channel}s.
@@ -76,6 +77,6 @@ public class ChannelBuilder {
      * @return channel
      */
     public Channel build() {
-        return new Channel(channelUID, acceptedItemType, configuration, defaultTags);
+        return new SimpleChannel(channelUID, acceptedItemType, configuration, defaultTags);
     }
 }
