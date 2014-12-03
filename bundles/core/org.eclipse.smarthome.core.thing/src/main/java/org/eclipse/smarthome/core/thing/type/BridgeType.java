@@ -16,8 +16,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
  * The {@link BridgeType} describes a concrete type of a {@link Bridge}.
- * A {@link BridgeType} inherits a {@link org.eclipse.smarthome.core.thing.type.ThingType}
- * and signals a parent-child relation.
+ * A {@link BridgeType} inherits a {@link ThingType} and signals a parent-child relation.
  * <p>
  * This description is used as template definition for the creation of the
  * according concrete {@link Bridge} object.

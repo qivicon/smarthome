@@ -38,7 +38,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  */
 public abstract class AbstractDescriptionTypeConverter<T> extends GenericUnmarshaller<T> {
 
-    private ConverterAttributeMapValidator attributeMapValidator;
+    protected ConverterAttributeMapValidator attributeMapValidator;
 
     private String type;
 

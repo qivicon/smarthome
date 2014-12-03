@@ -28,10 +28,7 @@ public class ChannelType extends AbstractDescriptionType {
      * Creates a new instance of this class with the specified parameters.
      *
      * @param uid the unique identifier which identifies this Channel type within
-     *     the overall system (must neither be null, nor empty)
-     *
-     * @param itemType the item type of this Channel type, e.g. {@code ColorItem}
-     *     (must neither be null nor empty)
+     *     the overall system (must not be null)
      *
      * @param label the human readable label for the according type
      *     (must neither be null nor empty)
@@ -39,27 +36,24 @@ public class ChannelType extends AbstractDescriptionType {
      * @param description the human readable description for the according type
      *     (could be null or empty)
      *
-     * @param tags all tags of this {@link ChannelType}, e.g. {@code Alarm}
-     *     (could be null or empty)
-     *
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
      *
-     * @throws IllegalArgumentException if the UID or the item type is null or empty,
-     *     or the the meta information is null
+     * @throws IllegalArgumentException if the UID is null, or the label is null or empty
      */
     public ChannelType(ChannelTypeUID uid, String label, String description,
             URI configDescriptionURI) throws IllegalArgumentException {
+
         super(uid, label, description, configDescriptionURI);
+    }
+
+    @Override
+    public ChannelTypeUID getUID() {
+        return (ChannelTypeUID) super.getUID();
     }
 
     @Override
     public String toString() {
         return super.getUID().toString();
-    }
-    
-    @Override
-    public ChannelTypeUID getUID() {
-        return (ChannelTypeUID) super.getUID();
     }
 
 }

@@ -64,6 +64,7 @@
             <xs:element name="item-type" type="xs:string"/>
             <xs:element name="label" type="xs:string"/>
             <xs:element name="description" type="xs:string" minOccurs="0"/>
+            <xs:element name="category" type="xs:string" minOccurs="0"/>
             <xs:element name="tags" type="thing-description:tags" minOccurs="0"/>
             <xs:choice minOccurs="0">
                 <xs:element name="config-description" type="config-description:configDescription"/>
@@ -71,6 +72,7 @@
             </xs:choice>
         </xs:sequence>
         <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
+        <xs:attribute name="readOnly" type="xs:boolean" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="tags">

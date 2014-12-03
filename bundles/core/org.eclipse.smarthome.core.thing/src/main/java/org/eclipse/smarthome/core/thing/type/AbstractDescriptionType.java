@@ -34,7 +34,7 @@ public abstract class AbstractDescriptionType {
      * Creates a new instance of this class with the specified parameters.
      * 
      * @param uid the unique identifier which identifies the according type within
-     *     the overall system (must neither be null, nor empty)
+     *     the overall system (must not be null)
      * 
      * @param label the human readable label for the according type
      *     (must neither be null nor empty)
@@ -44,8 +44,7 @@ public abstract class AbstractDescriptionType {
      * 
      * @param configDescriptionURI the link to a concrete ConfigDescription (could be null)
      * 
-     * @throws IllegalArgumentException if the UID is null or empty,
-     *     or the the meta information is null
+     * @throws IllegalArgumentException if the UID is null, or the label is null or empty
      */
     public AbstractDescriptionType(UID uid, String label, String description,
             URI configDescriptionURI) throws IllegalArgumentException {

@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
+import org.eclipse.smarthome.config.xml.util.ConverterAttributeMapValidator;
 import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
@@ -42,10 +43,18 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
 
     public ChannelTypeConverter() {
         super(ChannelTypeXmlResult.class, "channel-type");
+
+        super.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] {
+                { "id", "true" },
+                { "readOnly", "false" }});
     }
 
     private String readItemType(NodeIterator nodeIterator) throws ConversionException {
         return (String) nodeIterator.nextValue("item-type", true);
+    }
+
+    private String readCategory(NodeIterator nodeIterator) throws ConversionException {
+        return (String) nodeIterator.nextValue("category", false);
     }
 
     private Set<String> readTags(NodeIterator nodeIterator) throws ConversionException {
@@ -81,18 +90,19 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
             throws ConversionException {
 
         ChannelTypeUID channelTypeUID = new ChannelTypeUID(super.getUID(attributes, context));
+        boolean readOnly = Boolean.valueOf(attributes.get("readOnly"));
         String itemType = readItemType(nodeIterator);
         String label = super.readLabel(nodeIterator);
         String description = super.readDescription(nodeIterator);
+        String category = readCategory(nodeIterator);
         Set<String> tags = readTags(nodeIterator);
         Object[] configDescriptionObjects = super.getConfigDescriptionObjects(nodeIterator);
 
-        // TODO: parse the values from XML
-        String category = null;
         StateDescription stateDescription = null;
         
         ChannelType channelType = new FunctionalChannelType(
                 channelTypeUID,
+                readOnly,
                 itemType,
                 label,
                 description,

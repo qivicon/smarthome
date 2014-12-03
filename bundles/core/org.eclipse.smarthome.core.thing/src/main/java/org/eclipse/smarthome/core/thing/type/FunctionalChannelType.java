@@ -5,6 +5,16 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.smarthome.core.thing.Channel;
+
+/**
+ * The {@link FunctionalChannelType} describes one concrete type of a {@link Channel}.
+ * <p>
+ * 
+ * 
+ * @author Dennis Nobel - Initial Contribution
+ * @author Michael Grammling - Initial Contribution
+ */
 public class FunctionalChannelType extends ChannelType {
 
     private final String itemType;
@@ -12,7 +22,7 @@ public class FunctionalChannelType extends ChannelType {
     private final String category;
     private final StateDescription stateDescription;
 
-    public FunctionalChannelType(ChannelTypeUID uid, String itemType, String label, String description,
+    public FunctionalChannelType(ChannelTypeUID uid, boolean readOnly, String itemType, String label, String description,
             String category, Set<String> tags, URI configDescriptionURI, StateDescription stateDescription)
             throws IllegalArgumentException {
         super(uid, label, description, configDescriptionURI);
