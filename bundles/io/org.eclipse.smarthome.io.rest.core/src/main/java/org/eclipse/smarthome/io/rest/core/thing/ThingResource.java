@@ -107,7 +107,7 @@ public class ThingResource implements RESTResource {
     public Response getByUID(@PathParam("thingUID") String thingUID) {
         Thing thing = thingRegistry.getByUID((new ThingUID(thingUID)));
         if (thing != null) {
-            return Response.ok(convertToThingBean(thing)).build();
+            return Response.ok(convertToThingBean(thing, itemChannelLinkRegistry)).build();
         } else {
             return Response.noContent().build();
         }
@@ -260,7 +260,7 @@ public class ThingResource implements RESTResource {
         thingRegistry = null;
     }
 
-    private ChannelBean convertToChannelBean(Channel channel) {
+    public static ChannelBean convertToChannelBean(Channel channel, ItemChannelLinkRegistry itemChannelLinkRegistry) {
         String boundItem = itemChannelLinkRegistry.getBoundItem(channel.getUID());
         return new ChannelBean(channel.getUID().getId(), channel.getAcceptedItemType().toString(), boundItem);
     }
@@ -268,16 +268,16 @@ public class ThingResource implements RESTResource {
     private Set<ThingBean> convertToListBean(Collection<Thing> things) {
         Set<ThingBean> thingBeans = new LinkedHashSet<>();
         for (Thing thing : things) {
-            ThingBean thingBean = convertToThingBean(thing);
+            ThingBean thingBean = convertToThingBean(thing, itemChannelLinkRegistry);
             thingBeans.add(thingBean);
         }
         return thingBeans;
     }
 
-    private ThingBean convertToThingBean(Thing thing) {
+    public static ThingBean convertToThingBean(Thing thing, ItemChannelLinkRegistry itemChannelLinkRegistry) {
         List<ChannelBean> channelBeans = new ArrayList<>();
         for (Channel channel : thing.getChannels()) {
-            ChannelBean channelBean = convertToChannelBean(channel);
+            ChannelBean channelBean = convertToChannelBean(channel, itemChannelLinkRegistry);
             channelBeans.add(channelBean);
         }
 

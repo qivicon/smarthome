@@ -2,11 +2,13 @@ package org.eclipse.smarthome.io.sse.util;
 
 import javax.ws.rs.core.MediaType;
 
+import org.eclipse.smarthome.io.sse.EventType;
 import org.eclipse.smarthome.io.sse.beans.EventBean;
 import org.glassfish.jersey.media.sse.OutboundEvent;
 
 public class SseUtil {
-    public static OutboundEvent buildEvent(String eventType, String eventMessage, Object eventObject) {
+    public static OutboundEvent buildEvent(EventType eventType, String eventMessage,
+            Object eventObject) {
 
         EventBean eventBean = new EventBean();
         eventBean.eventType = eventType;

@@ -1,8 +1,10 @@
 package org.eclipse.smarthome.io.sse.beans;
 
+import org.eclipse.smarthome.io.sse.EventType;
+
 public class EventBean {
 
-    public String eventType;
+    public EventType eventType;
 
     public String eventMessage;
 
