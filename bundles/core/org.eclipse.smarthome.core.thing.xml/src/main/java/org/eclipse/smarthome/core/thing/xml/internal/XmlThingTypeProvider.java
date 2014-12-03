@@ -24,7 +24,8 @@ import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nUtil;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
-import org.eclipse.smarthome.core.thing.type.SimpleChannelType;
+import org.eclipse.smarthome.core.thing.type.FunctionalChannelType;
+import org.eclipse.smarthome.core.thing.type.StateDescription;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.osgi.framework.Bundle;
 
@@ -190,16 +191,20 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
         if (this.thingTypeI18nUtil != null) {
             ChannelType channelType = channelDefinition.getType();
 
-            if (channelType instanceof SimpleChannelType) {
-                SimpleChannelType simpleChannelType = (SimpleChannelType) channelType;
+            if (channelType instanceof FunctionalChannelType) {
+                FunctionalChannelType functionalChannelType = (FunctionalChannelType) channelType;
                 String label = this.thingTypeI18nUtil.getChannelLabel(bundle, channelType.getUID(),
                         channelType.getLabel(), locale);
                 String description = this.thingTypeI18nUtil.getChannelDescription(bundle, channelType.getUID(),
                         channelType.getDescription(), locale);
-
-                ChannelType localizedChannelType = new SimpleChannelType(channelType.getUID(),
-                        simpleChannelType.getItemType(), label, description, simpleChannelType.getTags(),
-                        channelType.getConfigDescriptionURI());
+                
+                // TODO: translate these values
+                StateDescription stateDescription = null;
+                
+                ChannelType localizedChannelType = new FunctionalChannelType(channelType.getUID(),
+                        functionalChannelType.getItemType(), label, description, functionalChannelType.getCategory(),
+                        functionalChannelType.getTags(), channelType.getConfigDescriptionURI(), stateDescription);
+                
                 return new ChannelDefinition(channelDefinition.getId(), localizedChannelType);
             } else {
                 return null;

@@ -18,7 +18,8 @@ import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
-import org.eclipse.smarthome.core.thing.type.SimpleChannelType;
+import org.eclipse.smarthome.core.thing.type.FunctionalChannelType;
+import org.eclipse.smarthome.core.thing.type.StateDescription;
 
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
@@ -86,13 +87,18 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         Set<String> tags = readTags(nodeIterator);
         Object[] configDescriptionObjects = super.getConfigDescriptionObjects(nodeIterator);
 
-        ChannelType channelType = new SimpleChannelType(
+        // TODO: parse the values from XML
+        String category = null;
+        StateDescription stateDescription = null;
+        
+        ChannelType channelType = new FunctionalChannelType(
                 channelTypeUID,
                 itemType,
                 label,
                 description,
+                category,
                 tags,
-                (URI) configDescriptionObjects[0]);
+                (URI) configDescriptionObjects[0], stateDescription);
 
         ChannelTypeXmlResult channelTypeXmlResult = new ChannelTypeXmlResult(
                 channelType, (ConfigDescription) configDescriptionObjects[1]);

@@ -29,7 +29,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
-import org.eclipse.smarthome.core.thing.type.SimpleChannelType;
+import org.eclipse.smarthome.core.thing.type.FunctionalChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.io.rest.RESTResource;
@@ -135,7 +135,7 @@ public class ThingTypeResource implements RESTResource {
         for (ChannelDefinition channelDefinition : channelDefinitions) {
             ChannelType channelType = channelDefinition.getType();
             ChannelDefinitionBean channelDefinitionBean = new ChannelDefinitionBean(channelDefinition.getId(),
-                    channelType.getLabel(), channelType.getDescription(), ((SimpleChannelType) channelType).getTags());
+                    channelType.getLabel(), channelType.getDescription(), ((FunctionalChannelType) channelType).getTags());
             channelDefinitionBeans.add(channelDefinitionBean);
         }
         return channelDefinitionBeans;

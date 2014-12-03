@@ -5,15 +5,19 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SimpleChannelType extends ChannelType {
+public class FunctionalChannelType extends ChannelType {
 
-    private String itemType;
-    private Set<String> tags;
+    private final String itemType;
+    private final Set<String> tags;
+    private final String category;
+    private final StateDescription stateDescription;
 
-    public SimpleChannelType(ChannelTypeUID uid, String itemType, String label, String description, Set<String> tags,
-            URI configDescriptionURI) throws IllegalArgumentException {
+    public FunctionalChannelType(ChannelTypeUID uid, String itemType, String label, String description,
+            String category, Set<String> tags, URI configDescriptionURI, StateDescription stateDescription)
+            throws IllegalArgumentException {
         super(uid, label, description, configDescriptionURI);
         
+        this.category = category;
 
         if ((itemType == null) || (itemType.isEmpty())) {
             throw new IllegalArgumentException("The item type must neither be null nor empty!");
@@ -26,6 +30,8 @@ public class SimpleChannelType extends ChannelType {
         } else {
             this.tags = Collections.unmodifiableSet(new HashSet<String>(0));
         }
+        
+        this.stateDescription = stateDescription;
     }
 
     /**
@@ -44,6 +50,10 @@ public class SimpleChannelType extends ChannelType {
      */
     public Set<String> getTags() {
         return this.tags;
+    }
+    
+    public String getCategory() {
+        return category;
     }
 
 }

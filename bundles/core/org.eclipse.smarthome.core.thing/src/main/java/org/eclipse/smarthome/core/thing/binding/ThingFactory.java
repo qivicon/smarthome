@@ -24,7 +24,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
-import org.eclipse.smarthome.core.thing.type.SimpleChannelType;
+import org.eclipse.smarthome.core.thing.type.FunctionalChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 
 import com.google.common.collect.Lists;
@@ -142,10 +142,10 @@ public class ThingFactory {
             ConfigDescriptionRegistry configDescriptionRegistry) {
         ChannelType type = channelDefinition.getType();
 
-        if (type instanceof SimpleChannelType) {
-            SimpleChannelType simpleChannelType = (SimpleChannelType) type;
+        if (type instanceof FunctionalChannelType) {
+            FunctionalChannelType functionalChannelType = (FunctionalChannelType) type;
             ChannelBuilder channelBuilder = ChannelBuilder.create(new ChannelUID(thingUID, channelDefinition.getId()),
-                    simpleChannelType.getItemType()).withDefaultTags(simpleChannelType.getTags());
+                    functionalChannelType.getItemType()).withDefaultTags(functionalChannelType.getTags());
 
             // initializing channels with default-values
             if (configDescriptionRegistry != null) {
