@@ -16,7 +16,7 @@ import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.thing.SimpleChannel;
+import org.eclipse.smarthome.core.thing.FunctionalChannel;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.internal.ThingImpl;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
@@ -72,9 +72,9 @@ public class ThingHelper {
 		List<Channel> channels = thing.getChannels();
 		
         for (Channel channel : channels) {
-            if (channel instanceof SimpleChannel) {
-                SimpleChannel simpleChannel = (SimpleChannel) channel;
-                String acceptedItemType = simpleChannel.getAcceptedItemType();
+            if (channel instanceof FunctionalChannel) {
+                FunctionalChannel functionalChannel = (FunctionalChannel) channel;
+                String acceptedItemType = functionalChannel.getAcceptedItemType();
                 ItemFactory itemFactory = getItemFactoryForItemType(itemFactories, acceptedItemType);
                 if (itemFactory == null) {
                     logger.warn(
@@ -219,8 +219,8 @@ public class ThingHelper {
 	private static String toString(List<Channel> channels) {
 		List<String> strings = new ArrayList<>(channels.size());
 		for (Channel channel : channels) {
-		    if(channel instanceof SimpleChannel) {
-		        strings.add(channel.getUID().toString() + '#' + ((SimpleChannel)channel).getAcceptedItemType());
+		    if(channel instanceof FunctionalChannel) {
+		        strings.add(channel.getUID().toString() + '#' + ((FunctionalChannel)channel).getAcceptedItemType());
 		    }
 		}
 		Collections.sort(strings);

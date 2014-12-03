@@ -4,14 +4,14 @@ import java.util.List;
 
 public class GroupChannel extends Channel {
 
-    private List<SimpleChannel> channels; 
+    private List<FunctionalChannel> channels; 
     
-    public GroupChannel(ChannelUID uid, List<SimpleChannel> channels) {
+    public GroupChannel(ChannelUID uid, List<FunctionalChannel> channels) {
         super(uid);
         this.channels = channels;
     }
     
-    public List<SimpleChannel> getChannels() {
+    public List<FunctionalChannel> getChannels() {
         return channels;
     }
 

@@ -6,22 +6,22 @@ import java.util.Set;
 
 import org.eclipse.smarthome.config.core.Configuration;
 
-public class SimpleChannel extends Channel {
+public class FunctionalChannel extends Channel {
 
     private String acceptedItemType;
     private Configuration configuration;
     private Set<String> defaultTags;
     
-    public SimpleChannel(ChannelUID uid, String acceptedItemType, Configuration configuration) {
+    public FunctionalChannel(ChannelUID uid, String acceptedItemType, Configuration configuration) {
         this(uid, acceptedItemType, configuration, new HashSet<String>(0));
     }
 
-    public SimpleChannel(ChannelUID uid, String acceptedItemType, Set<String> defaultTags) {
+    public FunctionalChannel(ChannelUID uid, String acceptedItemType, Set<String> defaultTags) {
         this(uid, acceptedItemType, null, defaultTags == null ? new HashSet<String>(0)
                 : defaultTags);
     }
 
-    public SimpleChannel(ChannelUID uid, String acceptedItemType, Configuration configuration,
+    public FunctionalChannel(ChannelUID uid, String acceptedItemType, Configuration configuration,
             Set<String> defaultTags) {
         super(uid);
         this.acceptedItemType = acceptedItemType;

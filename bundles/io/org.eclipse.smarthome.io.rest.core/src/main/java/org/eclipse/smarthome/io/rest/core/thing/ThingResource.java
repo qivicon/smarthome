@@ -38,7 +38,7 @@ import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
-import org.eclipse.smarthome.core.thing.SimpleChannel;
+import org.eclipse.smarthome.core.thing.FunctionalChannel;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -136,7 +136,7 @@ public class ThingResource implements RESTResource {
         try {
             itemRegistry.getItem(itemName);
         } catch (ItemNotFoundException ex) {
-            GenericItem item = itemFactory.createItem(((SimpleChannel) channel).getAcceptedItemType(), itemName);
+            GenericItem item = itemFactory.createItem(((FunctionalChannel) channel).getAcceptedItemType(), itemName);
             managedItemProvider.add(item);
         }
 
@@ -263,7 +263,7 @@ public class ThingResource implements RESTResource {
 
     private ChannelBean convertToChannelBean(Channel channel) {
         String boundItem = itemChannelLinkRegistry.getBoundItem(channel.getUID());
-        return new ChannelBean(channel.getUID().getId(), ((SimpleChannel) channel).getAcceptedItemType().toString(), boundItem);
+        return new ChannelBean(channel.getUID().getId(), ((FunctionalChannel) channel).getAcceptedItemType().toString(), boundItem);
     }
 
     private Set<ThingBean> convertToListBean(Collection<Thing> things) {

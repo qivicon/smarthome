@@ -15,6 +15,7 @@ import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
+import org.eclipse.smarthome.core.thing.type.FunctionalChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,12 +38,12 @@ public class TestHueThingTypeProvider implements ThingTypeProvider {
         try {
             thingTypes.put(TestHueThingHandlerFactory.THING_TYPE_BRIDGE, new BridgeType(
                     TestHueThingHandlerFactory.THING_TYPE_BRIDGE, null, "HueBridge", "HueBridge", null, null));
-            ChannelType ctColor = new ChannelType(new ChannelTypeUID("hue:LCT001:color"), "Color", "colorLabel",
-                    "description", null, new URI("hue", "LCT001:color", null));
+            ChannelType ctColor = new FunctionalChannelType(new ChannelTypeUID("hue:LCT001:color"), false, "Color", "colorLabel",
+                    "description", null, null, new URI("hue", "LCT001:color", null), null);
             ChannelDefinition color = new ChannelDefinition("color", ctColor);
-            ChannelType ctColorTemperature = new ChannelType(new ChannelTypeUID("hue:LCT001:color_temperature"),
-                    "Dimmer", "colorTemperatureLabel", "description", null, new URI("hue",
-                            "LCT001:color_temperature", null));
+            ChannelType ctColorTemperature = new FunctionalChannelType(new ChannelTypeUID("hue:LCT001:color_temperature"),
+                    false, "Dimmer", "colorTemperatureLabel", "description", null, null, new URI("hue",
+                            "LCT001:color_temperature", null), null);
             ChannelDefinition colorTemp = new ChannelDefinition("color_temperature", ctColorTemperature);
             thingTypes.put(
                     TestHueThingHandlerFactory.THING_TYPE_LCT001,
