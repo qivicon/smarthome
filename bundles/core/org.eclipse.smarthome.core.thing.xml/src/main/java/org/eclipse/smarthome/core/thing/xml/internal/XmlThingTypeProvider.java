@@ -201,7 +201,7 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
                 // TODO: translate these values
                 StateDescription stateDescription = null;
                 
-                ChannelType localizedChannelType = new FunctionalChannelType(channelType.getUID(),
+                ChannelType localizedChannelType = new FunctionalChannelType(channelType.getUID(), ((FunctionalChannelType) channelType).isReadOnly(),
                         functionalChannelType.getItemType(), label, description, functionalChannelType.getCategory(),
                         functionalChannelType.getTags(), channelType.getConfigDescriptionURI(), stateDescription);
                 

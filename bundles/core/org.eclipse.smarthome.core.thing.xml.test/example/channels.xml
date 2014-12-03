@@ -50,4 +50,15 @@
         </tags>
     </channel-type>
 
+    <channel-type id="alarm_feature" readOnly="false">
+        <item-type>Number</item-type>
+        <label>Alarm System</label>
+        <description>The light blinks if alarm is set.</description>
+        <category>ALARM</category>
+        <tags>
+            <tag>Hue</tag>
+            <tag>AlarmSystem</tag>
+        </tags>
+    </channel-type>
+
 </thing:thing-descriptions>

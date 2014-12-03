@@ -1,7 +1,11 @@
+
+
 package org.eclipse.smarthome.core.thing.xml.test;
 
 import static org.junit.Assert.*
 
+import org.eclipse.smarthome.core.thing.type.ChannelType
+import org.eclipse.smarthome.core.thing.type.FunctionalChannelType
 import org.eclipse.smarthome.core.thing.xml.internal.ChannelTypeXmlResult
 import org.eclipse.smarthome.core.thing.xml.internal.ThingDescriptionList
 import org.eclipse.smarthome.core.thing.xml.internal.ThingDescriptionReader
@@ -29,7 +33,11 @@ class Example {
             print it
 
             if (it instanceof ChannelTypeXmlResult) {
-                print ", tags=" + ((ChannelTypeXmlResult) it).getChannelType().getTags()
+                ChannelType channelType = ((ChannelTypeXmlResult) it).getChannelType()
+                if (channelType instanceof FunctionalChannelType) {
+                    FunctionalChannelType fChannelType = (FunctionalChannelType) channelType
+                    print ", readOnly=" + fChannelType.isReadOnly() + " tags=" + fChannelType.getTags()
+                }
             }
 
             print "\n"

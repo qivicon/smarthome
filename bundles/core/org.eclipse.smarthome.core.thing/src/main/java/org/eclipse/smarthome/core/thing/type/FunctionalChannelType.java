@@ -17,6 +17,7 @@ import org.eclipse.smarthome.core.thing.Channel;
  */
 public class FunctionalChannelType extends ChannelType {
 
+    private final boolean readOnly;
     private final String itemType;
     private final Set<String> tags;
     private final String category;
@@ -26,7 +27,9 @@ public class FunctionalChannelType extends ChannelType {
             String category, Set<String> tags, URI configDescriptionURI, StateDescription stateDescription)
             throws IllegalArgumentException {
         super(uid, label, description, configDescriptionURI);
-        
+
+
+        this.readOnly = readOnly;
         this.category = category;
 
         if ((itemType == null) || (itemType.isEmpty())) {
@@ -44,6 +47,9 @@ public class FunctionalChannelType extends ChannelType {
         this.stateDescription = stateDescription;
     }
 
+    public boolean isReadOnly() {
+        return this.readOnly;
+    }
     /**
      * Returns the item type of this {@link ChannelType}, e.g. {@code ColorItem}.
      * 
