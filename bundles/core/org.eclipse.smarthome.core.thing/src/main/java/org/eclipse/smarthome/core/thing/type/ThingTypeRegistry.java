@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 
@@ -104,7 +105,7 @@ public class ThingTypeRegistry {
 
         return null;
     }
-    
+
     /**
      * Returns a thing type for a given thing type UID.
      * 
@@ -116,6 +117,44 @@ public class ThingTypeRegistry {
     public ThingType getThingType(ThingTypeUID thingTypeUID) {
         return getThingType(thingTypeUID, null);
     }
+    
+    /**
+     * Returns a channel type for a given channel UID.
+     * 
+     * @param channelUID
+     *            channel UID
+     * @return channel type for a given channel UID or null if no channel type
+     *         with this UID was found
+     */
+    public ChannelType getChannelType(ChannelUID channelUID, Locale locale) {
+        ThingTypeUID thingTypeUID = new ThingTypeUID(channelUID.getBindingId(), channelUID.getThingTypeId());
+        ThingType thingType = getThingType(thingTypeUID, locale);
+        if(thingType != null) {
+            List<ChannelDefinition> channelDefinitions = thingType.getChannelDefinitions();
+            for (ChannelDefinition channelDefinition : channelDefinitions) {
+                if(channelDefinition.getId().equals(channelUID.getId())) {
+                    return channelDefinition.getType();
+                }
+            }
+        }
+        return null;
+    }
+    
+    
+    /**
+     * Returns a channel type for a given channel UID.
+     * 
+     * @param channelUID
+     *            channel UID
+     * @param locale
+     *            locale (can be null)
+     * @return channel type for a given channel UID or null if no channel type
+     *         with this UID was found
+     */
+    public ChannelType getChannelType(ChannelUID channelUID) {
+        return getChannelType(channelUID, null);
+    }
+    
 
     protected void addThingTypeProvider(ThingTypeProvider thingTypeProvider) {
         if (thingTypeProvider != null) {
