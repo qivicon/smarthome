@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.smarthome.automation.core.ThreadPoolRuleExecutor;
 import org.eclipse.smarthome.automation.core.module.handler.ModuleContext;
 import org.eclipse.smarthome.automation.core.module.handler.TriggerHandler;
 import org.eclipse.smarthome.automation.core.module.handler.TriggerListener;
@@ -33,7 +34,7 @@ public class UpdateTriggerHandler extends AbstractEventSubscriber implements
 		for (Entry<ModuleContext, TriggerListener> entry : listeners.entrySet()) {
 			if (itemName.equals(entry.getKey().getInputParameter("itemName"))) {
 				entry.getKey().addOutputParameter("state", newState.toString());
-				entry.getValue().execute(entry.getKey());
+				ThreadPoolRuleExecutor.execute(entry.getKey(), entry.getValue());
 			}
 		}
 	}
