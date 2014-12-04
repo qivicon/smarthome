@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.thing.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.internal.ThingImpl;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
 import org.osgi.framework.BundleContext;
@@ -30,6 +32,10 @@ import com.google.common.base.Joiner;
  * {@link ThingHelper} provides a utility method to create and bind items.
  * 
  * @author Oliver Libutzki - Initial contribution
+ * @author Andre Fuechsel - graceful creation of items and links
+ * @author Benedikt Niehues - Fix ESH Bug 450236
+ *         https://bugs.eclipse.org/bugs/show_bug.cgi?id=450236 - Considering
+ *         ThingTypeDescription
  */
 public class ThingHelper {
 
@@ -74,14 +80,32 @@ public class ThingHelper {
 				if (item == null) {
 					logger.error("The item of type '{}' has not been created by the ItemFactory '{}'.", acceptedItemType, itemFactory.getClass().getName());
 				} else {
-					managedItemProvider.add(item);
-                    managedItemChannelLinkProvider.add(new ItemChannelLink(item
-                            .getName(), channel.getUID()));
+                    createItemIfNecessary(managedItemProvider, item);
+                    createLinkIfNecessary(managedItemChannelLinkProvider, item, channel);
 				}
 			}
 		}
 	}
 	
+    private void createItemIfNecessary(ManagedItemProvider managedItemProvider, GenericItem item) {
+        if (managedItemProvider.get(item.getName()) == null) {
+            managedItemProvider.add(item);
+        } else {
+            logger.warn("Item {} exists and will be reused.", item.getName());
+        }
+    }
+
+    private void createLinkIfNecessary(
+            ManagedItemChannelLinkProvider managedItemChannelLinkProvider, GenericItem item,
+            Channel channel) {
+        ItemChannelLink itemChannelLink = new ItemChannelLink(item.getName(), channel.getUID());
+        if (managedItemChannelLinkProvider.get(itemChannelLink.getID()) == null) {
+            managedItemChannelLinkProvider.add(itemChannelLink);
+        } else {
+            logger.warn("Link {} exists and will be resused.", itemChannelLink.getID());
+        }
+    }
+
     private String toItemName(Channel channel) {
         String channelUID = channel.getUID().toString();
         String itemName = channelUID.replaceAll("[^a-zA-Z0-9_]", "_");
@@ -194,4 +218,7 @@ public class ThingHelper {
 		return Joiner.on(',').join(strings);
 	}
 	
+	public static void addChannelsToThing(Thing thing, Collection<Channel> channels) {
+	    ((ThingImpl)thing).getChannelsMutable().addAll(channels);
+	}
 }
