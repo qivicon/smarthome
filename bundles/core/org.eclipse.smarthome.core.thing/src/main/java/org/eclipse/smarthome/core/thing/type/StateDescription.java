@@ -5,7 +5,7 @@ import java.util.List;
 
 public class StateDescription {
 
-    public class State {
+    public static class State {
         private String value;
         private String label;
 
@@ -21,6 +21,11 @@ public class StateDescription {
         public String getLabel() {
             return label;
         }
+
+        @Override
+        public String toString() {
+            return "State [value=" + value + ", label=" + label + "]";
+        }
     }
 
     private BigDecimal minimum;
@@ -29,6 +34,7 @@ public class StateDescription {
     private String format;
     private List<State> states;
 
+
     public StateDescription(BigDecimal minimum, BigDecimal maximum, BigDecimal stepSize, String format,
             List<State> states) {
         this.minimum = minimum;
@@ -36,6 +42,13 @@ public class StateDescription {
         this.stepSize = stepSize;
         this.format = format;
         this.states = states;
+    }
+
+    @Override
+    public String toString() {
+        return "StateDescription [minimum=" + minimum + ", maximum=" + maximum
+                + ", stepSize=" + stepSize + ", format=" + format + ", states="
+                + states + "]";
     }
 
 }

@@ -66,6 +66,7 @@
             <xs:element name="description" type="xs:string" minOccurs="0"/>
             <xs:element name="category" type="xs:string" minOccurs="0"/>
             <xs:element name="tags" type="thing-description:tags" minOccurs="0"/>
+            <xs:element name="state-description" type="thing-description:stateDescription" minOccurs="0"/>
             <xs:choice minOccurs="0">
                 <xs:element name="config-description" type="config-description:configDescription"/>
                 <xs:element name="config-description-ref" type="config-description:configDescriptionRef"/>
@@ -79,6 +80,39 @@
         <xs:sequence>
             <xs:element name="tag" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="stateDescription">
+        <xs:all>
+            <xs:element name="range" type="thing-description:range" minOccurs="0"/>
+            <xs:element name="step" type="thing-description:step" minOccurs="0"/>
+            <xs:element name="format" type="thing-description:format" minOccurs="0"/>
+            <xs:element name="states" type="thing-description:states" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="range">
+        <xs:attribute name="min" type="xs:decimal" use="required"/>
+        <xs:attribute name="max" type="xs:decimal" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="step">
+        <xs:attribute name="size" type="xs:decimal" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="format">
+        <xs:attribute name="pattern" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="states">
+        <xs:sequence>
+            <xs:element name="state" type="thing-description:state" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="state">
+        <xs:attribute name="value" type="xs:string" use="required"/>
+        <xs:attribute name="label" type="xs:string" use="required"/>
     </xs:complexType>
 
 </xs:schema>

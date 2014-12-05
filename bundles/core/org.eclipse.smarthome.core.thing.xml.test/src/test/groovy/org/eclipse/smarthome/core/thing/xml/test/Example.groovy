@@ -36,7 +36,8 @@ class Example {
                 ChannelType channelType = ((ChannelTypeXmlResult) it).getChannelType()
                 if (channelType instanceof FunctionalChannelType) {
                     FunctionalChannelType fChannelType = (FunctionalChannelType) channelType
-                    print ", readOnly=" + fChannelType.isReadOnly() + " tags=" + fChannelType.getTags()
+                    print ", readOnly=" + fChannelType.isReadOnly() + " category=" +
+                            fChannelType.getCategory() + " tags=" + fChannelType.getTags()
                 }
             }
 

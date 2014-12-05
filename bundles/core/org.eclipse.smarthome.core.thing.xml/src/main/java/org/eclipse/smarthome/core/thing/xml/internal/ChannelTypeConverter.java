@@ -83,6 +83,20 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         return tags; 
     }
 
+    private StateDescription readStateDescription(NodeIterator nodeIterator) {
+        Object nextNode = nodeIterator.next();
+
+        if (nextNode != null) {
+            if (nextNode instanceof StateDescription) {
+                return (StateDescription) nextNode;
+            }
+
+            nodeIterator.revert();
+        }
+
+        return null;
+    }
+
     @Override
     protected ChannelTypeXmlResult unmarshalType(
             HierarchicalStreamReader reader, UnmarshallingContext context,
@@ -96,10 +110,9 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         String description = super.readDescription(nodeIterator);
         String category = readCategory(nodeIterator);
         Set<String> tags = readTags(nodeIterator);
+        StateDescription stateDescription = readStateDescription(nodeIterator);
         Object[] configDescriptionObjects = super.getConfigDescriptionObjects(nodeIterator);
 
-        StateDescription stateDescription = null;
-        
         ChannelType channelType = new FunctionalChannelType(
                 channelTypeUID,
                 readOnly,
@@ -108,7 +121,8 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
                 description,
                 category,
                 tags,
-                (URI) configDescriptionObjects[0], stateDescription);
+                stateDescription,
+                (URI) configDescriptionObjects[0]);
 
         ChannelTypeXmlResult channelTypeXmlResult = new ChannelTypeXmlResult(
                 channelType, (ConfigDescription) configDescriptionObjects[1]);

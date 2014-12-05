@@ -203,7 +203,7 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
                 
                 ChannelType localizedChannelType = new FunctionalChannelType(channelType.getUID(), ((FunctionalChannelType) channelType).isReadOnly(),
                         functionalChannelType.getItemType(), label, description, functionalChannelType.getCategory(),
-                        functionalChannelType.getTags(), channelType.getConfigDescriptionURI(), stateDescription);
+                        functionalChannelType.getTags(), stateDescription, channelType.getConfigDescriptionURI());
                 
                 return new ChannelDefinition(channelDefinition.getId(), localizedChannelType);
             } else {

@@ -50,7 +50,7 @@
         </tags>
     </channel-type>
 
-    <channel-type id="alarm_feature" readOnly="false">
+    <channel-type id="alarm" readOnly="true">
         <item-type>Number</item-type>
         <label>Alarm System</label>
         <description>The light blinks if alarm is set.</description>
@@ -59,6 +59,15 @@
             <tag>Hue</tag>
             <tag>AlarmSystem</tag>
         </tags>
+        <state-description>
+            <range min="0" max="100.0" />
+            <step size="10.0" />
+            <format pattern="%d Celsius" />
+            <states>
+                <state value="Light" label="Light" />
+                <state value="Sound" label="Sound" />
+            </states>
+        </state-description>
     </channel-type>
 
 </thing:thing-descriptions>

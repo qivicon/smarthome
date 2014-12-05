@@ -23,8 +23,10 @@ public class FunctionalChannelType extends ChannelType {
     private final String category;
     private final StateDescription stateDescription;
 
+    // nur mandatory in konstruktor
+
     public FunctionalChannelType(ChannelTypeUID uid, boolean readOnly, String itemType, String label, String description,
-            String category, Set<String> tags, URI configDescriptionURI, StateDescription stateDescription)
+            String category, Set<String> tags, StateDescription stateDescription, URI configDescriptionURI)
             throws IllegalArgumentException {
         super(uid, label, description, configDescriptionURI);
 
