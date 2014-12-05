@@ -7,11 +7,18 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingRegistryChangeListener;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
-import org.eclipse.smarthome.io.rest.core.thing.ThingResource;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ThingBean;
+import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 import org.eclipse.smarthome.io.sse.EventType;
 import org.eclipse.smarthome.io.sse.SseResource;
 
+/**
+ * Listener responsible for broadcasting thing registry events to all clients
+ * subscribed to them.
+ * 
+ * @author ivan.iliev
+ * 
+ */
 public class ThingRegistryEventListener implements ThingRegistryChangeListener {
 
     private ThingRegistry thingRegistry;
@@ -48,39 +55,33 @@ public class ThingRegistryEventListener implements ThingRegistryChangeListener {
 
     @Override
     public void added(Thing element) {
-        String eventMessage = "New thing was added to the thing registry: " + element.getUID();
-
-        broadcastThingEvent(eventMessage, EventType.THING_ADDED, element);
+        broadcastThingEvent(element.getUID().getId(), EventType.THING_ADDED, element);
 
     }
 
     @Override
     public void removed(Thing element) {
-        String eventMessage = "Thing was removed from the thing registry: " + element.getUID();
-
-        broadcastThingEvent(eventMessage, EventType.THING_REMOVED, element);
+        broadcastThingEvent(element.getUID().getId(), EventType.THING_REMOVED, element);
     }
 
     @Override
     public void updated(Thing oldElement, Thing element) {
-        String eventMessage = "Thing was updated in the thing registry: " + element.getUID();
-
-        broadcastThingEvent(eventMessage, EventType.THING_UPDATED, element);
+        broadcastThingEvent(element.getUID().getId(), EventType.THING_UPDATED, oldElement, element);
     }
 
-    private void broadcastThingEvent(String eventMessage, EventType eventType, Thing... elements) {
+    private void broadcastThingEvent(String thingIdentifier, EventType eventType, Thing... elements) {
         Object eventObject = null;
         if (elements != null && elements.length > 0) {
             List<ThingBean> thingBeans = new ArrayList<ThingBean>();
 
             for (Thing thing : elements) {
-                thingBeans.add(ThingResource.convertToThingBean(thing, itemChannelLinkRegistry));
+                thingBeans.add(BeanMapper.mapThingToBean(thing, itemChannelLinkRegistry));
             }
 
             eventObject = thingBeans;
         }
 
-        sseResource.broadcastEvent(eventMessage, eventType, eventObject);
+        sseResource.broadcastEvent(thingIdentifier, eventType, eventObject);
     }
 
 }

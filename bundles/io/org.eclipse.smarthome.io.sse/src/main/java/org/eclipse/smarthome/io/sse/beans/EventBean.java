@@ -1,12 +1,14 @@
 package org.eclipse.smarthome.io.sse.beans;
 
-import org.eclipse.smarthome.io.sse.EventType;
-
+/**
+ * Event bean for broadcasted events.
+ * 
+ * @author ivan.iliev
+ * 
+ */
 public class EventBean {
 
-    public EventType eventType;
-
-    public String eventMessage;
+    public String eventType;
 
     public Object eventObject;
 

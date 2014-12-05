@@ -7,19 +7,16 @@ import org.eclipse.smarthome.io.sse.beans.EventBean;
 import org.glassfish.jersey.media.sse.OutboundEvent;
 
 public class SseUtil {
-    public static OutboundEvent buildEvent(EventType eventType, String eventMessage,
-            Object eventObject) {
+    public static OutboundEvent buildEvent(EventType eventType, String objectIdentifier, Object eventObject) {
 
         EventBean eventBean = new EventBean();
-        eventBean.eventType = eventType;
-        eventBean.eventMessage = eventMessage;
+        eventBean.eventType = eventType.getFullNameWithIdentifier(objectIdentifier);
         eventBean.eventObject = eventObject;
 
         OutboundEvent.Builder eventBuilder = new OutboundEvent.Builder();
-        OutboundEvent event = eventBuilder.name("message")
-                .mediaType(MediaType.APPLICATION_JSON_TYPE).data(eventBean).build();
+        OutboundEvent event = eventBuilder.name("message").mediaType(MediaType.APPLICATION_JSON_TYPE).data(eventBean)
+                .build();
 
         return event;
-
     }
 }

@@ -7,11 +7,18 @@ import java.util.List;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
-import org.eclipse.smarthome.io.rest.core.item.ItemResource;
 import org.eclipse.smarthome.io.rest.core.item.beans.ItemBean;
+import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 import org.eclipse.smarthome.io.sse.EventType;
 import org.eclipse.smarthome.io.sse.SseResource;
 
+/**
+ * Listener responsible for broadcasting item registry events to all clients
+ * subscribed to them.
+ * 
+ * @author ivan.iliev
+ * 
+ */
 public class ItemRegistryEventListener implements ItemRegistryChangeListener {
 
     private ItemRegistry itemRegistry;
@@ -38,23 +45,17 @@ public class ItemRegistryEventListener implements ItemRegistryChangeListener {
 
     @Override
     public void added(Item element) {
-        String eventMessage = "New item was added to the item registry: " + element.getName();
-
-        broadcastItemEvent(eventMessage, EventType.ITEM_ADDED, element);
+        broadcastItemEvent(element.getName(), EventType.ITEM_ADDED, element);
     }
 
     @Override
     public void removed(Item element) {
-        String eventMessage = "Item was removed from the item registry : " + element.getName();
-
-        broadcastItemEvent(eventMessage, EventType.ITEM_REMOVED, element);
+        broadcastItemEvent(element.getName(), EventType.ITEM_REMOVED, element);
     }
 
     @Override
     public void updated(Item oldElement, Item element) {
-        String eventMessage = "Item was updated in the item registry: " + element.getName();
-
-        broadcastItemEvent(eventMessage, EventType.ITEM_UPDATED, oldElement, element);
+        broadcastItemEvent(element.getName(), EventType.ITEM_UPDATED, oldElement, element);
     }
 
     @Override
@@ -62,19 +63,19 @@ public class ItemRegistryEventListener implements ItemRegistryChangeListener {
 
     }
 
-    private void broadcastItemEvent(String eventMessage, EventType eventType, Item... elements) {
+    private void broadcastItemEvent(String itemIdentifier, EventType eventType, Item... elements) {
         Object eventObject = null;
         if (elements != null && elements.length > 0) {
             List<ItemBean> itemBeans = new ArrayList<ItemBean>();
 
             for (Item item : elements) {
-                itemBeans.add(ItemResource.createItemBean(item, false, "/"));
+                itemBeans.add(BeanMapper.mapItemToBean(item, false, "/"));
             }
 
             eventObject = itemBeans;
         }
 
-        sseResource.broadcastEvent(eventMessage, eventType, eventObject);
+        sseResource.broadcastEvent(itemIdentifier, eventType, eventObject);
     }
 
 }
