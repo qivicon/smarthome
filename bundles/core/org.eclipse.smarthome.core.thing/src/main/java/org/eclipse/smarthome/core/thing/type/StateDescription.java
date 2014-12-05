@@ -37,5 +37,25 @@ public class StateDescription {
         this.format = format;
         this.states = states;
     }
+    
+    public BigDecimal getMinimum() {
+        return minimum;
+    }
+    
+    public BigDecimal getMaximum() {
+        return maximum;
+    }
+    
+    public String getFormat() {
+        return format;
+    }
+    
+    public List<State> getStates() {
+        return states;
+    }
+    
+    public BigDecimal getStepSize() {
+        return stepSize;
+    }
 
 }
