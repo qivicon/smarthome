@@ -38,6 +38,8 @@ import org.eclipse.smarthome.model.thing.thing.ModelBridge
 import org.eclipse.smarthome.core.common.registry.AbstractProvider
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import java.util.concurrent.CopyOnWriteArrayList
+import org.eclipse.smarthome.core.thing.FunctionalChannel
+import org.eclipse.smarthome.core.thing.type.FunctionalChannelType
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
@@ -202,7 +204,9 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 	}
 
 	def dispatch void merge(Channel target, Channel source) {
-		target.configuration.merge(source.configuration)
+		if(target instanceof FunctionalChannel && source instanceof FunctionalChannel) {
+			(target as FunctionalChannel).configuration.merge((source as FunctionalChannel).configuration)
+		}
 	}
 
 	def private getParentPath(Bridge bridge) {
@@ -222,7 +226,11 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 		]
 		channelDefinitions.forEach [
 			if (addedChannelIds.add(id)) {
-				channels += ChannelBuilder.create(new ChannelUID(thingUID, id), it.type.itemType).build
+				if(it.type instanceof FunctionalChannelType) {
+					channels += ChannelBuilder.create(new ChannelUID(thingUID, id), 
+						(it.type as FunctionalChannelType).itemType
+					).build
+				}
 			}
 		]
 		channels

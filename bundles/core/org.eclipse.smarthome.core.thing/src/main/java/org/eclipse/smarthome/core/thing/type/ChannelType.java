@@ -22,7 +22,7 @@ import org.eclipse.smarthome.core.thing.Channel;
  * 
  * @author Michael Grammling - Initial Contribution
  */
-public class ChannelType extends AbstractDescriptionType {
+public abstract class ChannelType extends AbstractDescriptionType {
 
     /**
      * Creates a new instance of this class with the specified parameters.

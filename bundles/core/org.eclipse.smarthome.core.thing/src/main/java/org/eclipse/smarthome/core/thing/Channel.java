@@ -19,7 +19,7 @@ import org.eclipse.smarthome.core.items.Item;
  * @author Alex Tugarev - Extended about default tags
  * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering default values
  */
-public class Channel {
+public abstract class Channel {
 
     private ChannelUID uid;
 

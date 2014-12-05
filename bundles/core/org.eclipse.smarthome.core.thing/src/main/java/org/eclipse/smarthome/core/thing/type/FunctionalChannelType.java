@@ -74,4 +74,7 @@ public class FunctionalChannelType extends ChannelType {
         return category;
     }
 
+    public StateDescription getStateDescription() {
+        return stateDescription;
+    }
 }
