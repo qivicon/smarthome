@@ -17,7 +17,7 @@ import org.junit.Test
  * can be used. This example can also be used for manual tests when the schema is extended or
  * changed.
  * 
- * @author Michael Grammling
+ * @author Michael Grammling - Initial Contribution.
  */
 class Example {
 
@@ -36,8 +36,9 @@ class Example {
                 ChannelType channelType = ((ChannelTypeXmlResult) it).getChannelType()
                 if (channelType instanceof FunctionalChannelType) {
                     FunctionalChannelType fChannelType = (FunctionalChannelType) channelType
-                    print ", readOnly=" + fChannelType.isReadOnly() + " category=" +
-                            fChannelType.getCategory() + " tags=" + fChannelType.getTags()
+                    print ", readOnly=" + fChannelType.isReadOnly() + ", category=" +
+                            fChannelType.getCategory() + ", tags=" + fChannelType.getTags() +
+                            ", stateDescription=" + fChannelType.getStateDescription()
                 }
             }
 

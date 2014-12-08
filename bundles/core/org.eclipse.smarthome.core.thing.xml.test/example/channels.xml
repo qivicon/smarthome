@@ -50,7 +50,8 @@
         </tags>
     </channel-type>
 
-    <channel-type id="alarm" readOnly="true">
+    <!-- Alarm Channel -->
+    <channel-type id="alarm">
         <item-type>Number</item-type>
         <label>Alarm System</label>
         <description>The light blinks if alarm is set.</description>
@@ -64,10 +65,37 @@
             <step size="10.0" />
             <format pattern="%d Celsius" />
             <states>
-                <state value="Light" label="Light" />
-                <state value="Sound" label="Sound" />
+                <state value="LIGHT" label="Light" />
+                <state value="SOUND" label="Sound" />
             </states>
         </state-description>
     </channel-type>
+
+    <!-- Motion Channel -->
+    <channel-type id="motion" readOnly="true">
+        <item-type>Number</item-type>
+        <label>Motion Sensor</label>
+        <description>The sensor detecting motion.</description>
+        <category>MOTION</category>
+        <tags>
+            <tag>Hue</tag>
+            <tag>AlarmSystem</tag>
+        </tags>
+    </channel-type>
+
+    <!-- Alarm System Channel -->
+    <channel-group-type id="alarm_system">
+        <item-type>Number</item-type>
+        <label>Alarm System</label>
+        <description>The alarm system.</description>
+        <tags>
+            <tag>Hue</tag>
+            <tag>AlarmSystem</tag>
+        </tags>
+        <channels>
+            <channel id="alarm" typeId="alarm"/>
+            <channel id="motion" typeId="motion"/>
+        </channels>
+    </channel-group-type>
 
 </thing:thing-descriptions>

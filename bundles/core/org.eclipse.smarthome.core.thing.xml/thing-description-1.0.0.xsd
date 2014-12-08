@@ -13,6 +13,7 @@
                 <xs:element name="thing-type" type="thing-description:thingType"/>
                 <xs:element name="bridge-type" type="thing-description:bridgeType"/>
                 <xs:element name="channel-type" type="thing-description:channelType"/>
+                <xs:element name="channel-group-type" type="thing-description:channelGroupType"/>
             </xs:choice>
             <xs:attribute name="bindingId" type="config-description:idRestrictionPattern" use="required"/>
         </xs:complexType>
@@ -23,7 +24,7 @@
             <xs:element name="supported-bridge-type-refs" type="thing-description:supportedBridgeTypeRefs" minOccurs="0"/>
             <xs:element name="label" type="xs:string"/>
             <xs:element name="description" type="xs:string" minOccurs="0"/>
-            <xs:element name="channels" type="thing-description:channels" minOccurs="0"/>
+            <xs:element name="channels" type="thing-description:complexChannels" minOccurs="0"/>
             <xs:choice minOccurs="0">
                 <xs:element name="config-description" type="config-description:configDescription"/>
                 <xs:element name="config-description-ref" type="config-description:configDescriptionRef"/>
@@ -42,10 +43,17 @@
         <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
     </xs:complexType>
 
-    <xs:complexType name="channels">
+    <xs:complexType name="simpleChannels">
         <xs:sequence>
             <xs:element name="channel" type="thing-description:channel" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="complexChannels">
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="channel" type="thing-description:channel"/>
+            <xs:element name="channel-group" type="thing-description:channelGroup"/>
+        </xs:choice>
     </xs:complexType>
 
     <xs:complexType name="bridgeType">
@@ -74,6 +82,18 @@
         </xs:sequence>
         <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
         <xs:attribute name="readOnly" type="xs:boolean" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="channelGroup">
+        <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
+        <xs:attribute name="typeId" type="config-description:idRestrictionPattern" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="channelGroupType">
+        <xs:sequence>
+            <xs:element name="channels" type="thing-description:simpleChannels" minOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="tags">

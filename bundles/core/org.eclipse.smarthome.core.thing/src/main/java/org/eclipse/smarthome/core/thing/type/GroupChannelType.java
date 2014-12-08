@@ -11,7 +11,7 @@ public class GroupChannelType extends ChannelType {
     private Set<String> tags;
 
     public GroupChannelType(ChannelTypeUID uid, String itemType, String label, String description, Set<String> tags,
-            URI configDescriptionURI, List<ChannelDefinition> channelDefinitions) throws IllegalArgumentException {
+            List<ChannelDefinition> channelDefinitions, URI configDescriptionURI) throws IllegalArgumentException {
         super(uid, label, description, configDescriptionURI);
         this.channelDefinitions = channelDefinitions;
     }

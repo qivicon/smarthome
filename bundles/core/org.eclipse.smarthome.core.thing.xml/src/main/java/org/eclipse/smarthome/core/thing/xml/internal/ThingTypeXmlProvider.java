@@ -40,7 +40,7 @@ import com.thoughtworks.xstream.converters.ConversionException;
  * The {@link ThingTypeXmlProvider} uses an internal cache consisting of {@link #thingTypes} and
  * {@link #channelTypes}. This cache is used to merge the {@link ChannelType} definitions with the
  * {@link ThingTypeXmlResult} objects to create a valid {@link ThingType}. After the merge process
- * has finished, the cache is cleared again. The merge process is started when
+ * has been finished, the cache is cleared again. The merge process is started when
  * {@link #addingFinished()} is invoked from the according {@link XmlDocumentBundleTracker}. 
  * 
  * @author Michael Grammling - Initial Contribution
