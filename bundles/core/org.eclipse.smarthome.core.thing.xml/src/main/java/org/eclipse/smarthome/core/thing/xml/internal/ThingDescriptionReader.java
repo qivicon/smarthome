@@ -20,7 +20,6 @@ import org.eclipse.smarthome.config.xml.util.NodeListConverter;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.config.xml.util.NodeValueConverter;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
-import org.eclipse.smarthome.core.thing.type.StateDescription;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -54,7 +53,7 @@ public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
         xstream.registerConverter(new BridgeTypeConverter());
         xstream.registerConverter(new ChannelTypeConverter());
         xstream.registerConverter(new ChannelGroupTypeConverter());
-        xstream.registerConverter(new StateDescriptionConverter());
+//        xstream.registerConverter(new StateDescriptionConverter());
         xstream.registerConverter(new ConfigDescriptionConverter());
         xstream.registerConverter(new ConfigDescriptionParameterConverter());
     }
@@ -76,12 +75,12 @@ public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
         xstream.alias("category", NodeValue.class);
         xstream.alias("tags", NodeList.class);
         xstream.alias("tag", NodeValue.class);
-        xstream.alias("state-description", StateDescription.class);
-        xstream.alias("range", NodeAttributes.class);
-        xstream.alias("step", NodeAttributes.class);
-        xstream.alias("format", NodeAttributes.class);
-        xstream.alias("states", NodeList.class);
-        xstream.alias("state", NodeAttributes.class);
+//        xstream.alias("state-description", StateDescription.class);
+//        xstream.alias("range", NodeAttributes.class);
+//        xstream.alias("step", NodeAttributes.class);
+//        xstream.alias("format", NodeAttributes.class);
+//        xstream.alias("states", NodeList.class);
+//        xstream.alias("state", NodeAttributes.class);
         xstream.alias("config-descriptions", NodeList.class);
         xstream.alias("config-description", ConfigDescription.class);
         xstream.alias("config-description-ref", NodeAttributes.class);

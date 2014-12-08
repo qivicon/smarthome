@@ -23,7 +23,7 @@ import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
-
+// TODO: Javadoc
 /**
  * The {@link AbstractDescriptionTypeConverter} is an abstract implementation of the
  * {@code XStream} {@link Converter} interface used as helper class to convert type
@@ -180,7 +180,7 @@ public abstract class AbstractDescriptionTypeConverter<T> extends GenericUnmarsh
             throws ConversionException;
 
     @Override
-    public final Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
+    public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         // read attributes
         Map<String, String> attributes = this.attributeMapValidator.readValidatedAttributes(reader);
 

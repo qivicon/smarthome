@@ -46,7 +46,20 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
 
         super.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] {
                 { "id", "true" },
-                { "readOnly", "false" }});
+                { "advanced", "false" }});
+    }
+
+    private boolean isAdvanced(Map<String, String> attributes) throws ConversionException {
+        Object advancedObj = attributes.get("advanced");
+        if (advancedObj != null) {
+            if (advancedObj instanceof Boolean) {
+                return Boolean.valueOf((Boolean) advancedObj);
+            } else {
+                throw new ConversionException("The attribute 'advanced' must be a boolean!");
+            }
+        }
+
+        return false;
     }
 
     private String readItemType(NodeIterator nodeIterator) throws ConversionException {
@@ -83,7 +96,7 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         return tags; 
     }
 
-    private StateDescription readStateDescription(NodeIterator nodeIterator) {
+    private StateDescription readState(NodeIterator nodeIterator) {
         Object nextNode = nodeIterator.next();
 
         if (nextNode != null) {
@@ -104,13 +117,15 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
             throws ConversionException {
 
         ChannelTypeUID channelTypeUID = new ChannelTypeUID(super.getUID(attributes, context));
-        boolean readOnly = Boolean.valueOf(attributes.get("readOnly"));
+        boolean advanced = isAdvanced(attributes);
         String itemType = readItemType(nodeIterator);
         String label = super.readLabel(nodeIterator);
         String description = super.readDescription(nodeIterator);
         String category = readCategory(nodeIterator);
         Set<String> tags = readTags(nodeIterator);
-        StateDescription stateDescription = readStateDescription(nodeIterator);
+
+        StateDescription stateDescription = readState(nodeIterator);
+
         Object[] configDescriptionObjects = super.getConfigDescriptionObjects(nodeIterator);
 
         ChannelType channelType = new FunctionalChannelType(

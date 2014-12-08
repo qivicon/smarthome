@@ -51,28 +51,25 @@
     </channel-type>
 
     <!-- Alarm Channel -->
-    <channel-type id="alarm">
-        <item-type>Number</item-type>
-        <label>Alarm System</label>
-        <description>The light blinks if alarm is set.</description>
-        <category>ALARM</category>
-        <tags>
-            <tag>Hue</tag>
-            <tag>AlarmSystem</tag>
-        </tags>
-        <state-description>
-            <range min="0" max="100.0" />
-            <step size="10.0" />
-            <format pattern="%d Celsius" />
-            <states>
-                <state value="LIGHT" label="Light" />
-                <state value="SOUND" label="Sound" />
-            </states>
-        </state-description>
-    </channel-type>
+<!--     <channel-type id="alarm"> -->
+<!--         <item-type>Number</item-type> -->
+<!--         <label>Alarm System</label> -->
+<!--         <description>The light blinks if alarm is set.</description> -->
+<!--         <category>ALARM</category> -->
+<!--         <tags> -->
+<!--             <tag>Hue</tag> -->
+<!--             <tag>AlarmSystem</tag> -->
+<!--         </tags> -->
+<!--         <state min="0" max="100.0" size="10.0" pattern="%d Peek"> -->
+<!--             <options> -->
+<!--                 <option value="SOUND">SOUND</option> -->
+<!--                 <option value="LIGHT"/> -->
+<!--             </options> -->
+<!--         </state> -->
+<!--     </channel-type> -->
 
     <!-- Motion Channel -->
-    <channel-type id="motion" readOnly="true">
+    <channel-type id="motion" advanced="true">
         <item-type>Number</item-type>
         <label>Motion Sensor</label>
         <description>The sensor detecting motion.</description>
@@ -84,17 +81,12 @@
     </channel-type>
 
     <!-- Alarm System Channel -->
-    <channel-group-type id="alarm_system">
-        <item-type>Number</item-type>
+    <channel-group-type id="alarm_system" advanced="false">
         <label>Alarm System</label>
         <description>The alarm system.</description>
-        <tags>
-            <tag>Hue</tag>
-            <tag>AlarmSystem</tag>
-        </tags>
         <channels>
-            <channel id="alarm" typeId="alarm"/>
-            <channel id="motion" typeId="motion"/>
+            <channel id="alarmId" typeId="alarm"/>
+            <channel id="motionId" typeId="motion"/>
         </channels>
     </channel-group-type>
 
