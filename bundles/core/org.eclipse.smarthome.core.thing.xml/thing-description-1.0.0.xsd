@@ -24,13 +24,49 @@
             <xs:element name="supported-bridge-type-refs" type="thing-description:supportedBridgeTypeRefs" minOccurs="0"/>
             <xs:element name="label" type="xs:string"/>
             <xs:element name="description" type="xs:string" minOccurs="0"/>
-            <xs:element name="channels" type="thing-description:complexChannels" minOccurs="0"/>
+            <xs:choice minOccurs="0">
+                <xs:element name="channels" type="thing-description:channels"/>
+                <xs:element name="channel-groups" type="thing-description:channelGroups"/>
+            </xs:choice>
             <xs:choice minOccurs="0">
                 <xs:element name="config-description" type="config-description:configDescription"/>
                 <xs:element name="config-description-ref" type="config-description:configDescriptionRef"/>
             </xs:choice>
         </xs:sequence>
         <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="bridgeType">
+        <xs:complexContent>
+            <xs:extension base="thing-description:thingType"/>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="channelType">
+        <xs:sequence>
+            <xs:element name="item-type" type="xs:string"/>
+            <xs:element name="label" type="xs:string"/>
+            <xs:element name="description" type="xs:string" minOccurs="0"/>
+            <xs:element name="category" type="xs:string" minOccurs="0"/>
+            <xs:element name="tags" type="thing-description:tags" minOccurs="0"/>
+            <xs:element name="state" type="thing-description:state" minOccurs="0"/>
+            <xs:choice minOccurs="0">
+                <xs:element name="config-description" type="config-description:configDescription"/>
+                <xs:element name="config-description-ref" type="config-description:configDescriptionRef"/>
+            </xs:choice>
+        </xs:sequence>
+        <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
+        <xs:attribute name="advanced" type="xs:boolean" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="channelGroupType">
+        <xs:sequence>
+            <xs:element name="label" type="xs:string"/>
+            <xs:element name="description" type="xs:string" minOccurs="0"/>
+            <xs:element name="channels" type="thing-description:channels" minOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
+        <xs:attribute name="advanced" type="xs:boolean" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="supportedBridgeTypeRefs">
@@ -43,23 +79,10 @@
         <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
     </xs:complexType>
 
-    <xs:complexType name="simpleChannels">
+    <xs:complexType name="channels">
         <xs:sequence>
             <xs:element name="channel" type="thing-description:channel" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="complexChannels">
-        <xs:choice minOccurs="1" maxOccurs="unbounded">
-            <xs:element name="channel" type="thing-description:channel"/>
-            <xs:element name="channel-group" type="thing-description:channelGroup"/>
-        </xs:choice>
-    </xs:complexType>
-
-    <xs:complexType name="bridgeType">
-        <xs:complexContent>
-            <xs:extension base="thing-description:thingType"/>
-        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="channel">
@@ -67,33 +90,15 @@
         <xs:attribute name="typeId" type="config-description:idRestrictionPattern" use="required"/>
     </xs:complexType>
 
-    <xs:complexType name="channelType">
+    <xs:complexType name="channelGroups">
         <xs:sequence>
-            <xs:element name="item-type" type="xs:string"/>
-            <xs:element name="label" type="xs:string"/>
-            <xs:element name="description" type="xs:string" minOccurs="0"/>
-            <xs:element name="category" type="xs:string" minOccurs="0"/>
-            <xs:element name="tags" type="thing-description:tags" minOccurs="0"/>
-            <xs:element name="state-description" type="thing-description:stateDescription" minOccurs="0"/>
-            <xs:choice minOccurs="0">
-                <xs:element name="config-description" type="config-description:configDescription"/>
-                <xs:element name="config-description-ref" type="config-description:configDescriptionRef"/>
-            </xs:choice>
+            <xs:element name="channel-group" type="thing-description:channelGroup" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
-        <xs:attribute name="readOnly" type="xs:boolean" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="channelGroup">
         <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
         <xs:attribute name="typeId" type="config-description:idRestrictionPattern" use="required"/>
-    </xs:complexType>
-
-    <xs:complexType name="channelGroupType">
-        <xs:sequence>
-            <xs:element name="channels" type="thing-description:simpleChannels" minOccurs="1"/>
-        </xs:sequence>
-        <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="tags">
@@ -102,37 +107,29 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="stateDescription">
-        <xs:all>
-            <xs:element name="range" type="thing-description:range" minOccurs="0"/>
-            <xs:element name="step" type="thing-description:step" minOccurs="0"/>
-            <xs:element name="format" type="thing-description:format" minOccurs="0"/>
-            <xs:element name="states" type="thing-description:states" minOccurs="0"/>
-        </xs:all>
-    </xs:complexType>
-
-    <xs:complexType name="range">
-        <xs:attribute name="min" type="xs:decimal" use="required"/>
-        <xs:attribute name="max" type="xs:decimal" use="required"/>
-    </xs:complexType>
-
-    <xs:complexType name="step">
-        <xs:attribute name="size" type="xs:decimal" use="required"/>
-    </xs:complexType>
-
-    <xs:complexType name="format">
-        <xs:attribute name="pattern" type="xs:string" use="required"/>
-    </xs:complexType>
-
-    <xs:complexType name="states">
+    <xs:complexType name="state">
         <xs:sequence>
-            <xs:element name="state" type="thing-description:state" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="options" type="thing-description:options" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="min" type="xs:decimal" use="optional"/>
+        <xs:attribute name="max" type="xs:decimal" use="optional"/>
+        <xs:attribute name="step" type="xs:decimal" use="optional"/>
+        <xs:attribute name="pattern" type="xs:string" use="optional"/>
+        <xs:attribute name="readOnly" type="xs:boolean" use="optional" default="false"/>
+    </xs:complexType>
+
+    <xs:complexType name="options">
+        <xs:sequence>
+            <xs:element name="option" type="thing-description:option" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="state">
-        <xs:attribute name="value" type="xs:string" use="required"/>
-        <xs:attribute name="label" type="xs:string" use="required"/>
+    <xs:complexType name="option">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="value" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
     </xs:complexType>
 
 </xs:schema>
