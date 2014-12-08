@@ -2,7 +2,9 @@ package org.eclipse.smarthome.io.sse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -76,35 +78,36 @@ public enum EventType {
      */
     public static List<EventType> getEventTopicByFilter(String filter) {
         if (!StringUtils.isEmpty(filter)) {
-            String[] filterTokens = StringUtils.split(filter.toLowerCase(), FILTER_SEPARATOR);
 
-            String filterNamespace = "*";
-            String fiterEventObject = "*";
-            String filterEventType = "*";
+            // Get an array of all filters separated by a comma
+            String[] subfilters = StringUtils.split(filter.toLowerCase(), FILTER_TOKENS_SEPARATOR);
 
-            switch (filterTokens.length) {
-            case 3:
-                filterEventType = filterTokens[2];
-            case 2:
-                fiterEventObject = filterTokens[1];
-            case 1:
-                filterNamespace = filterTokens[0];
-                break;
-            default:
-                return VALUES_LIST;
+            // Maintains sets of filter namespaces, eventObjects, eventTypes
+            Set<String> filterNamespaces = new HashSet<String>();
+            Set<String> filterEventObjects = new HashSet<String>();
+            Set<String> filterEventTypes = new HashSet<String>();
+
+            for (String subfilter : subfilters) {
+                // split current filter into namespace, eventObject and
+                // eventType
+                String[] splitFilterToken = splitFilterToken(subfilter);
+
+                filterNamespaces.add(splitFilterToken[0]);
+                filterEventObjects.add(splitFilterToken[1]);
+                filterEventTypes.add(splitFilterToken[2]);
             }
 
             List<EventType> events = new ArrayList<EventType>();
             EventType[] values = values();
 
-            boolean isNameSpaceWildcard = WILDCARD.equals(filterNamespace);
-            boolean isEventObjectWildcard = WILDCARD.equals(fiterEventObject);
-            boolean isEventTypeWildcard = WILDCARD.equals(filterEventType);
+            boolean isNameSpaceWildcard = filterNamespaces.contains(WILDCARD);
+            boolean isEventObjectWildcard = filterEventObjects.contains(WILDCARD);
+            boolean isEventTypeWildcard = filterEventTypes.contains(WILDCARD);
 
             for (EventType eventType : values) {
-                boolean isInFilter = (isNameSpaceWildcard || eventType.eventNamespace.equals(filterNamespace))
-                        && (isEventObjectWildcard || eventType.eventObject.equals(fiterEventObject))
-                        && (isEventTypeWildcard || eventType.eventType.equals(filterEventType));
+                boolean isInFilter = (isNameSpaceWildcard || filterNamespaces.contains(eventType.eventNamespace))
+                        && (isEventObjectWildcard || filterEventObjects.contains(eventType.eventObject))
+                        && (isEventTypeWildcard || filterEventTypes.contains(eventType.eventType));
 
                 if (isInFilter) {
                     events.add(eventType);
@@ -117,6 +120,38 @@ public enum EventType {
         return VALUES_LIST;
     }
 
+    /**
+     * Parses the given filter string into an array with size 3 where the first
+     * element is the given filterNamespace, the second element is the given
+     * filterEventObject and the third element is filterEventType.
+     * 
+     * Any component missing is considered to be a WILDCARD filter(*).
+     * 
+     * @param filter
+     * @return
+     */
+    private static String[] splitFilterToken(String filter) {
+        String[] filterTokens = StringUtils.split(filter.toLowerCase(), FILTER_SEPARATOR);
+
+        String filterNamespace = "*";
+        String fiterEventObject = "*";
+        String filterEventType = "*";
+
+        switch (filterTokens.length) {
+        case 3:
+            filterEventType = filterTokens[2].trim();
+        case 2:
+            fiterEventObject = filterTokens[1].trim();
+        case 1:
+            filterNamespace = filterTokens[0].trim();
+            break;
+        default:
+            break;
+        }
+
+        return new String[] { filterNamespace, fiterEventObject, filterEventType };
+    }
+
     private final String eventNamespace;
 
     private final String eventObject;
@@ -126,6 +161,8 @@ public enum EventType {
     private final String eventFullName;
 
     private static final char FILTER_SEPARATOR = '/';
+
+    private static final char FILTER_TOKENS_SEPARATOR = ',';
 
     private static final String WILDCARD = "*";
 
@@ -160,4 +197,17 @@ public enum EventType {
     public String getFullNameWithIdentifier(String identifier) {
         return eventFullName + FILTER_SEPARATOR + identifier;
     }
+
+    public String getEventNamespace() {
+        return eventNamespace;
+    }
+
+    public String getEventObject() {
+        return eventObject;
+    }
+
+    public String getEventType() {
+        return eventType;
+    }
+
 }
