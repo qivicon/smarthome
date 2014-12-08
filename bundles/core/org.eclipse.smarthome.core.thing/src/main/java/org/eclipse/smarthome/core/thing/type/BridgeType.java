@@ -34,7 +34,7 @@ public class BridgeType extends ThingType {
     public BridgeType(String bindingId, String thingTypeId, String label)
             throws IllegalArgumentException {
 
-        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, null, null);
+        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, null, null, null);
     }
 
     /**
@@ -60,12 +60,12 @@ public class BridgeType extends ThingType {
      *     or the the meta information is null
      */
     public BridgeType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs,
-            String label, String description, List<ChannelDefinition> channelDefinitions,
+            String label, String description, List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions, 
             URI configDescriptionURI)
             throws IllegalArgumentException {
 
         super(uid, supportedBridgeTypeUIDs, label, description,
-                channelDefinitions, configDescriptionURI);
+                channelDefinitions, channelGroupDefinitions, configDescriptionURI);
     }
 
 }

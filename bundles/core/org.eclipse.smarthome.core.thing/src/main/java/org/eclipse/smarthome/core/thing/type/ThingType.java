@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
@@ -29,8 +30,10 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  */
 public class ThingType extends AbstractDescriptionType {
 
+    private final List<ChannelGroupDefinition> channelGroupDefinitions;
     private final List<ChannelDefinition> channelDefinitions;
     private final List<String> supportedBridgeTypeUIDs;
+    private URI configDescriptionURI;
 
 
     /**
@@ -39,7 +42,7 @@ public class ThingType extends AbstractDescriptionType {
     public ThingType(String bindingId, String thingTypeId, String label)
             throws IllegalArgumentException {
 
-        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, null, null);
+        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, null, null, null);
     }
 
     /**
@@ -65,11 +68,11 @@ public class ThingType extends AbstractDescriptionType {
      *     if the UID is null or empty, or the the meta information is null
      */
     public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs,
-            String label, String description, List<ChannelDefinition> channelDefinitions,
+            String label, String description, List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
             URI configDescriptionURI)
             throws IllegalArgumentException {
 
-        super(uid, label, description, configDescriptionURI);
+        super(uid, label, description);
 
         if (supportedBridgeTypeUIDs != null) {
             this.supportedBridgeTypeUIDs = Collections.unmodifiableList(supportedBridgeTypeUIDs);
@@ -83,6 +86,15 @@ public class ThingType extends AbstractDescriptionType {
             this.channelDefinitions = Collections.unmodifiableList(
                     new ArrayList<ChannelDefinition>(0));
         }
+        
+        if (channelDefinitions != null) {
+            this.channelGroupDefinitions = Collections.unmodifiableList(channelGroupDefinitions);
+        } else {
+            this.channelGroupDefinitions = Collections.unmodifiableList(
+                    new ArrayList<ChannelGroupDefinition>(0));
+        }
+        
+        this.configDescriptionURI = configDescriptionURI;
     }
 
     /**
@@ -126,6 +138,11 @@ public class ThingType extends AbstractDescriptionType {
     public List<ChannelDefinition> getChannelDefinitions() {
         return this.channelDefinitions;
     }
+    
+
+    public List<ChannelGroupDefinition> getChannelGroupDefinitions() {
+        return this.channelGroupDefinitions;
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -149,6 +166,25 @@ public class ThingType extends AbstractDescriptionType {
     @Override
     public String toString() {
         return getUID().toString();
+    }
+
+    /**
+     * Returns {@code true} if a link to a concrete {@link ConfigDescription} exists,
+     * otherwise {@code false}. 
+     * 
+     * @return true if a link to a concrete ConfigDescription exists, otherwise false
+     */
+    public boolean hasConfigDescriptionURI() {
+        return (this.configDescriptionURI != null);
+    }
+
+    /**
+     * Returns the link to a concrete {@link ConfigDescription}.
+     * 
+     * @return the link to a concrete ConfigDescription (could be null)
+     */
+    public URI getConfigDescriptionURI() {
+        return this.configDescriptionURI;
     }
 
 }

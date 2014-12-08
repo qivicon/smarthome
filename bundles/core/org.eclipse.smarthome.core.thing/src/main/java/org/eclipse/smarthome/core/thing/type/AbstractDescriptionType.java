@@ -7,9 +7,6 @@
  */
 package org.eclipse.smarthome.core.thing.type;
 
-import java.net.URI;
-
-import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.core.thing.UID;
 
 
@@ -27,9 +24,6 @@ public abstract class AbstractDescriptionType {
     private UID uid;
     private String label;
     private String description;
-    private URI configDescriptionURI;
-
-
     /**
      * Creates a new instance of this class with the specified parameters.
      * 
@@ -42,13 +36,10 @@ public abstract class AbstractDescriptionType {
      * @param description the human readable description for the according type
      *     (could be null or empty)
      * 
-     * @param configDescriptionURI the link to a concrete ConfigDescription (could be null)
-     * 
      * @throws IllegalArgumentException if the UID is null or empty,
      *     or the the meta information is null
      */
-    public AbstractDescriptionType(UID uid, String label, String description,
-            URI configDescriptionURI) throws IllegalArgumentException {
+    public AbstractDescriptionType(UID uid, String label, String description) throws IllegalArgumentException {
 
         if (uid == null) {
             throw new IllegalArgumentException("The UID must not be null");
@@ -61,7 +52,6 @@ public abstract class AbstractDescriptionType {
         this.uid = uid;
         this.label = label;
         this.description = description;
-        this.configDescriptionURI = configDescriptionURI;
     }
 
     /**
@@ -90,25 +80,6 @@ public abstract class AbstractDescriptionType {
      */
     public String getDescription() {
         return this.description;
-    }
-
-    /**
-     * Returns {@code true} if a link to a concrete {@link ConfigDescription} exists,
-     * otherwise {@code false}. 
-     * 
-     * @return true if a link to a concrete ConfigDescription exists, otherwise false
-     */
-    public boolean hasConfigDescriptionURI() {
-        return (this.configDescriptionURI != null);
-    }
-
-    /**
-     * Returns the link to a concrete {@link ConfigDescription}.
-     * 
-     * @return the link to a concrete ConfigDescription (could be null)
-     */
-    public URI getConfigDescriptionURI() {
-        return this.configDescriptionURI;
     }
 
 }

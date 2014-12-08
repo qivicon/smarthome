@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.core.thing.Channel;
 
 
@@ -26,9 +27,13 @@ import org.eclipse.smarthome.core.thing.Channel;
  * @author Michael Grammling - Initial Contribution
  */
 public class ChannelType extends AbstractDescriptionType {
-
-    private String itemType;
-    private Set<String> tags;
+    
+    private final String category;
+    private final boolean advanced;
+    private final ChannelState channelState;
+    private final String itemType;
+    private final Set<String> tags;
+    private final URI configDescriptionURI;
 
 
     /**
@@ -55,21 +60,26 @@ public class ChannelType extends AbstractDescriptionType {
      *     or the the meta information is null
      */
     public ChannelType(ChannelTypeUID uid, String itemType, String label, String description,
-            Set<String> tags, URI configDescriptionURI) throws IllegalArgumentException {
+            Set<String> tags, URI configDescriptionURI, ChannelState channelState, String category, boolean advanced) throws IllegalArgumentException {
 
-        super(uid, label, description, configDescriptionURI);
+        super(uid, label, description);
 
         if ((itemType == null) || (itemType.isEmpty())) {
             throw new IllegalArgumentException("The item type must neither be null nor empty!");
         }
 
         this.itemType = itemType;
-
+        this.configDescriptionURI = configDescriptionURI;
+        
         if (tags != null) {
             this.tags = Collections.unmodifiableSet(new HashSet<String>(tags));
         } else {
             this.tags = Collections.unmodifiableSet(new HashSet<String>(0));
         }
+        
+        this.channelState = channelState;
+        this.advanced = advanced;
+        this.category = category;
     }
 
     @Override
@@ -99,5 +109,38 @@ public class ChannelType extends AbstractDescriptionType {
     public String toString() {
         return super.getUID().toString();
     }
+
+    /**
+     * Returns {@code true} if a link to a concrete {@link ConfigDescription} exists,
+     * otherwise {@code false}. 
+     * 
+     * @return true if a link to a concrete ConfigDescription exists, otherwise false
+     */
+    public boolean hasConfigDescriptionURI() {
+        return (this.configDescriptionURI != null);
+    }
+
+    /**
+     * Returns the link to a concrete {@link ConfigDescription}.
+     * 
+     * @return the link to a concrete ConfigDescription (could be null)
+     */
+    public URI getConfigDescriptionURI() {
+        return this.configDescriptionURI;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public boolean isAdvanced() {
+        return advanced;
+    }
+
+    public ChannelState getChannelState() {
+        return channelState;
+    }
+    
+    
 
 }
