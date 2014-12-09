@@ -11,6 +11,8 @@ import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,10 +62,13 @@ public class ToggleOnOffActionHandler implements ActionHandler {
 			String itemName = (String) context.getInputParameter("itemName");
 			Item item = itemRegistry.getItem(itemName);
 			Command command = OnOffType.ON;
-			OnOffType previousState = (OnOffType) item
-					.getStateAs(OnOffType.class);
+			State state = item.getState();
+			OnOffType previousState = null;
+			if (state instanceof OnOffType) {
+                previousState = (OnOffType) state;
+            }
 			LOGGER.debug("Toggle: Items previous State: {}", previousState);
-			if (previousState.equals(OnOffType.ON)) {
+			if (state instanceof UnDefType || previousState != null && previousState.equals(OnOffType.ON)) {
 				command = OnOffType.OFF;
 			}
 			eventPublisher.postCommand(itemName, command);

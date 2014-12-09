@@ -7,4 +7,5 @@
    </service>
    <property name="module.name" type="String" value="update"/>
    <property name="event.topics" type="String" value="smarthome/*"/>
+   <reference bind="setRuleExecutionService" cardinality="1..1" interface="org.eclipse.smarthome.automation.core.RuleExecutionService" name="RuleExecutionService" policy="static" unbind="unsetRuleExecutionService"/>
 </scr:component>

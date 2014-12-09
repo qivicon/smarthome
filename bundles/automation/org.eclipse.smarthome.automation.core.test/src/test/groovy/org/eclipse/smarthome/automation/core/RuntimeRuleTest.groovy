@@ -37,8 +37,6 @@ class RuntimeRuleTest extends OSGiTest{
 	@Test
 	public void testSample1() {
         
-        Thread.sleep(100)
-        
 		def EventPublisher eventPublisher = getService(EventPublisher)
 		def ItemRegistry itemRegistry = getService(ItemRegistry)
 		SwitchItem swItem = itemRegistry.getItem("sample1Button")
@@ -81,14 +79,14 @@ class RuntimeRuleTest extends OSGiTest{
 		
 		// initialize Item to be OFF
 		item.setState(OnOffType.OFF)
-		waitFor({event!=null}, 10000) 
+		waitFor({event!=null}, 5000) 
 		assertThat event.topic, is(equalTo("smarthome/command/lamp2"))
 		assertThat event.getProperty("command"), is(OnOffType.ON)
 		event = null;
 		// set it to on because the eventHandler doesn't do it
 		item.setState(OnOffType.ON)
 //		eventPublisher.postUpdate("sample1Button", OnOffType.OFF);
-		waitFor({event !=null},10000)
+		waitFor({event !=null}, 5000)
 		assertThat event.topic, is(equalTo("smarthome/command/lamp2"))
 		assertThat event.getProperty("command"), is(OnOffType.OFF)
 	}

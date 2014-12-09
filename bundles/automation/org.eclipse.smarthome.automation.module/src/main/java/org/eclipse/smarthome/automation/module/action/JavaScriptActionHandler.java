@@ -46,15 +46,15 @@ public class JavaScriptActionHandler implements ActionHandler {
 		this.eventPublisher = eventPublisher;
 	}
 
-	protected void unsetEventPublisher(){
-		this.eventPublisher=null;
-	}
+    protected void unsetEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = null;
+    }
 	
 	protected void setItemRegistry(ItemRegistry itemRegistry) {
 		this.itemRegistry = itemRegistry;
 	}
 
-	protected void unsetItemRegistry() {
+	protected void unsetItemRegistry(ItemRegistry itemRegistry) {
 		this.itemRegistry = null;
 	}
 
