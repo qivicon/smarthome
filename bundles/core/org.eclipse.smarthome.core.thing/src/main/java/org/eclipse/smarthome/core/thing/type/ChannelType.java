@@ -30,7 +30,7 @@ public class ChannelType extends AbstractDescriptionType {
     
     private final String category;
     private final boolean advanced;
-    private final ChannelState channelState;
+    private final ChannelState state;
     private final String itemType;
     private final Set<String> tags;
     private final URI configDescriptionURI;
@@ -59,8 +59,9 @@ public class ChannelType extends AbstractDescriptionType {
      * @throws IllegalArgumentException if the UID or the item type is null or empty,
      *     or the the meta information is null
      */
-    public ChannelType(ChannelTypeUID uid, String itemType, String label, String description,
-            Set<String> tags, URI configDescriptionURI, ChannelState channelState, String category, boolean advanced) throws IllegalArgumentException {
+    public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, String label,
+            String description, String category, Set<String> tags, ChannelState state,
+            URI configDescriptionURI) throws IllegalArgumentException {
 
         super(uid, label, description);
 
@@ -77,7 +78,7 @@ public class ChannelType extends AbstractDescriptionType {
             this.tags = Collections.unmodifiableSet(new HashSet<String>(0));
         }
         
-        this.channelState = channelState;
+        this.state = state;
         this.advanced = advanced;
         this.category = category;
     }
@@ -137,8 +138,8 @@ public class ChannelType extends AbstractDescriptionType {
         return advanced;
     }
 
-    public ChannelState getChannelState() {
-        return channelState;
+    public ChannelState getState() {
+        return state;
     }
     
     

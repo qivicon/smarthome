@@ -20,6 +20,7 @@ import org.eclipse.smarthome.config.xml.util.NodeListConverter;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.config.xml.util.NodeValueConverter;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
+import org.eclipse.smarthome.core.thing.type.ChannelState;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -52,6 +53,8 @@ public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
         xstream.registerConverter(new ThingTypeConverter());
         xstream.registerConverter(new BridgeTypeConverter());
         xstream.registerConverter(new ChannelTypeConverter());
+        xstream.registerConverter(new ChannelGroupTypeConverter());
+        xstream.registerConverter(new ChannelStateConverter());
         xstream.registerConverter(new ConfigDescriptionConverter());
         xstream.registerConverter(new ConfigDescriptionParameterConverter());
     }
@@ -62,6 +65,7 @@ public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
         xstream.alias("thing-type", ThingTypeXmlResult.class);
         xstream.alias("bridge-type", BridgeTypeXmlResult.class);
         xstream.alias("channel-type", ChannelTypeXmlResult.class);
+        xstream.alias("channel-group-type", ChannelGroupTypeXmlResult.class);
         xstream.alias("supported-bridge-type-refs", NodeList.class);
         xstream.alias("bridge-type-ref", NodeAttributes.class);
         xstream.alias("item-type", NodeValue.class);
@@ -69,8 +73,14 @@ public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
         xstream.alias("description", NodeValue.class);
         xstream.alias("channels", NodeList.class);
         xstream.alias("channel", NodeAttributes.class);
+        xstream.alias("channel-groups", NodeList.class);
+        xstream.alias("channel-group", NodeAttributes.class);
+        xstream.alias("category", NodeValue.class);
         xstream.alias("tags", NodeList.class);
         xstream.alias("tag", NodeValue.class);
+        xstream.alias("state", ChannelState.class);
+        xstream.alias("options", NodeList.class);
+        xstream.alias("option", NodeValue.class);
         xstream.alias("config-descriptions", NodeList.class);
         xstream.alias("config-description", ConfigDescription.class);
         xstream.alias("config-description-ref", NodeAttributes.class);

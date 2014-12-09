@@ -16,4 +16,9 @@ public final class ChannelStateOption {
     public String getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return "ChannelStateOption [value=" + value + ", label=" + label + "]";
+    }
 }

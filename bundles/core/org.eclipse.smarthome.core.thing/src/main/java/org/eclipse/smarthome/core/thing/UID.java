@@ -16,7 +16,7 @@ import com.google.common.base.Joiner;
  * framework. A UID must always start with a binding ID.
  * 
  * @author Dennis Nobel - Initial contribution
- * @authoer Oliver Libutzki - Added possibility to define UIDs with variable amount of segments
+ * @author Oliver Libutzki - Added possibility to define UIDs with variable amount of segments
  */
 public abstract class UID {
 

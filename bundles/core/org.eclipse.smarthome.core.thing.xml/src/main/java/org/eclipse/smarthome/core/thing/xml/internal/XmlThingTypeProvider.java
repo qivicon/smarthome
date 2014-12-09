@@ -23,7 +23,6 @@ import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nUtil;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
-import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.osgi.framework.Bundle;
 
@@ -152,6 +151,7 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
         this.thingTypeI18nUtil = null;
     }
 
+// TODO: null!
     private ThingType createLocalizedThingType(Bundle bundle, ThingType thingType, Locale locale) {
         if (this.thingTypeI18nUtil != null) {
             String label = this.thingTypeI18nUtil.getLabel(
@@ -171,11 +171,11 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
             if (thingType instanceof BridgeType) {
                 BridgeType bridgeType = (BridgeType) thingType;
                 return new BridgeType(bridgeType.getUID(), bridgeType.getSupportedBridgeTypeUIDs(),
-                        label, description, localizedChannelDefinitions,
+                        label, description, localizedChannelDefinitions, null,
                         bridgeType.getConfigDescriptionURI());
             } else {
                 return new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(),
-                        label, description, localizedChannelDefinitions,
+                        label, description, localizedChannelDefinitions, null,
                         thingType.getConfigDescriptionURI());
             }
         } else {
@@ -183,25 +183,35 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
         }
     }
 
-    private ChannelDefinition createLocalizedChannelDefinition(
-            Bundle bundle, ChannelDefinition channelDefinition, Locale locale) {
+// TODO:
+    private ChannelDefinition createLocalizedChannelDefinition(Bundle bundle, ChannelDefinition channelDefinition,
+            Locale locale) {
 
-        if (this.thingTypeI18nUtil != null) {
-            ChannelType channelType = channelDefinition.getType();
-
-            String label = this.thingTypeI18nUtil.getChannelLabel(
-                    bundle, channelType.getUID(), channelType.getLabel(), locale);
-            String description = this.thingTypeI18nUtil.getChannelDescription(
-                    bundle, channelType.getUID(), channelType.getDescription(), locale);
-
-            ChannelType localizedChannelType = new ChannelType(channelType.getUID(),
-                    channelType.getItemType(), label, description, channelType.getTags(),
-                    channelType.getConfigDescriptionURI());
-
-            return new ChannelDefinition(channelDefinition.getId(), localizedChannelType);
-        } else {
-            return channelDefinition;
-        }
+//        if (this.thingTypeI18nUtil != null) {
+//            ChannelType channelType = channelDefinition.getType();
+//
+//            if (channelType instanceof FunctionalChannelType) {
+//                FunctionalChannelType functionalChannelType = (FunctionalChannelType) channelType;
+//                String label = this.thingTypeI18nUtil.getChannelLabel(bundle, channelType.getUID(),
+//                        channelType.getLabel(), locale);
+//                String description = this.thingTypeI18nUtil.getChannelDescription(bundle, channelType.getUID(),
+//                        channelType.getDescription(), locale);
+//                
+//                // TODO: translate these values
+//                StateDescription stateDescription = null;
+//                
+//                ChannelType localizedChannelType = new FunctionalChannelType(channelType.getUID(), ((FunctionalChannelType) channelType).isReadOnly(),
+//                        functionalChannelType.getItemType(), label, description, functionalChannelType.getCategory(),
+//                        functionalChannelType.getTags(), stateDescription, channelType.getConfigDescriptionURI());
+//                
+//                return new ChannelDefinition(channelDefinition.getId(), localizedChannelType);
+//            } else {
+//                return null;
+//            } 
+//        } else {
+//            return channelDefinition;
+//        }
+        return null;
     }
 
 }
