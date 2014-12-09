@@ -155,6 +155,7 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
         this.thingTypeI18nUtil = null;
     }
 
+// TODO: I18N for ChannelGroupTypes!
     private ThingType createLocalizedThingType(Bundle bundle, ThingType thingType, Locale locale) {
         if (this.thingTypeI18nUtil != null) {
             String label = this.thingTypeI18nUtil.getLabel(
@@ -174,18 +175,18 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
             if (thingType instanceof BridgeType) {
                 BridgeType bridgeType = (BridgeType) thingType;
                 return new BridgeType(bridgeType.getUID(), bridgeType.getSupportedBridgeTypeUIDs(),
-                        label, description, localizedChannelDefinitions, null,
-                        bridgeType.getConfigDescriptionURI());
+                        label, description, localizedChannelDefinitions,
+                        thingType.getChannelGroupDefinitions(), bridgeType.getConfigDescriptionURI());
             } else {
                 return new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(),
-                        label, description, localizedChannelDefinitions, null,
+                        label, description, localizedChannelDefinitions,
+                        thingType.getChannelGroupDefinitions(),
                         thingType.getConfigDescriptionURI());
             }
         } else {
             return thingType;
         }
     }
-
 
     private ChannelDefinition createLocalizedChannelDefinition(Bundle bundle, ChannelDefinition channelDefinition,
             Locale locale) {
