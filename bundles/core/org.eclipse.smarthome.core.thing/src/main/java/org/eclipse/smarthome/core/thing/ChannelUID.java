@@ -15,6 +15,7 @@ import java.util.List;
  * {@link ChannelUID} represents a unique identifier for channels.
  * 
  * @author Oliver Libutzki - Initital contribution
+ * @author Dennis Nobel - Added channel group id
  */
 public class ChannelUID extends UID {
 
@@ -29,9 +30,19 @@ public class ChannelUID extends UID {
      *            the channel's id
      */
 	public ChannelUID(ThingUID thingUID, String id) {
-		super(getArray(thingUID.getBindingId(), thingUID.getThingTypeId(), thingUID.getId(), id, thingUID.getBridgeIds()));
+		super(getArray(thingUID.getBindingId(), thingUID.getThingTypeId(), thingUID.getId(), null, id, thingUID.getBridgeIds()));
 	}
 	
+    /**
+     * @param thingUID
+     *            the unique identifier of the thing the channel belongs to
+     * @param groupId the channel's group id
+     * @param id
+     *            the channel's id
+     */
+    public ChannelUID(ThingUID thingUID, String groupId, String id) {
+        super(getArray(thingUID.getBindingId(), thingUID.getThingTypeId(), thingUID.getId(), groupId, id, thingUID.getBridgeIds()));
+    }
 
 	/**
 	 * @param thingTypeUID the unique id of the thing's thingType
@@ -52,21 +63,37 @@ public class ChannelUID extends UID {
 		super(bindingId, thingTypeId, thingId, id);
 	}
 	
-    private static String[] getArray(String bindingId, String thingTypeId, String thingId, String id, List<String> bridgeIds) {
+	/**
+     * @param bindingId the binding id of the thingType
+     * @param thingTypeId the thing type id of the thing's thingType
+     * @param thingId the id of the thing the channel belongs to
+     * @param groupId the channel's group id
+     * @param id the channel's id
+     */
+    public ChannelUID(String bindingId, String thingTypeId, String thingId, String groupId, String id) {
+        super(bindingId, thingTypeId, thingId, groupId, id);
+    }
+	
+    private static String[] getArray(String bindingId, String thingTypeId, String thingId, String groupId, String id, List<String> bridgeIds) {
     	if (bridgeIds == null || bridgeIds.size() == 0) {
     		return new String[] {
     	    		bindingId,thingTypeId,thingId,id
         	};
     	}
     	
-    	String[] result = new String[4+bridgeIds.size()];
+    	String[] result = new String[4 + bridgeIds.size() + groupId != null ? 1 : 0];
     	result[0] = bindingId;
     	result[1] = thingTypeId;
     	for (int i = 0; i < bridgeIds.size(); i++) {
 			result[i+2] = bridgeIds.get(i);
 		}
     	
-    	result[result.length-2] = thingId;
+    	if(groupId != null) {
+            result[result.length - 2] = thingId;
+        } else {
+            result[result.length - 3] = thingId;
+            result[result.length - 2] = groupId;
+        }
     	result[result.length-1] = id;
     	return result;
     }
