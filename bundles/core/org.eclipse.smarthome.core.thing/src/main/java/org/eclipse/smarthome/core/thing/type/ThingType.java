@@ -87,7 +87,7 @@ public class ThingType extends AbstractDescriptionType {
                     new ArrayList<ChannelDefinition>(0));
         }
         
-        if (channelDefinitions != null) {
+        if (channelGroupDefinitions != null) {
             this.channelGroupDefinitions = Collections.unmodifiableList(channelGroupDefinitions);
         } else {
             this.channelGroupDefinitions = Collections.unmodifiableList(

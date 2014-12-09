@@ -1,5 +1,3 @@
-
-
 package org.eclipse.smarthome.core.thing.xml.test;
 
 import static org.junit.Assert.*
