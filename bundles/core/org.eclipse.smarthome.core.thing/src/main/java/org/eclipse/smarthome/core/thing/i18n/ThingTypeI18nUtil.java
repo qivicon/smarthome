@@ -30,18 +30,32 @@ public class ThingTypeI18nUtil {
     public ThingTypeI18nUtil(I18nProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }
-
+    
     public String getChannelDescription(Bundle bundle, ChannelTypeUID channelTypeUID, String defaultDescription,
             Locale locale) {
         String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription)
                 : inferChannelKey(channelTypeUID, "description");
         return i18nProvider.getText(bundle, key, defaultDescription, locale);
     }
-
+    
     public String getChannelLabel(Bundle bundle, ChannelTypeUID channelTypeUID, String defaultLabel, Locale locale) {
         String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel) : inferChannelKey(
                 channelTypeUID, "label");
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
+    }
+    
+    public String getChannelStateOption(Bundle bundle, ChannelTypeUID channelTypeUID, String optionValue, String defaultOptionLabel,
+            Locale locale) {
+        String key = I18nUtil.isConstant(defaultOptionLabel) ? I18nUtil.stripConstant(defaultOptionLabel)
+                : inferChannelKey(channelTypeUID, "state.options." + optionValue);
+        return i18nProvider.getText(bundle, key, defaultOptionLabel, locale);
+    }
+
+    public String getChannelStatePattern(Bundle bundle, ChannelTypeUID channelTypeUID, String defaultPattern,
+            Locale locale) {
+        String key = I18nUtil.isConstant(defaultPattern) ? I18nUtil.stripConstant(defaultPattern)
+                : inferChannelKey(channelTypeUID, "state.pattern");
+        return i18nProvider.getText(bundle, key, defaultPattern, locale);
     }
 
     public String getDescription(Bundle bundle, ThingTypeUID thingTypeUID, String defaultDescription, Locale locale) {

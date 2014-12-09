@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.smarthome.core.thing.UID;
-
 
 public class ChannelGroupType extends AbstractDescriptionType {
 
@@ -13,7 +11,7 @@ public class ChannelGroupType extends AbstractDescriptionType {
     private final List<ChannelDefinition> channelDefinitions;
 
 
-    public ChannelGroupType(UID uid, boolean advanced, String label, String description,
+    public ChannelGroupType(ChannelGroupTypeUID uid, boolean advanced, String label, String description,
             List<ChannelDefinition> channelDefinitions) throws IllegalArgumentException {
 
         super(uid, label, description);

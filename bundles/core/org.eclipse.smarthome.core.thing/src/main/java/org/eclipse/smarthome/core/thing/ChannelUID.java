@@ -113,6 +113,19 @@ public class ChannelUID extends UID {
 		return segments[segments.length-1];
 	}
 	
+    /**
+     * Returns the group id.
+     * 
+     * @return group id
+     */
+    public String getGroupId() {
+        String[] segments = getSegments();
+        if (segments.length == 5) {
+            return segments[segments.length - 2];
+        } else {
+            return null;
+        }
+    }
 	
 	@Override
 	protected int getMinimalNumberOfSegments() {

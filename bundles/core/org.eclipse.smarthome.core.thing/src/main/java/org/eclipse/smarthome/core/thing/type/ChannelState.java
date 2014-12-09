@@ -1,6 +1,8 @@
 package org.eclipse.smarthome.core.thing.type;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -10,8 +12,7 @@ public class ChannelState {
     private final BigDecimal maximum;
     private final BigDecimal step;
     private final String pattern;
-    private boolean readOnly;
-
+    private final boolean readOnly;
     private final List<ChannelStateOption> channelStateOptions;
 
 
@@ -23,7 +24,11 @@ public class ChannelState {
         this.step = step;
         this.pattern = pattern;
         this.readOnly = readOnly;
-        this.channelStateOptions = channelStateOptions;
+        if (channelStateOptions != null) {
+            this.channelStateOptions = Collections.unmodifiableList(new ArrayList<ChannelStateOption>(channelStateOptions));
+        } else {
+            this.channelStateOptions = Collections.unmodifiableList(new ArrayList<ChannelStateOption>(0));
+        }
     }
 
     public BigDecimal getMinimum() {

@@ -23,6 +23,10 @@ import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nUtil;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelState;
+import org.eclipse.smarthome.core.thing.type.ChannelStateOption;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.osgi.framework.Bundle;
 
@@ -151,7 +155,6 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
         this.thingTypeI18nUtil = null;
     }
 
-// TODO: null!
     private ThingType createLocalizedThingType(Bundle bundle, ThingType thingType, Locale locale) {
         if (this.thingTypeI18nUtil != null) {
             String label = this.thingTypeI18nUtil.getLabel(
@@ -183,35 +186,54 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
         }
     }
 
-// TODO:
+
     private ChannelDefinition createLocalizedChannelDefinition(Bundle bundle, ChannelDefinition channelDefinition,
             Locale locale) {
 
-//        if (this.thingTypeI18nUtil != null) {
-//            ChannelType channelType = channelDefinition.getType();
-//
-//            if (channelType instanceof FunctionalChannelType) {
-//                FunctionalChannelType functionalChannelType = (FunctionalChannelType) channelType;
-//                String label = this.thingTypeI18nUtil.getChannelLabel(bundle, channelType.getUID(),
-//                        channelType.getLabel(), locale);
-//                String description = this.thingTypeI18nUtil.getChannelDescription(bundle, channelType.getUID(),
-//                        channelType.getDescription(), locale);
-//                
-//                // TODO: translate these values
-//                StateDescription stateDescription = null;
-//                
-//                ChannelType localizedChannelType = new FunctionalChannelType(channelType.getUID(), ((FunctionalChannelType) channelType).isReadOnly(),
-//                        functionalChannelType.getItemType(), label, description, functionalChannelType.getCategory(),
-//                        functionalChannelType.getTags(), stateDescription, channelType.getConfigDescriptionURI());
-//                
-//                return new ChannelDefinition(channelDefinition.getId(), localizedChannelType);
-//            } else {
-//                return null;
-//            } 
-//        } else {
-//            return channelDefinition;
-//        }
-        return null;
+        if (this.thingTypeI18nUtil != null) {
+            ChannelType channelType = channelDefinition.getType();
+
+            ChannelTypeUID channelTypeUID = channelType.getUID();
+
+            String label = this.thingTypeI18nUtil.getChannelLabel(bundle, channelTypeUID, channelType.getLabel(),
+                    locale);
+            String description = this.thingTypeI18nUtil.getChannelDescription(bundle, channelTypeUID,
+                    channelType.getDescription(), locale);
+
+            ChannelState state = createLocalizedChannelState(bundle, channelType, channelTypeUID, locale);
+
+            ChannelType localizedChannelType = new ChannelType(channelTypeUID, channelType.isAdvanced(),
+                    channelType.getItemType(), label, description, channelType.getCategory(), channelType.getTags(),
+                    state, channelType.getConfigDescriptionURI());
+
+            return new ChannelDefinition(channelDefinition.getId(), localizedChannelType);
+        } else {
+            return channelDefinition;
+        }
+    }
+
+    private ChannelState createLocalizedChannelState(Bundle bundle, ChannelType channelType,
+            ChannelTypeUID channelTypeUID, Locale locale) {
+
+        ChannelState state = channelType.getState();
+
+        if (state != null) {
+            String pattern = this.thingTypeI18nUtil.getChannelStatePattern(bundle, channelTypeUID, state.getPattern(),
+                    locale);
+
+            List<ChannelStateOption> localizedOptions = new ArrayList<>();
+            List<ChannelStateOption> options = state.getOptions();
+            for (ChannelStateOption channelStateOption : options) {
+                String optionLabel = this.thingTypeI18nUtil.getChannelStateOption(bundle, channelTypeUID,
+                        channelStateOption.getValue(), channelStateOption.getLabel(), locale);
+                localizedOptions.add(new ChannelStateOption(channelStateOption.getValue(), optionLabel));
+            }
+
+            return new ChannelState(state.getMinimum(), state.getMaximum(), state.getStep(), pattern,
+                    state.isReadOnly(), localizedOptions);
+        } else {
+            return null;
+        }
     }
 
 }
