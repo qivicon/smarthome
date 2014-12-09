@@ -16,15 +16,15 @@ public class RuleExecutionServiceImpl implements RuleExecutionService, ManagedSe
     
     private static final String THREAD_POOL_SIZE__KEY = "threadPoolSize";
 
-    private static final int FALLBACK_TREADPOOL_SIZE = 1; 
-
-    private ExecutorService executor = Executors.newFixedThreadPool(10);
+    private ExecutorService executor = null;
 
     @Override
     public void execute(ModuleContext context, TriggerListener triggerListener) {
         ExecutorService executor = this.executor;
         if (executor != null) {
             executor.execute(new RuleRunner(context, triggerListener));            
+        } else {
+            throw new IllegalStateException("Rule execution service is not initialized.");
         }
     }
 
@@ -56,7 +56,8 @@ public class RuleExecutionServiceImpl implements RuleExecutionService, ManagedSe
 
     private void initNewExecuterService(Dictionary<String, ?> properties) {
         Object property = properties.get(THREAD_POOL_SIZE__KEY);
-        Integer newThreadPoolSize = (property instanceof Integer) ? (Integer) property : FALLBACK_TREADPOOL_SIZE;
+        Integer newThreadPoolSize = (property instanceof Integer) ? (Integer) property : Runtime
+                .getRuntime().availableProcessors();
         if (this.executor instanceof ThreadPoolExecutor) {
             ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) this.executor;
             if (threadPoolExecutor.getPoolSize() == newThreadPoolSize) {
