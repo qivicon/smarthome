@@ -34,4 +34,8 @@ public class ChannelGroupType extends AbstractDescriptionType {
         return channelDefinitions;
     }
 
+    @Override
+    public ChannelGroupTypeUID getUID() {
+        return (ChannelGroupTypeUID) super.getUID();
+    }
 }
