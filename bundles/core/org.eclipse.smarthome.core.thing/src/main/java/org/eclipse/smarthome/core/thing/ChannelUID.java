@@ -19,6 +19,8 @@ import java.util.List;
  */
 public class ChannelUID extends UID {
 
+    private static final String CHANNEL_GROUP_SEPERATOR = "#";
+
     public ChannelUID(String channelUid) {
         super(channelUid);
     }
@@ -71,7 +73,7 @@ public class ChannelUID extends UID {
      * @param id the channel's id
      */
     public ChannelUID(String bindingId, String thingTypeId, String thingId, String groupId, String id) {
-        super(bindingId, thingTypeId, thingId, groupId, id);
+        super(bindingId, thingTypeId, thingId, groupId != null ? groupId + CHANNEL_GROUP_SEPERATOR + id : id);
     }
 	
     private static String[] getArray(String bindingId, String thingTypeId, String thingId, String groupId, String id, List<String> bridgeIds) {
@@ -88,13 +90,9 @@ public class ChannelUID extends UID {
 			result[i+2] = bridgeIds.get(i);
 		}
     	
-    	if(groupId != null) {
-            result[result.length - 2] = thingId;
-        } else {
-            result[result.length - 3] = thingId;
-            result[result.length - 2] = groupId;
-        }
-    	result[result.length-1] = id;
+        result[result.length - 2] = thingId;
+    	result[result.length-1] = groupId != null ? groupId + CHANNEL_GROUP_SEPERATOR + id : id;
+    	
     	return result;
     }
 	
@@ -130,33 +128,62 @@ public class ChannelUID extends UID {
     	return bridgeIds;
     }
 	
-	/**
-	 * Returns the id.
-	 * 
-	 * @return id
-	 */
-	public String getId() {
+    /**
+     * Returns the id.
+     * 
+     * @return id
+     */
+    public String getId() {
         String[] segments = getSegments();
-		return segments[segments.length-1];
+        return segments[segments.length-1];
+    }
+    
+	/**
+	 * Returns the id without the group id.
+	 * 
+	 * @return id id without group id
+	 */
+	public String getIdWithoutGroup() {
+        String[] segments = getSegments();
+        if(!isInGroup()) {
+            return segments[segments.length-1];
+        } else {
+            return segments[segments.length-1].split(CHANNEL_GROUP_SEPERATOR)[1];
+        }
 	}
 	
-    /**
+	public boolean isInGroup() {
+	    String[] segments = getSegments();
+	    return segments[segments.length - 1].contains(CHANNEL_GROUP_SEPERATOR);
+	}
+	
+	/**
      * Returns the group id.
      * 
-     * @return group id
+     * @return group id or null if channel is not in a group
      */
     public String getGroupId() {
         String[] segments = getSegments();
-        if (segments.length == 5) {
-            return segments[segments.length - 2];
-        } else {
-            return null;
-        }
+        return isInGroup() ? segments[segments.length-1].split(CHANNEL_GROUP_SEPERATOR)[0] : null;
     }
 	
 	@Override
 	protected int getMinimalNumberOfSegments() {
 		return 4;
+	}
+	
+	@Override
+	protected void validateSegment(String segment, int index, int length) {
+	    if(index < length -1) {
+	        super.validateSegment(segment, index, length);
+	    } else {
+            if (!segment.matches("[A-Za-z0-9_-#]*")) {
+                throw new IllegalArgumentException(
+                        "UID segment '"
+                                + segment
+                                + "' contains invalid characters. The last segment of the channel UID must match the pattern [A-Za-z0-9_-#]*.");
+            }
+	    }
 	}
 
 	/**
