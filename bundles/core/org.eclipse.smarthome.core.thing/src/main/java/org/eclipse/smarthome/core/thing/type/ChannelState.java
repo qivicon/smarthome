@@ -13,6 +13,7 @@ public class ChannelState {
     private final BigDecimal step;
     private final String pattern;
     private final boolean readOnly;
+
     private final List<ChannelStateOption> channelStateOptions;
 
 

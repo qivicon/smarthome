@@ -141,7 +141,5 @@ public class ChannelType extends AbstractDescriptionType {
     public ChannelState getState() {
         return state;
     }
-    
-    
 
 }
