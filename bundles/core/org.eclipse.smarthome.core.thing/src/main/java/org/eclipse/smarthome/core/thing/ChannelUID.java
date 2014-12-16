@@ -77,13 +77,17 @@ public class ChannelUID extends UID {
     }
 	
     private static String[] getArray(String bindingId, String thingTypeId, String thingId, String groupId, String id, List<String> bridgeIds) {
-    	if (bridgeIds == null || bridgeIds.size() == 0) {
-    		return new String[] {
-    	    		bindingId,thingTypeId,thingId,id
-        	};
+    	if (bridgeIds == null) {
+    	    if(groupId == null) {
+    	        return new String[] {
+    	    		bindingId,thingTypeId,thingId,id};
+    	    } else {
+    	        return new String[] {
+                        bindingId,thingTypeId,thingId,groupId,id};
+    	    }
     	}
     	
-    	String[] result = new String[4 + bridgeIds.size() + groupId != null ? 1 : 0];
+    	String[] result = new String[4 + bridgeIds.size()];
     	result[0] = bindingId;
     	result[1] = thingTypeId;
     	for (int i = 0; i < bridgeIds.size(); i++) {
@@ -91,7 +95,7 @@ public class ChannelUID extends UID {
 		}
     	
         result[result.length - 2] = thingId;
-    	result[result.length-1] = groupId != null ? groupId + CHANNEL_GROUP_SEPERATOR + id : id;
+    	result[result.length - 1] = groupId != null ? groupId + CHANNEL_GROUP_SEPERATOR + id : id;
     	
     	return result;
     }
