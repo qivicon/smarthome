@@ -10,8 +10,8 @@ import org.eclipse.smarthome.config.xml.util.GenericUnmarshaller;
 import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.config.xml.util.NodeList;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
-import org.eclipse.smarthome.core.thing.type.ChannelState;
-import org.eclipse.smarthome.core.thing.type.ChannelStateOption;
+import org.eclipse.smarthome.core.types.StateDescription;
+import org.eclipse.smarthome.core.types.StateOption;
 
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -19,13 +19,13 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 
 // TODO:
-public class ChannelStateConverter extends GenericUnmarshaller<ChannelState> {
+public class StateDescriptionConverter extends GenericUnmarshaller<StateDescription> {
 
     protected ConverterAttributeMapValidator attributeMapValidator;
 
 
-    public ChannelStateConverter() {
-        super(ChannelState.class);
+    public StateDescriptionConverter() {
+        super(StateDescription.class);
         
         this.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] {
                 { "min", "false" },
@@ -63,23 +63,23 @@ public class ChannelStateConverter extends GenericUnmarshaller<ChannelState> {
         return defaultValue;
     }
 
-    private List<ChannelStateOption> toListOfChannelState(NodeList nodeList)
+    private List<StateOption> toListOfChannelState(NodeList nodeList)
             throws ConversionException {
 
         if ("options".equals(nodeList.getNodeName())) {
-            List<ChannelStateOption> channelStateOptions = new ArrayList<>();
+            List<StateOption> stateOptions = new ArrayList<>();
 
             for (Object nodeObject : nodeList.getList()) {
-                channelStateOptions.add(toChannelStateOption((NodeValue) nodeObject));
+                stateOptions.add(toChannelStateOption((NodeValue) nodeObject));
             }
     
-            return channelStateOptions;
+            return stateOptions;
         }
 
         throw new ConversionException("Unknown type '" + nodeList.getNodeName() + "'!");
     }
 
-    private ChannelStateOption toChannelStateOption(NodeValue nodeValue) throws ConversionException {
+    private StateOption toChannelStateOption(NodeValue nodeValue) throws ConversionException {
         if ("option".equals(nodeValue.getNodeName())) {
             String value;
             String label;
@@ -93,7 +93,7 @@ public class ChannelStateConverter extends GenericUnmarshaller<ChannelState> {
 
             label = (String) nodeValue.getValue();
 
-            return new ChannelStateOption(value, label);
+            return new StateOption(value, label);
         }
 
         throw new ConversionException("Unknown type in the list of 'options'!");
@@ -109,7 +109,7 @@ public class ChannelStateConverter extends GenericUnmarshaller<ChannelState> {
         String pattern = attributes.get("pattern");
         boolean readOnly = toBoolean(attributes, "readOnly", false);
 
-        List<ChannelStateOption> channelOptions = null;
+        List<StateOption> channelOptions = null;
 
         NodeList nodes = (NodeList) context.convertAnother(context, NodeList.class);
         NodeIterator nodeIterator = new NodeIterator(nodes.getList());
@@ -121,7 +121,7 @@ public class ChannelStateConverter extends GenericUnmarshaller<ChannelState> {
 
         nodeIterator.assertEndOfType();
 
-        ChannelState channelState = new ChannelState(
+        StateDescription stateDescription = new StateDescription(
                 minimum,
                 maximum,
                 step,
@@ -129,7 +129,7 @@ public class ChannelStateConverter extends GenericUnmarshaller<ChannelState> {
                 readOnly,
                 channelOptions);
 
-        return channelState;
+        return stateDescription;
     }
 
 }

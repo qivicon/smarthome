@@ -26,11 +26,11 @@ import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
-import org.eclipse.smarthome.core.thing.type.ChannelState;
-import org.eclipse.smarthome.core.thing.type.ChannelStateOption;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.types.StateDescription;
+import org.eclipse.smarthome.core.types.StateOption;
 import org.osgi.framework.Bundle;
 
 /**
@@ -104,7 +104,7 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
             String description = this.thingTypeI18nUtil.getChannelDescription(bundle, channelTypeUID,
                     channelType.getDescription(), locale);
 
-            ChannelState state = createLocalizedChannelState(bundle, channelType, channelTypeUID, locale);
+            StateDescription state = createLocalizedChannelState(bundle, channelType, channelTypeUID, locale);
 
             ChannelType localizedChannelType = new ChannelType(channelTypeUID, channelType.isAdvanced(),
                     channelType.getItemType(), label, description, channelType.getCategory(), channelType.getTags(),
@@ -142,24 +142,24 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
         return new ChannelGroupDefinition(channelGroupDefinition.getId(), localizedChannelGroupType);
     }
 
-    private ChannelState createLocalizedChannelState(Bundle bundle, ChannelType channelType,
+    private StateDescription createLocalizedChannelState(Bundle bundle, ChannelType channelType,
             ChannelTypeUID channelTypeUID, Locale locale) {
 
-        ChannelState state = channelType.getState();
+        StateDescription state = channelType.getState();
 
         if (state != null) {
             String pattern = this.thingTypeI18nUtil.getChannelStatePattern(bundle, channelTypeUID, state.getPattern(),
                     locale);
 
-            List<ChannelStateOption> localizedOptions = new ArrayList<>();
-            List<ChannelStateOption> options = state.getOptions();
-            for (ChannelStateOption channelStateOption : options) {
+            List<StateOption> localizedOptions = new ArrayList<>();
+            List<StateOption> options = state.getOptions();
+            for (StateOption stateOption : options) {
                 String optionLabel = this.thingTypeI18nUtil.getChannelStateOption(bundle, channelTypeUID,
-                        channelStateOption.getValue(), channelStateOption.getLabel(), locale);
-                localizedOptions.add(new ChannelStateOption(channelStateOption.getValue(), optionLabel));
+                        stateOption.getValue(), stateOption.getLabel(), locale);
+                localizedOptions.add(new StateOption(stateOption.getValue(), optionLabel));
             }
 
-            return new ChannelState(state.getMinimum(), state.getMaximum(), state.getStep(), pattern,
+            return new StateDescription(state.getMinimum(), state.getMaximum(), state.getStep(), pattern,
                     state.isReadOnly(), localizedOptions);
         } else {
             return null;
