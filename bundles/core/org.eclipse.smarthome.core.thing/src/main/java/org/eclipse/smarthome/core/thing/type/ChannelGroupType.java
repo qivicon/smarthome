@@ -35,6 +35,11 @@ public class ChannelGroupType extends AbstractDescriptionType {
     }
 
     @Override
+    public ChannelGroupTypeUID getUID() {
+        return (ChannelGroupTypeUID) super.getUID();
+    }
+
+    @Override
     public String toString() {
         return super.getUID().toString();
     }

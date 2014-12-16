@@ -23,6 +23,9 @@ import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nUtil;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelState;
 import org.eclipse.smarthome.core.thing.type.ChannelStateOption;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
@@ -88,106 +91,6 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
         }
     }
 
-    /**
-     * Removes all {@link ThingType} objects from the internal list associated
-     * with the specified module.
-     * <p>
-     * This method returns silently if the module is {@code null}.
-     * 
-     * @param bundle
-     *            the module for which all associated Thing types to be removed
-     */
-    public synchronized void removeAllThingTypes(Bundle bundle) {
-        if (bundle != null) {
-            List<ThingType> thingTypes = this.bundleThingTypesMap.get(bundle);
-
-            if (thingTypes != null) {
-                this.bundleThingTypesMap.remove(bundle);
-            }
-        }
-    }
-
-    @Override
-    public synchronized Collection<ThingType> getThingTypes(Locale locale) {
-        List<ThingType> allThingTypes = new ArrayList<>(10);
-
-        Collection<Entry<Bundle, List<ThingType>>> thingTypesList =
-                this.bundleThingTypesMap.entrySet();
-
-        if (thingTypesList != null) {
-            for (Entry<Bundle, List<ThingType>> thingTypes : thingTypesList) {
-                for (ThingType thingType : thingTypes.getValue()) {
-                    ThingType localizedThingType = createLocalizedThingType(
-                            thingTypes.getKey(), thingType, locale);
-
-                    allThingTypes.add(localizedThingType);
-                }
-            }
-        }
-
-        return allThingTypes;
-    }
-
-    @Override
-    public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
-        Collection<Entry<Bundle, List<ThingType>>> thingTypesList =
-                this.bundleThingTypesMap.entrySet();
-
-        if (thingTypesList != null) {
-            for (Entry<Bundle, List<ThingType>> thingTypes : thingTypesList) {
-                for (ThingType thingType : thingTypes.getValue()) {
-                    if (thingType.getUID().equals(thingTypeUID)) {
-                        return createLocalizedThingType(thingTypes.getKey(), thingType, locale);
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    @Bind
-    public void setI18nProvider(I18nProvider i18nProvider) {
-        this.thingTypeI18nUtil = new ThingTypeI18nUtil(i18nProvider);
-    }
-    
-    @Unbind
-    public void unsetI18nProvider(I18nProvider i18nProvider) {
-        this.thingTypeI18nUtil = null;
-    }
-
-// TODO: I18N for ChannelGroupTypes!
-    private ThingType createLocalizedThingType(Bundle bundle, ThingType thingType, Locale locale) {
-        if (this.thingTypeI18nUtil != null) {
-            String label = this.thingTypeI18nUtil.getLabel(
-                    bundle, thingType.getUID(), thingType.getLabel(), locale);
-            String description = this.thingTypeI18nUtil.getDescription(
-                    bundle, thingType.getUID(), thingType.getDescription(), locale);
-
-            List<ChannelDefinition> localizedChannelDefinitions = new ArrayList<>(
-                    thingType.getChannelDefinitions().size());
-
-            for (ChannelDefinition channelDefinition : thingType.getChannelDefinitions()) {
-                ChannelDefinition localizedChannelDefinition =
-                        createLocalizedChannelDefinition(bundle, channelDefinition, locale);
-                localizedChannelDefinitions.add(localizedChannelDefinition);
-            }
-
-            if (thingType instanceof BridgeType) {
-                BridgeType bridgeType = (BridgeType) thingType;
-                return new BridgeType(bridgeType.getUID(), bridgeType.getSupportedBridgeTypeUIDs(),
-                        label, description, localizedChannelDefinitions,
-                        thingType.getChannelGroupDefinitions(), bridgeType.getConfigDescriptionURI());
-            } else {
-                return new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(),
-                        label, description, localizedChannelDefinitions,
-                        thingType.getChannelGroupDefinitions(),
-                        thingType.getConfigDescriptionURI());
-            }
-        } else {
-            return thingType;
-        }
-    }
-
     private ChannelDefinition createLocalizedChannelDefinition(Bundle bundle, ChannelDefinition channelDefinition,
             Locale locale) {
 
@@ -213,6 +116,32 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
         }
     }
 
+    private ChannelGroupDefinition createLocalizedChannelGroupDefinition(Bundle bundle,
+            ChannelGroupDefinition channelGroupDefinition, Locale locale) {
+        ChannelGroupType channelGroupType = channelGroupDefinition.getType();
+
+        List<ChannelDefinition> localizedChannelDefinitions = new ArrayList<>();
+        List<ChannelDefinition> channelDefinitions = channelGroupType.getChannelDefinitions();
+        
+        for (ChannelDefinition channelDefinition : channelDefinitions) {
+            ChannelDefinition localizedChannelDefinition = createLocalizedChannelDefinition(bundle, channelDefinition, locale);
+            localizedChannelDefinitions.add(localizedChannelDefinition);
+        }
+        
+
+        ChannelGroupTypeUID channelGroupTypeUID = channelGroupType.getUID();
+        
+        String label = this.thingTypeI18nUtil.getChannelGroupLabel(bundle, channelGroupTypeUID,
+                channelGroupType.getLabel(), locale);
+        String description = this.thingTypeI18nUtil.getChannelGroupLabel(bundle, channelGroupTypeUID,
+                channelGroupType.getDescription(), locale);  
+
+        ChannelGroupType localizedChannelGroupType = new ChannelGroupType(channelGroupTypeUID,
+                channelGroupType.isAdvanced(), label, description, localizedChannelDefinitions);
+        
+        return new ChannelGroupDefinition(channelGroupDefinition.getId(), localizedChannelGroupType);
+    }
+
     private ChannelState createLocalizedChannelState(Bundle bundle, ChannelType channelType,
             ChannelTypeUID channelTypeUID, Locale locale) {
 
@@ -235,6 +164,112 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
         } else {
             return null;
         }
+    }
+
+    private ThingType createLocalizedThingType(Bundle bundle, ThingType thingType, Locale locale) {
+        if (this.thingTypeI18nUtil != null) {
+            String label = this.thingTypeI18nUtil.getLabel(
+                    bundle, thingType.getUID(), thingType.getLabel(), locale);
+            String description = this.thingTypeI18nUtil.getDescription(
+                    bundle, thingType.getUID(), thingType.getDescription(), locale);
+
+            List<ChannelDefinition> localizedChannelDefinitions = new ArrayList<>(
+                    thingType.getChannelDefinitions().size());
+
+            for (ChannelDefinition channelDefinition : thingType.getChannelDefinitions()) {
+                ChannelDefinition localizedChannelDefinition =
+                        createLocalizedChannelDefinition(bundle, channelDefinition, locale);
+                localizedChannelDefinitions.add(localizedChannelDefinition);
+            }
+            
+            List<ChannelGroupDefinition> localizedChannelGroupDefinitions = new ArrayList<>(thingType
+                    .getChannelDefinitions().size());
+            for (ChannelGroupDefinition channelGroupDefinition : thingType.getChannelGroupDefinitions()) {
+                ChannelGroupDefinition localizedchannelGroupDefinition = createLocalizedChannelGroupDefinition(bundle,
+                        channelGroupDefinition, locale);
+                localizedChannelGroupDefinitions.add(localizedchannelGroupDefinition);
+            }
+
+            if (thingType instanceof BridgeType) {
+                BridgeType bridgeType = (BridgeType) thingType;
+                return new BridgeType(bridgeType.getUID(), bridgeType.getSupportedBridgeTypeUIDs(), label, description,
+                        localizedChannelDefinitions, localizedChannelGroupDefinitions,
+                        bridgeType.getConfigDescriptionURI());
+            } else {
+                return new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(), label, description,
+                        localizedChannelDefinitions, localizedChannelGroupDefinitions,
+                        thingType.getConfigDescriptionURI());
+            }
+        } else {
+            return thingType;
+        }
+    }
+    
+    @Override
+    public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
+        Collection<Entry<Bundle, List<ThingType>>> thingTypesList =
+                this.bundleThingTypesMap.entrySet();
+
+        if (thingTypesList != null) {
+            for (Entry<Bundle, List<ThingType>> thingTypes : thingTypesList) {
+                for (ThingType thingType : thingTypes.getValue()) {
+                    if (thingType.getUID().equals(thingTypeUID)) {
+                        return createLocalizedThingType(thingTypes.getKey(), thingType, locale);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public synchronized Collection<ThingType> getThingTypes(Locale locale) {
+        List<ThingType> allThingTypes = new ArrayList<>(10);
+
+        Collection<Entry<Bundle, List<ThingType>>> thingTypesList =
+                this.bundleThingTypesMap.entrySet();
+
+        if (thingTypesList != null) {
+            for (Entry<Bundle, List<ThingType>> thingTypes : thingTypesList) {
+                for (ThingType thingType : thingTypes.getValue()) {
+                    ThingType localizedThingType = createLocalizedThingType(
+                            thingTypes.getKey(), thingType, locale);
+
+                    allThingTypes.add(localizedThingType);
+                }
+            }
+        }
+
+        return allThingTypes;
+    }
+
+    /**
+     * Removes all {@link ThingType} objects from the internal list associated
+     * with the specified module.
+     * <p>
+     * This method returns silently if the module is {@code null}.
+     * 
+     * @param bundle
+     *            the module for which all associated Thing types to be removed
+     */
+    public synchronized void removeAllThingTypes(Bundle bundle) {
+        if (bundle != null) {
+            List<ThingType> thingTypes = this.bundleThingTypesMap.get(bundle);
+
+            if (thingTypes != null) {
+                this.bundleThingTypesMap.remove(bundle);
+            }
+        }
+    }
+
+    @Bind
+    public void setI18nProvider(I18nProvider i18nProvider) {
+        this.thingTypeI18nUtil = new ThingTypeI18nUtil(i18nProvider);
+    }
+
+    @Unbind
+    public void unsetI18nProvider(I18nProvider i18nProvider) {
+        this.thingTypeI18nUtil = null;
     }
 
 }
