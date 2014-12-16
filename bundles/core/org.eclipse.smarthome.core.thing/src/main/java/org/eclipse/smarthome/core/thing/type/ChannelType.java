@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.core.thing.Channel;
+import org.eclipse.smarthome.core.types.StateDescription;
 
 
 /**
@@ -30,7 +31,7 @@ public class ChannelType extends AbstractDescriptionType {
     
     private final String category;
     private final boolean advanced;
-    private final ChannelState state;
+    private final StateDescription state;
     private final String itemType;
     private final Set<String> tags;
     private final URI configDescriptionURI;
@@ -60,7 +61,7 @@ public class ChannelType extends AbstractDescriptionType {
      *     or the the meta information is null
      */
     public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, String label,
-            String description, String category, Set<String> tags, ChannelState state,
+            String description, String category, Set<String> tags, StateDescription state,
             URI configDescriptionURI) throws IllegalArgumentException {
 
         super(uid, label, description);
@@ -138,7 +139,7 @@ public class ChannelType extends AbstractDescriptionType {
         return advanced;
     }
 
-    public ChannelState getState() {
+    public StateDescription getState() {
         return state;
     }
 

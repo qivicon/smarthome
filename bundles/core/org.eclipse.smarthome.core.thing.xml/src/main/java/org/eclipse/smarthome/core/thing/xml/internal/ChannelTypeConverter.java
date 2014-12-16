@@ -17,9 +17,9 @@ import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.xml.util.ConverterAttributeMapValidator;
 import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
-import org.eclipse.smarthome.core.thing.type.ChannelState;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
+import org.eclipse.smarthome.core.types.StateDescription;
 
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
@@ -92,12 +92,12 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         return tags; 
     }
 
-    private ChannelState readChannelState(NodeIterator nodeIterator) {
+    private StateDescription readStateDescription(NodeIterator nodeIterator) {
         Object nextNode = nodeIterator.next();
 
         if (nextNode != null) {
-            if (nextNode instanceof ChannelState) {
-                return (ChannelState) nextNode;
+            if (nextNode instanceof StateDescription) {
+                return (StateDescription) nextNode;
             }
 
             nodeIterator.revert();
@@ -121,7 +121,7 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         String category = readCategory(nodeIterator);
         Set<String> tags = readTags(nodeIterator);
 
-        ChannelState stateDescription = readChannelState(nodeIterator);
+        StateDescription stateDescription = readStateDescription(nodeIterator);
 
         Object[] configDescriptionObjects = super.getConfigDescriptionObjects(nodeIterator);
 
