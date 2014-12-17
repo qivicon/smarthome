@@ -183,7 +183,7 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
             }
             
             List<ChannelGroupDefinition> localizedChannelGroupDefinitions = new ArrayList<>(thingType
-                    .getChannelDefinitions().size());
+                    .getChannelGroupDefinitions().size());
             for (ChannelGroupDefinition channelGroupDefinition : thingType.getChannelGroupDefinitions()) {
                 ChannelGroupDefinition localizedchannelGroupDefinition = createLocalizedChannelGroupDefinition(bundle,
                         channelGroupDefinition, locale);
