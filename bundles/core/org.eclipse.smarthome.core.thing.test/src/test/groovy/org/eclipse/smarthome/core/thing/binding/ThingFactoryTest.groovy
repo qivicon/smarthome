@@ -67,8 +67,8 @@ class ThingFactoryTest {
 
     private List getChannelDefinitions(){
         List channelDefinitions = new ArrayList<ChannelDefinition>()
-        def cd1 = new ChannelDefinition("channel1", new ChannelType(new ChannelTypeUID("channel:cd1"), "itemType", "channelLabel", "description", new HashSet<String>(), new URI("scheme", "channelType:cd1", null)))
-        def cd2 = new ChannelDefinition("channel2", new ChannelType(new ChannelTypeUID("channel:cd2"), "itemType2", "label2", "description22222", new HashSet<String>(), new URI("scheme", "channelType:cd2",null)))
+        def cd1 = new ChannelDefinition("channel1", new ChannelType(new ChannelTypeUID("channel:cd1"), false, "itemType", "channelLabel", "description", "category", new HashSet<String>(), null, new URI("scheme", "channelType:cd1", null)))
+        def cd2 = new ChannelDefinition("channel2", new ChannelType(new ChannelTypeUID("channel:cd2"), false, "itemType2", "label2", "description22222", "category", new HashSet<String>(), null, new URI("scheme", "channelType:cd2",null)))
         channelDefinitions.add(cd1)
         channelDefinitions.add(cd2)
         return channelDefinitions;
@@ -77,7 +77,7 @@ class ThingFactoryTest {
 
     @Test
     void 'create Thing with Default values'(){
-        def thingType = new ThingType(new ThingTypeUID("myThingType","myThing"), null, "label", "description", getChannelDefinitions(), new URI("scheme", "thingType", null))
+        def thingType = new ThingType(new ThingTypeUID("myThingType","myThing"), null, "label", "description", getChannelDefinitions(), null, new URI("scheme", "thingType", null))
         def configuration = new Configuration()
         
         def configDescriptionRegistry = new ConfigDescriptionRegistry() {
@@ -102,13 +102,13 @@ class ThingFactoryTest {
 	@Test
 	void 'create Thing with Channels'() {
 
-		ChannelType channelType1 = new ChannelType(new ChannelTypeUID("bindingId:channelTypeId1"), "Color", "label", "description", new HashSet([ "tag1", "tag2" ]), null)
-		ChannelType channelType2 = new ChannelType(new ChannelTypeUID("bindingId:channelTypeId2"), "Dimmer", "label", "description", new HashSet([ "tag3" ]), null)
+		ChannelType channelType1 = new ChannelType(new ChannelTypeUID("bindingId:channelTypeId1"), false, "Color", "label", "description", "category", new HashSet([ "tag1", "tag2" ]), null, null)
+		ChannelType channelType2 = new ChannelType(new ChannelTypeUID("bindingId:channelTypeId2"), false, "Dimmer", "label", "description", "category", new HashSet([ "tag3" ]), null, null)
 
 		ChannelDefinition channelDef1 = new ChannelDefinition("ch1", channelType1)
 		ChannelDefinition channelDef2 = new ChannelDefinition("ch2", channelType2)
 		
-		def thingType = new ThingType(new ThingTypeUID("bindingId:thingType"), [], "label", null, [channelDef1, channelDef2], null)
+		def thingType = new ThingType(new ThingTypeUID("bindingId:thingType"), [], "label", null, [channelDef1, channelDef2], null, null)
 		def configuration = new Configuration();
 
 		def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)

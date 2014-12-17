@@ -49,7 +49,7 @@ class ThingTypesTest extends OSGiTest {
         assertThat bundle, is(notNullValue())
 
         def thingTypes = thingTypeProvider.getThingTypes(null)
-        assertThat thingTypes.size(), is(initialNumberOfThingTypes + 2)
+        assertThat thingTypes.size(), is(initialNumberOfThingTypes + 3)
 
         def bridgeType = thingTypes.find { it.toString().equals("hue:bridge") } as BridgeType
         assertThat bridgeType, is(notNullValue())
@@ -110,6 +110,15 @@ class ThingTypesTest extends OSGiTest {
                 assertThat tags.contains("AlarmSystem"), is(true)
                 assertThat tags.contains("AmbientLamp"), is(false)
                 assertThat tags.contains("ColorLamp"), is(false)
+                assertThat category, is(equalTo("ALARM"))
+                assertThat state.minimum.compareTo(new BigDecimal(0)), is(0)
+                assertThat state.maximum.compareTo(new BigDecimal(100)), is(0)
+                assertThat state.step.compareTo(new BigDecimal(10)), is(0)
+                assertThat state.pattern, is(equalTo("%d Peek"))
+                assertThat state.readOnly, is(true)
+                assertThat state.options.size(), is(2)
+                assertThat state.options[0].value, is(equalTo("SOUND"))
+                assertThat state.options[0].label, is(equalTo("My great sound."))
             }
         }
 
@@ -128,7 +137,7 @@ class ThingTypesTest extends OSGiTest {
         assertThat bundle, is(notNullValue())
 
         def thingTypes = thingTypeProvider.getThingTypes(null)
-        assertThat thingTypes.size(), is(initialNumberOfThingTypes + 2)
+        assertThat thingTypes.size(), is(initialNumberOfThingTypes + 3)
 
         // uninstall test bundle
         bundle.uninstall();

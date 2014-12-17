@@ -28,12 +28,15 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.LocaleUtil;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ChannelDefinitionBean;
+import org.eclipse.smarthome.io.rest.core.thing.beans.ChannelGroupDefinitionBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ConfigDescriptionParameterBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ThingTypeBean;
 import org.slf4j.Logger;
@@ -126,7 +129,26 @@ public class ThingTypeResource implements RESTResource {
     private ThingTypeBean convertToThingTypeBean(ThingType thingType, Locale locale) {
         return new ThingTypeBean(thingType.getUID().toString(), thingType.getLabel(), thingType.getDescription(),
                 getConfigDescriptionParameterBeans(thingType.getUID(), locale),
-                convertToChannelDefinitionBeans(thingType.getChannelDefinitions()));
+                convertToChannelDefinitionBeans(thingType.getChannelDefinitions()),
+                convertToChannelGroupDefinitionBeans(thingType.getChannelGroupDefinitions()));
+    }
+
+    private List<ChannelGroupDefinitionBean> convertToChannelGroupDefinitionBeans(
+            List<ChannelGroupDefinition> channelGroupDefinitions) {
+        List<ChannelGroupDefinitionBean> channelGroupDefinitionBeans = new ArrayList<>();
+        for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
+            String id = channelGroupDefinition.getId();
+            ChannelGroupType channelGroupType = channelGroupDefinition.getType();
+
+            String label = channelGroupType.getLabel();
+            String description = channelGroupType.getDescription();
+            List<ChannelDefinition> channelDefinitions = channelGroupType.getChannelDefinitions();
+            List<ChannelDefinitionBean> channelDefinitionBeans = convertToChannelDefinitionBeans(channelDefinitions);
+
+            channelGroupDefinitionBeans.add(new ChannelGroupDefinitionBean(id, label, description,
+                    channelDefinitionBeans));
+        }
+        return channelGroupDefinitionBeans;
     }
 
     private List<ChannelDefinitionBean> convertToChannelDefinitionBeans(List<ChannelDefinition> channelDefinitions) {
@@ -134,7 +156,8 @@ public class ThingTypeResource implements RESTResource {
         for (ChannelDefinition channelDefinition : channelDefinitions) {
             ChannelType channelType = channelDefinition.getType();
             ChannelDefinitionBean channelDefinitionBean = new ChannelDefinitionBean(channelDefinition.getId(),
-                    channelType.getLabel(), channelType.getDescription(), channelType.getTags());
+                    channelType.getLabel(), channelType.getDescription(), channelType.getTags(),
+                    channelType.getCategory(), channelType.getState());
             channelDefinitionBeans.add(channelDefinitionBean);
         }
         return channelDefinitionBeans;
