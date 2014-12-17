@@ -61,7 +61,7 @@ public class ThingTypeI18nUtil {
     public String getChannelStateOption(Bundle bundle, ChannelTypeUID channelTypeUID, String optionValue, String defaultOptionLabel,
             Locale locale) {
         String key = I18nUtil.isConstant(defaultOptionLabel) ? I18nUtil.stripConstant(defaultOptionLabel)
-                : inferChannelKey(channelTypeUID, "state.options." + optionValue);
+                : inferChannelKey(channelTypeUID, "state.option." + optionValue);
         return i18nProvider.getText(bundle, key, defaultOptionLabel, locale);
     }
     

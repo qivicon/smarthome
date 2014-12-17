@@ -133,7 +133,7 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
         
         String label = this.thingTypeI18nUtil.getChannelGroupLabel(bundle, channelGroupTypeUID,
                 channelGroupType.getLabel(), locale);
-        String description = this.thingTypeI18nUtil.getChannelGroupLabel(bundle, channelGroupTypeUID,
+        String description = this.thingTypeI18nUtil.getChannelGroupDescription(bundle, channelGroupTypeUID,
                 channelGroupType.getDescription(), locale);  
 
         ChannelGroupType localizedChannelGroupType = new ChannelGroupType(channelGroupTypeUID,
