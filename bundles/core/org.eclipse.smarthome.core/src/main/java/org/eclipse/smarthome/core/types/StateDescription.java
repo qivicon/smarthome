@@ -19,7 +19,7 @@ public class StateDescription {
     private final BigDecimal step;
     private final String pattern;
     private final boolean readOnly;
-    private final List<StateOption> stateOptions;
+    private final List<StateOption> options;
 
     /**
      * Creates a state description object.
@@ -29,20 +29,20 @@ public class StateDescription {
      * @param step step size
      * @param pattern pattern to render the state
      * @param readOnly if the state can be changed by the system
-     * @param stateOptions predefined list of options
+     * @param options predefined list of options
      */
     public StateDescription(BigDecimal minimum, BigDecimal maximum, BigDecimal step, String pattern,
-            boolean readOnly, List<StateOption> stateOptions) {
+            boolean readOnly, List<StateOption> options) {
 
         this.minimum = minimum;
         this.maximum = maximum;
         this.step = step;
         this.pattern = pattern;
         this.readOnly = readOnly;
-        if (stateOptions != null) {
-            this.stateOptions = Collections.unmodifiableList(new ArrayList<StateOption>(stateOptions));
+        if (options != null) {
+            this.options = Collections.unmodifiableList(new ArrayList<StateOption>(options));
         } else {
-            this.stateOptions = Collections.unmodifiableList(new ArrayList<StateOption>(0));
+            this.options = Collections.unmodifiableList(new ArrayList<StateOption>(0));
         }
     }
 
@@ -98,14 +98,14 @@ public class StateDescription {
      * @return ist of predefined states with their label
      */
     public List<StateOption> getOptions() {
-        return stateOptions;
+        return options;
     }
 
     @Override
     public String toString() {
         return "StateDescription [minimum=" + minimum + ", maximum=" + maximum
                 + ", step=" + step + ", pattern=" + pattern + ", readOnly="
-                + readOnly + ", channelStateOptions=" + stateOptions
+                + readOnly + ", channelStateOptions=" + options
                 + "]";
     }
 
