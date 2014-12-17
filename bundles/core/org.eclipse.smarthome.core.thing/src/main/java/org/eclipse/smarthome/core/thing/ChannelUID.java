@@ -73,19 +73,14 @@ public class ChannelUID extends UID {
      * @param id the channel's id
      */
     public ChannelUID(String bindingId, String thingTypeId, String thingId, String groupId, String id) {
-        super(bindingId, thingTypeId, thingId, groupId != null ? groupId + CHANNEL_GROUP_SEPERATOR + id : id);
+        super(bindingId, thingTypeId, thingId, getChannelId(groupId, id));
     }
 	
     private static String[] getArray(String bindingId, String thingTypeId, String thingId, String groupId, String id, List<String> bridgeIds) {
-    	if (bridgeIds == null) {
-    	    if(groupId == null) {
-    	        return new String[] {
-    	    		bindingId,thingTypeId,thingId,id};
-    	    } else {
-    	        return new String[] {
-                        bindingId,thingTypeId,thingId,groupId,id};
-    	    }
-    	}
+        
+        if (bridgeIds == null) {
+            return new String[] { bindingId, thingTypeId, thingId, getChannelId(groupId, id) };
+        }
     	
     	String[] result = new String[4 + bridgeIds.size()];
     	result[0] = bindingId;
@@ -95,9 +90,13 @@ public class ChannelUID extends UID {
 		}
     	
         result[result.length - 2] = thingId;
-    	result[result.length - 1] = groupId != null ? groupId + CHANNEL_GROUP_SEPERATOR + id : id;
+    	result[result.length - 1] = getChannelId(groupId, id);
     	
     	return result;
+    }
+
+    private static String getChannelId(String groupId, String id) {
+        return groupId != null ? groupId + CHANNEL_GROUP_SEPERATOR + id : id;
     }
 	
 	   /**
