@@ -12,8 +12,8 @@ import org.eclipse.smarthome.core.thing.UID;
 
 /**
  * The {@link AbstractDescriptionType} class is the base class for a {@link ThingType},
- * a {@link BridgeType} or a {@link ChannelType}. This class contains only properties
- * and methods accessing them.
+ * a {@link BridgeType} a {@link ChannelType} or a {@link ChannelGroupType}.
+ * This class contains only properties and methods accessing them.
  * <p>
  * <b>Hint:</b> This class is immutable.
  * 
@@ -24,6 +24,7 @@ public abstract class AbstractDescriptionType {
     private UID uid;
     private String label;
     private String description;
+
     /**
      * Creates a new instance of this class with the specified parameters.
      * 
@@ -36,10 +37,10 @@ public abstract class AbstractDescriptionType {
      * @param description the human readable description for the according type
      *     (could be null or empty)
      * 
-     * @throws IllegalArgumentException if the UID is null or empty,
-     *     or the the meta information is null
+     * @throws IllegalArgumentException if the UID is null, or the label is null or empty
      */
-    public AbstractDescriptionType(UID uid, String label, String description) throws IllegalArgumentException {
+    public AbstractDescriptionType(UID uid, String label, String description)
+            throws IllegalArgumentException {
 
         if (uid == null) {
             throw new IllegalArgumentException("The UID must not be null");

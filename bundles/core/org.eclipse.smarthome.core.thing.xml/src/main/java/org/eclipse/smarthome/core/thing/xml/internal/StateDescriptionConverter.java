@@ -14,11 +14,20 @@ import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
 
 import com.thoughtworks.xstream.converters.ConversionException;
+import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 
-// TODO:
+/**
+ * The {@link StateDescriptionConverter} is a concrete implementation of the {@code XStream}
+ * {@link Converter} interface used to convert a state description within an XML document
+ * into a {@link StateDescription} object.
+ * <p>
+ * This converter converts {@code state} XML tags.
+ *
+ * @author Michael Grammling - Initial Contribution
+ */
 public class StateDescriptionConverter extends GenericUnmarshaller<StateDescription> {
 
     protected ConverterAttributeMapValidator attributeMapValidator;

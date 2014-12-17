@@ -13,7 +13,15 @@ import org.eclipse.smarthome.core.thing.type.ChannelType;
 import com.thoughtworks.xstream.converters.ConversionException;
 
 
-// TODO:
+/**
+ * The {@link ChannelGroupTypeXmlResult} is an intermediate XML conversion result object which
+ * contains all parts of a {@link ChannelGroupType} object.
+ * <p>
+ * To create a concrete {@link ChannelGroupType} object, the method {@link #toChannelGroupType(Map)}
+ * must be called.
+ * 
+ * @author Michael Grammling - Initial Contribution
+ */
 public class ChannelGroupTypeXmlResult {
 
     private ChannelGroupTypeUID channelGroupTypeUID;

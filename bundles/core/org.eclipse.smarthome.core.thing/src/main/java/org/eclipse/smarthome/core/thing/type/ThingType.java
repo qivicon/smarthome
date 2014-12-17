@@ -62,14 +62,17 @@ public class ThingType extends AbstractDescriptionType {
      * 
      * @param channelDefinitions the channels this Thing type provides (could be null or empty)
      * 
+     * @param channelGroupDefinitions the channel groups defining the channels this Thing type
+     *     provides (could be null or empty)
+     * 
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
      * 
      * @throws IllegalArgumentException
      *     if the UID is null or empty, or the the meta information is null
      */
     public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs,
-            String label, String description, List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
-            URI configDescriptionURI)
+            String label, String description, List<ChannelDefinition> channelDefinitions,
+            List<ChannelGroupDefinition> channelGroupDefinitions, URI configDescriptionURI)
             throws IllegalArgumentException {
 
         super(uid, label, description);
@@ -86,14 +89,14 @@ public class ThingType extends AbstractDescriptionType {
             this.channelDefinitions = Collections.unmodifiableList(
                     new ArrayList<ChannelDefinition>(0));
         }
-        
+
         if (channelGroupDefinitions != null) {
             this.channelGroupDefinitions = Collections.unmodifiableList(channelGroupDefinitions);
         } else {
             this.channelGroupDefinitions = Collections.unmodifiableList(
                     new ArrayList<ChannelGroupDefinition>(0));
         }
-        
+
         this.configDescriptionURI = configDescriptionURI;
     }
 
@@ -139,9 +142,35 @@ public class ThingType extends AbstractDescriptionType {
         return this.channelDefinitions;
     }
     
-
+    /**
+     * Returns the channel groups defining the channels this {@link ThingType} provides.
+     * <p>
+     * The returned list is immutable.
+     * 
+     * @return the channel groups defining the channels this Thing type provides
+     *     (not null, could be empty)
+     */
     public List<ChannelGroupDefinition> getChannelGroupDefinitions() {
         return this.channelGroupDefinitions;
+    }
+
+    /**
+     * Returns {@code true} if a link to a concrete {@link ConfigDescription} exists,
+     * otherwise {@code false}. 
+     * 
+     * @return true if a link to a concrete ConfigDescription exists, otherwise false
+     */
+    public boolean hasConfigDescriptionURI() {
+        return (this.configDescriptionURI != null);
+    }
+
+    /**
+     * Returns the link to a concrete {@link ConfigDescription}.
+     * 
+     * @return the link to a concrete ConfigDescription (could be null)
+     */
+    public URI getConfigDescriptionURI() {
+        return this.configDescriptionURI;
     }
 
     @Override
@@ -166,25 +195,6 @@ public class ThingType extends AbstractDescriptionType {
     @Override
     public String toString() {
         return getUID().toString();
-    }
-
-    /**
-     * Returns {@code true} if a link to a concrete {@link ConfigDescription} exists,
-     * otherwise {@code false}. 
-     * 
-     * @return true if a link to a concrete ConfigDescription exists, otherwise false
-     */
-    public boolean hasConfigDescriptionURI() {
-        return (this.configDescriptionURI != null);
-    }
-
-    /**
-     * Returns the link to a concrete {@link ConfigDescription}.
-     * 
-     * @return the link to a concrete ConfigDescription (could be null)
-     */
-    public URI getConfigDescriptionURI() {
-        return this.configDescriptionURI;
     }
 
 }

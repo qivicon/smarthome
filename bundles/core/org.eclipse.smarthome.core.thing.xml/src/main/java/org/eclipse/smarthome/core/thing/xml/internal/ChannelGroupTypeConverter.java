@@ -9,11 +9,22 @@ import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 
 import com.thoughtworks.xstream.converters.ConversionException;
+import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 
-// TODO:
+/**
+ * The {@link ChannelGroupTypeConverter} is a concrete implementation of the {@code XStream}
+ * {@link Converter} interface used to convert channel group type information within an
+ * XML document into a {@link ChannelGroupTypeXmlResult} object.
+ * <p>
+ * This converter converts {@code channel-group-type} XML tags.
+ * It uses the {@link AbstractDescriptionTypeConverter} which offers base functionality
+ * for each type definition.
+ *
+ * @author Michael Grammling - Initial Contribution
+ */
 public class ChannelGroupTypeConverter
         extends AbstractDescriptionTypeConverter<ChannelGroupTypeXmlResult> {
 
