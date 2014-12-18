@@ -40,7 +40,6 @@ public class StateDescription {
      */
     public StateDescription(BigDecimal minimum, BigDecimal maximum, BigDecimal step, String pattern,
             boolean readOnly, List<StateOption> options) {
-
         this.minimum = minimum;
         this.maximum = maximum;
         this.step = step;
