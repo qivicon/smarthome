@@ -28,7 +28,8 @@ import com.google.common.collect.Lists;
 public class ThingTypeRegistry {
 	
     private List<ThingTypeProvider> thingTypeProviders = new CopyOnWriteArrayList<>();
-	
+
+
     /**
      * Returns all thing types.
      * 

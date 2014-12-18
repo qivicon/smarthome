@@ -29,11 +29,11 @@ import org.eclipse.smarthome.core.types.StateDescription;
  */
 public class ChannelType extends AbstractDescriptionType {
     
-    private final String category;
     private final boolean advanced;
-    private final StateDescription state;
     private final String itemType;
     private final Set<String> tags;
+    private final String category;
+    private final StateDescription state;
     private final URI configDescriptionURI;
 
 
@@ -43,6 +43,8 @@ public class ChannelType extends AbstractDescriptionType {
      * @param uid the unique identifier which identifies this Channel type within
      *     the overall system (must neither be null, nor empty)
      *
+     * @param advanced true if this channel type contains advanced features, otherwise false
+     * 
      * @param itemType the item type of this Channel type, e.g. {@code ColorItem}
      *     (must neither be null nor empty)
      *
@@ -52,8 +54,14 @@ public class ChannelType extends AbstractDescriptionType {
      * @param description the human readable description for the according type
      *     (could be null or empty)
      *
+     * @param category the category of this Channel type, e.g. {@code TEMPERATURE}
+     *     (could be null or empty)
+     *
      * @param tags all tags of this {@link ChannelType}, e.g. {@code Alarm}
      *     (could be null or empty)
+     *
+     * @param state the restrictions of an item state which gives information how to interpret it
+     *     (could be null)
      *
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
      *
@@ -79,9 +87,9 @@ public class ChannelType extends AbstractDescriptionType {
             this.tags = Collections.unmodifiableSet(new HashSet<String>(0));
         }
         
-        this.state = state;
         this.advanced = advanced;
         this.category = category;
+        this.state = state;
     }
 
     @Override
@@ -131,16 +139,34 @@ public class ChannelType extends AbstractDescriptionType {
         return this.configDescriptionURI;
     }
 
-    public String getCategory() {
-        return category;
+    /**
+     * Returns the restrictions of an item state which gives information how to interpret it.
+     * 
+     * @return the restriction of an item state which gives information how to interpret it
+     *     (could be null)
+     */
+    public StateDescription getState() {
+        return state;
     }
 
+    /**
+     * Returns {@code true} if this channel type contains advanced functionalities
+     * which should be typically not shown in the basic view of user interfaces,
+     * otherwise {@code false}.
+     * 
+     * @return true if this channel type contains advanced functionalities, otherwise false
+     */
     public boolean isAdvanced() {
         return advanced;
     }
 
-    public StateDescription getState() {
-        return state;
+    /**
+     * Returns the category of this {@link ChannelType}, e.g. {@code TEMPERATURE}.
+     * 
+     * @return the category of this Channel type, e.g. {@code TEMPERATURE} (could be null or empty)
+     */
+    public String getCategory() {
+        return category;
     }
 
 }
