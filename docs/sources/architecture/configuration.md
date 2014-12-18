@@ -123,10 +123,8 @@ Binding definitions must be placed as XML file(s) (with the ending `.xml`) in th
       <config-description>
         ...
       </config-description>
-
       OR
-
-      <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:..."/>
+      <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:..." />
 
     </binding:binding>
 
@@ -198,14 +196,17 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
           <channel id="channelID" typeId="channelTypeID" />
           ...
         </channels>
+        OR
+        <channel-groups>
+          <channel-group id="channelGroupID" typeId="channelGroupTypeID" />
+          ...
+        </channel-groups>
 
         <config-description>
           ...
         </config-description>
-
         OR
-
-        <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:..."/>
+        <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:..." />
       </bridge-type>
 
       <thing-type id="thingTypeID">
@@ -221,29 +222,55 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
           <channel id="channelID" typeId="channelTypeID" />
           ...
         </channels>
+        OR
+        <channel-groups>
+          <channel-group id="channelGroupID" typeId="channelGroupTypeID" />
+          ...
+        </channel-groups>
 
         <config-description>
           ...
         </config-description>
-
         OR
-
-        <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:..."/>
+        <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:..." />
       </thing-type>
 
-      <channel-type id="channelTypeID">
+      <channel-type id="channelTypeID" advanced="{true|false}">
         <item-type>Dimmer</item-type>
         <label>String</label>
         <description>String</description>
+        <category>String</category>
+
+        <tags>
+          <tag>String</tag>
+          ...
+        </tags>
+
+        <state min="decimal" max="decimal" step="decimal" pattern="String" readOnly="{true|false}">
+          <options>
+            <option value="String" />
+            OR
+            <option value="String">String</option>
+            ...
+          </options>
+        </state>
 
         <config-description>
           ...
         </config-description>
-
         OR
-
-        <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:..."/>
+        <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:..." />
       </channel-type>   
+
+      <channel-group-type id="channelGroupTypeID" advanced="{true|false}">
+        <label>String</label>
+        <description>String</description>
+
+        <channels>
+          <channel id="channelID" typeId="channelTypeID" />
+          ...
+        </channels>
+      </channel-group-type>   
 
       ...
 
@@ -265,6 +292,9 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <tr><td>channels</td><td>The channels the bridge/<i>Thing</i> provides (optional).</td></tr>
   <tr><td>channel.id</td><td>An identifier of the channel the bridge/<i>Thing</i> provides (mandatory).</td></tr>
   <tr><td>channel.typeId</td><td>An identifier of the channel type definition the bridge/<i>Thing</i> provides (mandatory).</td></tr>
+  <tr><td>channel-groups</td><td>The channel groups defining the channels the bridge/<i>Thing</i> provides (optional).</td></tr>
+  <tr><td>channel-group.id</td><td>An identifier of the channel group the bridge/<i>Thing</i> provides (mandatory).</td></tr>
+  <tr><td>channel-group.typeId</td><td>An identifier of the channel group type definition the bridge/<i>Thing</i> provides (mandatory).</td></tr>
   <tr><td>config-description</td><td>The configuration description for the bridge/<i>Thing</i> within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref</td><td>The reference to a configuration description for the bridge/<i>Thing</i> within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref.uri</td><td>The URI of the configuration description for the bridge/<i>Thing</i> within the ConfigDescriptionRegistry (mandatory).</td></tr>
@@ -274,12 +304,37 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
 <table>
   <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
   <tr><td>channel-type.id</td><td>An identifier for the channel type (mandatory).</td></tr>
+  <tr><td>channel-type.advanced</td><td>The flag indicating if this channel contains advanced functionalities which should be typically not shown in the basic view of user interfaces (optional, default: false).</td></tr>
   <tr><td>item-type</td><td>An item type of the channel (mandatory). All item types are specified in <code>ItemFactory</code> instances. The following items belong to the core: <code>Switch, Rollershutter, Contact, String, Number, Dimmer, DateTime, Color, Image</code>.</td></tr>
   <tr><td>label</td><td>A human readable label for the channel (mandatory).</td></tr>
   <tr><td>description</td><td>A human readable description for the channel (optional).</td></tr>
+  <tr><td>category</td><td>The category for the channel, e.g. <code>TEMPERATURE</code> (optional).</td></tr>
+  <tr><td>tags</td><td>A list of default tags to be assigned to bound items (optional).</td></tr>
+  <tr><td>tag</td><td>A tag semantically describes the feature (typical usage) of the channel e.g. <code>AlarmSystem</code>. There are no pre-default tags, they are custom-specific (mandatory).</td></tr>
+  <tr><td>state</td><td>The restrictions of an item state which gives information how to interpret it (optional).</td></tr>
+  <tr><td>state.min</td><td>The minimum decimal value of the range for the state (optional).</td></tr>
+  <tr><td>state.max</td><td>The maximum decimal value of the range for the state (optional).</td></tr>
+  <tr><td>state.step</td><td>The increasing/decreasing decimal step size within the defined range, specified by the minimum/maximum values (optional).</td></tr>
+  <tr><td>state.pattern</td><td>The pattern following the <code>printf</code> syntax to render the state (optional).</td></tr>
+  <tr><td>state.readOnly</td><td>The flag indicating if the state is read-only or can be modified (optional, default: false).</td></tr>
+  <tr><td>options</td><td>A list restricting all possible values (optional).</td></tr>
+  <tr><td>option</td><td>The description for the option (optional).</td></tr>
+  <tr><td>option.value</td><td>The value for the option (mandatory).</td></tr>
   <tr><td>config-description</td><td>The configuration description for the channel within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref</td><td>The reference to a configuration description for the channel within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref.uri</td><td>The URI of the configuration description for the channel within the ConfigDescriptionRegistry (mandatory).</td></tr>
+</table>
+<p>
+<b>Channel Groups:</b>
+<table>
+  <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
+  <tr><td>channel-group-type.id</td><td>An identifier for the channel group type (mandatory).</td></tr>
+  <tr><td>channel-group-type.advanced</td><td>The flag indicating if this channel group contains advanced functionalities which should be typically not shown in the basic view of user interfaces (optional, default: false).</td></tr>
+  <tr><td>label</td><td>A human readable label for the channel group (mandatory).</td></tr>
+  <tr><td>description</td><td>A human readable description for the channel group (optional).</td></tr>
+  <tr><td>channels</td><td>The channels the bridge/<i>Thing</i> provides (mandatory).</td></tr>
+  <tr><td>channel.id</td><td>An identifier of the channel the bridge/<i>Thing</i> provides (mandatory).</td></tr>
+  <tr><td>channel.typeId</td><td>An identifier of the channel type definition the bridge/<i>Thing</i> provides (mandatory).</td></tr>
 </table>
 
 The full XML schema for *Thing* type descriptions is specified in the <a href="http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">ESH thing description XSD</a> file.
