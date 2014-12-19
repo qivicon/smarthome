@@ -8,7 +8,7 @@ TBD
 
 A channel describes a specific functionality of a thing and can be linked to an item. So the basic information is, which command types the channel can handle and which state it sends to the linked item. This can be specified by the accepted item type. Inside the thing type description XML file a list of channels can be referenced. The channel type definition is specified on the same level as the thing type definition. That way channels can be reused in different things.
 
-The following XML snippet shows a thing type definition with 2 channels and one of the referenced channel types:
+The following XML snippet shows a thing type definition with 2 channels and one referenced channel types:
 
 ```xml 
 <thing-type id="thingTypeID">
@@ -31,9 +31,9 @@ The following XML snippet shows a thing type definition with 2 channels and one 
 </channel-type>
 ```
 
-The `advanced` property indicates if this channel is either a basic or a more specific functionality of the thing. If `advanced` is set to `true` a user inteface mide hide this channel by default. The default value is false and will be taken if the `advanced` attribute is not specified. Espacially for complex devices with a lot of channels, only a small set of channels - the most important ones - should be shown to the user to reduce complexity. If a channel should be declared as `advanced` depends on the device and can be decided by the binding developer. If a functionality is rarley used it should be better marked as `advanced`.
+The `advanced` property indicates if this channel is either a basic or a more specific functionality of the thing. If `advanced` is set to `true` a user inteface mide hide this channel by default. The default value is `false` and will be taken if the `advanced` attribute is not specified. Espacially for complex devices with a lot of channels, only a small set of channels - the most important ones - should be shown to the user to reduce complexity. If a channel should be declared as `advanced` depends on the device and can be decided by the binding developer. If a functionality is rarley used it should be better marked as `advanced`.
 
-In the following sections the declaration and semantics of tags, state descriptions and channel categories will be explained in more detail. For a complete sample of the thing types XML file and a list of possible configuration options please see the [XML Configuration Guide](configuration.md).
+In the following sections the declaration and semantics of tags, state descriptions and channel categories will be explained in more detail. For a complete sample of the thing types XML file and a full list of possible configuration options please see the [XML Configuration Guide](configuration.md).
 
 ### Default Tags
 
@@ -106,16 +106,17 @@ The channel type definition allows to specify a category. Together with the defi
 | Wind          | R               | Number                 |
 | Window        | R, RW           | String, Switch         |
 | Zoom          | RW              | String                 |
+R=Read, RW=Read/Write
 
-The accessible mode indicates whether a category could have `read only` flag configured to true or not. For example the "Motion" category only can be used for sensors, so `read only` can not be false. Temperature can be either measured or adjusted, so its accessible mode is R and RW, which means the read only flag can be true or false. In addition categories are realated to specific item types. For example the 'Energy' category can only be used for Number items. But 'Rain' could be either expressed as Switch item, where it only indicates if it rains or not, or as Number, which gives information about the rain intensity.
+The accessible mode indicates whether a category could have `read only` flag configured to true or not. For example the `Motion` category can be used for sensors only, so `read only` can not be false. Temperature can be either measured or adjusted, so the accessible mode is R and RW, which means the read only flag can be `true` or `false`. In addition categories are realated to specific item types. For example the 'Energy' category can only be used for `Number` items. But `Rain` could be either expressed as Switch item, where it only indicates if it rains or not, or as `Number`, which gives information about the rain intensity.
 
-The list of categories may not be complete and not every device will fit into one of these categories. It is possible to define own categories. If the category is used widly used, the list of predefined categories can be extended. Moreover not all user interfaces will support all categories. It is more important to specify the `read only` information and state information, so that default controls can be rendered, even if the category is not supported.
+The list of categories may not be complete and not every device will fit into one of these categories. It is possible to define own categories. If the category is widely used, the list of predefined categories can be extended. Moreover not all user interfaces will support all categories. It is more important to specify the `read only` information and state information, so that default controls can be rendered, even if the category is not supported.
 
 ### Channel Groups
 
-Some devices might have a lot of channels. There are also complex devices like a multi-channel actuator, which is installed inside the switchboard, but controls switches in other rooms. Therefore channel groups can be used to group a set of channels together into one logical group. A thing can only have direct channels or channel groups, but not both.
+Some devices might have a lot of channels. There are also complex devices like a multi-channel actuator, which is installed inside the switchboard, but controls switches in other rooms. Therefore channel groups can be used to group a set of channels together into one logical block. A thing can only have direct channels or channel groups, but not both.
 
-Inside the thing types XML file a channel groups can be defined like this:
+Inside the thing types XML file channel groups can be defined like this:
 
 ```xml 
 <thing-type id="multiChannelSwitchActor">
@@ -140,4 +141,4 @@ The channel group type is defined on the same level as the thing types and chann
 </channel-group-type> 
 ```
 
-When a thing will be created for a thing type with channel groups, the channel UID will contain the group ID in the last segment divided by a hash (#). If an Item should be linked to channel within a group the channel UID would be `binding:multiChannelSwitchActor:myDevice:switchActor1#switch` for the XML example before.
+When a thing will be created for a thing type with channel groups, the channel UID will contain the group ID in the last segment divided by a hash (#). If an Item should be linked to channel within a group, the channel UID would be `binding:multiChannelSwitchActor:myDevice:switchActor1#switch` for the XML example before.

@@ -20,31 +20,32 @@ Configuration descriptions must be placed as XML file(s) (with the ending `.xml`
 
 
 ### XML Structure for Configuration Descriptions
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<config-description:config-descriptions
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
+        http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <config-description:config-descriptions
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
-        xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
-            http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
+  <config-description uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:...">
+    <parameter name="String" type="{text|integer|decimal|boolean}">
+      <context>{network_address|password|email}</context>
+      <required>{true|false}</required>
+      <default>String</default>
+      <label>String</label>
+      <description>String</description>
+    </parameter>
+  </config-description>
 
-      <config-description uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:...">
-        <parameter name="String" type="{text|integer|decimal|boolean}">
-          <context>{network_address|password|email}</context>
-          <required>{true|false}</required>
-          <default>String</default>
-          <label>String</label>
-          <description>String</description>
-        </parameter>
-      </config-description>
+  <config-description uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:...">
+    ...
+  </config-description>
 
-      <config-description uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:...">
-        ...
-      </config-description>
+  ...
 
-      ...
-
-    </config-description:config-descriptions>
+</config-description:config-descriptions>
+```
 
 <table>
   <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
@@ -70,32 +71,33 @@ The full XML schema for configuration descriptions is specified in the [ESH conf
 
 The following code gives an example for one configuration description.  
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <config-description:config-description uri="bridge-type://my-great-binding:my-bridge-name"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
-        xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
-            http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<config-description:config-description uri="bridge-type://my-great-binding:my-bridge-name"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
+        http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
 
-      <parameter name="ipAddress" type="text">
-        <context>network_address</context>
-        <label>Network Address</label>
-        <description>Network address of the device.</description>
-        <required>true</required>
-      </parameter>
+  <parameter name="ipAddress" type="text">
+    <context>network_address</context>
+    <label>Network Address</label>
+    <description>Network address of the device.</description>
+    <required>true</required>
+  </parameter>
 
-      <parameter name="userName" type="text">
-        <label>User Name</label>
-        <required>true</required>
-      </parameter>
+  <parameter name="userName" type="text">
+    <label>User Name</label>
+    <required>true</required>
+  </parameter>
 
-      <parameter name="password" type="text">
-        <context>password</context>
-        <required>false</required>
-      </parameter>
+  <parameter name="password" type="text">
+    <context>password</context>
+    <required>false</required>
+  </parameter>
 
-    </config-description:config-description>
-
+</config-description:config-description>
+```
 
 ## Binding Definitions
 
