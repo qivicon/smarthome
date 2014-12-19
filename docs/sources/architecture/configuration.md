@@ -111,24 +111,26 @@ Binding definitions must be placed as XML file(s) (with the ending `.xml`) in th
 
 ### XML Structure for Binding Definitions
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <binding:binding id="bindingID"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:binding="http://eclipse.org/smarthome/schemas/binding/v1.0.0"
-        xsi:schemaLocation="http://eclipse.org/smarthome/schemas/binding/v1.0.0
-            http://eclipse.org/smarthome/schemas/binding-1.0.0.xsd">
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<binding:binding id="bindingID"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:binding="http://eclipse.org/smarthome/schemas/binding/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/binding/v1.0.0
+        http://eclipse.org/smarthome/schemas/binding-1.0.0.xsd">
 
-      <name>String</name>
-      <description>String</description>
-      <author>String</author>
+  <name>String</name>
+  <description>String</description>
+  <author>String</author>
 
-      <config-description>
-        ...
-      </config-description>
-      OR
-      <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:..." />
+  <config-description>
+    ...
+  </config-description>
+  OR
+  <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:..." />
 
-    </binding:binding>
+</binding:binding>
+```
 
 <table>
   <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
@@ -153,19 +155,20 @@ The full XML schema for binding definitions is specified in the [ESH binding XSD
 
 The following code gives an example for a binding definition.  
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <binding:binding id="hue"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:binding="http://eclipse.org/smarthome/schemas/binding/v1.0.0"
-        xsi:schemaLocation="http://eclipse.org/smarthome/schemas/binding/v1.0.0
-            http://eclipse.org/smarthome/schemas/binding-1.0.0.xsd">
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<binding:binding id="hue"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:binding="http://eclipse.org/smarthome/schemas/binding/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/binding/v1.0.0
+        http://eclipse.org/smarthome/schemas/binding-1.0.0.xsd">
 
-      <name>hue Binding</name>
-      <description>The hue Binding integrates the Philips hue system. It allows to control hue bulbs.</description>
-      <author>ACME</author>
+  <name>hue Binding</name>
+  <description>The hue Binding integrates the Philips hue system. It allows to control hue bulbs.</description>
+  <author>ACME</author>
 
-    </binding:binding>
-
+</binding:binding>
+```
 
 ## Bridges and Thing Descriptions
 
@@ -178,105 +181,107 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
 
 ### XML Structure for Thing Descriptions
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <thing:thing-descriptions bindingId="bindingID"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
-        xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0
-            http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="bindingID"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0
+        http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-      <bridge-type id="bridgeTypeID">
-        <supported-bridge-type-refs>
-          <bridge-type-ref id="bridgeTypeID" />
-          ...
-        </supported-bridge-type-refs>
-
-        <label>String</label>
-        <description>String</description>
-
-        <channels>
-          <channel id="channelID" typeId="channelTypeID" />
-          ...
-        </channels>
-        OR
-        <channel-groups>
-          <channel-group id="channelGroupID" typeId="channelGroupTypeID" />
-          ...
-        </channel-groups>
-
-        <config-description>
-          ...
-        </config-description>
-        OR
-        <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:..." />
-      </bridge-type>
-
-      <thing-type id="thingTypeID">
-        <supported-bridge-type-refs>
-          <bridge-type-ref id="bridgeTypeID" />
-          ...
-        </supported-bridge-type-refs>
-
-        <label>String</label>
-        <description>String</description>
-
-        <channels>
-          <channel id="channelID" typeId="channelTypeID" />
-          ...
-        </channels>
-        OR
-        <channel-groups>
-          <channel-group id="channelGroupID" typeId="channelGroupTypeID" />
-          ...
-        </channel-groups>
-
-        <config-description>
-          ...
-        </config-description>
-        OR
-        <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:..." />
-      </thing-type>
-
-      <channel-type id="channelTypeID" advanced="{true|false}">
-        <item-type>Dimmer</item-type>
-        <label>String</label>
-        <description>String</description>
-        <category>String</category>
-
-        <tags>
-          <tag>String</tag>
-          ...
-        </tags>
-
-        <state min="decimal" max="decimal" step="decimal" pattern="String" readOnly="{true|false}">
-          <options>
-            <option value="String" />
-            OR
-            <option value="String">String</option>
-            ...
-          </options>
-        </state>
-
-        <config-description>
-          ...
-        </config-description>
-        OR
-        <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:..." />
-      </channel-type>   
-
-      <channel-group-type id="channelGroupTypeID" advanced="{true|false}">
-        <label>String</label>
-        <description>String</description>
-
-        <channels>
-          <channel id="channelID" typeId="channelTypeID" />
-          ...
-        </channels>
-      </channel-group-type>   
-
+  <bridge-type id="bridgeTypeID">
+    <supported-bridge-type-refs>
+      <bridge-type-ref id="bridgeTypeID" />
       ...
+    </supported-bridge-type-refs>
 
-    </thing:thing-descriptions>
+    <label>String</label>
+    <description>String</description>
+
+    <channels>
+      <channel id="channelID" typeId="channelTypeID" />
+      ...
+    </channels>
+    OR
+    <channel-groups>
+      <channel-group id="channelGroupID" typeId="channelGroupTypeID" />
+      ...
+    </channel-groups>
+
+    <config-description>
+      ...
+    </config-description>
+    OR
+    <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:..." />
+  </bridge-type>
+
+  <thing-type id="thingTypeID">
+    <supported-bridge-type-refs>
+      <bridge-type-ref id="bridgeTypeID" />
+      ...
+    </supported-bridge-type-refs>
+
+    <label>String</label>
+    <description>String</description>
+
+    <channels>
+      <channel id="channelID" typeId="channelTypeID" />
+      ...
+    </channels>
+    OR
+    <channel-groups>
+      <channel-group id="channelGroupID" typeId="channelGroupTypeID" />
+      ...
+    </channel-groups>
+
+    <config-description>
+      ...
+    </config-description>
+    OR
+    <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:..." />
+  </thing-type>
+
+  <channel-type id="channelTypeID" advanced="{true|false}">
+    <item-type>Dimmer</item-type>
+    <label>String</label>
+    <description>String</description>
+    <category>String</category>
+
+    <tags>
+      <tag>String</tag>
+      ...
+    </tags>
+
+    <state min="decimal" max="decimal" step="decimal" pattern="String" readOnly="{true|false}">
+      <options>
+        <option value="String" />
+        OR
+        <option value="String">String</option>
+        ...
+      </options>
+    </state>
+
+    <config-description>
+      ...
+    </config-description>
+    OR
+    <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:..." />
+  </channel-type>   
+
+  <channel-group-type id="channelGroupTypeID" advanced="{true|false}">
+    <label>String</label>
+    <description>String</description>
+
+    <channels>
+      <channel id="channelID" typeId="channelTypeID" />
+      ...
+    </channels>
+  </channel-group-type>   
+
+  ...
+
+</thing:thing-descriptions>
+```
 
 <table>
   <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
