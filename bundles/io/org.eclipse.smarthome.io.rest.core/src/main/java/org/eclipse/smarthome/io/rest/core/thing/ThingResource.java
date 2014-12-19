@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
 @Path("things")
 public class ThingResource implements RESTResource {
 
-    private static final Logger logger = LoggerFactory.getLogger(ThingResource.class);
+    private final Logger logger = LoggerFactory.getLogger(ThingResource.class);
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private ItemFactory itemFactory;
@@ -233,7 +233,6 @@ public class ThingResource implements RESTResource {
 
     protected void unsetItemChannelLinkRegistry() {
         itemChannelLinkRegistry = null;
-        ;
     }
 
     protected void unsetItemFactory() {
