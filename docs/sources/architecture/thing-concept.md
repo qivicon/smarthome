@@ -6,11 +6,11 @@ TBD
 
 ## Channels
 
-A channel describes a specific functionality of a thing. A channel will be linked to an item. So the basic information is, which command types the channel can handle and which state it sends to the linked item. This can be specified by the accepted item type. Inside the thing type description XML file a list of channels can be referenced. The channel type definition is specified on the same level as the thing type definition. That way channels can be reused in different things.
+A channel describes a specific functionality of a thing and can be linked to an item. So the basic information is, which command types the channel can handle and which state it sends to the linked item. This can be specified by the accepted item type. Inside the thing type description XML file a list of channels can be referenced. The channel type definition is specified on the same level as the thing type definition. That way channels can be reused in different things.
 
 ### Categories
 
-The channel type definition allows to specify a category. Together with the definition of the `readOnly` attribute in the state description, user interfaces get an idea how to render an item for this channel. A binding should classify each channel into one of the existing categories. This is a table of all predefined categories, their usual accssible mode and the according item type:
+The channel type definition allows to specify a category. Together with the definition of the `readOnly` attribute in the state description, user interfaces get an idea how to render an item for this channel. A binding should classify each channel into one of the existing categories. This is a list of all predefined categories with their usual accssible mode and the according item type:
 
 | Category      | Accessible Mode | Item Type              |
 |---------------|-----------------|------------------------|
@@ -52,3 +52,4 @@ The list of categories may not be complete and not every device will fit into on
 
 ### Channel Groups
 
+Some devices might have a lot of channels. There are also complex devices like a multi-channel actuator, which is installed inside switchboard, but controls switches inside other rooms. Therefore channel groups can be used to group a set of channels together into one logical group.
