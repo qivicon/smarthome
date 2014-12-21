@@ -88,6 +88,13 @@ public interface Item {
 	 */
 	public Set<String> getTags();
 	
+    /**
+     * Returns the label of the item or null if no label is set.
+     * 
+     * @return item label or null
+     */
+	public String getLabel();
+	
 	/**
 	 * Returns true if the item's tags contains the specific tag, otherwise false.
 	 * 
@@ -96,20 +103,10 @@ public interface Item {
 	 */
 	public boolean hasTag(String tag);
 	
-	/**
-	 * 
-	 * @param tag - a tag that is to be added to item's tags.
-	 */
-	public void addTag(String tag);
-	
-	/**
-	 * 
-	 * @param tag - a tag that is to be removed from item's tags. 
-	 */
-	public void removeTag(String tag);
-	
-	/**
-	 * Clears all tags of this item.
-	 */
-	public void removeAllTags();
+    /**
+     * Returns the category of the item or null if no category is set.
+     * 
+     * @return category or null
+     */
+    public String getCategory();
 }

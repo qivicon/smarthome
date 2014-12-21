@@ -34,7 +34,7 @@ import com.google.common.collect.ImmutableSet;
  * @author Andre Fuechsel - Added tags
  *
  */
-abstract public class GenericItem implements Item {
+abstract public class GenericItem implements ActiveItem {
 	
 	protected EventPublisher eventPublisher;
 
@@ -49,6 +49,10 @@ abstract public class GenericItem implements Item {
 	final protected String type;
 	
 	protected State state = UnDefType.NULL;
+	
+	protected String label;
+	
+	protected String category;
 	
 	public GenericItem(String type, String name) {
 		this.name = name;
@@ -246,6 +250,26 @@ abstract public class GenericItem implements Item {
     @Override
     public void removeAllTags() {
         tags.clear();
+    }
+    
+    @Override
+    public String getLabel() {
+        return this.label;
+    }
+    
+    @Override
+    public void setLabel(String label) {
+        this.label = label;
+    }
+    
+    @Override
+    public String getCategory() {
+        return category;
+    }
+    
+    @Override
+    public void setCategory(String category) {
+        this.category = category;   
     }
 	
 }
