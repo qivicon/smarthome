@@ -8,10 +8,12 @@
 package org.eclipse.smarthome.core.items;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.UnDefType;
 
 /**
@@ -109,4 +111,20 @@ public interface Item {
      * @return category or null
      */
     public String getCategory();
+    
+    /**
+     * Returns the state description (uses the default locale).
+     * 
+     * @return state description (can be null)
+     */
+    public StateDescription getStateDescription();
+
+    /**
+     * Returns the state description for a given locale.
+     * 
+     * @param locale
+     *            locale (can be null)
+     * @return state description (can be null)
+     */
+    public StateDescription getStateDescription(Locale locale);
 }

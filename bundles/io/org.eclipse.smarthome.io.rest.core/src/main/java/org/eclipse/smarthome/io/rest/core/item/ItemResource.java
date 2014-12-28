@@ -367,6 +367,10 @@ public class ItemResource implements RESTResource {
     		 bean = new ItemBean();
     	}
     	bean.name = item.getName();
+    	bean.label = item.getLabel();
+    	bean.category = item.getCategory();
+    	// TODO: use locale
+    	bean.stateDescription = item.getStateDescription();
     	bean.state = item.getState().toString();
     	bean.type = item.getClass().getSimpleName();
     	bean.link = UriBuilder.fromUri(uriPath).path(ItemResource.PATH_ITEMS).path(bean.name).build().toASCIIString();

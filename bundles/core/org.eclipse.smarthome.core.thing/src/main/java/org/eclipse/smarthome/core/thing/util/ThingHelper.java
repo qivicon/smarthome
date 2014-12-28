@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemFactory;
@@ -20,6 +21,8 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.internal.ThingImpl;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -80,6 +83,14 @@ public class ThingHelper {
 				if (item == null) {
 					logger.error("The item of type '{}' has not been created by the ItemFactory '{}'.", acceptedItemType, itemFactory.getClass().getName());
 				} else {
+				    Set<String> tags = channel.getDefaultTags();
+	                for (String tag : tags) {
+	                    item.addTag(tag);
+	                }
+	                ChannelType channelType = getThingTypeRegistry().getChannelType(channel.getUID());
+	                if(channelType != null) {
+	                    item.setCategory(channelType.getCategory());
+	                }
                     createItemIfNecessary(managedItemProvider, item);
                     createLinkIfNecessary(managedItemChannelLinkProvider, item, channel);
 				}
@@ -164,6 +175,18 @@ public class ThingHelper {
 		}
 		return null;
 	}
+
+    @SuppressWarnings("unchecked")
+    private ThingTypeRegistry getThingTypeRegistry() {
+        ServiceReference<ThingTypeRegistry> thingTypeRegistryRef = (ServiceReference<ThingTypeRegistry>) bundleContext
+                .getServiceReference(ThingTypeRegistry.class.getName());
+        if (thingTypeRegistryRef != null) {
+            return bundleContext.getService(thingTypeRegistryRef);
+        } else {
+            return null;
+        }
+
+    }
 	
 	/**
 	 * Indicates whether two {@link Thing}s are technical equal.

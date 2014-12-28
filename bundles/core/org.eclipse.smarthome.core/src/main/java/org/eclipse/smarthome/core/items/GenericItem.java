@@ -8,9 +8,12 @@
 package org.eclipse.smarthome.core.items;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -19,6 +22,8 @@ import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.StateDescription;
+import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.eclipse.smarthome.core.types.UnDefType;
 
 import com.google.common.base.Joiner;
@@ -53,7 +58,9 @@ abstract public class GenericItem implements ActiveItem {
 	protected String label;
 	
 	protected String category;
-	
+
+    private StateDescriptionProvider stateDescriptionProvider;
+    
 	public GenericItem(String type, String name) {
 		this.name = name;
 		this.type = type;
@@ -110,6 +117,7 @@ abstract public class GenericItem implements ActiveItem {
      * @param groupItemName
      *            group item name to add
      */
+    @Override
     public void addGroupName(String groupItemName) {
         if (!groupNames.contains(groupItemName)) {
             groupNames.add(groupItemName);
@@ -122,6 +130,7 @@ abstract public class GenericItem implements ActiveItem {
      * @param groupItemName
      *            group item name to remove
      */
+    @Override
     public void removeGroupName(String groupItemName) {
         groupNames.remove(groupItemName);
     }
@@ -129,6 +138,10 @@ abstract public class GenericItem implements ActiveItem {
 	public void setEventPublisher(EventPublisher eventPublisher) {
 		this.eventPublisher = eventPublisher;
 	}
+	
+   public void setStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
+        this.stateDescriptionProvider = stateDescriptionProvider;
+    }
 	
 	protected void internalSend(Command command) {
 		// try to send the command to the bus
@@ -241,6 +254,16 @@ abstract public class GenericItem implements ActiveItem {
     public void addTag(String tag) {
         tags.add(tag); 
     }
+    
+    @Override
+    public void addTags(Collection<String> tags) {
+        this.tags.addAll(tags);
+    }
+    
+    @Override
+    public void addTags(String... tags) {
+        this.tags.addAll(Arrays.asList(tags));   
+    }
 
     @Override
     public void removeTag(String tag) {
@@ -270,6 +293,20 @@ abstract public class GenericItem implements ActiveItem {
     @Override
     public void setCategory(String category) {
         this.category = category;   
+    }
+    
+    @Override
+    public StateDescription getStateDescription() {
+        return getStateDescription(Locale.getDefault());
+    }
+    
+    @Override
+    public StateDescription getStateDescription(Locale locale) {
+        if(stateDescriptionProvider != null) {
+            return stateDescriptionProvider.getStateDescription(this.name, locale);
+        } else {
+            return null;
+        }
     }
 	
 }

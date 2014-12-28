@@ -9,6 +9,8 @@ package org.eclipse.smarthome.io.rest.core.item.beans;
 
 import java.util.Set;
 
+import org.eclipse.smarthome.core.types.StateDescription;
+
 
 /**
  * This is a java bean that is used with JAXB to serialize items to JSON.
@@ -21,9 +23,12 @@ public class ItemBean {
 
 	public String type;
 	public String name;	
+	public String label;
+	public String category;
 	public String state;
 	public String link;
 	public Set<String> tags; 
+	public StateDescription stateDescription;
 	
 	public ItemBean() {}
 		

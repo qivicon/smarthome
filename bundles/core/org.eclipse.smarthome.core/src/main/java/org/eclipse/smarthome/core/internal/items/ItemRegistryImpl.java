@@ -25,6 +25,7 @@ import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.core.items.ItemsChangeListener;
+import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +47,8 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
      * that they can communicate over the bus
      */
     protected EventPublisher eventPublisher;
+    
+    protected StateDescriptionProvider stateDescriptionProvider;
 
     @Override
     public void allItemsChanged(ItemProvider provider, Collection<String> oldItemNames) {
@@ -198,6 +201,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
             if (item instanceof GenericItem) {
                 GenericItem genericItem = (GenericItem) item;
                 genericItem.setEventPublisher(eventPublisher);
+                genericItem.setStateDescriptionProvider(stateDescriptionProvider);
                 genericItem.initialize();
             }
 
@@ -261,6 +265,21 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
             ((GenericItem) item).setEventPublisher(null);
         }
     }
+    
+    protected void setStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
+        this.stateDescriptionProvider = stateDescriptionProvider;
+        for (Item item : getItems()) {
+            ((GenericItem) item).setStateDescriptionProvider(stateDescriptionProvider);
+        }
+    }
+
+    protected void unsetStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
+        this.stateDescriptionProvider = null;
+        for (Item item : getItems()) {
+            ((GenericItem) item).setStateDescriptionProvider(null);
+        }
+    }
+
 
     @Override
     public Collection<Item> getItemsByTag(String... tags) {

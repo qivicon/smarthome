@@ -98,6 +98,10 @@ public abstract class UID {
 
     @Override
     public String toString() {
+        return getAsString();
+    }
+    
+    public String getAsString() {
         return Joiner.on(SEPARATOR).join(segments);
     }
 
