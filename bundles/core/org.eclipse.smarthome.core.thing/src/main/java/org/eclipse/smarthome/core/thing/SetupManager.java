@@ -1,12 +1,17 @@
 package org.eclipse.smarthome.core.thing;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.items.ActiveItem;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
+import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
@@ -24,8 +29,9 @@ import org.slf4j.LoggerFactory;
 public class SetupManager {
 
     private static final String TAG_CHANNEL_GROUP = "channel_group";
+    private static final String TAG_HOME_GROUP = "home_group";
     private static final String TAG_THING = "thing";
-    
+
     private List<ItemFactory> itemFactories = new CopyOnWriteArrayList<>();;
     private final Logger logger = LoggerFactory.getLogger(SetupManager.class);
     private ManagedItemChannelLinkProvider managedItemChannelLinkProvider;
@@ -34,6 +40,13 @@ public class SetupManager {
     private ManagedThingProvider managedThingProvider;
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
     private ThingTypeRegistry thingTypeRegistry;
+
+    public void addHomeGroup(String itemName, String label) {
+        GroupItem groupItem = new GroupItem(itemName);
+        groupItem.setLabel(label);
+        groupItem.addTag(TAG_HOME_GROUP);
+        managedItemProvider.add(groupItem);
+    }
 
     public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID) {
         addThing(thingUID, configuration, bridgeUID, true);
@@ -80,6 +93,12 @@ public class SetupManager {
         }
     }
 
+    public void addToHomeGroup(String itemName, String groupItemName) {
+        ActiveItem item = (ActiveItem) this.managedItemProvider.get(itemName);
+        item.addGroupName(groupItemName);
+        this.managedItemProvider.update(item);
+    }
+
     public void disableChannel(ChannelUID channelUID) {
         Collection<ItemChannelLink> itemChannelLinks = this.managedItemChannelLinkProvider.getAll();
         for (ItemChannelLink itemChannelLink : itemChannelLinks) {
@@ -118,12 +137,53 @@ public class SetupManager {
 
     }
 
+    public List<GroupItem> getHomeGroups() {
+        List<GroupItem> homeGroupItems = new ArrayList<>();
+        for (Item item : this.managedItemProvider.getAll()) {
+            if (item instanceof GroupItem && ((GroupItem) item).hasTag(TAG_HOME_GROUP)) {
+                homeGroupItems.add((GroupItem) item);
+            }
+        }
+        return homeGroupItems;
+    }
+
+    public Map<Thing, GroupItem> getThings() {
+        Map<Thing, GroupItem> thingMap = new HashMap<>();
+
+        for (Thing thing : managedThingProvider.getAll()) {
+            GroupItem groupItem = getGroupItemForThing(thing.getUID());
+            thingMap.put(thing, groupItem);
+        }
+
+        return thingMap;
+    }
+
+    public void removeFromHomeGroup(String itemName, String groupItemName) {
+        ActiveItem item = (ActiveItem) this.managedItemProvider.get(itemName);
+        item.removeGroupName(groupItemName);
+        this.managedItemProvider.update(item);
+    }
+
+    public void removeHomeGroup(String itemName, String label) {
+        managedItemProvider.remove(itemName);
+    }
+
     public void removeThing(ThingUID thingUID) {
         String itemName = toItemName(thingUID);
         managedThingProvider.remove(thingUID);
         managedItemProvider.remove(itemName, true);
         managedItemThingLinkProvider.remove(ItemThingLink.getIDFor(itemName, thingUID));
         managedItemChannelLinkProvider.removeLinksForThing(thingUID);
+    }
+
+    public void setLabel(String itemName, String label) {
+        ActiveItem item = (ActiveItem) managedItemProvider.get(itemName);
+        if (item != null) {
+            item.setLabel(label);
+            managedItemProvider.update(item);
+        } else {
+            throw new IllegalArgumentException("Item with name " + itemName + " not found.");
+        }
     }
 
     protected void addItemFactory(ItemFactory itemFactory) {
@@ -195,6 +255,15 @@ public class SetupManager {
 
     private String getChannelGroupItemName(String itemName, String channelGroupId) {
         return itemName + "_" + channelGroupId;
+    }
+
+    private GroupItem getGroupItemForThing(ThingUID thingUID) {
+        for (ItemThingLink itemThingLink : this.managedItemThingLinkProvider.getAll()) {
+            if (itemThingLink.getUID().equals(thingUID)) {
+                return (GroupItem) managedItemProvider.get(itemThingLink.getItemName());
+            }
+        }
+        return null;
     }
 
     private ItemFactory getItemFactoryForItemType(String itemType) {
