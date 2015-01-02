@@ -207,11 +207,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
 
             if (item instanceof GroupItem) {
                 // fill group with its members
-                for (Item i : getItems()) {
-                    if (i.getGroupNames().contains(item.getName())) {
-                        ((GroupItem) item).addMember(i);
-                    }
-                }
+                addMembersToGroupItem((GroupItem) item);
             }
 
             // add the item to all relevant groups
@@ -220,6 +216,14 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
 			throw new IllegalArgumentException("Ignoring item '"
 					+ item.getName() + "' as it does not comply with"
 					+ " the naming convention.");
+        }
+    }
+
+    private void addMembersToGroupItem(GroupItem groupItem) {
+        for (Item i : getItems()) {
+            if (i.getGroupNames().contains(groupItem.getName())) {
+                groupItem.addMember(i);
+            }
         }
     }
 
@@ -250,6 +254,9 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
     protected void onUpdateElement(Item oldItem, Item item) {
         removeFromGroupItems(oldItem, oldItem.getGroupNames());
         addToGroupItems(item, item.getGroupNames());
+        if(item instanceof GroupItem) {
+            addMembersToGroupItem((GroupItem) item);
+        }
     }
 
     protected void setEventPublisher(EventPublisher eventPublisher) {
