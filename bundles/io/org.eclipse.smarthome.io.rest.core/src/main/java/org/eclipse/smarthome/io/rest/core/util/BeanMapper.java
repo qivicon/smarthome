@@ -24,31 +24,16 @@ import org.eclipse.smarthome.io.rest.core.thing.beans.ThingBean;
 public class BeanMapper {
 
     public static ItemBean mapItemToBean(Item item, boolean drillDown, String uriPath) {
-        ItemBean bean;
-        if (item instanceof GroupItem && drillDown) {
-            GroupItem groupItem = (GroupItem) item;
-            GroupItemBean groupBean = new GroupItemBean();
-            Collection<ItemBean> members = new LinkedHashSet<ItemBean>();
-            for (Item member : groupItem.getMembers()) {
-                members.add(mapItemToBean(member, false, uriPath));
-            }
-            groupBean.members = members.toArray(new ItemBean[members.size()]);
-            bean = groupBean;
-        } else {
-            bean = new ItemBean();
-        }
-        bean.name = item.getName();
-        bean.state = item.getState().toString();
-        bean.type = item.getClass().getSimpleName();
-        bean.link = UriBuilder.fromUri(uriPath).path(ItemResource.PATH_ITEMS).path(bean.name).build().toASCIIString();
-        bean.tags = item.getTags();
-        bean.category = item.getCategory();
-        bean.stateDescription = item.getStateDescription();        
-
+        ItemBean bean = item instanceof GroupItem ? new GroupItemBean() : new ItemBean();
+        fillProperties(bean, item, drillDown, uriPath);
         return bean;
     }
 
     public static ThingBean mapThingToBean(Thing thing, ItemChannelLinkRegistry itemChannelLinkRegistry) {
+        return mapThingToBean(thing, itemChannelLinkRegistry, null, null);
+    }
+    
+    public static ThingBean mapThingToBean(Thing thing, ItemChannelLinkRegistry itemChannelLinkRegistry, GroupItem item, String uriPath) {
         List<ChannelBean> channelBeans = new ArrayList<>();
         for (Channel channel : thing.getChannels()) {
             ChannelBean channelBean = mapChannelToBean(channel, itemChannelLinkRegistry);
@@ -58,7 +43,9 @@ public class BeanMapper {
         String thingUID = thing.getUID().toString();
         String bridgeUID = thing.getBridgeUID() != null ? thing.getBridgeUID().toString() : null;
 
-        return new ThingBean(thingUID, bridgeUID, thing.getStatus(), channelBeans, thing.getConfiguration());
+        GroupItemBean groupItemBean = item != null ? (GroupItemBean) mapItemToBean(item, true, uriPath) : null;
+        
+        return new ThingBean(thingUID, bridgeUID, thing.getStatus(), channelBeans, thing.getConfiguration(), groupItemBean);
     }
 
     public static ChannelBean mapChannelToBean(Channel channel, ItemChannelLinkRegistry itemChannelLinkRegistry) {
@@ -72,5 +59,25 @@ public class BeanMapper {
 
         return new DiscoveryResultBean(thingUID.toString(), bridgeUID != null ? bridgeUID.toString() : null,
                 discoveryResult.getLabel(), discoveryResult.getFlag(), discoveryResult.getProperties());
+    }
+    
+
+    private static void fillProperties(ItemBean bean, Item item, boolean drillDown, String uriPath) {
+        if (item instanceof GroupItem && drillDown) {
+            GroupItem groupItem = (GroupItem) item;
+            Collection<ItemBean> members = new LinkedHashSet<ItemBean>();
+            for (Item member : groupItem.getMembers()) {
+                members.add(mapItemToBean(member, false, uriPath));
+            }
+            ((GroupItemBean)bean).members = members.toArray(new ItemBean[members.size()]);
+        }
+        bean.name = item.getName();
+        bean.state = item.getState().toString();
+        bean.type = item.getClass().getSimpleName();
+        bean.link = UriBuilder.fromUri(uriPath).path(ItemResource.PATH_ITEMS).path(bean.name).build().toASCIIString();
+        bean.label = item.getLabel();
+        bean.tags = item.getTags();
+        bean.category = item.getCategory();
+        bean.stateDescription = item.getStateDescription();
     }
 }

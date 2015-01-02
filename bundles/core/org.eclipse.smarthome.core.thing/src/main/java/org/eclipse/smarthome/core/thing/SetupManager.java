@@ -32,7 +32,7 @@ public class SetupManager {
     private static final String TAG_HOME_GROUP = "home_group";
     private static final String TAG_THING = "thing";
 
-    private List<ItemFactory> itemFactories = new CopyOnWriteArrayList<>();;
+    private List<ItemFactory> itemFactories = new CopyOnWriteArrayList<>();
     private final Logger logger = LoggerFactory.getLogger(SetupManager.class);
     private ManagedItemChannelLinkProvider managedItemChannelLinkProvider;
     private ManagedItemProvider managedItemProvider;
@@ -47,12 +47,16 @@ public class SetupManager {
         groupItem.addTag(TAG_HOME_GROUP);
         managedItemProvider.add(groupItem);
     }
-
+    
     public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID) {
-        addThing(thingUID, configuration, bridgeUID, true);
+        addThing(thingUID, configuration, bridgeUID, null, true);
+    }
+    
+    public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label) {
+        addThing(thingUID, configuration, bridgeUID, label, true);
     }
 
-    public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, boolean enableChannels) {
+    public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label, boolean enableChannels) {
 
         ThingTypeUID thingTypeUID = thingUID.getThingTypeUID();
         Thing thing = createThing(thingUID, configuration, bridgeUID, thingTypeUID);
@@ -66,7 +70,8 @@ public class SetupManager {
         String itemName = toItemName(thing.getUID());
         GroupItem groupItem = new GroupItem(itemName);
         groupItem.addTag(TAG_THING);
-
+        groupItem.setLabel(label);
+ 
         managedThingProvider.add(thing);
         managedItemProvider.add(groupItem);
         managedItemThingLinkProvider.add(new ItemThingLink(itemName, thing.getUID()));
@@ -150,6 +155,7 @@ public class SetupManager {
     public Map<Thing, GroupItem> getThings() {
         Map<Thing, GroupItem> thingMap = new HashMap<>();
 
+        // TODO: get things from thing registry. things status is not synchronized
         for (Thing thing : managedThingProvider.getAll()) {
             GroupItem groupItem = getGroupItemForThing(thing.getUID());
             thingMap.put(thing, groupItem);
@@ -237,11 +243,11 @@ public class SetupManager {
     protected void unsetManagedThingProvider(ManagedThingProvider managedThingProvider) {
         this.managedThingProvider = null;
     }
-
+    
     protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = null;
     }
-
+    
     private Thing createThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID,
             ThingTypeUID thingTypeUID) {
         for (ThingHandlerFactory thingHandlerFactory : this.thingHandlerFactories) {

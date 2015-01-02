@@ -28,7 +28,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
-import org.eclipse.smarthome.core.thing.ManagedThingProvider;
+import org.eclipse.smarthome.core.thing.SetupManager;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.discovery.beans.DiscoveryResultBean;
@@ -44,9 +44,9 @@ import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 @Path("inbox")
 public class InboxResource implements RESTResource {
 
+    private SetupManager setupManager;
 	private Inbox inbox;
-	private ManagedThingProvider managedThingProvider;
-	
+
 	protected void setInbox(Inbox inbox) {
 		this.inbox = inbox;
 	}
@@ -55,14 +55,14 @@ public class InboxResource implements RESTResource {
 		this.inbox = null;
 	}
 
-	protected void setManagedThingProvider(ManagedThingProvider managedThingProvider) {
-		this.managedThingProvider = managedThingProvider;
-	}
-
-	protected void unsetManagedThingProvider(ManagedThingProvider managedThingProvider) {
-		this.managedThingProvider = null;
-	}
-
+	protected void setSetupManager(SetupManager setupManager) {
+        this.setupManager = setupManager;
+    }
+	
+	protected void unsetSetupManager(SetupManager setupManager) {
+        this.setupManager = null;
+    }
+    
     @Context
     private UriInfo uriInfo;
 
@@ -76,7 +76,7 @@ public class InboxResource implements RESTResource {
         }
         DiscoveryResult result = results.get(0);
         Configuration conf = new Configuration(result.getProperties());
-        managedThingProvider.createThing(result.getThingTypeUID(), result.getThingUID(), result.getBridgeUID(), conf);
+        setupManager.addThing(result.getThingUID(), conf, result.getBridgeUID());
         return Response.ok().build();
     }
 

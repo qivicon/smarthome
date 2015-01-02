@@ -60,7 +60,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
     public void remove(String itemName, boolean recursive) {
         Item item = get(itemName);
         if (recursive && item instanceof GroupItem) {
-            List<String> members = getMemberNamesRecursive((GroupItem) item);
+            List<String> members = getMemberNamesRecursive((GroupItem) item, getAll());
             for (String member : members) {
                 this.remove(member);
             }
@@ -68,12 +68,14 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
         this.remove(item.getName());
     }
     
-    private List<String> getMemberNamesRecursive(GroupItem groupItem) {
+    private List<String> getMemberNamesRecursive(GroupItem groupItem, Collection<Item> allItems) {
         List<String> memberNames = new ArrayList<>();
-        for (Item member : groupItem.getMembers()) {
-            memberNames.add(member.getName());
-            if(member instanceof GroupItem) {
-                memberNames.addAll(getMemberNamesRecursive((GroupItem) member));
+        for (Item item : allItems) {
+            if (item.getGroupNames().contains(groupItem.getName())) {
+                memberNames.add(item.getName());
+                if (item instanceof GroupItem) {
+                    memberNames.addAll(getMemberNamesRecursive((GroupItem) item, allItems));
+                }
             }
         }
         return memberNames;
