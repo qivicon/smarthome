@@ -11,6 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -68,7 +69,8 @@ public class InboxResource implements RESTResource {
 
     @POST
     @Path("/approve/{thingUID}")
-    public Response approve(@PathParam("thingUID") String thingUID) {
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response approve(@PathParam("thingUID") String thingUID, String label) {
         ThingUID thingUIDObject = new ThingUID(thingUID);
         List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUIDObject, null));
         if (results.isEmpty()) {
@@ -76,7 +78,7 @@ public class InboxResource implements RESTResource {
         }
         DiscoveryResult result = results.get(0);
         Configuration conf = new Configuration(result.getProperties());
-        setupManager.addThing(result.getThingUID(), conf, result.getBridgeUID());
+        setupManager.addThing(result.getThingUID(), conf, result.getBridgeUID(), label != null && !label.isEmpty() ? label : null);
         return Response.ok().build();
     }
 
