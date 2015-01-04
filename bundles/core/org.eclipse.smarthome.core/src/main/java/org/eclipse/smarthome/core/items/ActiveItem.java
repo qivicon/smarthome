@@ -1,6 +1,7 @@
 package org.eclipse.smarthome.core.items;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface ActiveItem extends Item {
 
@@ -62,4 +63,18 @@ public interface ActiveItem extends Item {
      * @param groupItemName name of the group (must not be null)
      */
     public abstract void addGroupName(String groupItemName);
+    
+    /**
+     * Assigns the according item to the given groups.
+     * 
+     * @param groupItemNames names of the groups (must not be null)
+     */
+    public abstract void addGroupNames(String... groupItemNames);
+    
+    /**
+     * Assigns the according item to the given groups.
+     * 
+     * @param groupItemNames names of the groups (must not be null)
+     */
+    public abstract void addGroupNames(List<String> groupItemNames);
 }

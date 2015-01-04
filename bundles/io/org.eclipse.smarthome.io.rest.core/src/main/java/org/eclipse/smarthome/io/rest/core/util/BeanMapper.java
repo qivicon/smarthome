@@ -67,7 +67,7 @@ public class BeanMapper {
             GroupItem groupItem = (GroupItem) item;
             Collection<ItemBean> members = new LinkedHashSet<ItemBean>();
             for (Item member : groupItem.getMembers()) {
-                members.add(mapItemToBean(member, false, uriPath));
+                members.add(mapItemToBean(member, drillDown, uriPath));
             }
             ((GroupItemBean)bean).members = members.toArray(new ItemBean[members.size()]);
         }
@@ -79,5 +79,6 @@ public class BeanMapper {
         bean.tags = item.getTags();
         bean.category = item.getCategory();
         bean.stateDescription = item.getStateDescription();
+        bean.groupNames = item.getGroupNames(); 
     }
 }

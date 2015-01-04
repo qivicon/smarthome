@@ -123,6 +123,20 @@ abstract public class GenericItem implements ActiveItem {
             groupNames.add(groupItemName);
         }
     }
+    
+    @Override
+    public void addGroupNames(String... groupItemNames) {
+        for (String groupItemName : groupItemNames) {
+            addGroupName(groupItemName);
+        }
+    }
+    
+    @Override
+    public void addGroupNames(List<String> groupItemNames) {
+        for (String groupItemName : groupItemNames) {
+            addGroupName(groupItemName);
+        }
+    }
 
     /**
      * Removes a group item name from the {@link GenericItem}.

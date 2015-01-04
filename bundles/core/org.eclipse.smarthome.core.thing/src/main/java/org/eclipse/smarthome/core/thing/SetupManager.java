@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
@@ -47,16 +48,21 @@ public class SetupManager {
         groupItem.addTag(TAG_HOME_GROUP);
         managedItemProvider.add(groupItem);
     }
-    
+
     public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID) {
-        addThing(thingUID, configuration, bridgeUID, null, true);
+        addThing(thingUID, configuration, bridgeUID, null);
     }
     
     public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label) {
-        addThing(thingUID, configuration, bridgeUID, label, true);
+        addThing(thingUID, configuration, bridgeUID, label, new ArrayList<String>());
+    }
+    
+    public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label, List<String> groupNames) {
+        addThing(thingUID, configuration, bridgeUID, label, groupNames, true);
     }
 
-    public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label, boolean enableChannels) {
+    public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label, List<String> groupNames,
+            boolean enableChannels) {
 
         ThingTypeUID thingTypeUID = thingUID.getThingTypeUID();
         Thing thing = createThing(thingUID, configuration, bridgeUID, thingTypeUID);
@@ -71,7 +77,9 @@ public class SetupManager {
         GroupItem groupItem = new GroupItem(itemName);
         groupItem.addTag(TAG_THING);
         groupItem.setLabel(label);
- 
+        groupItem.addGroupNames(groupNames);
+        
+
         managedThingProvider.add(thing);
         managedItemProvider.add(groupItem);
         managedItemThingLinkProvider.add(new ItemThingLink(itemName, thing.getUID()));
@@ -96,6 +104,10 @@ public class SetupManager {
                 }
             }
         }
+    }
+
+    public void updateThing(Thing thing) {
+        this.managedThingProvider.update(thing);
     }
 
     public void addToHomeGroup(String itemName, String groupItemName) {
@@ -155,7 +167,8 @@ public class SetupManager {
     public Map<Thing, GroupItem> getThings() {
         Map<Thing, GroupItem> thingMap = new HashMap<>();
 
-        // TODO: get things from thing registry. things status is not synchronized
+        // TODO: get things from thing registry. things status is not
+        // synchronized
         for (Thing thing : managedThingProvider.getAll()) {
             GroupItem groupItem = getGroupItemForThing(thing.getUID());
             thingMap.put(thing, groupItem);
@@ -164,13 +177,23 @@ public class SetupManager {
         return thingMap;
     }
 
+    public Entry<Thing, GroupItem> getThing(ThingUID thingUID) {
+        Map<Thing, GroupItem> things = getThings();
+        for (Entry<Thing, GroupItem> thingEntry : things.entrySet()) {
+            if (thingEntry.getKey().getUID().equals(thingUID)) {
+                return thingEntry;
+            }
+        }
+        return null;
+    }
+
     public void removeFromHomeGroup(String itemName, String groupItemName) {
         ActiveItem item = (ActiveItem) this.managedItemProvider.get(itemName);
         item.removeGroupName(groupItemName);
         this.managedItemProvider.update(item);
     }
 
-    public void removeHomeGroup(String itemName, String label) {
+    public void removeHomeGroup(String itemName) {
         managedItemProvider.remove(itemName);
     }
 
@@ -190,6 +213,10 @@ public class SetupManager {
         } else {
             throw new IllegalArgumentException("Item with name " + itemName + " not found.");
         }
+    }
+
+    public void updateItem(Item item) {
+        managedItemProvider.update(item);
     }
 
     protected void addItemFactory(ItemFactory itemFactory) {
@@ -243,11 +270,11 @@ public class SetupManager {
     protected void unsetManagedThingProvider(ManagedThingProvider managedThingProvider) {
         this.managedThingProvider = null;
     }
-    
+
     protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = null;
     }
-    
+
     private Thing createThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID,
             ThingTypeUID thingTypeUID) {
         for (ThingHandlerFactory thingHandlerFactory : this.thingHandlerFactories) {
