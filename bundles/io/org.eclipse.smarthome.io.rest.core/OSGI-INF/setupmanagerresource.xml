@@ -15,5 +15,4 @@
       <provide interface="org.eclipse.smarthome.io.rest.core.setup.SetupManagerResource"/>
    </service>
    <reference bind="setSetupManager" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.SetupManager" name="SetupManager" policy="static" unbind="unsetSetupManager"/>
-   <reference bind="setItemChannelLinkRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry" name="ItemChannelLinkRegistry" policy="static" unbind="unsetItemChannelLinkRegistry"/>
 </scr:component>

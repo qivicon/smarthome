@@ -183,7 +183,7 @@ public abstract class BaseThingHandler implements ThingHandler {
         ThingUID bridgeUID = thing.getBridgeUID();
         synchronized (this) {
             if (bridgeUID != null && thingRegistry != null) {
-                return (Bridge) thingRegistry.getByUID(bridgeUID);
+                return (Bridge) thingRegistry.get(bridgeUID);
             } else {
                 return null;
             }

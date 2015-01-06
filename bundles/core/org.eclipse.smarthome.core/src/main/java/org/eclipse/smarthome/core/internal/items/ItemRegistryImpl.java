@@ -25,6 +25,7 @@ import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.core.items.ItemsChangeListener;
+import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,6 +101,15 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
         }
 
         throw new ItemNotFoundException(name);
+    }
+  
+    @Override
+    public Item get(String itemName) {
+        try {
+            return getItem(itemName);
+        } catch (ItemNotFoundException ignored) {
+            return null;
+        }
     }
 
     /*
@@ -331,5 +341,14 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
             }
         }
         return filteredItems; 
+    }
+
+    @Override
+    public void remove(String itemName, boolean recursive) {
+        if(this.managedProvider != null) {
+            ((ManagedItemProvider) this.managedProvider).remove(itemName, recursive);
+        } else {
+            throw new IllegalStateException("ManagedProvider is not available");
+        }
     }
 }

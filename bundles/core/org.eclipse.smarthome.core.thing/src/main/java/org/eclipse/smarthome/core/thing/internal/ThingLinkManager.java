@@ -1,6 +1,7 @@
 package org.eclipse.smarthome.core.thing.internal;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -27,7 +28,7 @@ public class ThingLinkManager {
         @Override
         public void added(ItemChannelLink itemChannelLink) {
             ChannelUID channelUID = itemChannelLink.getUID();
-            Thing thing = thingRegistry.getByUID(channelUID.getThingUID());
+            Thing thing = thingRegistry.get(channelUID.getThingUID());
             if (thing != null) {
                 Channel channel = thing.getChannel(channelUID.getId());
                 if (channel != null) {
@@ -39,7 +40,7 @@ public class ThingLinkManager {
         @Override
         public void removed(ItemChannelLink itemChannelLink) {
             ChannelUID channelUID = itemChannelLink.getUID();
-            Thing thing = thingRegistry.getByUID(channelUID.getThingUID());
+            Thing thing = thingRegistry.get(channelUID.getThingUID());
             if (thing != null) {
                 Channel channel = thing.getChannel(channelUID.getId());
                 if (channel != null) {
@@ -61,7 +62,7 @@ public class ThingLinkManager {
 
         @Override
         public void added(ItemThingLink itemThingLink) {
-            Thing thing = thingRegistry.getByUID(itemThingLink.getUID());
+            Thing thing = thingRegistry.get(itemThingLink.getUID());
             if (thing != null) {
                 addLinkedItemToThing((ThingImpl) thing, itemThingLink.getItemName());
             }
@@ -69,7 +70,7 @@ public class ThingLinkManager {
 
         @Override
         public void removed(ItemThingLink itemThingLink) {
-            Thing thing = thingRegistry.getByUID(itemThingLink.getUID());
+            Thing thing = thingRegistry.get(itemThingLink.getUID());
             if (thing != null) {
                 removeLinkedItemFromThing((ThingImpl) thing);
             }
@@ -104,14 +105,14 @@ public class ThingLinkManager {
     }
 
     public void thingAdded(Thing thing) {
-        String itemName = itemThingLinkRegistry.getBoundItem(thing.getUID());
+        String itemName = itemThingLinkRegistry.getFirstLinkedItem(thing.getUID());
         if (itemName != null) {
             addLinkedItemToThing((ThingImpl) thing, itemName);
         }
         List<Channel> channels = thing.getChannels();
         for (Channel channel : channels) {
-            String linkedItem = itemChannelLinkRegistry.getBoundItem(channel.getUID());
-            if (linkedItem != null) {
+            Set<String> linkedItems = itemChannelLinkRegistry.getLinkedItems(channel.getUID());
+            for(String linkedItem: linkedItems) {
                 addLinkedItemToChannel(channel, linkedItem);
             }
         }
@@ -121,8 +122,8 @@ public class ThingLinkManager {
         removeLinkedItemFromThing((ThingImpl) thing);
         List<Channel> channels = thing.getChannels();
         for (Channel channel : channels) {
-            String linkedItem = itemChannelLinkRegistry.getBoundItem(channel.getUID());
-            if (linkedItem != null) {
+            Set<String> linkedItems = itemChannelLinkRegistry.getLinkedItems(channel.getUID());
+            for(String linkedItem: linkedItems) {
                 removeLinkedItemFromChannel(channel, linkedItem);
             }
         }

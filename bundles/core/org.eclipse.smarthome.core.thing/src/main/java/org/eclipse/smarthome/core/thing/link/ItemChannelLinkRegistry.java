@@ -14,6 +14,7 @@ import java.util.Set;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.ThingUID;
 
 
 /**
@@ -61,7 +62,7 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
         Collection<ChannelUID> boundChannels = getBoundChannels(itemName);
 
         for (ChannelUID channelUID : boundChannels) {
-            Thing thing = thingRegistry.getByUID(channelUID.getThingUID());
+            Thing thing = thingRegistry.get(channelUID.getThingUID());
             if (thing != null) {
                 things.add(thing);
             }
@@ -76,5 +77,14 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
 
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = null;
+    }
+
+
+    public void removeLinksForThing(ThingUID thingUID) {
+        if(this.managedProvider != null) {
+            ((ManagedItemChannelLinkProvider) this.managedProvider).removeLinksForThing(thingUID);
+        } else {
+            throw new IllegalStateException("ManagedProvider is not available");
+        }
     }
 }

@@ -10,8 +10,8 @@ package org.eclipse.smarthome.io.rest.core.setup;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.ws.rs.Consumes;
@@ -33,7 +33,6 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.SetupManager;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.item.beans.ItemBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ThingBean;
@@ -47,8 +46,8 @@ import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 @Path("setup")
 public class SetupManagerResource implements RESTResource {
 
-    private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private SetupManager setupManager;
+    
     @Context
     private UriInfo uriInfo;
 
@@ -66,7 +65,8 @@ public class SetupManagerResource implements RESTResource {
 
         Configuration configuration = getConfiguration(thingBean);
 
-        setupManager.addThing(thingUIDObject, configuration, bridgeUID, thingBean.item.label, thingBean.item.groupNames);
+        setupManager
+                .addThing(thingUIDObject, configuration, bridgeUID, thingBean.item.label, thingBean.item.groupNames);
 
         return Response.ok().build();
     }
@@ -85,9 +85,8 @@ public class SetupManagerResource implements RESTResource {
 
         Configuration configuration = getConfiguration(thingBean);
 
-        Entry<Thing, GroupItem> thingEntry = setupManager.getThing(thingUID);
-        if (thingEntry != null) {
-            Thing thing = thingEntry.getKey();
+        Thing thing = setupManager.getThing(thingUID);
+        if (thing != null) {
             if (bridgeUID != null) {
                 thing.setBridgeUID(bridgeUID);
             }
@@ -98,27 +97,29 @@ public class SetupManagerResource implements RESTResource {
         String label = thingBean.item.label;
         List<String> groupNames = thingBean.item.groupNames;
 
-        GroupItem thingGroupItem = thingEntry.getValue();
-        if (thingGroupItem != null) {
-            boolean itemUpdated = false;
-            if (!thingGroupItem.getLabel().equals(label)) {
-                thingGroupItem.setLabel(label);
-                itemUpdated = true;
-            }
-            for (String groupName : groupNames) {
-                if(!thingGroupItem.getGroupNames().contains(groupName)) {
-                    thingGroupItem.addGroupName(groupName);
+        if (thing != null) {
+            GroupItem thingGroupItem = thing.getLinkedItem();
+            if (thingGroupItem != null) {
+                boolean itemUpdated = false;
+                if (!thingGroupItem.getLabel().equals(label)) {
+                    thingGroupItem.setLabel(label);
                     itemUpdated = true;
                 }
-            }
-            for (String groupName : thingGroupItem.getGroupNames()) {
-                if(!groupNames.contains(groupName)) {
-                    thingGroupItem.removeGroupName(groupName);
-                    itemUpdated = true;
+                for (String groupName : groupNames) {
+                    if (!thingGroupItem.getGroupNames().contains(groupName)) {
+                        thingGroupItem.addGroupName(groupName);
+                        itemUpdated = true;
+                    }
                 }
-            }
-            if(itemUpdated) {
-                setupManager.updateItem(thingGroupItem);
+                for (String groupName : thingGroupItem.getGroupNames()) {
+                    if (!groupNames.contains(groupName)) {
+                        thingGroupItem.removeGroupName(groupName);
+                        itemUpdated = true;
+                    }
+                }
+                if (itemUpdated) {
+                    setupManager.updateItem(thingGroupItem);
+                }
             }
         }
 
@@ -151,10 +152,9 @@ public class SetupManagerResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getThings() {
         List<ThingBean> thingBeans = new ArrayList<>();
-        Map<Thing, GroupItem> things = setupManager.getThings();
-        for (Entry<Thing, GroupItem> entry : things.entrySet()) {
-            ThingBean thingItemBean = BeanMapper.mapThingToBean(entry.getKey(), itemChannelLinkRegistry,
-                    entry.getValue(), uriInfo.getBaseUri().toASCIIString());
+        Collection<Thing> things = setupManager.getThings();
+        for (Thing thing : things) {
+            ThingBean thingItemBean = BeanMapper.mapThingToBean(thing, uriInfo.getBaseUri().toASCIIString());
             thingBeans.add(thingItemBean);
         }
         return Response.ok(thingBeans).build();
@@ -173,7 +173,7 @@ public class SetupManagerResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getHomeGroups() {
         List<ItemBean> itemBeans = new ArrayList<>();
-        List<GroupItem> homeGroups = setupManager.getHomeGroups();
+        Collection<GroupItem> homeGroups = setupManager.getHomeGroups();
         for (GroupItem homeGroupItem : homeGroups) {
             ItemBean itemBean = BeanMapper.mapItemToBean(homeGroupItem, true, uriInfo.getBaseUri().toASCIIString());
             itemBeans.add(itemBean);
@@ -196,16 +196,8 @@ public class SetupManagerResource implements RESTResource {
         return Response.ok().build();
     }
 
-    protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
-        this.itemChannelLinkRegistry = itemChannelLinkRegistry;
-    }
-
     protected void setSetupManager(SetupManager setupManager) {
         this.setupManager = setupManager;
-    }
-
-    protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
-        this.itemChannelLinkRegistry = itemChannelLinkRegistry;
     }
 
     protected void unsetSetupManager(SetupManager setupManager) {

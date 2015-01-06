@@ -22,7 +22,7 @@ import org.eclipse.smarthome.core.common.registry.Registry;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public interface ItemRegistry extends Registry<Item> {
+public interface ItemRegistry extends Registry<Item, String> {
 
 	/**
 	 * This method retrieves a single item from the registry.
@@ -108,5 +108,8 @@ public interface ItemRegistry extends Registry<Item> {
      *         filtered by the given type filter.
      */
     public <T extends GenericItem> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags);
+
+    
+    public void remove(String itemName, boolean recursive);
 
 }

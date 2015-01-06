@@ -2,10 +2,7 @@ package org.eclipse.smarthome.core.thing;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
@@ -14,12 +11,12 @@ import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
-import org.eclipse.smarthome.core.items.ManagedItemProvider;
+import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
+import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemThingLink;
-import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
-import org.eclipse.smarthome.core.thing.link.ManagedItemThingLinkProvider;
+import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
@@ -33,20 +30,20 @@ public class SetupManager {
     private static final String TAG_HOME_GROUP = "home_group";
     private static final String TAG_THING = "thing";
 
+    private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private List<ItemFactory> itemFactories = new CopyOnWriteArrayList<>();
+    private ItemRegistry itemRegistry;
+    private ItemThingLinkRegistry itemThingLinkRegistry;
     private final Logger logger = LoggerFactory.getLogger(SetupManager.class);
-    private ManagedItemChannelLinkProvider managedItemChannelLinkProvider;
-    private ManagedItemProvider managedItemProvider;
-    private ManagedItemThingLinkProvider managedItemThingLinkProvider;
-    private ManagedThingProvider managedThingProvider;
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
+    private ThingRegistry thingRegistry;
     private ThingTypeRegistry thingTypeRegistry;
 
     public void addHomeGroup(String itemName, String label) {
         GroupItem groupItem = new GroupItem(itemName);
         groupItem.setLabel(label);
         groupItem.addTag(TAG_HOME_GROUP);
-        managedItemProvider.add(groupItem);
+        itemRegistry.add(groupItem);
     }
 
     public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID) {
@@ -80,9 +77,9 @@ public class SetupManager {
         groupItem.addGroupNames(groupNames);
         
 
-        managedThingProvider.add(thing);
-        managedItemProvider.add(groupItem);
-        managedItemThingLinkProvider.add(new ItemThingLink(itemName, thing.getUID()));
+        thingRegistry.add(thing);
+        itemRegistry.add(groupItem);
+        itemThingLinkRegistry.add(new ItemThingLink(itemName, thing.getUID()));
 
         ThingType thingType = thingTypeRegistry.getThingType(thingTypeUID);
         if (thingType != null) {
@@ -91,7 +88,7 @@ public class SetupManager {
                 GroupItem channelGroupItem = new GroupItem(getChannelGroupItemName(itemName,
                         channelGroupDefinition.getId()));
                 channelGroupItem.addTag(TAG_CHANNEL_GROUP);
-                managedItemProvider.add(channelGroupItem);
+                itemRegistry.add(channelGroupItem);
             }
         }
 
@@ -106,23 +103,19 @@ public class SetupManager {
         }
     }
 
-    public void updateThing(Thing thing) {
-        this.managedThingProvider.update(thing);
-    }
-
     public void addToHomeGroup(String itemName, String groupItemName) {
-        ActiveItem item = (ActiveItem) this.managedItemProvider.get(itemName);
+        ActiveItem item = (ActiveItem) this.itemRegistry.get(itemName);
         item.addGroupName(groupItemName);
-        this.managedItemProvider.update(item);
+        this.itemRegistry.update(item);
     }
 
     public void disableChannel(ChannelUID channelUID) {
-        Collection<ItemChannelLink> itemChannelLinks = this.managedItemChannelLinkProvider.getAll();
+        Collection<ItemChannelLink> itemChannelLinks = this.itemChannelLinkRegistry.getAll();
         for (ItemChannelLink itemChannelLink : itemChannelLinks) {
             if (itemChannelLink.getUID().equals(channelUID)) {
                 String itemName = itemChannelLink.getItemName();
-                managedItemProvider.remove(itemName);
-                managedItemChannelLinkProvider.remove(itemChannelLink.getID());
+                itemRegistry.remove(itemName);
+                itemChannelLinkRegistry.remove(itemChannelLink.getID());
             }
         }
     }
@@ -146,17 +139,17 @@ public class SetupManager {
                     }
                     item.addTags(channelType.getTags());
                     item.setCategory(channelType.getCategory());
-                    this.managedItemProvider.add(item);
-                    this.managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, channelUID));
+                    this.itemRegistry.add(item);
+                    this.itemChannelLinkRegistry.add(new ItemChannelLink(itemName, channelUID));
                 }
             }
         }
 
     }
 
-    public List<GroupItem> getHomeGroups() {
+    public Collection<GroupItem> getHomeGroups() {
         List<GroupItem> homeGroupItems = new ArrayList<>();
-        for (Item item : this.managedItemProvider.getAll()) {
+        for (Item item : this.itemRegistry.getAll()) {
             if (item instanceof GroupItem && ((GroupItem) item).hasTag(TAG_HOME_GROUP)) {
                 homeGroupItems.add((GroupItem) item);
             }
@@ -164,59 +157,54 @@ public class SetupManager {
         return homeGroupItems;
     }
 
-    public Map<Thing, GroupItem> getThings() {
-        Map<Thing, GroupItem> thingMap = new HashMap<>();
-
-        // TODO: get things from thing registry. things status is not
-        // synchronized
-        for (Thing thing : managedThingProvider.getAll()) {
-            GroupItem groupItem = getGroupItemForThing(thing.getUID());
-            thingMap.put(thing, groupItem);
-        }
-
-        return thingMap;
-    }
-
-    public Entry<Thing, GroupItem> getThing(ThingUID thingUID) {
-        Map<Thing, GroupItem> things = getThings();
-        for (Entry<Thing, GroupItem> thingEntry : things.entrySet()) {
-            if (thingEntry.getKey().getUID().equals(thingUID)) {
-                return thingEntry;
+    public Thing getThing(ThingUID thingUID) {
+        Collection<Thing> things = this.thingRegistry.getAll();
+        for(Thing thing : things) {
+            if (thing.getUID().equals(thingUID)) {
+                return thing;
             }
         }
         return null;
     }
 
+    public Collection<Thing> getThings() {
+        return thingRegistry.getAll();   
+    }
+
     public void removeFromHomeGroup(String itemName, String groupItemName) {
-        ActiveItem item = (ActiveItem) this.managedItemProvider.get(itemName);
+        ActiveItem item = (ActiveItem) this.itemRegistry.get(itemName);
         item.removeGroupName(groupItemName);
-        this.managedItemProvider.update(item);
+        this.itemRegistry.update(item);
     }
 
     public void removeHomeGroup(String itemName) {
-        managedItemProvider.remove(itemName);
+        itemRegistry.remove(itemName);
     }
 
     public void removeThing(ThingUID thingUID) {
         String itemName = toItemName(thingUID);
-        managedThingProvider.remove(thingUID);
-        managedItemProvider.remove(itemName, true);
-        managedItemThingLinkProvider.remove(ItemThingLink.getIDFor(itemName, thingUID));
-        managedItemChannelLinkProvider.removeLinksForThing(thingUID);
+        thingRegistry.remove(thingUID);
+        itemRegistry.remove(itemName, true);
+        itemThingLinkRegistry.remove(ItemThingLink.getIDFor(itemName, thingUID));
+        itemChannelLinkRegistry.removeLinksForThing(thingUID);
     }
 
     public void setLabel(String itemName, String label) {
-        ActiveItem item = (ActiveItem) managedItemProvider.get(itemName);
+        ActiveItem item = (ActiveItem) this.itemRegistry.get(itemName);
         if (item != null) {
             item.setLabel(label);
-            managedItemProvider.update(item);
+            itemRegistry.update(item);
         } else {
             throw new IllegalArgumentException("Item with name " + itemName + " not found.");
         }
     }
 
     public void updateItem(Item item) {
-        managedItemProvider.update(item);
+        itemRegistry.update(item);
+    }
+
+    public void updateThing(Thing thing) {
+        this.thingRegistry.update(thing);
     }
 
     protected void addItemFactory(ItemFactory itemFactory) {
@@ -235,42 +223,45 @@ public class SetupManager {
         this.thingHandlerFactories.remove(thingHandlerFactory);
     }
 
-    protected void setManagedItemChannelLinkProvider(ManagedItemChannelLinkProvider managedItemChannelLinkProvider) {
-        this.managedItemChannelLinkProvider = managedItemChannelLinkProvider;
+
+    protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
+        this.itemChannelLinkRegistry = itemChannelLinkRegistry;
     }
 
-    protected void setManagedItemProvider(ManagedItemProvider managedItemProvider) {
-        this.managedItemProvider = managedItemProvider;
+    protected void setItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = itemRegistry;
     }
 
-    protected void setManagedItemThingLinkProvider(ManagedItemThingLinkProvider managedItemThingLinkProvider) {
-        this.managedItemThingLinkProvider = managedItemThingLinkProvider;
+
+    protected void setItemThingLinkRegistry(ItemThingLinkRegistry itemThingLinkRegistry) {
+        this.itemThingLinkRegistry = itemThingLinkRegistry;
     }
 
-    protected void setManagedThingProvider(ManagedThingProvider managedThingProvider) {
-        this.managedThingProvider = managedThingProvider;
+    protected void setThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = thingRegistry;
     }
 
+    
     protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = thingTypeRegistry;
     }
-
-    protected void unsetManagedItemChannelLinkProvider(ManagedItemChannelLinkProvider managedItemChannelLinkProvider) {
-        this.managedItemChannelLinkProvider = null;
+    
+    protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
+        this.itemChannelLinkRegistry = null;
     }
-
-    protected void unsetManagedItemProvider(ManagedItemProvider managedItemProvider) {
-        this.managedItemProvider = null;
+    
+    protected void unsetItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = null;
     }
-
-    protected void unsetManagedItemThingLinkProvider(ManagedItemThingLinkProvider managedItemThingLinkProvider) {
-        this.managedItemThingLinkProvider = null;
+    
+    protected void unsetItemThingLinkRegistry(ItemThingLinkRegistry itemThingLinkRegistry) {
+        this.itemThingLinkRegistry = null;
     }
-
-    protected void unsetManagedThingProvider(ManagedThingProvider managedThingProvider) {
-        this.managedThingProvider = null;
+    
+    protected void unsetThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = null;
     }
-
+    
     protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = null;
     }
@@ -290,15 +281,6 @@ public class SetupManager {
         return itemName + "_" + channelGroupId;
     }
 
-    private GroupItem getGroupItemForThing(ThingUID thingUID) {
-        for (ItemThingLink itemThingLink : this.managedItemThingLinkProvider.getAll()) {
-            if (itemThingLink.getUID().equals(thingUID)) {
-                return (GroupItem) managedItemProvider.get(itemThingLink.getItemName());
-            }
-        }
-        return null;
-    }
-
     private ItemFactory getItemFactoryForItemType(String itemType) {
         for (ItemFactory itemFactory : this.itemFactories) {
             String[] supportedItemTypes = itemFactory.getSupportedItemTypes();
@@ -313,7 +295,7 @@ public class SetupManager {
     }
 
     private String getThingGroupItemName(ChannelUID channelUID) {
-        Collection<ItemThingLink> links = this.managedItemThingLinkProvider.getAll();
+        Collection<ItemThingLink> links = this.itemThingLinkRegistry.getAll();
         for (ItemThingLink link : links) {
             if (link.getUID().equals(channelUID.getThingUID())) {
                 return link.getItemName();

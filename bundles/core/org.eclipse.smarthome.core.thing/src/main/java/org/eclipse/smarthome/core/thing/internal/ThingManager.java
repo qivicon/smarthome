@@ -113,8 +113,8 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
         @Override
         public void channelUpdated(ChannelUID channelUID, State state) {
-            String item = itemChannelLinkRegistry.getBoundItem(channelUID);
-            if (item != null) {
+            Set<String> items = itemChannelLinkRegistry.getLinkedItems(channelUID);
+            for (String item : items) {
                 eventPublisher.postUpdate(item, state, channelUID.toString());
             }
         }

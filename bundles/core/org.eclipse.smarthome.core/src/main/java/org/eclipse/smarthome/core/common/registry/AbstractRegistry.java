@@ -21,7 +21,7 @@ import com.google.common.collect.Iterables;
  * @param <E>
  *            type of the element
  */
-public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E>, Registry<E> {
+public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E>, Registry<E, K> {
 
     private enum EventType {
         ADDED, REMOVED, UPDATED;
@@ -32,7 +32,7 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
     protected Map<Provider<E>, Collection<E>> elementMap = new ConcurrentHashMap<>();
     protected Collection<RegistryChangeListener<E>> listeners = new CopyOnWriteArraySet<>();
 
-    private ManagedProvider<E,K> managedProvider;
+    protected ManagedProvider<E,K> managedProvider;
 
     @Override
     public void added(Provider<E> provider, E element) {
@@ -89,14 +89,7 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
         }
     }
     
-    /**
-     * Adds the given element to the according {@link ManagedProvider}.
-     * 
-     * @param element
-     *            element to be added (must not be null)
-     * @throws IllegalStateException
-     *             if no ManagedProvider is available
-     */
+    @Override
     public void add(E element) {
         if (this.managedProvider != null) {
             this.managedProvider.add(element);
@@ -105,16 +98,7 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
         }
     }
     
-    /**
-     * Updates the given element at the according {@link ManagedProvider}.
-     * 
-     * @param element
-     *            element to be updated (must not be null)
-     * @return returns the old element or null if no element with the same key
-     *         exists
-     * @throws IllegalStateException
-     *             if no ManagedProvider is available
-     */
+    @Override
     public E update(E element) {
         if(this.managedProvider != null) {
             return this.managedProvider.update(element);
@@ -123,16 +107,7 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
         }
     }
     
-    /**
-     * Removes the given element from the according {@link ManagedProvider}.
-     * 
-     * @param key
-     *            key of the element (must not be null)
-     * @return element that was removed, or null if no element with the given
-     *         key exists
-     * @throws IllegalStateException
-     *             if no ManagedProvider is available
-     */
+    @Override
     public E remove(K key) {
         if(this.managedProvider != null) {
             return this.managedProvider.remove(key);

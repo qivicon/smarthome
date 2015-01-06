@@ -1,5 +1,9 @@
 package org.eclipse.smarthome.core.thing.link;
 
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.thing.UID;
 
@@ -12,7 +16,7 @@ import org.eclipse.smarthome.core.thing.UID;
  * @param <L>
  *            Concrete type of the abstract link
  */
-public class AbstractLinkRegistry<L extends AbstractLink> extends AbstractRegistry<L, String> {
+public abstract class AbstractLinkRegistry<L extends AbstractLink> extends AbstractRegistry<L, String> {
 
     /**
      * Returns if an item for a given item is linked to a channel or thing for a
@@ -42,10 +46,39 @@ public class AbstractLinkRegistry<L extends AbstractLink> extends AbstractRegist
      *            UID
      * @return item name or null if no item is bound to the given UID
      */
-    public String getBoundItem(UID uid) {
+    public String getFirstLinkedItem(UID uid) {
         for (AbstractLink link : getAll()) {
             if (link.getUID().equals(uid)) {
                 return link.getItemName();
+            }
+        }
+        return null;
+    }
+    
+
+    /**
+     * Returns the item name, which is bound to the given UID.
+     * 
+     * @param uid
+     *            UID
+     * @return item name or null if no item is bound to the given UID
+     */
+    public Set<String> getLinkedItems(UID uid) {
+        Set<String> linkedItems = new LinkedHashSet<>();
+        for (AbstractLink link : getAll()) {
+            if (link.getUID().equals(uid)) {
+                linkedItems.add(link.getItemName());
+            }
+        }
+        return linkedItems;
+    }
+    
+    @Override
+    public L get(String key) {
+        Collection<L> links = getAll(); 
+        for (L link : links) {
+            if(link.getID().equals(key)) {
+                return link;
             }
         }
         return null;

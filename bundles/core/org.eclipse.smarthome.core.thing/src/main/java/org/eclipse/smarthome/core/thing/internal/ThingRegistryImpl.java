@@ -49,7 +49,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
      * org.eclipse.smarthome.core.thing.ThingRegistry#getByUID(java.lang.String)
      */
     @Override
-    public Thing getByUID(ThingUID uid) {
+    public Thing get(ThingUID uid) {
         for (Thing thing : getAll()) {
             if (thing.getUID().equals(uid)) {
                 return thing;
@@ -99,7 +99,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
     protected void onRemoveElement(Thing thing) {
         ThingUID bridgeUID = thing.getBridgeUID();
         if (bridgeUID != null) {
-            Thing bridge = this.getByUID(bridgeUID);
+            Thing bridge = this.get(bridgeUID);
             if (bridge instanceof BridgeImpl) {
                 ((BridgeImpl) bridge).removeThing(thing);
             }
@@ -127,7 +127,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
     private void addThingToBridge(Thing thing) {
         ThingUID bridgeUID = thing.getBridgeUID();
         if (bridgeUID != null) {
-            Thing bridge = this.getByUID(bridgeUID);
+            Thing bridge = this.get(bridgeUID);
             if (bridge instanceof BridgeImpl && !((Bridge) bridge).getThings().contains(thing)) {
                 ((BridgeImpl) bridge).addThing(thing);
             }
