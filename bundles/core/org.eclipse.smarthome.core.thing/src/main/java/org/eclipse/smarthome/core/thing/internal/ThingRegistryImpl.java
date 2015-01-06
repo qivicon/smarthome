@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Michael Grammling - Added dynamic configuration update
  */
-public class ThingRegistryImpl extends AbstractRegistry<Thing> implements ThingRegistry {
+public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> implements ThingRegistry {
 
     private Logger logger = LoggerFactory.getLogger(ThingRegistryImpl.class.getName());
 

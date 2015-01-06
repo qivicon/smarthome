@@ -3,7 +3,16 @@ package org.eclipse.smarthome.core.thing.link;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.thing.UID;
 
-public class AbstractLinkRegistry<L extends AbstractLink> extends AbstractRegistry<L> {
+/**
+ * {@link AbstractLinkRegistry} is an abstract class for link based registries,
+ * which handle {@link AbstractLink}s.
+ * 
+ * @author Dennis Nobel - Initial contribution
+ *
+ * @param <L>
+ *            Concrete type of the abstract link
+ */
+public class AbstractLinkRegistry<L extends AbstractLink> extends AbstractRegistry<L, String> {
 
     /**
      * Returns if an item for a given item is linked to a channel or thing for a

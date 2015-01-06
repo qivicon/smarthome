@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  * 
  */
-public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegistry, ItemsChangeListener {
+public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements ItemRegistry, ItemsChangeListener {
 
     private final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
 

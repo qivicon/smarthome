@@ -2,6 +2,14 @@ package org.eclipse.smarthome.core.thing.link;
 
 import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider;
 
+/**
+ * 
+ * {@link ManagedItemThingLinkProvider} is responsible for managed
+ * {@link ItemThingLink}s at runtime.
+ * 
+ * @author Dennis Nobel - Initial contribution
+ * 
+ */
 public class ManagedItemThingLinkProvider extends DefaultAbstractManagedProvider<ItemThingLink, String> implements
         ItemThingLinkProvider {
 
