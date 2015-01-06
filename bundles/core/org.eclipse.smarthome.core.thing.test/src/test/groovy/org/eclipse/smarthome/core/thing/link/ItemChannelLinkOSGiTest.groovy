@@ -82,12 +82,12 @@ class ItemChannelLinkOSGiTest extends OSGiTest {
     @Test
     void 'assert getBoundItem items returns item'() {
         managedItemChannelLinkProvider.add ITEM_CHANNEL_LINK
-        assertThat  itemChannelLinkRegistry.getBoundItem(CHANNEL_UID), is(equalTo("item"))
+        assertThat  itemChannelLinkRegistry.getFirstLinkedItem(CHANNEL_UID), is(equalTo("item"))
     }
 
     @Test
     void 'assert getBoundItem items returns null'() {
-        assertThat  itemChannelLinkRegistry.getBoundItem(CHANNEL_UID), is(null)
+        assertThat  itemChannelLinkRegistry.getFirstLinkedItem(CHANNEL_UID), is(null)
     }
 
     @Test
