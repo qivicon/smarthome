@@ -95,7 +95,7 @@ class ItemChannelLinkOSGiTest extends OSGiTest {
         managedItemChannelLinkProvider.add ITEM_CHANNEL_LINK
         def boundChannels = itemChannelLinkRegistry.getBoundChannels("item")
         assertThat boundChannels.size(), is(1)
-        assertThat boundChannels.first(), is(equalTo(ITEM_CHANNEL_LINK.getChannelUID()))
+        assertThat boundChannels.first(), is(equalTo(ITEM_CHANNEL_LINK.getUID()))
     }
 
     @Test

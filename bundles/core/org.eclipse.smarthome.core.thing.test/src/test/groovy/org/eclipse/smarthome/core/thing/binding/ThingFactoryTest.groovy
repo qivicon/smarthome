@@ -110,7 +110,7 @@ class ThingFactoryTest {
     
     @Test
     void 'create Thing with different default value types'(){
-        def thingType = new ThingType(new ThingTypeUID("myThingType","myThing"), null, "label", "description", null, new URI("scheme", "thingType", null))
+        def thingType = new ThingType(new ThingTypeUID("myThingType","myThing"), null, "label", "description", null, null, new URI("scheme", "thingType", null))
         def configuration = new Configuration()
         
         def configDescriptionRegistry = new ConfigDescriptionRegistry() {
