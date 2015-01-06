@@ -18,9 +18,9 @@ import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.config.discovery.internal.PersistentInbox;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
-import org.eclipse.smarthome.core.thing.SetupManager;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
 
@@ -34,7 +34,7 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
 
     private Inbox inbox;
 	private ManagedThingProvider managedThingProvider;
-	private SetupManager setupManager;
+	private ThingSetupManager thingSetupManager;
 
     @Override
     public boolean canHandle(String[] args) {
@@ -56,7 +56,7 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
                         if(args.length > 3) {
                             fullSetup = Boolean.parseBoolean(args[3]);
                         }
-                        if(managedThingProvider!=null && setupManager != null) {
+                        if(managedThingProvider!=null && thingSetupManager != null) {
 	                    	try {
 	                    		ThingUID thingUID = new ThingUID(args[2]);
 		                    	List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, null));
@@ -67,7 +67,7 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
 		                    	DiscoveryResult result = results.get(0);
 		                    	Configuration configuratiob = new Configuration(result.getProperties());
 		                    	if(fullSetup) {
-		                    	    setupManager.addThing(thingUID, configuratiob, result.getBridgeUID());
+		                    	    thingSetupManager.addThing(thingUID, configuratiob, result.getBridgeUID());
 		                    	} else {
 		                    	    managedThingProvider.createThing(result.getThingTypeUID(), result.getThingUID(), result.getBridgeUID(), configuratiob);
 		                    	}
@@ -173,11 +173,11 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
         this.managedThingProvider = null;
     }
     
-    protected void setSetupManager(SetupManager setupManager) {
-        this.setupManager = setupManager;
+    protected void setThingSetupManager(ThingSetupManager thingSetupManager) {
+        this.thingSetupManager = thingSetupManager;
     }
     
-    protected void unsetSetupManager(SetupManager setupManager) {
-        this.setupManager = null;
+    protected void unsetThingSetupManager(ThingSetupManager thingSetupManager) {
+        this.thingSetupManager = null;
     }
 }

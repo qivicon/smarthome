@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.rest.core.setup;
+package org.eclipse.smarthome.io.rest.core.thing.setup;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -30,9 +30,9 @@ import javax.ws.rs.core.UriInfo;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.SetupManager;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.item.beans.ItemBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ThingBean;
@@ -44,9 +44,9 @@ import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
  * @author Dennis Nobel - Initial contribution
  */
 @Path("setup")
-public class SetupManagerResource implements RESTResource {
+public class ThingSetupManagerResource implements RESTResource {
 
-    private SetupManager setupManager;
+    private ThingSetupManager thingSetupManager;
     
     @Context
     private UriInfo uriInfo;
@@ -65,7 +65,7 @@ public class SetupManagerResource implements RESTResource {
 
         Configuration configuration = getConfiguration(thingBean);
 
-        setupManager
+        thingSetupManager
                 .addThing(thingUIDObject, configuration, bridgeUID, thingBean.item.label, thingBean.item.groupNames);
 
         return Response.ok().build();
@@ -85,13 +85,13 @@ public class SetupManagerResource implements RESTResource {
 
         Configuration configuration = getConfiguration(thingBean);
 
-        Thing thing = setupManager.getThing(thingUID);
+        Thing thing = thingSetupManager.getThing(thingUID);
         if (thing != null) {
             if (bridgeUID != null) {
                 thing.setBridgeUID(bridgeUID);
             }
             updateConfiguration(thing, configuration);
-            setupManager.updateThing(thing);
+            thingSetupManager.updateThing(thing);
         }
 
         String label = thingBean.item.label;
@@ -118,7 +118,7 @@ public class SetupManagerResource implements RESTResource {
                     }
                 }
                 if (itemUpdated) {
-                    setupManager.updateItem(thingGroupItem);
+                    thingSetupManager.updateItem(thingGroupItem);
                 }
             }
         }
@@ -129,21 +129,21 @@ public class SetupManagerResource implements RESTResource {
     @DELETE
     @Path("/things/{thingUID}")
     public Response removeThing(@PathParam("thingUID") String thingUID) {
-        setupManager.removeThing(new ThingUID(thingUID));
+        thingSetupManager.removeThing(new ThingUID(thingUID));
         return Response.ok().build();
     }
 
     @DELETE
     @Path("/things/channels/{channelUID}")
     public Response disableChannel(@PathParam("channelUID") String channelUID) {
-        setupManager.disableChannel(new ChannelUID(channelUID));
+        thingSetupManager.disableChannel(new ChannelUID(channelUID));
         return Response.ok().build();
     }
 
     @PUT
     @Path("/things/channels/{channelUID}")
     public Response enableChannel(@PathParam("channelUID") String channelUID) {
-        setupManager.enableChannel(new ChannelUID(channelUID));
+        thingSetupManager.enableChannel(new ChannelUID(channelUID));
         return Response.ok().build();
     }
 
@@ -152,7 +152,7 @@ public class SetupManagerResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getThings() {
         List<ThingBean> thingBeans = new ArrayList<>();
-        Collection<Thing> things = setupManager.getThings();
+        Collection<Thing> things = thingSetupManager.getThings();
         for (Thing thing : things) {
             ThingBean thingItemBean = BeanMapper.mapThingToBean(thing, uriInfo.getBaseUri().toASCIIString());
             thingBeans.add(thingItemBean);
@@ -164,7 +164,7 @@ public class SetupManagerResource implements RESTResource {
     @Path("/labels/{itemName}")
     @Consumes(MediaType.TEXT_PLAIN)
     public Response setLabel(@PathParam("itemName") String itemName, String label) {
-        setupManager.setLabel(itemName, label);
+        thingSetupManager.setLabel(itemName, label);
         return Response.ok().build();
     }
 
@@ -173,7 +173,7 @@ public class SetupManagerResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getHomeGroups() {
         List<ItemBean> itemBeans = new ArrayList<>();
-        Collection<GroupItem> homeGroups = setupManager.getHomeGroups();
+        Collection<GroupItem> homeGroups = thingSetupManager.getHomeGroups();
         for (GroupItem homeGroupItem : homeGroups) {
             ItemBean itemBean = BeanMapper.mapItemToBean(homeGroupItem, true, uriInfo.getBaseUri().toASCIIString());
             itemBeans.add(itemBean);
@@ -185,23 +185,23 @@ public class SetupManagerResource implements RESTResource {
     @Path("groups")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addHomeGroup(ItemBean itemBean) {
-        setupManager.addHomeGroup(itemBean.name, itemBean.label);
+        thingSetupManager.addHomeGroup(itemBean.name, itemBean.label);
         return Response.ok().build();
     }
 
     @DELETE
     @Path("groups/{itemName}")
     public Response removeHomeGroup(@PathParam("itemName") String itemName) {
-        setupManager.removeHomeGroup(itemName);
+        thingSetupManager.removeHomeGroup(itemName);
         return Response.ok().build();
     }
 
-    protected void setSetupManager(SetupManager setupManager) {
-        this.setupManager = setupManager;
+    protected void setSetupManager(ThingSetupManager setupManager) {
+        this.thingSetupManager = setupManager;
     }
 
-    protected void unsetSetupManager(SetupManager setupManager) {
-        this.setupManager = null;
+    protected void unsetSetupManager(ThingSetupManager setupManager) {
+        this.thingSetupManager = null;
     }
 
     private Configuration getConfiguration(ThingBean thingBean) {

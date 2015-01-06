@@ -29,8 +29,8 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
-import org.eclipse.smarthome.core.thing.SetupManager;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.discovery.beans.DiscoveryResultBean;
 import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
@@ -45,7 +45,7 @@ import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 @Path("inbox")
 public class InboxResource implements RESTResource {
 
-    private SetupManager setupManager;
+    private ThingSetupManager thingSetupManager;
 	private Inbox inbox;
 
 	protected void setInbox(Inbox inbox) {
@@ -56,12 +56,12 @@ public class InboxResource implements RESTResource {
 		this.inbox = null;
 	}
 
-	protected void setSetupManager(SetupManager setupManager) {
-        this.setupManager = setupManager;
+	protected void setThingSetupManager(ThingSetupManager thignSetupManager) {
+        this.thingSetupManager = thignSetupManager;
     }
 	
-	protected void unsetSetupManager(SetupManager setupManager) {
-        this.setupManager = null;
+	protected void unsetThingSetupManager(ThingSetupManager thingSetupManager) {
+        this.thingSetupManager = null;
     }
     
     @Context
@@ -78,7 +78,7 @@ public class InboxResource implements RESTResource {
         }
         DiscoveryResult result = results.get(0);
         Configuration conf = new Configuration(result.getProperties());
-        setupManager.addThing(result.getThingUID(), conf, result.getBridgeUID(), label != null && !label.isEmpty() ? label : null);
+        thingSetupManager.addThing(result.getThingUID(), conf, result.getBridgeUID(), label != null && !label.isEmpty() ? label : null);
         return Response.ok().build();
     }
 

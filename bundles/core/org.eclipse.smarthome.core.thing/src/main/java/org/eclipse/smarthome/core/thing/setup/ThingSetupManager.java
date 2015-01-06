@@ -1,4 +1,4 @@
-package org.eclipse.smarthome.core.thing;
+package org.eclipse.smarthome.core.thing.setup;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,6 +12,13 @@ import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.thing.Channel;
+import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
@@ -24,7 +31,11 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SetupManager {
+/**
+ * 
+ * TODO write doc
+ */
+public class ThingSetupManager {
 
     private static final String TAG_CHANNEL_GROUP = "channel_group";
     private static final String TAG_HOME_GROUP = "home_group";
@@ -34,7 +45,7 @@ public class SetupManager {
     private List<ItemFactory> itemFactories = new CopyOnWriteArrayList<>();
     private ItemRegistry itemRegistry;
     private ItemThingLinkRegistry itemThingLinkRegistry;
-    private final Logger logger = LoggerFactory.getLogger(SetupManager.class);
+    private final Logger logger = LoggerFactory.getLogger(ThingSetupManager.class);
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
     private ThingRegistry thingRegistry;
     private ThingTypeRegistry thingTypeRegistry;
