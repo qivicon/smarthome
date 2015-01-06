@@ -14,5 +14,5 @@
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.core.thing.setup.ThingSetupManagerResource"/>
    </service>
-   <reference bind="setSetupManager" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.SetupManager" name="SetupManager" policy="static" unbind="unsetSetupManager"/>
+   <reference bind="setThingSetupManager" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.setup.ThingSetupManager" name="ThingSetupManager" policy="static" unbind="unsetThingSetupManager"/>
 </scr:component>

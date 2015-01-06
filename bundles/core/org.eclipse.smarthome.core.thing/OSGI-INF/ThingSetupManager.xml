@@ -8,16 +8,16 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.core.thing.SetupManager">
-   <implementation class="org.eclipse.smarthome.core.thing.SetupManager"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.core.thing.setup.ThingSetupManager">
+   <implementation class="org.eclipse.smarthome.core.thing.setup.ThingSetupManager"/>
    <reference bind="addThingHandlerFactory" cardinality="0..n" interface="org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory" name="ThingHandlerFactory" policy="dynamic" unbind="removeThingHandlerFactory"/>
-   <service>
-      <provide interface="org.eclipse.smarthome.core.thing.SetupManager"/>
-   </service>
    <reference bind="addItemFactory" cardinality="0..n" interface="org.eclipse.smarthome.core.items.ItemFactory" name="ItemFactory" policy="dynamic" unbind="removeItemFactory"/>
    <reference bind="setThingTypeRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.type.ThingTypeRegistry" name="ThingTypeRegistry" policy="static" unbind="unsetThingTypeRegistry"/>
    <reference bind="setItemChannelLinkRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry" name="ItemChannelLinkRegistry" policy="static" unbind="unsetItemChannelLinkRegistry"/>
    <reference bind="setThingRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ThingRegistry" name="ThingRegistry" policy="static" unbind="unsetThingRegistry"/>
    <reference bind="setItemThingLinkRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry" name="ItemThingLinkRegistry" policy="static" unbind="unsetItemThingLinkRegistry"/>
    <reference bind="setItemRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="static" unbind="unsetItemRegistry"/>
+   <service>
+      <provide interface="org.eclipse.smarthome.core.thing.setup.ThingSetupManager"/>
+   </service>
 </scr:component>

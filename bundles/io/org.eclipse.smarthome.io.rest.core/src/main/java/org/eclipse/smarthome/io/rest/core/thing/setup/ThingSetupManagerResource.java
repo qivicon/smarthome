@@ -196,11 +196,11 @@ public class ThingSetupManagerResource implements RESTResource {
         return Response.ok().build();
     }
 
-    protected void setSetupManager(ThingSetupManager setupManager) {
-        this.thingSetupManager = setupManager;
+    protected void setThingSetupManager(ThingSetupManager thingSetupManager) {
+        this.thingSetupManager = thingSetupManager;
     }
 
-    protected void unsetSetupManager(ThingSetupManager setupManager) {
+    protected void unsetThingSetupManager(ThingSetupManager thingSetupManager) {
         this.thingSetupManager = null;
     }
 
