@@ -200,13 +200,17 @@ public class ThingSetupManager {
         itemChannelLinkRegistry.removeLinksForThing(thingUID);
     }
 
-    public void setLabel(String itemName, String label) {
-        ActiveItem item = (ActiveItem) this.itemRegistry.get(itemName);
-        if (item != null) {
-            item.setLabel(label);
-            itemRegistry.update(item);
+    public void setLabel(ThingUID thingUID, String newLabel) {
+        Thing thing = thingRegistry.get(thingUID);
+        GroupItem groupItem = thing.getLinkedItem();
+        if (groupItem != null) {
+            if (newLabel != null && newLabel.equals(groupItem.getLabel())) {
+                return;
+            }
+            groupItem.setLabel(newLabel);
+            itemRegistry.update(groupItem);
         } else {
-            throw new IllegalArgumentException("Item with name " + itemName + " not found.");
+            throw new IllegalArgumentException("No item is linked with thing '" + thingUID.toString() + "'.");
         }
     }
 

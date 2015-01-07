@@ -161,10 +161,10 @@ public class ThingSetupManagerResource implements RESTResource {
     }
 
     @PUT
-    @Path("/labels/{itemName}")
+    @Path("/labels/{thingUID}")
     @Consumes(MediaType.TEXT_PLAIN)
-    public Response setLabel(@PathParam("itemName") String itemName, String label) {
-        thingSetupManager.setLabel(itemName, label);
+    public Response setLabel(@PathParam("thingUID") String thingUID, String label) {
+        thingSetupManager.setLabel(new ThingUID(thingUID), label);
         return Response.ok().build();
     }
 
