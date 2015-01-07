@@ -1,5 +1,6 @@
 package org.eclipse.smarthome.core.thing.internal;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -8,6 +9,7 @@ import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -22,7 +24,49 @@ import org.slf4j.LoggerFactory;
 public class ThingLinkManager {
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
-
+    
+    private final ItemRegistryChangeListener itemRegistryChangeListener = new ItemRegistryChangeListener() {
+        
+        @Override
+        public void updated(Item oldElement, Item element) {
+            removed(oldElement);
+            added(element);
+        }
+        
+        @Override
+        public void removed(Item element) {
+            Set<ChannelUID> linkedChannels = itemChannelLinkRegistry.getBoundChannels(element.getName());
+            for (ChannelUID channelUID : linkedChannels) {
+                Thing thing = thingRegistry.get(channelUID.getThingUID());
+                if(thing != null) {
+                    Channel channel = thing.getChannel(channelUID.getId());
+                    if(channel != null) {
+                        channel.removeLinkedItem(element);
+                    }
+                }
+            }
+        }
+        
+        @Override
+        public void added(Item element) {
+            Set<ChannelUID> linkedChannels = itemChannelLinkRegistry.getBoundChannels(element.getName());
+            for (ChannelUID channelUID : linkedChannels) {
+                Thing thing = thingRegistry.get(channelUID.getThingUID());
+                if(thing != null) {
+                    Channel channel = thing.getChannel(channelUID.getId());
+                    if(channel != null) {
+                        channel.addLinkedItem(element);
+                    }
+                }
+            }
+        }
+        
+        @Override
+        public void allItemsChanged(Collection<String> oldItemNames) {
+           // TODO: what to do?
+        }
+    };
+    
     private final RegistryChangeListener<ItemChannelLink> itemChannelLinkRegistryChangeListener = new RegistryChangeListener<ItemChannelLink>() {
 
         @Override
@@ -82,6 +126,7 @@ public class ThingLinkManager {
         }
 
     };
+    
 
     private Logger logger = LoggerFactory.getLogger(ThingLinkManager.class);
     private ThingRegistry thingRegistry;
@@ -95,11 +140,13 @@ public class ThingLinkManager {
     }
 
     public void startListening() {
+        itemRegistry.addRegistryChangeListener(itemRegistryChangeListener);
         itemChannelLinkRegistry.addRegistryChangeListener(itemChannelLinkRegistryChangeListener);
         itemThingLinkRegistry.addRegistryChangeListener(itemThingLinkRegistryChangeListener);
     }
 
     public void stopListening() {
+        itemRegistry.removeRegistryChangeListener(itemRegistryChangeListener);
         itemChannelLinkRegistry.removeRegistryChangeListener(itemChannelLinkRegistryChangeListener);
         itemThingLinkRegistry.removeRegistryChangeListener(itemThingLinkRegistryChangeListener);
     }
