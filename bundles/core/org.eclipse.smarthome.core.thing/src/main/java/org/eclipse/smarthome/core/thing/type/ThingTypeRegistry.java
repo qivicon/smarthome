@@ -136,7 +136,7 @@ public class ThingTypeRegistry {
                 for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
                     if (channelGroupDefinition.getId().equals(channelUID.getGroupId())) {
                         for (ChannelDefinition channelDefinition : channelGroupDefinition.getType().getChannelDefinitions()) {
-                            if (channelDefinition.getId().equals(channelUID.getId())) {
+                            if (channelDefinition.getId().equals(channelUID.getIdWithoutGroup())) {
                                 return channelDefinition.getType();
                             }
                         }

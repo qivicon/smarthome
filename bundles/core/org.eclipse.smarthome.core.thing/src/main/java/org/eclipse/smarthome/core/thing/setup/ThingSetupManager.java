@@ -20,6 +20,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.eclipse.smarthome.core.thing.internal.ThingManager;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemThingLink;
@@ -32,14 +33,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
- * TODO write doc
+ * The {@link ThingSetupManager} provides various method to manage things. In
+ * contrast to the {@link ThingRegistry}, the {@link ThingManager} also creates
+ * Items and Links automatically and removes it, when the according thing is
+ * removed.
  */
 public class ThingSetupManager {
 
-    private static final String TAG_CHANNEL_GROUP = "channel_group";
-    private static final String TAG_HOME_GROUP = "home_group";
-    private static final String TAG_THING = "thing";
+    public static final String TAG_CHANNEL_GROUP = "channel_group";
+    public static final String TAG_HOME_GROUP = "home_group";
+    public static final String TAG_THING = "thing";
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private List<ItemFactory> itemFactories = new CopyOnWriteArrayList<>();
@@ -50,6 +53,14 @@ public class ThingSetupManager {
     private ThingRegistry thingRegistry;
     private ThingTypeRegistry thingTypeRegistry;
 
+    /**
+     * Adds a group to the system with the a 'home_group' tag.
+     * 
+     * @param itemName
+     *            name of group to be added
+     * @param label
+     *            label of the group to be added
+     */
     public void addHomeGroup(String itemName, String label) {
         GroupItem groupItem = new GroupItem(itemName);
         groupItem.setLabel(label);
@@ -57,20 +68,58 @@ public class ThingSetupManager {
         itemRegistry.add(groupItem);
     }
 
+    /**
+     * Adds a thing without a label, without group names, but enables all
+     * channels.
+     * 
+     * See
+     * {@link ThingSetupManager#addThing(ThingUID, Configuration, ThingUID, String, List, boolean)}
+     */
     public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID) {
         addThing(thingUID, configuration, bridgeUID, null);
     }
-    
+
+    /**
+     * Adds a thing without group names, but enables all channels.
+     * 
+     * See
+     * {@link ThingSetupManager#addThing(ThingUID, Configuration, ThingUID, String, List, boolean)}
+     */
     public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label) {
         addThing(thingUID, configuration, bridgeUID, label, new ArrayList<String>());
     }
-    
-    public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label, List<String> groupNames) {
+
+    /**
+     * Adds a thing and enables all channels.
+     * 
+     * See
+     * {@link ThingSetupManager#addThing(ThingUID, Configuration, ThingUID, String, List, boolean)}
+     */
+    public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label,
+            List<String> groupNames) {
         addThing(thingUID, configuration, bridgeUID, label, groupNames, true);
     }
 
-    public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label, List<String> groupNames,
-            boolean enableChannels) {
+    /**
+     * Adds a new thing to the system and creates the according items and links.
+     * 
+     * @param thingUID
+     *            UID of the thing (must not be null)
+     * @param configuration
+     *            configuration (must not be null)
+     * @param bridgeUID
+     *            bridge UID (can be null)
+     * @param label
+     *            label (can be null)
+     * @param groupNames
+     *            list of group names, in which the thing should be added as
+     *            member (must not be null)
+     * @param enableChannels
+     *            defines if all not 'advanced' channels should be enabled
+     *            directly
+     */
+    public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label,
+            List<String> groupNames, boolean enableChannels) {
 
         ThingTypeUID thingTypeUID = thingUID.getThingTypeUID();
         Thing thing = createThing(thingUID, configuration, bridgeUID, thingTypeUID);
@@ -86,7 +135,6 @@ public class ThingSetupManager {
         groupItem.addTag(TAG_THING);
         groupItem.setLabel(label);
         groupItem.addGroupNames(groupNames);
-        
 
         thingRegistry.add(thing);
         itemRegistry.add(groupItem);
@@ -99,6 +147,7 @@ public class ThingSetupManager {
                 GroupItem channelGroupItem = new GroupItem(getChannelGroupItemName(itemName,
                         channelGroupDefinition.getId()));
                 channelGroupItem.addTag(TAG_CHANNEL_GROUP);
+                channelGroupItem.addGroupName(itemName);
                 itemRegistry.add(channelGroupItem);
             }
         }
@@ -114,12 +163,41 @@ public class ThingSetupManager {
         }
     }
 
+    /**
+     * Adds the given item to the given group.
+     * 
+     * @param itemName
+     *            item name (must not be null)
+     * @param groupItemName
+     *            group item name (must not be null)
+     */
     public void addToHomeGroup(String itemName, String groupItemName) {
         ActiveItem item = (ActiveItem) this.itemRegistry.get(itemName);
         item.addGroupName(groupItemName);
         this.itemRegistry.update(item);
     }
 
+    /**
+     * Adds a thing identified by the given thing UID to the given group.
+     * 
+     * @param thingUID
+     *            thing UID (must not be null)
+     * @param groupItemName
+     *            group item name (must not be null)
+     */
+    public void addToHomeGroup(ThingUID thingUID, String groupItemName) {
+        String linkedItem = this.itemThingLinkRegistry.getFirstLinkedItem(thingUID);
+        if (linkedItem != null) {
+            addToHomeGroup(linkedItem, groupItemName);
+        }
+    }
+
+    /**
+     * Disables the channel with the given UID (removes the linked item).
+     * 
+     * @param channelUID
+     *            channel UID (must not be null)
+     */
     public void disableChannel(ChannelUID channelUID) {
         Collection<ItemChannelLink> itemChannelLinks = this.itemChannelLinkRegistry.getAll();
         for (ItemChannelLink itemChannelLink : itemChannelLinks) {
@@ -131,6 +209,12 @@ public class ThingSetupManager {
         }
     }
 
+    /**
+     * Enables the channel with the given UID (adds a linked item).
+     * 
+     * @param channelUID
+     *            channel UID (must not be null)
+     */
     public void enableChannel(ChannelUID channelUID) {
         ChannelType channelType = thingTypeRegistry.getChannelType(channelUID);
         if (channelType != null) {
@@ -158,6 +242,11 @@ public class ThingSetupManager {
 
     }
 
+    /**
+     * Returns a list of all group items (items with tag 'home_group').
+     * 
+     * @return list of all group items (can not be null)
+     */
     public Collection<GroupItem> getHomeGroups() {
         List<GroupItem> homeGroupItems = new ArrayList<>();
         for (Item item : this.itemRegistry.getAll()) {
@@ -168,20 +257,61 @@ public class ThingSetupManager {
         return homeGroupItems;
     }
 
+    /**
+     * Returns a thing for a given UID.
+     * 
+     * @return thing or null, if thing with UID does not exists
+     */
     public Thing getThing(ThingUID thingUID) {
         return this.thingRegistry.get(thingUID);
     }
 
+    /**
+     * Returns all things.
+     * 
+     * @return things
+     */
     public Collection<Thing> getThings() {
-        return thingRegistry.getAll();   
+        return thingRegistry.getAll();
     }
 
+    /**
+     * Removes the given item from the given group.
+     * 
+     * @param itemName
+     *            item name (must not be null)
+     * @param groupItemName
+     *            group item name (must not be null)
+     */
     public void removeFromHomeGroup(String itemName, String groupItemName) {
         ActiveItem item = (ActiveItem) this.itemRegistry.get(itemName);
         item.removeGroupName(groupItemName);
         this.itemRegistry.update(item);
     }
 
+    /**
+     * Removes the thing identified by the given thing UID from the given group.
+     * 
+     * @param thingUID
+     *            thing UID (must not be null)
+     * @param groupItemName
+     *            group item name (must not be null)
+     */
+    public void removeFromHomeGroup(ThingUID thingUID, String groupItemName) {
+        String linkedItem = this.itemThingLinkRegistry.getFirstLinkedItem(thingUID);
+        if (linkedItem != null) {
+            removeFromHomeGroup(linkedItem, groupItemName);
+        }
+    }
+
+    /**
+     * Removes the home group identified by the given itemName from the system.
+     * 
+     * @param itemName
+     *            name of group to be added
+     * @param label
+     *            label of the group to be added
+     */
     public void removeHomeGroup(String itemName) {
         itemRegistry.remove(itemName);
     }
@@ -194,24 +324,44 @@ public class ThingSetupManager {
         itemChannelLinkRegistry.removeLinksForThing(thingUID);
     }
 
-    public void setLabel(ThingUID thingUID, String newLabel) {
+    /**
+     * Sets the label for a given thing UID.
+     * 
+     * @param thingUID
+     *            thing UID (must not be null)
+     * @param label
+     *            label (can be null)
+     */
+    public void setLabel(ThingUID thingUID, String label) {
         Thing thing = thingRegistry.get(thingUID);
         GroupItem groupItem = thing.getLinkedItem();
         if (groupItem != null) {
-            if (newLabel != null && newLabel.equals(groupItem.getLabel())) {
+            if (label != null && label.equals(groupItem.getLabel())) {
                 return;
             }
-            groupItem.setLabel(newLabel);
+            groupItem.setLabel(label);
             itemRegistry.update(groupItem);
         } else {
             throw new IllegalArgumentException("No item is linked with thing '" + thingUID.toString() + "'.");
         }
     }
 
+    /**
+     * Updates an item.
+     * 
+     * @param item
+     *            item (must not be null)
+     */
     public void updateItem(Item item) {
         itemRegistry.update(item);
     }
-
+    
+    /**
+     * Updates a thing.
+     * 
+     * @param thing
+     *            thing (must not be null)
+     */
     public void updateThing(Thing thing) {
         this.thingRegistry.update(thing);
     }
@@ -232,7 +382,6 @@ public class ThingSetupManager {
         this.thingHandlerFactories.remove(thingHandlerFactory);
     }
 
-
     protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
         this.itemChannelLinkRegistry = itemChannelLinkRegistry;
     }
@@ -240,7 +389,6 @@ public class ThingSetupManager {
     protected void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
-
 
     protected void setItemThingLinkRegistry(ItemThingLinkRegistry itemThingLinkRegistry) {
         this.itemThingLinkRegistry = itemThingLinkRegistry;
@@ -250,27 +398,26 @@ public class ThingSetupManager {
         this.thingRegistry = thingRegistry;
     }
 
-    
     protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = thingTypeRegistry;
     }
-    
+
     protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
         this.itemChannelLinkRegistry = null;
     }
-    
+
     protected void unsetItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = null;
     }
-    
+
     protected void unsetItemThingLinkRegistry(ItemThingLinkRegistry itemThingLinkRegistry) {
         this.itemThingLinkRegistry = null;
     }
-    
+
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = null;
     }
-    
+
     protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = null;
     }
