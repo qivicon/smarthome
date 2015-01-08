@@ -169,13 +169,7 @@ public class ThingSetupManager {
     }
 
     public Thing getThing(ThingUID thingUID) {
-        Collection<Thing> things = this.thingRegistry.getAll();
-        for(Thing thing : things) {
-            if (thing.getUID().equals(thingUID)) {
-                return thing;
-            }
-        }
-        return null;
+        return this.thingRegistry.get(thingUID);
     }
 
     public Collection<Thing> getThings() {
