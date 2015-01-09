@@ -39,7 +39,7 @@ class ItemChannelLinkOSGiTest extends OSGiTest {
         registerVolatileStorageService()
         managedThingProvider = getService ManagedThingProvider
         managedThingProvider.add(ThingBuilder.create(CHANNEL_UID.getThingUID()).withChannels([
-            ChannelBuilder.create(CHANNEL_UID, "Color")
+            ChannelBuilder.create(CHANNEL_UID, "Color").build()
         ]).build())
         itemChannelLinkRegistry = getService ItemChannelLinkRegistry
         managedItemChannelLinkProvider = getService ManagedItemChannelLinkProvider
