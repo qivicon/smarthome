@@ -17,6 +17,7 @@ import org.eclipse.smarthome.core.types.State;
  * {@link ThingListener} can be registered at a {@link Thing} object.
  * 
  * @see Thing#addThingListener(ThingListener)
+ * 
  * @author Dennis Nobel - Initial contribution
  */
 public interface ThingListener extends EventListener {

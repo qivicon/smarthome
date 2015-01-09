@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.eclipse.smarthome.core.thing.internal;
 
 import java.util.Collection;
@@ -21,6 +28,18 @@ import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The {@link ThingLinkManager} manages links between items and channels and
+ * between items things.
+ * <p>
+ * An item is linked or unlinked to or from a channel on events from
+ * {@link ItemChannelLinkRegistry} or {@link ItemRegistry}. An item is linked or
+ * unlinked to or from a thing on events from {@link ItemThingLinkRegistry}
+ * <p>
+ * The {@link ThingLinkManager} is used by the {@link ThingManager}.
+ * 
+ * @author Dennis Nobel - Initial contribution
+ */
 public class ThingLinkManager {
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
@@ -131,6 +150,18 @@ public class ThingLinkManager {
     private Logger logger = LoggerFactory.getLogger(ThingLinkManager.class);
     private ThingRegistry thingRegistry;
 
+    /**
+     * Creates a new {@link ThingLinkManager} instance.
+     * 
+     * @param itemRegistry
+     *            the {@link ItemRegistry} to listen on change events
+     * @param thingRegistry
+     *            the {@link ThingRegistry} to access {@link Thing}s
+     * @param itemChannelLinkRegistry
+     *            the {@link ItemChannelLinkRegistry} to listen on change events
+     * @param itemThingLinkRegistry
+     *            the {@link ItemThingLinkRegistry} to listen on change events
+     */
     public ThingLinkManager(ItemRegistry itemRegistry, ThingRegistry thingRegistry,
             ItemChannelLinkRegistry itemChannelLinkRegistry, ItemThingLinkRegistry itemThingLinkRegistry) {
         this.itemRegistry = itemRegistry;
@@ -139,18 +170,30 @@ public class ThingLinkManager {
         this.itemThingLinkRegistry = itemThingLinkRegistry;
     }
 
+    /**
+     * Starts listening on events from {@link ItemRegistry}, {@link ItemChannelLinkRegistry}, and {@link ItemThingLinkRegistry}.
+     */
     public void startListening() {
         itemRegistry.addRegistryChangeListener(itemRegistryChangeListener);
         itemChannelLinkRegistry.addRegistryChangeListener(itemChannelLinkRegistryChangeListener);
         itemThingLinkRegistry.addRegistryChangeListener(itemThingLinkRegistryChangeListener);
     }
 
+    /**
+     * Stops listening on events from {@link ItemRegistry}, {@link ItemChannelLinkRegistry}, and {@link ItemThingLinkRegistry}.
+     */
     public void stopListening() {
         itemRegistry.removeRegistryChangeListener(itemRegistryChangeListener);
         itemChannelLinkRegistry.removeRegistryChangeListener(itemChannelLinkRegistryChangeListener);
         itemThingLinkRegistry.removeRegistryChangeListener(itemThingLinkRegistryChangeListener);
     }
 
+    /**
+     * Links {@link Item}s to the {@link Thing} and its {@link Channel}s.
+     * 
+     * @param thing
+     *            the added {@link Thing} to create links for.
+     */
     public void thingAdded(Thing thing) {
         String itemName = itemThingLinkRegistry.getFirstLinkedItem(thing.getUID());
         if (itemName != null) {
@@ -165,6 +208,12 @@ public class ThingLinkManager {
         }
     }
 
+    /**
+     * Unlinks {@link Item}s from the {@link Thing} and its {@link Channel}s.
+     * 
+     * @param thing
+     *            the removed {@link Thing} to remove links for.
+     */
     public void thingRemoved(Thing thing) {
         removeLinkedItemFromThing((ThingImpl) thing);
         List<Channel> channels = thing.getChannels();
@@ -176,6 +225,11 @@ public class ThingLinkManager {
         }
     }
 
+    /**
+     * Updates links from {@link Item}s from the {@link Thing} and its {@link Channel}s.
+     * 
+     * @param thing the updated {@link Thing} to update links for.
+     */
     public void thingUpdated(Thing thing) {
         // TODO: better implement a diff!
         thingRemoved(thing);

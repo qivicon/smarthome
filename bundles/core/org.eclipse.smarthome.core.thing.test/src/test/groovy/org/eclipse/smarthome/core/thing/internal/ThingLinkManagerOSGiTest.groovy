@@ -16,9 +16,13 @@ import java.util.Locale;
 
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.items.GenericItem;
+import org.eclipse.smarthome.core.items.GroupItem;
+import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
@@ -26,6 +30,8 @@ import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
+import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
+import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry
 import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
@@ -41,18 +47,17 @@ import org.junit.Before
 import org.junit.Test
 import org.osgi.service.component.ComponentContext;
 
-class ChannelStateDescriptionProviderOSGiTest extends OSGiTest{
-
-    def ItemRegistry itemRegistry
-    def StateDescriptionProvider stateDescriptionProvider
+class ThingLinkManagerOSGiTest extends OSGiTest{
+    
+    def ThingRegistry thingRegistry 
     def ThingSetupManager thingSetupManager
 
     @Before
     void setup() {
         registerVolatileStorageService()
         
-        itemRegistry = getService(ItemRegistry)
-        assertThat itemRegistry, is(notNullValue())
+        thingRegistry = getService(ThingRegistry)
+        assertThat thingRegistry, is(notNullValue())
         
         def ComponentContext componentContext = [
             getBundleContext: { -> bundleContext} 
@@ -71,33 +76,49 @@ class ChannelStateDescriptionProviderOSGiTest extends OSGiTest{
 
         thingSetupManager = getService(ThingSetupManager)
         assertThat thingSetupManager, is(notNullValue())
-        
-        stateDescriptionProvider = getService(StateDescriptionProvider)
-        assertThat stateDescriptionProvider, is(notNullValue())
     }
     
     @Test
-    void 'assert that item\'s state description is present'() {
-        thingSetupManager.addThing(new ThingUID("hue:lamp:lamp1"), new Configuration(), /* bridge */ null)
-        def items = itemRegistry.getItems()
-        assertThat items.isEmpty(), is(false) 
+    void 'assert that items are linked to thing and channel'() {
+        ThingUID thingUID = new ThingUID("hue:lamp:lamp1")
+        thingSetupManager.addThing(thingUID, new Configuration(), /* bridge */ null)
         
-        def GenericItem numberItem = items.find { "Number" == it.getType() }
-        assertThat numberItem, is(notNullValue())
+        Thing thing = thingRegistry.get(thingUID)
+        assertThat thing, is(notNullValue())
         
-        def StateDescription state = numberItem.getStateDescription()
-        assertThat state, is(notNullValue())
+        GroupItem linkedGroupItem = thing.getLinkedItem()
+        assertThat linkedGroupItem, is(notNullValue())
+        assertThat linkedGroupItem.getName(), is("hue_lamp_lamp1")
         
-        state.with {
-            assertThat minimum, is(0 as BigDecimal)
-            assertThat maximum, is(100 as BigDecimal)
-            assertThat step, is(10 as BigDecimal)
-            assertThat pattern, is("%d Peek")
-            assertThat readOnly, is(true)
-            assertThat options.size(), is(1)
-            assertThat options.first().getValue(), is("SOUND")
-            assertThat options.first().getLabel(), is("My great sound.")
-        } 
+        def channels = thing.getChannels()
+        assertThat channels.size(), is(1)
+        Channel channel = channels.first()
+        
+        def linkedItems = channel.getLinkedItems()
+        assertThat linkedItems.size(), is(1)
+        Item item = linkedItems.first()
+        assertThat item.getName(), is("hue_lamp_lamp1_1")
+    }
+    
+    @Test
+    void 'assert that items are unlinked'() {
+        ThingUID thingUID = new ThingUID("hue:lamp:lamp1")
+        thingSetupManager.addThing(thingUID, new Configuration(), /* bridge */ null)
+        
+        Thing thing = thingRegistry.get(thingUID)
+        assertThat thing, is(notNullValue())
+        
+        thingSetupManager.removeThing(thingUID)
+        
+        GroupItem linkedGroupItem = thing.getLinkedItem()
+        assertThat linkedGroupItem, is(null)
+        
+        def channels = thing.getChannels()
+        assertThat channels.size(), is(1)
+        Channel channel = channels.first()
+        
+        def linkedItems = channel.getLinkedItems()
+        assertThat linkedItems.size(), is(0)
     }
     
     /*
@@ -135,4 +156,5 @@ class ChannelStateDescriptionProviderOSGiTest extends OSGiTest{
             return null
         }
     }
+    
 }
