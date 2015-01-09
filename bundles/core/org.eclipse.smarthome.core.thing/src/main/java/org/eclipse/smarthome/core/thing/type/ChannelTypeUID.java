@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.core.thing.type;
 
 import org.eclipse.smarthome.core.thing.UID;
-
 
 /**
  * The {@link ChannelTypeUID} represents a unique identifier for channel types.
@@ -26,7 +25,7 @@ public class ChannelTypeUID extends UID {
     ChannelTypeUID() {
         super();
     }
-    
+
     /**
      * Creates a new instance of this class with the specified parameter.
      * 

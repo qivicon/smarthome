@@ -7,29 +7,29 @@
  */
 package org.eclipse.smarthome.config.xml;
 
-import org.eclipse.smarthome.config.core.FilterCriteria;
+import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.config.xml.util.GenericUnmarshaller;
 
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 /**
- * The {@link FilterCriteriaConverter} creates a {@link FilterCriteria}
- * instance from a {@code criteria} XML node.
+ * The {@link ParameterOptionConverter} creates a {@link ParameterOption}
+ * instance from a {@code option} XML node.
  *
  * @author Alex Tugarev - Initial Contribution
  */
-public class FilterCriteriaConverter extends GenericUnmarshaller<FilterCriteria> {
+public class ParameterOptionConverter extends GenericUnmarshaller<ParameterOption> {
 
-    public FilterCriteriaConverter() {
-        super(FilterCriteria.class);
+    public ParameterOptionConverter() {
+        super(ParameterOption.class);
     }
 
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        String name = reader.getAttribute("name");
-        String criteria = reader.getValue();
-        return new FilterCriteria(name, criteria);
+        String value = reader.getAttribute("value");
+        String label = reader.getValue();
+        return new ParameterOption(value, label);
     }
 
 }

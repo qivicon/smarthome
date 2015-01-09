@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,6 @@ public abstract class UID {
 
     public static final String SEGMENT_PATTERN = "[A-Za-z0-9_-]*";
     public static final String SEPARATOR = ":";
-
     private String[] segments;
 
     /**
