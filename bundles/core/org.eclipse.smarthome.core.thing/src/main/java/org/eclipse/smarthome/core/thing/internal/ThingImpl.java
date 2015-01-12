@@ -49,8 +49,6 @@ public class ThingImpl implements Thing {
     transient volatile private ThingHandler thingHandler;
 
     transient volatile private List<ThingListener> thingListeners = new CopyOnWriteArrayList<>();
-    
-    private String name;
 
     private ThingTypeUID thingTypeUID;
     
@@ -130,11 +128,6 @@ public class ThingImpl implements Thing {
     public ThingStatus getStatus() {
         return status;
     }
-    
-    @Override
-    public String getName() {
-		return name;
-	}
 
     /**
      * Removes the thing listener.
@@ -170,11 +163,6 @@ public class ThingImpl implements Thing {
 
     public void setStatus(ThingStatus status) {
         this.status = status;
-    }
-    
-    @Override
-    public void setName(String name) {
-    	this.name = name;
     }
 
     @Override

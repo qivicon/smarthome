@@ -101,21 +101,6 @@ public interface Thing {
      * @return the uid
      */
     ThingUID getUID();
-    
-    /**
-     * Sets the name.
-     * 
-     * @param name
-     *            the new name
-     */
-    void setName(String name);
-    
-    /**
-     * Gets the name.
-     * 
-     * @return the name (can be null)
-     */
-    String getName();
 
     /**
      * Gets the thing type UID.
