@@ -10,35 +10,35 @@ package org.eclipse.smarthome.io.rest.sse.internal.listeners;
 import org.eclipse.smarthome.core.events.AbstractEventSubscriber;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
-import org.eclipse.smarthome.io.rest.sse.EventType;
-import org.eclipse.smarthome.io.rest.sse.SseResource;
+import org.eclipse.smarthome.io.rest.sse.EventBroadcaster;
+import org.eclipse.smarthome.io.rest.sse.impl.CoreEventType;
 
 /**
  * Listener responsible for broadcasting internal item update/command events to
  * all clients subscribed to them.
- *
+ * 
  * @author Ivan Iliev - Initial Contribution and API
- *
+ * 
  */
 public class OSGiEventListener extends AbstractEventSubscriber {
 
-    private SseResource sseResource;
+    private EventBroadcaster eventBroadcaster;
 
-    protected void setSseResource(SseResource sseResource) {
-        this.sseResource = sseResource;
+    protected void setBroadcaster(EventBroadcaster eventBroadcaster) {
+        this.eventBroadcaster = eventBroadcaster;
     }
 
-    protected void unsetSseResource(SseResource sseResource) {
-        this.sseResource = null;
+    protected void unsetBroadcaster(EventBroadcaster eventBroadcaster) {
+        this.eventBroadcaster = null;
     }
 
     @Override
     public void receiveCommand(String itemName, Command command) {
-        sseResource.broadcastEvent(itemName, EventType.COMMAND, command.toString());
+        eventBroadcaster.broadcastEvent(itemName, CoreEventType.COMMAND, command.toString());
     }
 
     @Override
     public void receiveUpdate(String itemName, State newState) {
-        sseResource.broadcastEvent(itemName, EventType.UPDATE, newState.toString());
+        eventBroadcaster.broadcastEvent(itemName, CoreEventType.UPDATE, newState.toString());
     }
 }

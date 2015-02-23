@@ -15,28 +15,30 @@ import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingRegistryChangeListener;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ThingBean;
 import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
+import org.eclipse.smarthome.io.rest.sse.EventBroadcaster;
 import org.eclipse.smarthome.io.rest.sse.EventType;
-import org.eclipse.smarthome.io.rest.sse.SseResource;
+import org.eclipse.smarthome.io.rest.sse.impl.CoreEventType;
+import org.eclipse.smarthome.io.rest.sse.impl.SseResource;
 
 /**
  * Listener responsible for broadcasting thing registry events to all clients
  * subscribed to them.
- *
+ * 
  * @author Ivan Iliev - Initial Contribution and API
- *
+ * 
  */
 public class ThingRegistryEventListener implements ThingRegistryChangeListener {
 
     private ThingRegistry thingRegistry;
 
-    private SseResource sseResource;
+    private EventBroadcaster eventBroadcaster;
 
-    protected void setSseResource(SseResource sseResource) {
-        this.sseResource = sseResource;
+    protected void setBroadcaster(EventBroadcaster eventBroadcaster) {
+        this.eventBroadcaster = eventBroadcaster;
     }
 
-    protected void unsetSseResource(SseResource sseResource) {
-        this.sseResource = null;
+    protected void unsetBroadcaster(SseResource sseResource) {
+        this.eventBroadcaster = null;
     }
 
     protected void setThingRegistry(ThingRegistry thingRegistry) {
@@ -51,18 +53,18 @@ public class ThingRegistryEventListener implements ThingRegistryChangeListener {
 
     @Override
     public void added(Thing element) {
-        broadcastThingEvent(element.getUID().getId(), EventType.THING_ADDED, element);
+        broadcastThingEvent(element.getUID().getId(), CoreEventType.THING_ADDED, element);
 
     }
 
     @Override
     public void removed(Thing element) {
-        broadcastThingEvent(element.getUID().getId(), EventType.THING_REMOVED, element);
+        broadcastThingEvent(element.getUID().getId(), CoreEventType.THING_REMOVED, element);
     }
 
     @Override
     public void updated(Thing oldElement, Thing element) {
-        broadcastThingEvent(element.getUID().getId(), EventType.THING_UPDATED, oldElement, element);
+        broadcastThingEvent(element.getUID().getId(), CoreEventType.THING_UPDATED, oldElement, element);
     }
 
     private void broadcastThingEvent(String thingIdentifier, EventType eventType, Thing... elements) {
@@ -77,7 +79,7 @@ public class ThingRegistryEventListener implements ThingRegistryChangeListener {
             eventObject = thingBeans;
         }
 
-        sseResource.broadcastEvent(thingIdentifier, eventType, eventObject);
+        eventBroadcaster.broadcastEvent(thingIdentifier, eventType, eventObject);
     }
 
 }

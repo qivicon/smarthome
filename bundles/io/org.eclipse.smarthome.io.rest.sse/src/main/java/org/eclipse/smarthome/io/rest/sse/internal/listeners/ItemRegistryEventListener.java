@@ -16,28 +16,29 @@ import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.io.rest.core.item.beans.ItemBean;
 import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
+import org.eclipse.smarthome.io.rest.sse.EventBroadcaster;
 import org.eclipse.smarthome.io.rest.sse.EventType;
-import org.eclipse.smarthome.io.rest.sse.SseResource;
+import org.eclipse.smarthome.io.rest.sse.impl.CoreEventType;
 
 /**
  * Listener responsible for broadcasting item registry events to all clients
  * subscribed to them.
- *
+ * 
  * @author Ivan Iliev - Initial Contribution and API
- *
+ * 
  */
 public class ItemRegistryEventListener implements ItemRegistryChangeListener {
 
     private ItemRegistry itemRegistry;
 
-    private SseResource sseResource;
+    private EventBroadcaster eventBroadcaster;
 
-    protected void setSseResource(SseResource sseResource) {
-        this.sseResource = sseResource;
+    protected void setBroadcaster(EventBroadcaster eventBroadcaster) {
+        this.eventBroadcaster = eventBroadcaster;
     }
 
-    protected void unsetSseResource(SseResource sseResource) {
-        this.sseResource = null;
+    protected void unsetBroadcaster(EventBroadcaster eventBroadcaster) {
+        this.eventBroadcaster = null;
     }
 
     protected void setItemRegistry(ItemRegistry itemRegistry) {
@@ -52,17 +53,17 @@ public class ItemRegistryEventListener implements ItemRegistryChangeListener {
 
     @Override
     public void added(Item element) {
-        broadcastItemEvent(element.getName(), EventType.ITEM_ADDED, element);
+        broadcastItemEvent(element.getName(), CoreEventType.ITEM_ADDED, element);
     }
 
     @Override
     public void removed(Item element) {
-        broadcastItemEvent(element.getName(), EventType.ITEM_REMOVED, element);
+        broadcastItemEvent(element.getName(), CoreEventType.ITEM_REMOVED, element);
     }
 
     @Override
     public void updated(Item oldElement, Item element) {
-        broadcastItemEvent(element.getName(), EventType.ITEM_UPDATED, oldElement, element);
+        broadcastItemEvent(element.getName(), CoreEventType.ITEM_UPDATED, oldElement, element);
     }
 
     @Override
@@ -82,7 +83,7 @@ public class ItemRegistryEventListener implements ItemRegistryChangeListener {
             eventObject = itemBeans;
         }
 
-        sseResource.broadcastEvent(itemIdentifier, eventType, eventObject);
+        eventBroadcaster.broadcastEvent(itemIdentifier, eventType, eventObject);
     }
 
 }
