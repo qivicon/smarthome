@@ -11,5 +11,5 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.rest.sse.listeners.item">
    <implementation class="org.eclipse.smarthome.io.rest.sse.internal.listeners.ItemRegistryEventListener"/>
    <reference bind="setItemRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="static" unbind="unsetItemRegistry"/>
-   <reference bind="setSseResource" cardinality="1..1" interface="org.eclipse.smarthome.io.rest.sse.SseResource" name="SseResource" policy="static" unbind="unsetSseResource"/>
+   <reference bind="setBroadcaster" cardinality="1..1" interface="org.eclipse.smarthome.io.rest.sse.EventBroadcaster" name="EventBroadcaster" policy="static" unbind="unsetBroadcaster"/>
 </scr:component>
