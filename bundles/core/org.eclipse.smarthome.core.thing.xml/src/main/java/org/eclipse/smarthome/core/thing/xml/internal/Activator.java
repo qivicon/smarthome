@@ -17,9 +17,11 @@ import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
+import org.eclipse.smarthome.core.thing.type.SystemChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
 /**
@@ -43,6 +45,7 @@ public class Activator implements BundleActivator {
 
     private ServiceRegistration<?> configDescriptionProviderReg;
     private ServiceRegistration<?> thingTypeProviderReg;
+    private ServiceReference<?> systemChannelTypeProviderRef;
 
     private ServiceBinder thingTypeI18nProviderServiceBinder;
     private ServiceBinder configDescriptionI18nProviderServiceBinder;
@@ -51,7 +54,7 @@ public class Activator implements BundleActivator {
 
     @Override
     public void start(BundleContext context) throws Exception {
-        XmlThingTypeProvider thingTypeProvider = new XmlThingTypeProvider();
+        XmlThingTypeProvider thingTypeProvider = new XmlThingTypeProvider(getSystemChannelTypeProvider(context));
         this.thingTypeI18nProviderServiceBinder = new ServiceBinder(context, thingTypeProvider);
         this.thingTypeI18nProviderServiceBinder.open();
 
@@ -73,6 +76,16 @@ public class Activator implements BundleActivator {
                 configDescriptionProvider, null);
 
         this.thingTypeProviderReg = context.registerService(ThingTypeProvider.class.getName(), thingTypeProvider, null);
+    }
+
+    private SystemChannelTypeProvider getSystemChannelTypeProvider(BundleContext context) {
+        systemChannelTypeProviderRef = context.getServiceReference(SystemChannelTypeProvider.class.getName());
+
+        if (systemChannelTypeProviderRef != null) {
+            return (SystemChannelTypeProvider) context.getService(systemChannelTypeProviderRef);
+        }
+
+        throw new IllegalStateException("No SystemChannelTypeProvider could be found!");
     }
 
     @Override

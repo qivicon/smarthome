@@ -20,6 +20,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.SystemChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 
 import com.thoughtworks.xstream.converters.ConversionException;
@@ -74,6 +75,15 @@ public class ThingTypeXmlResult {
                     String typeId = channelTypeReference.getAttribute("typeId");
 
                     String typeUID = String.format("%s:%s", this.thingTypeUID.getBindingId(), typeId);
+
+                    int systemPrefixIdx = typeId.indexOf(SystemChannelTypeProvider.NAMESPACE_PREFIX);
+                    if (systemPrefixIdx != -1) {
+                        typeUID = String
+                                .format("%s:%s",
+                                        SystemChannelTypeProvider.NAMESPACE,
+                                        typeId.substring(systemPrefixIdx
+                                                + SystemChannelTypeProvider.NAMESPACE_PREFIX.length()));
+                    }
 
                     ChannelType channelType = channelTypes.get(typeUID);
                     if (channelType != null) {

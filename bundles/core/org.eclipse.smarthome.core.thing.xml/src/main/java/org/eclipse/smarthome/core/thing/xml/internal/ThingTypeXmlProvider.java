@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.thing.xml.internal;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.SystemChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
@@ -61,6 +63,7 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
     private List<ChannelGroupTypeXmlResult> channelGroupTypeRefs;
     private Map<String, ChannelGroupType> channelGroupTypes;
     private Map<String, ChannelType> channelTypes;
+    private List<ChannelType> contributedSystemChannelTypes;
 
     public ThingTypeXmlProvider(Bundle bundle, XmlConfigDescriptionProvider configDescriptionProvider,
             XmlThingTypeProvider thingTypeProvider) throws IllegalArgumentException {
@@ -85,6 +88,7 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
         this.channelGroupTypeRefs = new ArrayList<>(10);
         this.channelGroupTypes = new HashMap<>(10);
         this.channelTypes = new HashMap<>(10);
+        this.contributedSystemChannelTypes = new ArrayList<>(10);
     }
 
     @Override
@@ -100,9 +104,22 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
                     this.channelGroupTypeRefs.add(typeResult);
                 } else if (type instanceof ChannelTypeXmlResult) {
                     ChannelTypeXmlResult typeResult = (ChannelTypeXmlResult) type;
-                    addConfigDescription(typeResult.getConfigDescription());
                     ChannelType channelType = typeResult.getChannelType();
-                    this.channelTypes.put(channelType.getUID().toString(), channelType);
+
+                    if (typeResult.isSystem()) {
+                        SystemChannelTypeProvider systemChannelTypeProvider = this.thingTypeProvider
+                                .getSystemChannelTypeProvider();
+
+                        if (!systemChannelTypeProvider.addSystemChannelType(channelType)) {
+                            throw new ConversionException("System channel type with UID '"
+                                    + channelType.getUID().toString() + "' already exists!");
+                        }
+                        
+                        contributedSystemChannelTypes.add(channelType);
+                    }
+
+                    addConfigDescription(typeResult.getConfigDescription());
+                    this.channelTypes.put(channelType.getUID().getAsString(), channelType);
                 } else {
                     throw new ConversionException("Unknown data type for '" + type + "'!");
                 }
@@ -119,9 +136,22 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
             }
         }
     }
+    
+    private void addSystemChannelTypes() {
+        SystemChannelTypeProvider systemChannelTypeProvider = this.thingTypeProvider.getSystemChannelTypeProvider();
+
+        Collection<ChannelType> systemChannelTypes = systemChannelTypeProvider.getSystemChannelTypes();
+
+        for (ChannelType type : systemChannelTypes) {
+            this.channelTypes.put(type.getUID().getAsString(), type);
+        }
+    }
 
     @Override
     public synchronized void addingFinished() {
+        
+        addSystemChannelTypes();
+        
         // create channel group types
         for (ChannelGroupTypeXmlResult type : this.channelGroupTypeRefs) {
             this.channelGroupTypes.put(type.getUID().toString(), type.toChannelGroupType(this.channelTypes));
@@ -144,6 +174,11 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
     public synchronized void release() {
         this.thingTypeProvider.removeAllThingTypes(this.bundle);
         this.configDescriptionProvider.removeAllConfigDescriptions(this.bundle);
+        
+        SystemChannelTypeProvider systemChannelTypeProvider = this.thingTypeProvider.getSystemChannelTypeProvider();
+        for(ChannelType type : contributedSystemChannelTypes) {
+            systemChannelTypeProvider.removeSystemChannelType(type);
+        }
     }
 
 }

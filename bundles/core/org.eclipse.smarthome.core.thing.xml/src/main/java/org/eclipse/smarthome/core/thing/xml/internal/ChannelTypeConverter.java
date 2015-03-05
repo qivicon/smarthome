@@ -19,6 +19,7 @@ import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
+import org.eclipse.smarthome.core.thing.type.SystemChannelTypeProvider;
 import org.eclipse.smarthome.core.types.StateDescription;
 
 import com.thoughtworks.xstream.converters.ConversionException;
@@ -42,11 +43,11 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         super(ChannelTypeXmlResult.class, "channel-type");
 
         super.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "id", "true" },
-                { "advanced", "false" } });
+                { "advanced", "false" }, { "system", "false" } });
     }
 
-    private boolean isAdvanced(Map<String, String> attributes, boolean defaultValue) {
-        String advancedFlag = attributes.get("advanced");
+    private boolean readBoolean(Map<String, String> attributes, String attributeName, boolean defaultValue) {
+        String advancedFlag = attributes.get(attributeName);
 
         if (advancedFlag != null) {
             return Boolean.parseBoolean(advancedFlag);
@@ -107,8 +108,12 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
     protected ChannelTypeXmlResult unmarshalType(HierarchicalStreamReader reader, UnmarshallingContext context,
             Map<String, String> attributes, NodeIterator nodeIterator) throws ConversionException {
 
-        ChannelTypeUID channelTypeUID = new ChannelTypeUID(super.getUID(attributes, context));
-        boolean advanced = isAdvanced(attributes, false);
+        boolean advanced = readBoolean(attributes, "advanced", false);
+        boolean system = readBoolean(attributes, "system", false);
+
+        String uid = system ? String.format("%s:%s", SystemChannelTypeProvider.NAMESPACE, super.getID(attributes))
+                : super.getUID(attributes, context);
+        ChannelTypeUID channelTypeUID = new ChannelTypeUID(uid);
 
         String itemType = readItemType(nodeIterator);
         String label = super.readLabel(nodeIterator);
@@ -124,7 +129,7 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
                 tags, stateDescription, (URI) configDescriptionObjects[0]);
 
         ChannelTypeXmlResult channelTypeXmlResult = new ChannelTypeXmlResult(channelType,
-                (ConfigDescription) configDescriptionObjects[1]);
+                (ConfigDescription) configDescriptionObjects[1], system);
 
         return channelTypeXmlResult;
     }
