@@ -5,18 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.rest.sse;
+package org.eclipse.smarthome.io.rest.sse.impl;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Singleton;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -24,8 +20,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.Response;
 
+import org.eclipse.smarthome.io.rest.sse.EventBroadcaster;
+import org.eclipse.smarthome.io.rest.sse.EventChannel;
+import org.eclipse.smarthome.io.rest.sse.EventType;
 import org.eclipse.smarthome.io.rest.sse.internal.util.SseUtil;
 import org.glassfish.jersey.media.sse.EventOutput;
 import org.glassfish.jersey.media.sse.SseBroadcaster;
@@ -33,44 +32,29 @@ import org.glassfish.jersey.media.sse.SseFeature;
 
 /**
  * SSE Resource for pushing events to currently listening clients.
- *
+ * 
  * @author Ivan Iliev - Initial Contribution and API
- *
+ * 
  */
 @Path("events")
 @Singleton
-public class SseResource {
+public class SseResource implements EventChannel {
 
     private final Map<EventType, SseBroadcaster> broadcasterMap;
-
-    private final ExecutorService executorService;
-
-    @Context
-    private UriInfo uriInfo;
 
     @Context
     private HttpServletResponse response;
 
-    @Context
-    private HttpServletRequest request;
+    private EventBroadcaster eventBroadcaster;
 
     public SseResource() {
-        HashMap<EventType, SseBroadcaster> mutableMap = new HashMap<EventType, SseBroadcaster>();
-
-        for (EventType eventType : EventType.values()) {
-            mutableMap.put(eventType, new SseBroadcaster());
-        }
-
-        this.broadcasterMap = Collections.unmodifiableMap(mutableMap);
-
-        this.executorService = Executors.newSingleThreadExecutor();
-
+        this.broadcasterMap = new ConcurrentHashMap<EventType, SseBroadcaster>();
     }
 
     /**
      * Subscribes the connecting client to the stream of events filtered by the
      * given eventFilter.
-     *
+     * 
      * @param eventFilter
      * @return {@link EventOutput} object associated with the incoming
      *         connection.
@@ -80,6 +64,13 @@ public class SseResource {
     @GET
     @Produces(SseFeature.SERVER_SENT_EVENTS)
     public Object getEvents(@QueryParam("topics") String eventFilter) throws IOException, InterruptedException {
+
+        // if this channel has not yet been initialized return service
+        // unavailable
+        if (eventBroadcaster == null) {
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+        }
+
         final EventOutput eventOutput = new EventOutput();
 
         subscribeOutput(eventFilter, eventOutput);
@@ -106,7 +97,7 @@ public class SseResource {
     /**
      * Broadcasts an event described by the given parameters to all currently
      * listening clients.
-     *
+     * 
      * @param objectIdentifier
      *            - identifier of the event object
      * @param eventType
@@ -114,31 +105,41 @@ public class SseResource {
      * @param eventObject
      *            - bean that can be converted to a JSON object.
      */
+    @Override
     public void broadcastEvent(final String objectIdentifier, final EventType eventType, final Object eventObject) {
-        executorService.execute(new Runnable() {
+        SseBroadcaster sseBroadcaster = broadcasterMap.get(eventType);
 
-            @Override
-            public void run() {
-                broadcasterMap.get(eventType).broadcast(SseUtil.buildEvent(eventType, objectIdentifier, eventObject));
-            }
-        });
-
+        if (sseBroadcaster != null) {
+            sseBroadcaster.broadcast(SseUtil.buildEvent(eventType, objectIdentifier, eventObject));
+        }
     }
 
     /**
-     *
+     * 
      * Subscribes the given eventOutput to all EventTypes matching the given
      * filter.
-     *
+     * 
      * @param eventFilter
      * @param eventOutput
      */
     private void subscribeOutput(String eventFilter, final EventOutput eventOutput) {
-        List<EventType> eventTypesToListen = EventType.getEventTopicByFilter(eventFilter);
+        Set<EventType> eventTypesToListen = eventBroadcaster.filterEventTypes(eventFilter);
 
         for (EventType eventType : eventTypesToListen) {
-            broadcasterMap.get(eventType).add(eventOutput);
+            SseBroadcaster sseBroadcaster = broadcasterMap.get(eventType);
+            // if we do not already have a broadcaster for this type - create it
+            if (sseBroadcaster == null) {
+                sseBroadcaster = new SseBroadcaster();
+                broadcasterMap.put(eventType, sseBroadcaster);
+            }
+
+            sseBroadcaster.add(eventOutput);
         }
+    }
+
+    @Override
+    public void initialize(EventBroadcaster broadcaster) {
+        this.eventBroadcaster = broadcaster;
     }
 
 }
