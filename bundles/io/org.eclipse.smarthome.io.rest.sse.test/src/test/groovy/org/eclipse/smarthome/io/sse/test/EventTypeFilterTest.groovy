@@ -17,7 +17,7 @@ import org.eclipse.smarthome.io.rest.sse.EventTypeProvider
 import org.eclipse.smarthome.io.rest.sse.impl.CoreEventType
 import org.eclipse.smarthome.io.rest.sse.impl.CoreEventTypeProvider
 import org.eclipse.smarthome.io.rest.sse.impl.EventBroadcasterImpl
-import org.eclipse.smarthome.io.rest.sse.internal.util.SseUtil
+import org.eclipse.smarthome.io.rest.sse.beans.EventUtil
 import org.junit.Before
 import org.junit.Test
 
@@ -108,7 +108,7 @@ class EventTypeFilterTest {
 
     @Test
     public void fullNameTest() {
-        assertThat((getFullName(CoreEventType.THING_ADDED) + "/test").equals(SseUtil.getTopic(CoreEventType.THING_ADDED, "test")), is(true));
+        assertThat((getFullName(CoreEventType.THING_ADDED) + "/test").equals(EventUtil.getTopic(CoreEventType.THING_ADDED, "test")), is(true));
     }
 
     @Test
@@ -142,10 +142,10 @@ class EventTypeFilterTest {
     private String getFullName(EventType event) {
         StringBuilder builder = new StringBuilder();
         builder.append(event.namespace);
-        builder.append(SseUtil.FILTER_SEPARATOR);
+        builder.append(EventUtil.FILTER_SEPARATOR);
         builder.append(event.object);
         if (!event.type.isEmpty()) {
-            builder.append(SseUtil.FILTER_SEPARATOR);
+            builder.append(EventUtil.FILTER_SEPARATOR);
             builder.append(event.type);
         }
 
