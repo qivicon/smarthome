@@ -14,7 +14,6 @@ import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 import org.eclipse.smarthome.io.rest.sse.EventBroadcaster;
 import org.eclipse.smarthome.io.rest.sse.EventType;
 import org.eclipse.smarthome.io.rest.sse.impl.CoreEventType;
-import org.eclipse.smarthome.io.rest.sse.impl.SseResource;
 
 /**
  * Listener responsible for broadcasting inbox events to all clients subscribed
@@ -43,7 +42,7 @@ public class InboxEventListener implements InboxListener {
         this.eventBroadcaster = eventBroadcaster;
     }
 
-    protected void unsetBroadcaster(SseResource sseResource) {
+    protected void unsetBroadcaster(EventBroadcaster sseResource) {
         this.eventBroadcaster = null;
     }
 
