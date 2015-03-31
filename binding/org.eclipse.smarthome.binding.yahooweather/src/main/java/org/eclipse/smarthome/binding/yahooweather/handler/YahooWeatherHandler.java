@@ -26,6 +26,7 @@ import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
@@ -39,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * sent to one of the channels.
  *
  * @author Kai Kreuzer - Initial contribution
+ * @author Stefan Bußweiler - Integrate new thing status handling 
  */
 public class YahooWeatherHandler extends BaseThingHandler {
 
@@ -130,14 +132,14 @@ public class YahooWeatherHandler extends BaseThingHandler {
             URL url = new URL(urlString);
             URLConnection connection = url.openConnection();
             weatherData = IOUtils.toString(connection.getInputStream());
-            updateStatus(ThingStatus.ONLINE);
+            updateStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE);
             return true;
         } catch (MalformedURLException e) {
             logger.debug("Constructed url '{}' is not valid: {}", urlString, e.getMessage());
             return false;
         } catch (IOException e) {
             logger.warn("Error accessing Yahoo weather: {}", e.getMessage());
-            updateStatus(ThingStatus.OFFLINE);
+            updateStatusInfo(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
             return false;
         }
     }
