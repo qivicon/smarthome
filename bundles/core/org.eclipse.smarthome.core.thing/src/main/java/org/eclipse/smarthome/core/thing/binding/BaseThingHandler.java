@@ -17,10 +17,13 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.StatusInfo;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.builder.StatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.types.State;
 import org.osgi.framework.BundleContext;
@@ -37,6 +40,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Added dynamic configuration update
  * @author Thomas Höfer - Added thing properties
+ * @author Stefan Bußweiler - Added new thing status handling 
  */
 public abstract class BaseThingHandler implements ThingHandler {
 
@@ -136,7 +140,7 @@ public abstract class BaseThingHandler implements ThingHandler {
         // can be overridden by subclasses
         // standard behavior is to set the thing to ONLINE,
         // assuming no further initialization is necessary.
-        updateStatus(ThingStatus.ONLINE);
+    	updateStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE);
     }
 
     @Override
@@ -221,23 +225,39 @@ public abstract class BaseThingHandler implements ThingHandler {
         ChannelUID channelUID = new ChannelUID(this.getThing().getUID(), channelID);
         updateState(channelUID, state);
     }
-
+    
     /**
      * Updates the status of the thing.
+     * 
+     * @param status the status
+     * @param statusDetail the detail of the status
+     * @param description the description of the status
      *
-     * @param status
-     *            new status
      * @throws IllegalStateException
      *             if handler is not initialized correctly, because no callback is present
      */
-    protected void updateStatus(ThingStatus status) {
+    protected void updateStatusInfo(ThingStatus status, ThingStatusDetail statusDetail, String description) {
         synchronized (this) {
             if (this.callback != null) {
-                this.callback.statusUpdated(this.thing, status);
+                StatusInfoBuilder statusBuilder = StatusInfoBuilder.create(status, statusDetail);
+                StatusInfo statusInfo = statusBuilder.withDescription(description).build();
+                this.callback.statusUpdated(this.thing, statusInfo);
             } else {
                 throw new IllegalStateException("Could not update status, because callback is missing");
             }
         }
+    }
+
+    /**
+     * Updates the status of the thing.
+     *
+     * @param status the status
+     * @param statusDetail the detail of the status
+     * @throws IllegalStateException
+     *             if handler is not initialized correctly, because no callback is present
+     */
+    protected void updateStatusInfo(ThingStatus status, ThingStatusDetail statusDetail) {
+        updateStatusInfo(status, statusDetail, null);
     }
 
     /**

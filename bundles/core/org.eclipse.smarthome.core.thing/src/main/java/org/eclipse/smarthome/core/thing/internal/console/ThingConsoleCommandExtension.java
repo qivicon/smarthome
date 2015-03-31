@@ -13,9 +13,9 @@ import java.util.List;
 
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
+import org.eclipse.smarthome.core.thing.StatusInfo;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
-import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
@@ -104,7 +104,7 @@ public class ThingConsoleCommandExtension implements ConsoleCommandExtension {
         for (Thing thing : things) {
             String id = thing.getUID().toString();
             String thingType = thing instanceof Bridge ? "Bridge" : "Thing";
-            ThingStatus status = thing.getStatus();
+            StatusInfo status = thing.getStatusInfo();
 
             console.println(String.format("%s (Type=%s, Status=%s)", id, thingType, status));
         }

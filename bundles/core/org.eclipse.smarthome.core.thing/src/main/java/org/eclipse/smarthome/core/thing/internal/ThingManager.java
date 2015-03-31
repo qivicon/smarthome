@@ -19,13 +19,16 @@ import org.eclipse.smarthome.core.events.AbstractEventSubscriber;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.StatusInfo;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.eclipse.smarthome.core.thing.binding.builder.StatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry;
 import org.eclipse.smarthome.core.types.Command;
@@ -49,6 +52,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Added dynamic configuration update
+ * @author Stefan Bußweiler - Added new thing status handling 
  */
 public class ThingManager extends AbstractEventSubscriber implements ThingTracker {
 
@@ -121,8 +125,8 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         }
 
         @Override
-        public void statusUpdated(Thing thing, ThingStatus thingStatus) {
-            thing.setStatus(thingStatus);
+        public void statusUpdated(Thing thing, StatusInfo thingStatus) {
+            thing.setStatusInfo(thingStatus);
             // TODO: send event
         }
 
@@ -171,7 +175,9 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     public void handlerRemoved(Thing thing, ThingHandler thingHandler) {
         logger.debug("Removing handler and setting status to OFFLINE.", thing.getUID());
         thing.setHandler(null);
-        thing.setStatus(ThingStatus.OFFLINE);
+        StatusInfo statusInfo = StatusInfoBuilder.create(ThingStatus.UNINITIALIZED,
+                ThingStatusDetail.HANDLER_MISSING_ERROR).build();
+        thing.setStatusInfo(statusInfo);
         thingHandler.setCallback(null);
     }
 
@@ -343,8 +349,13 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     private void registerHandler(Thing thing, ThingHandlerFactory thingHandlerFactory) {
         logger.debug("Creating handler for thing '{}'.", thing.getUID());
         try {
+            StatusInfo statusInfo = StatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build();
+            thing.setStatusInfo(statusInfo);
             thingHandlerFactory.registerHandler(thing, this.thingHandlerCallback);
         } catch (Exception ex) {
+            StatusInfo statusInfo = StatusInfoBuilder.create(ThingStatus.UNINITIALIZED,
+                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR).build();
+            thing.setStatusInfo(statusInfo);
             logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
         }
     }

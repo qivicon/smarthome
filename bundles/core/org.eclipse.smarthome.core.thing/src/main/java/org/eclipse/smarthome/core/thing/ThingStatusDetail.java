@@ -8,26 +8,29 @@
 package org.eclipse.smarthome.core.thing;
 
 /**
- * {@link ThingStatus} defines possible statuses of a {@link StatusInfo}.
+ * {@link ThingStatusDetail} defines possible status details of a {@link StatusInfo}.
  * 
  * @author Stefan Bußweiler - Initial contribution
  */
-public enum ThingStatus {
-    UNINITIALIZED(0),
-    INITIALIZING(1),
-    ONLINE(2),
-    OFFLINE(3),
-    REMOVING(4),
-    REMOVED(5);
+public enum ThingStatusDetail {
+    NONE(0),
+    HANDLER_MISSING_ERROR(1),
+    HANDLER_INITIALIZING_ERROR(2),
+    CONFIGURATION_PENDING(3),
+    COMMUNICATION_ERROR(4),
+    CONFIGURATION_ERROR(5),
+    BRIDGE_OFFLINE(6),
+    FIRMWARE_UPDATING(7),
+    DUTY_CYCLE(8);
 
     private final int value;
 
-    private ThingStatus(final int newValue) {
+    private ThingStatusDetail(final int newValue) {
         value = newValue;
     }
 
     /**
-     * Gets the value of a thing status.
+     * Gets the value of a thing status detail.
      * 
      * @return the value
      */

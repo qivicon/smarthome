@@ -59,21 +59,21 @@ public interface Thing {
      *         exists
      */
     Channel getChannel(String channelId);
-
+    
     /**
-     * Gets the status.
+     * Gets the status info.
      *
-     * @return the status
+     * @return the status info
      */
-    ThingStatus getStatus();
+    StatusInfo getStatusInfo();
 
     /**
-     * Sets the status.
+     * Sets the status info.
      *
      * @param status
-     *            the new status
+     *            the new status info
      */
-    void setStatus(ThingStatus status);
+    void setStatusInfo(StatusInfo status);
 
     /**
      * Sets the handler.

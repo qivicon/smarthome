@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.thing.Bridge;
+import org.eclipse.smarthome.core.thing.StatusInfo;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
@@ -54,10 +54,10 @@ public class BridgeImpl extends ThingImpl implements Bridge {
     }
 
     @Override
-    public void setStatus(ThingStatus status) {
-        super.setStatus(status);
+    public void setStatusInfo(StatusInfo status) {
+        super.setStatusInfo(status);
         for (Thing thing : this.things) {
-            thing.setStatus(status);
+            thing.setStatusInfo(status);
         }
     }
 
