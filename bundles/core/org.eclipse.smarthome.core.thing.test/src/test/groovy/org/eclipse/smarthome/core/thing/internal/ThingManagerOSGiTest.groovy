@@ -21,11 +21,13 @@ import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingStatus
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
+import org.eclipse.smarthome.core.thing.binding.builder.StatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
@@ -215,11 +217,13 @@ class ThingManagerOSGiTest extends OSGiTest {
             (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
             (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
         ] as Hashtable)
-        
+		
+		def uninitialized = StatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build()
+		def online = StatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
       
-        assertThat THING.status, is(ThingStatus.OFFLINE)
-        callback.statusUpdated(THING, ThingStatus.ONLINE)
-        assertThat THING.status, is(ThingStatus.ONLINE)
+        assertThat THING.status, is(uninitialized)
+        callback.statusUpdated(THING, online)
+        assertThat THING.status, is(online)
     }
     
     @Test
