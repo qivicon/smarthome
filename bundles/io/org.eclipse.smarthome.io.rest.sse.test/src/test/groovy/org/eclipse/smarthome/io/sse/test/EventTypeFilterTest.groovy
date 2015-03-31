@@ -11,7 +11,14 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.io.rest.sse.EventBroadcaster
 import org.eclipse.smarthome.io.rest.sse.EventType
+import org.eclipse.smarthome.io.rest.sse.EventTypeProvider
+import org.eclipse.smarthome.io.rest.sse.impl.CoreEventType
+import org.eclipse.smarthome.io.rest.sse.impl.CoreEventTypeProvider
+import org.eclipse.smarthome.io.rest.sse.impl.EventBroadcasterImpl
+import org.eclipse.smarthome.io.rest.sse.beans.EventUtil
+import org.junit.Before
 import org.junit.Test
 
 class EventTypeFilterTest {
@@ -23,12 +30,28 @@ class EventTypeFilterTest {
     private static final String ADDED_EVENT = "added";
 
     private static final String SH_NAMESPACE = "smarthome";
+    
+    private EventBroadcaster broadcaster;
+    
+    private EventTypeProvider eventTypeProvider;
+    
+    @Before
+    public void setUp() {
+        eventTypeProvider = new CoreEventTypeProvider();
+        
+        def eventBroadcaster = new EventBroadcasterImpl()
+        eventBroadcaster.addEventTypeProvider(eventTypeProvider);
+        
+        broadcaster = eventBroadcaster;
+    }
+    
+    
     @Test
     public void wildcardTest() {
-        testFilter("*/*/*", EventType.VALUES_LIST)
-        testFilter("*/*", EventType.VALUES_LIST)
-        testFilter("*", EventType.VALUES_LIST)
-        testFilter("", EventType.VALUES_LIST)
+        testFilter("*/*/*", broadcaster.getEventTypes())
+        testFilter("*/*", broadcaster.getEventTypes())
+        testFilter("*", broadcaster.getEventTypes())
+        testFilter("", broadcaster.getEventTypes())
     }
 
     @Test
@@ -42,9 +65,9 @@ class EventTypeFilterTest {
     @Test
     public void invalidTest() {
         //if filter tokens are more or less than the expected number we return all events
-        testFilter("///////", EventType.VALUES_LIST)
-        testFilter("asd/fghj/sdh/sdhd/dfj/dfj/dj", EventType.VALUES_LIST)
-        testFilter("*/*/"+ADDED_EVENT+"/*", EventType.VALUES_LIST)
+        testFilter("///////", broadcaster.getEventTypes())
+        testFilter("asd/fghj/sdh/sdhd/dfj/dfj/dj", broadcaster.getEventTypes())
+        testFilter("*/*/"+ADDED_EVENT+"/*", broadcaster.getEventTypes())
 
         //if filter can be parsed to 1 argument "@@@@" should return no values
         testFilter("//////////////@@@@", [])
@@ -57,7 +80,7 @@ class EventTypeFilterTest {
         testFilter("*/"+THINGS_OBJECT+"/", thingEvents)
         testFilter("*/"+THINGS_OBJECT, thingEvents)
 
-        def smarthomeThingEvents = getAllEventsByNamespace(SH_NAMESPACE).findAll { THINGS_OBJECT.equals(it.eventObject) }
+        def smarthomeThingEvents = getAllEventsByNamespace(SH_NAMESPACE).findAll { THINGS_OBJECT.equals(it.object) }
 
         testFilter(SH_NAMESPACE+"/"+THINGS_OBJECT, smarthomeThingEvents)
         testFilter(SH_NAMESPACE+"/"+THINGS_OBJECT+"/", smarthomeThingEvents)
@@ -71,12 +94,12 @@ class EventTypeFilterTest {
         testFilter("*/*/"+ADDED_EVENT, addedEvents)
         testFilter("*/*/"+ADDED_EVENT+"/", addedEvents)
 
-        def smarthomeAddedEvents = addedEvents.findAll() { SH_NAMESPACE.equals(it.eventNamespace) }
+        def smarthomeAddedEvents = addedEvents.findAll() { SH_NAMESPACE.equals(it.namespace) }
 
         testFilter(SH_NAMESPACE+"/*/"+ADDED_EVENT, smarthomeAddedEvents)
         testFilter(SH_NAMESPACE+"/*/"+ADDED_EVENT+"/", smarthomeAddedEvents)
 
-        def smarthomeThingAddedEvents = smarthomeAddedEvents.findAll() { THINGS_OBJECT.equals(it.eventObject) }
+        def smarthomeThingAddedEvents = smarthomeAddedEvents.findAll() { THINGS_OBJECT.equals(it.object) }
 
         testFilter(SH_NAMESPACE+"/" + THINGS_OBJECT + "/"+ADDED_EVENT, smarthomeThingAddedEvents)
         testFilter(SH_NAMESPACE+"/" + THINGS_OBJECT + "/"+ADDED_EVENT+"/", smarthomeThingAddedEvents)
@@ -85,7 +108,7 @@ class EventTypeFilterTest {
 
     @Test
     public void fullNameTest() {
-        assertThat((getFullName(EventType.THING_ADDED) + "/test").equals(EventType.THING_ADDED.getFullNameWithIdentifier("test")), is(true));
+        assertThat((getFullName(CoreEventType.THING_ADDED) + "/test").equals(EventUtil.getTopic(CoreEventType.THING_ADDED, "test")), is(true));
     }
 
     @Test
@@ -94,36 +117,36 @@ class EventTypeFilterTest {
         itemAndThingsEvents.addAll(getAllEventsByEventObject(ITEMS_OBJECT))
 
         testFilter("*/"+THINGS_OBJECT+",*/"+ITEMS_OBJECT, itemAndThingsEvents)
-        testFilter("*/"+THINGS_OBJECT+",*/"+ITEMS_OBJECT+",*", EventType.VALUES_LIST)
+        testFilter("*/"+THINGS_OBJECT+",*/"+ITEMS_OBJECT+",*", broadcaster.getEventTypes())
     }
 
     private void testFilter(filter,expected)  {
         def setExpected = expected as Set
-        def filtered = EventType.getEventTopicByFilter(filter) as Set
+        def filtered = broadcaster.filterEventTypes(filter) as Set
 
         assertThat(filtered.equals(setExpected), is(true))
     }
 
     private List getAllEventsByNamespace(namespace) {
-        EventType.VALUES_LIST.findAll { namespace.equals(it.eventNamespace) }
+        (broadcaster.getEventTypes() as List).findAll { namespace.equals(it.namespace) }
     }
 
     private List getAllEventsByEventType(eventType) {
-        EventType.VALUES_LIST.findAll { eventType.equals(it.eventType) }
+        (broadcaster.getEventTypes() as List).findAll { eventType.equals(it.type) }
     }
 
     private List getAllEventsByEventObject(eventObject) {
-        EventType.VALUES_LIST.findAll { eventObject.equals(it.eventObject) }
+        (broadcaster.getEventTypes() as List).findAll { eventObject.equals(it.object) }
     }
 
     private String getFullName(EventType event) {
         StringBuilder builder = new StringBuilder();
-        builder.append(event.eventNamespace);
-        builder.append(event.FILTER_SEPARATOR);
-        builder.append(event.eventObject);
-        if (!event.eventType.isEmpty()) {
-            builder.append(event.FILTER_SEPARATOR);
-            builder.append(event.eventType);
+        builder.append(event.namespace);
+        builder.append(EventUtil.FILTER_SEPARATOR);
+        builder.append(event.object);
+        if (!event.type.isEmpty()) {
+            builder.append(EventUtil.FILTER_SEPARATOR);
+            builder.append(event.type);
         }
 
         return builder.toString();

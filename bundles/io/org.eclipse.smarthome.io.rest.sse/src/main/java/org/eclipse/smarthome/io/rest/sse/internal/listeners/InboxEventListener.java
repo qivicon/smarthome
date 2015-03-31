@@ -11,21 +11,22 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxListener;
 import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
+import org.eclipse.smarthome.io.rest.sse.EventBroadcaster;
 import org.eclipse.smarthome.io.rest.sse.EventType;
-import org.eclipse.smarthome.io.rest.sse.SseResource;
+import org.eclipse.smarthome.io.rest.sse.impl.CoreEventType;
 
 /**
  * Listener responsible for broadcasting inbox events to all clients subscribed
  * to them.
- *
+ * 
  * @author Ivan Iliev - Initial Contribution and API
- *
+ * 
  */
 public class InboxEventListener implements InboxListener {
 
     private Inbox inbox;
 
-    private SseResource sseResource;
+    private EventBroadcaster eventBroadcaster;
 
     protected void setInbox(Inbox inbox) {
         this.inbox = inbox;
@@ -37,32 +38,33 @@ public class InboxEventListener implements InboxListener {
         this.inbox = null;
     }
 
-    protected void setSseResource(SseResource sseResource) {
-        this.sseResource = sseResource;
+    protected void setBroadcaster(EventBroadcaster eventBroadcaster) {
+        this.eventBroadcaster = eventBroadcaster;
     }
 
-    protected void unsetSseResource(SseResource sseResource) {
-        this.sseResource = null;
+    protected void unsetBroadcaster(EventBroadcaster sseResource) {
+        this.eventBroadcaster = null;
     }
 
     @Override
     public void thingAdded(Inbox source, DiscoveryResult result) {
-        broadcastInboxEvent(result.getThingUID().getId(), EventType.INBOX_THING_ADDED, result);
+        broadcastInboxEvent(result.getThingUID().getId(), CoreEventType.INBOX_THING_ADDED, result);
 
     }
 
     @Override
     public void thingUpdated(Inbox source, DiscoveryResult result) {
-        broadcastInboxEvent(result.getThingUID().getId(), EventType.INBOX_THING_UPDATED, result);
+        broadcastInboxEvent(result.getThingUID().getId(), CoreEventType.INBOX_THING_UPDATED, result);
     }
 
     @Override
     public void thingRemoved(Inbox source, DiscoveryResult result) {
-        broadcastInboxEvent(result.getThingUID().getId(), EventType.INBOX_THING_REMOVED, result);
+        broadcastInboxEvent(result.getThingUID().getId(), CoreEventType.INBOX_THING_REMOVED, result);
     }
 
     private void broadcastInboxEvent(String resultIdentifier, EventType eventType, DiscoveryResult discoveryResult) {
-        sseResource.broadcastEvent(resultIdentifier, eventType, BeanMapper.mapDiscoveryResultToBean(discoveryResult));
+        eventBroadcaster.broadcastEvent(resultIdentifier, eventType,
+                BeanMapper.mapDiscoveryResultToBean(discoveryResult));
     }
 
 }
