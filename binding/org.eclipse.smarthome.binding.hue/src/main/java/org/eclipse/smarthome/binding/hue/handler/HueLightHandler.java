@@ -41,8 +41,10 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.StatusInfo;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
@@ -94,7 +96,8 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
             lightId = configLightId;
             // note: this call implicitly registers our handler as a listener on the bridge
             if (getHueBridgeHandler() != null) {
-                getThing().setStatus(getBridge().getStatus());
+                StatusInfo statusInfo = getBridge().getStatusInfo();
+                updateStatusInfo(statusInfo.getStatus(), statusInfo.getStatusDetail(), statusInfo.getDescription());
                 FullLight fullLight = getLight();
                 if (fullLight != null) {
                     updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, fullLight.getSoftwareVersion());
@@ -298,14 +301,14 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     @Override
     public void onLightRemoved(HueBridge bridge, FullLight light) {
         if (light.getId().equals(lightId)) {
-            getThing().setStatus(ThingStatus.OFFLINE);
+            updateStatusInfo(ThingStatus.OFFLINE, ThingStatusDetail.NONE);
         }
     }
 
     @Override
     public void onLightAdded(HueBridge bridge, FullLight light) {
         if (light.getId().equals(lightId)) {
-            getThing().setStatus(ThingStatus.ONLINE);
+            updateStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE);
             onLightStateChanged(bridge, light);
         }
     }

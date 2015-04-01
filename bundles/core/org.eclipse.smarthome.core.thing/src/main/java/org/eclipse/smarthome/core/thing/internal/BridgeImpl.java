@@ -53,12 +53,4 @@ public class BridgeImpl extends ThingImpl implements Bridge {
         return ImmutableList.copyOf(things);
     }
 
-    @Override
-    public void setStatusInfo(StatusInfo status) {
-        super.setStatusInfo(status);
-        for (Thing thing : this.things) {
-            thing.setStatusInfo(status);
-        }
-    }
-
 }
