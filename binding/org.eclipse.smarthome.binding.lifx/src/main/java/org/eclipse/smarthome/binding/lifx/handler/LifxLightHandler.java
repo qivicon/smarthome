@@ -27,6 +27,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
  * sent to one of the light channels.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Stefan Bußweiler - Added new thing status handling 
  */
 public class LifxLightHandler extends BaseThingHandler implements LifxLightTracker, LFXLightListener,
         LFXNetworkContextListener {
@@ -66,7 +68,7 @@ public class LifxLightHandler extends BaseThingHandler implements LifxLightTrack
                     this.deviceId);
             return;
         }
-        if (getThing().getStatus() != ThingStatus.ONLINE) {
+        if (getThing().getStatusInfo().getStatus() != ThingStatus.ONLINE) {
             logger.warn("Cannot handle command: No connection to LIFX network.");
             return;
         }
@@ -110,7 +112,7 @@ public class LifxLightHandler extends BaseThingHandler implements LifxLightTrack
             logger.debug("LIFX light '{}' added. Handler is now ready to receive commands", light.getDeviceID());
             this.light = light;
             this.light.addLightListener(this);
-            updateStatus(ThingStatus.ONLINE);
+            updateStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE);
         }
     }
 
@@ -120,6 +122,7 @@ public class LifxLightHandler extends BaseThingHandler implements LifxLightTrack
         if (this.currentPowerState != LFXPowerState.OFF) {
             updateState(CHANNEL_COLOR, toHSBType(color));
         }
+        updateStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE);
     }
 
     @Override
@@ -137,6 +140,7 @@ public class LifxLightHandler extends BaseThingHandler implements LifxLightTrack
         } else {
             updateState(CHANNEL_COLOR, OnOffType.ON);
         }
+        updateStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE);
     }
 
     @Override
@@ -145,7 +149,7 @@ public class LifxLightHandler extends BaseThingHandler implements LifxLightTrack
             this.light.removeLightListener(this);
             this.light = null;
             logger.debug("LIFX handler light removed: {} - '{}'", light.getDeviceID(), light.getLabel());
-            updateStatus(ThingStatus.OFFLINE);
+            updateStatusInfo(ThingStatus.OFFLINE, ThingStatusDetail.NONE);
         }
     }
 
@@ -156,12 +160,12 @@ public class LifxLightHandler extends BaseThingHandler implements LifxLightTrack
 
     @Override
     public void networkContextDidConnect(LFXNetworkContext arg0) {
-        updateStatus(ThingStatus.ONLINE);
+        updateStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE);
     }
 
     @Override
     public void networkContextDidDisconnect(LFXNetworkContext arg0) {
-        updateStatus(ThingStatus.OFFLINE);
+        updateStatusInfo(ThingStatus.OFFLINE, ThingStatusDetail.NONE);
     }
 
     @Override
