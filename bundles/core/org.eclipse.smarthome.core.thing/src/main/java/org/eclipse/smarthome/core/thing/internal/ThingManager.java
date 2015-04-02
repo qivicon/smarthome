@@ -349,13 +349,13 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     private void registerHandler(Thing thing, ThingHandlerFactory thingHandlerFactory) {
         logger.debug("Creating handler for thing '{}'.", thing.getUID());
         try {
-            StatusInfo statusInfo = StatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build();
-            thing.setStatusInfo(statusInfo);
+            StatusInfoBuilder statusInfoBuilder = StatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE);
+            thing.setStatusInfo(statusInfoBuilder.build());
             thingHandlerFactory.registerHandler(thing, this.thingHandlerCallback);
         } catch (Exception ex) {
-            StatusInfo statusInfo = StatusInfoBuilder.create(ThingStatus.UNINITIALIZED,
-                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR).build();
-            thing.setStatusInfo(statusInfo);
+            StatusInfoBuilder statusInfoBuilder = StatusInfoBuilder.create(ThingStatus.UNINITIALIZED,
+                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR).withDescription(ex.getMessage());
+            thing.setStatusInfo(statusInfoBuilder.build());
             logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
         }
     }
