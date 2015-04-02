@@ -200,13 +200,10 @@ class ThingManagerOSGiTest extends OSGiTest {
     }
     
     @Test
-    void 'ThingManager handles thing status updates correctly'() {
-
-        def itemName = "name"
+    void 'ThingManager handles thing status updates "online" and "offline" correctly'() {
         ThingHandlerCallback callback;
         
         managedThingProvider.add(THING)
-        managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
         def thingHandler = [
             setCallback: {callbackArg ->
                 callback = callbackArg
@@ -218,14 +215,69 @@ class ThingManagerOSGiTest extends OSGiTest {
             (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
         ] as Hashtable)
 		
-		def uninitialized = StatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build()
-		def online = StatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
-      
-        assertThat THING.status, is(uninitialized)
-        callback.statusUpdated(THING, online)
-        assertThat THING.status, is(online)
+        def statusInfo = StatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
+        callback.statusUpdated(THING, statusInfo)
+        assertThat THING.statusInfo, is(statusInfo)
+        
+        statusInfo = StatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.NONE).build()
+        callback.statusUpdated(THING, statusInfo)
+        assertThat THING.statusInfo, is(statusInfo)
     }
     
+    @Test
+    void 'ThingManager handles thing status updates "uninitialized" and "initializing" correctly'() {
+        def thingHandler = [
+            setCallback: {
+            }
+        ] as ThingHandler
+
+        def thingHandlerFactory = [
+            supportsThingType: {ThingTypeUID thingTypeUID -> true},
+            registerHandler: {thing, callback ->
+                registerService(thingHandler,[
+                    (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
+                    (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
+                ] as Hashtable)}
+        ] as ThingHandlerFactory
+
+        registerService(thingHandlerFactory)
+
+        def statusInfo = StatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build()
+        assertThat THING.statusInfo, is(statusInfo)
+        
+        managedThingProvider.add(THING)
+        statusInfo = StatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build()
+        assertThat THING.statusInfo, is(statusInfo)
+        
+        unregisterService(THING.getHandler())
+        statusInfo = StatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR).build()
+        assertThat THING.statusInfo, is(statusInfo)
+    }
+    
+    @Test
+    void 'ThingManager handles thing status update "uninitialized" with an exception correctly'() {
+        def exceptionMsg = "Some runtime exception occurred!"
+        
+        def thingHandler = [
+            setCallback: {
+            }
+        ] as ThingHandler
+
+        def thingHandlerFactory = [
+            supportsThingType: {ThingTypeUID thingTypeUID -> true},
+            registerHandler: {thing, callback ->
+                    throw new RuntimeException(exceptionMsg)
+                }
+        ] as ThingHandlerFactory
+
+        registerService(thingHandlerFactory)
+
+        def statusInfo = StatusInfoBuilder.create(ThingStatus.UNINITIALIZED,
+                ThingStatusDetail.HANDLER_INITIALIZING_ERROR).withDescription(exceptionMsg).build()
+        managedThingProvider.add(THING)
+        assertThat THING.statusInfo, is(statusInfo)
+    }
+
     @Test
     void 'ThingManager handles thing updates correctly'() {
 
