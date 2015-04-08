@@ -119,6 +119,12 @@ public abstract class BaseThingHandler implements ThingHandler {
         thingHandlerServiceTracker.close();
         this.bundleContext = null;
     }
+    
+    @Override
+    public void handleRemoval() {
+        // can be overridden by subclasses
+        updateStatusInfo(ThingStatus.REMOVED, ThingStatusDetail.NONE);
+    }
 
     @Override
     public void dispose() {
