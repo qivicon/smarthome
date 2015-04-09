@@ -28,7 +28,7 @@ public class ThingBean {
     public String bridgeUID;
     public Map<String, Object> configuration;
     public Map<String, String> properties;
-    public StatusInfo status;
+    public StatusInfo statusInfo;
     public String UID;
     public List<ChannelBean> channels;
     public GroupItemBean item;
@@ -40,7 +40,7 @@ public class ThingBean {
             Configuration configuration, Map<String, String> properties, GroupItemBean item) {
         this.UID = UID;
         this.bridgeUID = bridgeUID;
-        this.status = status;
+        this.statusInfo = status;
         this.channels = channels;
         this.configuration = toMap(configuration);
         this.properties = properties;
