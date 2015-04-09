@@ -175,8 +175,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     public void handlerRemoved(Thing thing, ThingHandler thingHandler) {
         logger.debug("Removing handler and setting status to OFFLINE.", thing.getUID());
         thing.setHandler(null);
-        StatusInfo statusInfo = StatusInfoBuilder.create(ThingStatus.UNINITIALIZED,
-                ThingStatusDetail.HANDLER_MISSING_ERROR).build();
+        StatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR);
         thing.setStatusInfo(statusInfo);
         thingHandler.setCallback(null);
     }
@@ -349,13 +348,13 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     private void registerHandler(Thing thing, ThingHandlerFactory thingHandlerFactory) {
         logger.debug("Creating handler for thing '{}'.", thing.getUID());
         try {
-            StatusInfoBuilder statusInfoBuilder = StatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE);
-            thing.setStatusInfo(statusInfoBuilder.build());
+            StatusInfo statusInfo = buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE);
+            thing.setStatusInfo(statusInfo);
             thingHandlerFactory.registerHandler(thing, this.thingHandlerCallback);
         } catch (Exception ex) {
-            StatusInfoBuilder statusInfoBuilder = StatusInfoBuilder.create(ThingStatus.UNINITIALIZED,
-                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR).withDescription(ex.getMessage());
-            thing.setStatusInfo(statusInfoBuilder.build());
+            StatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
+                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR, ex.getMessage());
+            thing.setStatusInfo(statusInfo);
             logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
         }
     }
@@ -448,6 +447,16 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
     protected void unsetItemThingLinkRegistry(ItemThingLinkRegistry itemThingLinkRegistry) {
         this.itemThingLinkRegistry = null;
+    }
+    
+    private StatusInfo buildStatusInfo(ThingStatus thingStatus, ThingStatusDetail thingStatusDetail, String description) {
+        StatusInfoBuilder statusInfoBuilder = StatusInfoBuilder.create(thingStatus, thingStatusDetail);
+        statusInfoBuilder.withDescription(description);
+        return statusInfoBuilder.build();
+    }
+
+    private StatusInfo buildStatusInfo(ThingStatus thingStatus, ThingStatusDetail thingStatusDetail) {
+        return buildStatusInfo(thingStatus, thingStatusDetail, null);
     }
 
 }
