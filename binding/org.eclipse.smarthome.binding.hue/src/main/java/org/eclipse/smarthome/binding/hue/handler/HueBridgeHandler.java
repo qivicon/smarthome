@@ -248,7 +248,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
             onUpdate();
         } else {
             String warn = "Cannot connect to hue bridge. IP address or user name not set.";
-            updateStatusInfo(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, warn);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, warn);
             logger.warn(warn);
         }
     }
@@ -268,7 +268,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
      */
     public void onConnectionLost(HueBridge bridge) {
         logger.debug("Bridge connection lost. Updating thing status to OFFLINE.");
-        updateStatusInfo(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
     }
 
     /**
@@ -278,7 +278,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
      */
     public void onConnectionResumed(HueBridge bridge) {
         logger.debug("Bridge connection resumed. Updating thing status to ONLINE.");
-        updateStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE);
+        updateStatus(ThingStatus.ONLINE);
         // now also re-initialize all light handlers
         for (Thing thing : getThing().getThings()) {
             ThingHandler handler = thing.getHandler();

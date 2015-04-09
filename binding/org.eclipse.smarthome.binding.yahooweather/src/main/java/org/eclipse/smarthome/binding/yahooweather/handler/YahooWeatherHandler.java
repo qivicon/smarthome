@@ -132,14 +132,14 @@ public class YahooWeatherHandler extends BaseThingHandler {
             URL url = new URL(urlString);
             URLConnection connection = url.openConnection();
             weatherData = IOUtils.toString(connection.getInputStream());
-            updateStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE);
+            updateStatus(ThingStatus.ONLINE);
             return true;
         } catch (MalformedURLException e) {
             logger.debug("Constructed url '{}' is not valid: {}", urlString, e.getMessage());
             return false;
         } catch (IOException e) {
             logger.warn("Error accessing Yahoo weather: {}", e.getMessage());
-            updateStatusInfo(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
             return false;
         }
     }

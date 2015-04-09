@@ -44,7 +44,6 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.StatusInfo;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
@@ -97,7 +96,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
             // note: this call implicitly registers our handler as a listener on the bridge
             if (getHueBridgeHandler() != null) {
                 StatusInfo statusInfo = getBridge().getStatusInfo();
-                updateStatusInfo(statusInfo.getStatus(), statusInfo.getStatusDetail(), statusInfo.getDescription());
+                updateStatus(statusInfo.getStatus(), statusInfo.getStatusDetail(), statusInfo.getDescription());
                 FullLight fullLight = getLight();
                 if (fullLight != null) {
                     updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, fullLight.getSoftwareVersion());
@@ -301,14 +300,14 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     @Override
     public void onLightRemoved(HueBridge bridge, FullLight light) {
         if (light.getId().equals(lightId)) {
-            updateStatusInfo(ThingStatus.OFFLINE, ThingStatusDetail.NONE);
+            updateStatus(ThingStatus.OFFLINE);
         }
     }
 
     @Override
     public void onLightAdded(HueBridge bridge, FullLight light) {
         if (light.getId().equals(lightId)) {
-            updateStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE);
+            updateStatus(ThingStatus.ONLINE);
             onLightStateChanged(bridge, light);
         }
     }

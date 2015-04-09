@@ -114,7 +114,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
         }
 
         logger.debug("Setting status for thing '{}' to ONLINE", getThing().getUID());
-        updateStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE);
+        updateStatus(ThingStatus.ONLINE);
         startAutomaticRefresh();
     }
 
@@ -122,7 +122,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
     public void dispose() {
         refreshJob.cancel(true);
         logger.debug("Setting status for thing '{}' to OFFLINE", getThing().getUID());
-        updateStatusInfo(ThingStatus.OFFLINE, ThingStatusDetail.NONE);
+        updateStatus(ThingStatus.OFFLINE);
     }
 
     private void startAutomaticRefresh() {
@@ -280,12 +280,12 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
                         wemoOutputStream.write(content.getBytes());
                         wemoOutputStream.flush();
                         String wemoCallResponse = IOUtils.toString(wemoSocket.getInputStream());
-                        updateStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE);
+                        updateStatus(ThingStatus.ONLINE);
                         return wemoCallResponse;
                     } catch (Exception e) {
                         logger.debug("Could not send request to WeMo device '{}': {}", getThing().getUID(),
                                 e.getMessage());
-                        updateStatusInfo(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
+                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
                     }
                     return null;
                 } else {
@@ -293,7 +293,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
                 }
             } else {
                 // device was not found in the upnp registry
-                updateStatusInfo(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
                 return null;
             }
 

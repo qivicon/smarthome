@@ -123,7 +123,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     @Override
     public void handleRemoval() {
         // can be overridden by subclasses
-        updateStatusInfo(ThingStatus.REMOVED, ThingStatusDetail.NONE);
+        updateStatus(ThingStatus.REMOVED);
     }
 
     @Override
@@ -146,7 +146,7 @@ public abstract class BaseThingHandler implements ThingHandler {
         // can be overridden by subclasses
         // standard behavior is to set the thing to ONLINE,
         // assuming no further initialization is necessary.
-    	updateStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE);
+    	updateStatus(ThingStatus.ONLINE);
     }
 
     @Override
@@ -242,7 +242,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      * @throws IllegalStateException
      *             if handler is not initialized correctly, because no callback is present
      */
-    protected void updateStatusInfo(ThingStatus status, ThingStatusDetail statusDetail, String description) {
+    protected void updateStatus(ThingStatus status, ThingStatusDetail statusDetail, String description) {
         synchronized (this) {
             if (this.callback != null) {
                 StatusInfoBuilder statusBuilder = StatusInfoBuilder.create(status, statusDetail);
@@ -259,11 +259,24 @@ public abstract class BaseThingHandler implements ThingHandler {
      *
      * @param status the status
      * @param statusDetail the detail of the status
+     * 
      * @throws IllegalStateException
      *             if handler is not initialized correctly, because no callback is present
      */
-    protected void updateStatusInfo(ThingStatus status, ThingStatusDetail statusDetail) {
-        updateStatusInfo(status, statusDetail, null);
+    protected void updateStatus(ThingStatus status, ThingStatusDetail statusDetail) {
+        updateStatus(status, statusDetail, null);
+    }
+    
+    /**
+     * Updates the status of the thing. The detail of the status will be 'NONE'.
+     * 
+     * @param status the status
+     * 
+     * @throws IllegalStateException
+     *             if handler is not initialized correctly, because no callback is present
+     */
+    protected void updateStatus(ThingStatus status) {
+        updateStatus(status, ThingStatusDetail.NONE, null);
     }
 
     /**
