@@ -16,11 +16,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.smarthome.core.events.AbstractEventSubscriber;
+import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.StatusInfo;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.StatusInfoEvent;
+import org.eclipse.smarthome.core.thing.StatusInfoEventFactory;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
@@ -54,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * @author Michael Grammling - Added dynamic configuration update
  * @author Stefan Bußweiler - Added new thing status handling 
  */
-public class ThingManager extends AbstractEventSubscriber implements ThingTracker {
+public class ThingManager extends AbstractEventSubscriber<StatusInfoEvent> implements ThingTracker {
 
     private final class ThingHandlerTracker extends ServiceTracker<ThingHandler, ThingHandler> {
 
@@ -127,7 +130,13 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         @Override
         public void statusUpdated(Thing thing, StatusInfo thingStatus) {
             thing.setStatusInfo(thingStatus);
+            
             // TODO: send event
+            StatusInfoEvent thingEvent = StatusInfoEventFactory.create(thing.getUID(), thingStatus);
+            eventPublisher.post(thingEvent);
+            // thingEvent.getTopic();       // ->   /smarthome/thing/{uid}/status
+            // thingEvent.getType();        // ->   EventType.UPDATE
+            // thingEvent.getStatusInfo();  // ->   corresponding 'StatusInfo' object
         }
 
         @Override
@@ -238,6 +247,17 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
                 }
             }
         }
+    }
+    
+    @Override
+    public void receive(StatusInfoEvent event) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public EventFilter<StatusInfoEvent> getEventFilter() {
+        // TODO Auto-generated method stub
+        return super.getEventFilter();
     }
 
     @Override

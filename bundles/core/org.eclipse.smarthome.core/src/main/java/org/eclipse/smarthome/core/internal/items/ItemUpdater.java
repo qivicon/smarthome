@@ -8,9 +8,12 @@
 package org.eclipse.smarthome.core.internal.items;
 
 import org.eclipse.smarthome.core.events.AbstractEventSubscriber;
+import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.ItemEvent;
+import org.eclipse.smarthome.core.items.ItemEventFilter;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.types.Command;
@@ -25,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public class ItemUpdater extends AbstractEventSubscriber {
+public class ItemUpdater extends AbstractEventSubscriber<ItemEvent> {
 
     public ItemUpdater() {
         super();
@@ -103,4 +106,15 @@ public class ItemUpdater extends AbstractEventSubscriber {
         }
     }
 
+    @Override
+    public ItemEventFilter getEventFilter() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    @Override
+    public void receive(ItemEvent event) {
+        // TODO Auto-generated method stub
+    }
+    
 }

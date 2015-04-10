@@ -26,7 +26,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Michael Grammling - Javadoc extended, Checkstyle compliancy
  */
-public interface EventSubscriber {
+public interface EventSubscriber<T extends Event> {
 
     /**
      * Callback method if a command was sent on the event bus.
@@ -55,5 +55,20 @@ public interface EventSubscriber {
      * @param state the state that was sent (not null)
      */
     void receiveUpdate(String itemName, State newStatus);
+    
+    
+    /**
+     * Gets an {@link EventFilter} for a specific event.
+     * 
+     * @return the event filter
+     */
+    EventFilter<T> getEventFilter(); 
+
+    /**
+     * Callback method for receiving {@link Event}s from the Eclipse SmartHome event bus.
+     * 
+     * @param event the received event
+     */
+    void receive(T event);
 
 }

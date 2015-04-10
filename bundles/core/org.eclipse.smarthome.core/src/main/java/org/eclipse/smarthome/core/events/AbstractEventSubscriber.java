@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Michael Grammling - Javadoc extended, stability improved, Checkstyle compliance
  */
-public abstract class AbstractEventSubscriber implements EventSubscriber, EventHandler {
+public abstract class  AbstractEventSubscriber<T extends org.eclipse.smarthome.core.events.Event> implements EventSubscriber<T>, EventHandler {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -58,6 +58,7 @@ public abstract class AbstractEventSubscriber implements EventSubscriber, EventH
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     @Override
     public void handleEvent(Event event) {
         Object itemNameObj = event.getProperty("item");
@@ -108,6 +109,16 @@ public abstract class AbstractEventSubscriber implements EventSubscriber, EventH
                             + " of the event subscriber!", ex);
                 }
             }
+        }
+        
+        // new event types
+        
+        // TODO: osgi event to esh event
+        org.eclipse.smarthome.core.events.Event newEvent = null;
+        
+        EventFilter<T> eventFilter = getEventFilter();
+        if (eventFilter != null && eventFilter.apply((T) newEvent)) {
+            receive(newEvent);
         }
     }
 
@@ -166,6 +177,17 @@ public abstract class AbstractEventSubscriber implements EventSubscriber, EventH
      */
     @Override
     public void receiveUpdate(String itemName, State newState) {
+        // default implementation: do nothing
+    }
+    
+    @Override
+    public EventFilter<T> getEventFilter() {
+        // default implementation: return no event filter
+        return null;
+    }
+    
+    @Override
+    public void receive(org.eclipse.smarthome.core.events.Event event) {
         // default implementation: do nothing
     }
 

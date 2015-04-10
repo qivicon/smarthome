@@ -178,5 +178,18 @@ public class EventPublisherImpl implements EventPublisher {
     public void postUpdate(String itemName, State newState) throws IllegalArgumentException, IllegalStateException {
         postUpdate(itemName, newState, null);
     }
+    
+    @Override
+    public void post(org.eclipse.smarthome.core.events.Event event) {
+        // TODO
+        String topic = event.getTopic();
+        String eventStringForTransportation = event.asString();
+        
+        Dictionary<String, Object> properties = new Hashtable<String, Object>(2);
+        properties.put("data", eventStringForTransportation);
+        
+        Event eventToBeSendByEventAdmin = new Event(topic, properties);
+        eventAdmin.postEvent(eventToBeSendByEventAdmin);
+    }
 
 }
