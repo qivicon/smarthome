@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.core.events;
 
-import org.eclipse.smarthome.core.types.EventType;
 
 /**
  * SmartHome {@link Event} objects are delivered through the Eclipse SmartHome event bus to {@link EventSubscriber}
@@ -20,7 +19,7 @@ public interface Event {
      * 
      * @return the event type
      */
-    EventType getType();
+//    String getType();
 
     /**
      * Gets the topic of an event.
@@ -34,6 +33,6 @@ public interface Event {
      * 
      * @return the serialized event
      */
-    String asString();
-
+    String getPayload();
+    
 }

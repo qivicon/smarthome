@@ -183,7 +183,7 @@ public class EventPublisherImpl implements EventPublisher {
     public void post(org.eclipse.smarthome.core.events.Event event) {
         // TODO
         String topic = event.getTopic();
-        String eventStringForTransportation = event.asString();
+        String eventStringForTransportation = event.getPayload();
         
         Dictionary<String, Object> properties = new Hashtable<String, Object>(2);
         properties.put("data", eventStringForTransportation);
