@@ -7,7 +7,9 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
+import java.util.Dictionary;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +40,8 @@ import org.eclipse.smarthome.core.types.State;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
@@ -105,6 +109,8 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     private BundleContext bundleContext;
 
     private EventPublisher eventPublisher;
+    
+    private EventAdmin eventAdmin;
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
 
@@ -136,22 +142,19 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
         @Override
         public void statusUpdated(Thing thing, ThingStatusInfo thingStatus) {
-            thing.setStatusInfo(thingStatus);
+            setThingStatus(thing, thingStatus);
             logger.debug("Status of {} changed to {}", thing.getUID(), thingStatus.toString());
-            // TODO: send event
 
             if (thing instanceof Bridge) {
                 Bridge bridge = (Bridge) thing;
                 for (Thing bridgeThing : bridge.getThings()) {
                     if (thingStatus.getStatus() == ThingStatus.ONLINE) {
                         ThingStatusInfo statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build();
-                        bridgeThing.setStatusInfo(statusInfo);
-                        // TODO: send event
+                        setThingStatus(bridgeThing, statusInfo);
                     } else if (thingStatus.getStatus() == ThingStatus.OFFLINE) {
                         ThingStatusInfo statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE,
                                 ThingStatusDetail.BRIDGE_OFFLINE).build();
-                        bridgeThing.setStatusInfo(statusInfo);
-                        // TODO: send event
+                        setThingStatus(bridgeThing, statusInfo);
                     }
                 }
             }
@@ -205,7 +208,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         logger.debug("Removing handler and setting status to OFFLINE.", thing.getUID());
         thing.setHandler(null);
         ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR);
-        thing.setStatusInfo(statusInfo);
+        setThingStatus(thing, statusInfo);
         thingHandler.setCallback(null);
     }
 
@@ -381,12 +384,12 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         logger.debug("Creating handler for thing '{}'.", thing.getUID());
         try {
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE);
-            thing.setStatusInfo(statusInfo);
+            setThingStatus(thing, statusInfo);
             thingHandlerFactory.registerHandler(thing, this.thingHandlerCallback);
         } catch (Exception ex) {
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
                     ThingStatusDetail.HANDLER_INITIALIZING_ERROR, ex.getMessage());
-            thing.setStatusInfo(statusInfo);
+            setThingStatus(thing, statusInfo);
             logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
         }
     }
@@ -497,6 +500,28 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
     private ThingStatusInfo buildStatusInfo(ThingStatus thingStatus, ThingStatusDetail thingStatusDetail) {
         return buildStatusInfo(thingStatus, thingStatusDetail, null);
+    }
+    
+    public void setEventAdmin(EventAdmin eventAdmin) {
+        this.eventAdmin = eventAdmin;
+    }
+
+    public void unsetEventAdmin(EventAdmin eventAdmin) {
+        this.eventAdmin = null;
+    }
+    
+    private void setThingStatus(Thing thing, ThingStatusInfo thingStatus) {
+        thing.setStatusInfo(thingStatus);
+        
+        String thingUID = thing.getUID().getAsString();
+        String topic = "smarthome/things/status";
+        Dictionary<String, Object> properties = new Hashtable<String, Object>(4);
+        properties.put("uid", thingUID);
+        properties.put("status", thingStatus.getStatus());
+        properties.put("statusDetail", thingStatus.getStatusDetail());
+        properties.put("statusDescription", (thingStatus.getDescription() != null) ? thingStatus.getDescription() : "");
+        
+        eventAdmin.postEvent(new Event(topic, properties));
     }
 
 }
