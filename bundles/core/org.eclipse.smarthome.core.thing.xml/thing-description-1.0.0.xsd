@@ -28,6 +28,7 @@
                 <xs:element name="channels" type="thing-description:channels"/>
                 <xs:element name="channel-groups" type="thing-description:channelGroups"/>
             </xs:choice>
+            <xs:element name="properties" type="thing-description:properties" minOccurs="0"/>
             <xs:choice minOccurs="0">
                 <xs:element name="config-description" type="config-description:configDescription"/>
                 <xs:element name="config-description-ref" type="config-description:configDescriptionRef"/>
@@ -57,6 +58,7 @@
         </xs:sequence>
         <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
         <xs:attribute name="advanced" type="xs:boolean" default="false" use="optional"/>
+        <xs:attribute name="system" type="xs:boolean" default="false" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="channelGroupType">
@@ -85,9 +87,15 @@
         </xs:sequence>
     </xs:complexType>
 
+    <xs:simpleType name="namespaceIdRestrictionPattern">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[A-Za-z0-9\-_.]+" />
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:complexType name="channel">
         <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
-        <xs:attribute name="typeId" type="config-description:idRestrictionPattern" use="required"/>
+        <xs:attribute name="typeId" type="thing-description:namespaceIdRestrictionPattern" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="channelGroups">
@@ -132,4 +140,18 @@
         </xs:simpleContent>
     </xs:complexType>
 
+	<xs:complexType name="properties">
+		<xs:sequence>
+			<xs:element name="property" type="thing-description:property" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="property">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="name" type="xs:string" use="required" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	
 </xs:schema>

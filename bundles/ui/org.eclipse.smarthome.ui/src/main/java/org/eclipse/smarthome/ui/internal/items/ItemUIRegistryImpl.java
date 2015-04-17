@@ -30,6 +30,7 @@ import org.eclipse.smarthome.core.library.items.ColorItem;
 import org.eclipse.smarthome.core.library.items.ContactItem;
 import org.eclipse.smarthome.core.library.items.DateTimeItem;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
+import org.eclipse.smarthome.core.library.items.LocationItem;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.PlayerItem;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
@@ -169,6 +170,14 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 return currentLabel;
             }
         }
+        try {
+            Item item = getItem(itemName);
+            if (item.getLabel() != null) {
+                return item.getLabel();
+            }
+        } catch (ItemNotFoundException e) {
+        }
+
         return null;
     }
 
@@ -227,6 +236,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (itemType.equals(StringItem.class)) {
             return SitemapFactory.eINSTANCE.createText();
         }
+        if (itemType.equals(LocationItem.class)) {
+            return SitemapFactory.eINSTANCE.createText();
+        }
         if (itemType.equals(DimmerItem.class)) {
             Slider slider = SitemapFactory.eINSTANCE.createSlider();
             slider.setSwitchEnabled(true);
@@ -272,50 +284,62 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         // in the label
         // (i.e. it contains at least a %)
         String itemName = w.getItem();
-        if (itemName != null && label.contains("[")) {
-
+        if (itemName != null) {
+            State state = null;
+            String formatPattern = null;
             int indexOpenBracket = label.indexOf("[");
             int indexCloseBracket = label.indexOf("]");
 
-            State state = null;
-            String formatPattern = label.substring(indexOpenBracket + 1, indexCloseBracket);
             try {
                 Item item = getItem(itemName);
-                // TODO: TEE: we should find a more generic solution here! When
-                // using indexes in formatString this 'contains' will fail again
-                // and will cause an 'java.util.IllegalFormatConversionException:
-                // d != java.lang.String' later on when trying to format a String
-                // as %d (number).
-                if (label.contains("%d")) {
-                    // a number is requested
-                    state = item.getState();
-                    if (!(state instanceof DecimalType)) {
-                        state = item.getStateAs(DecimalType.class);
+                if (!label.contains("[") && item.getStateDescription() != null
+                        && item.getStateDescription().getPattern() != null) {
+                    label = label + " [" + item.getStateDescription().getPattern() + "]";
+                }
+
+                if (label.contains("[")) {
+                    indexOpenBracket = label.indexOf("[");
+                    indexCloseBracket = label.indexOf("]");
+                    formatPattern = label.substring(indexOpenBracket + 1, indexCloseBracket);
+
+                    // TODO: TEE: we should find a more generic solution here! When
+                    // using indexes in formatString this 'contains' will fail again
+                    // and will cause an 'java.util.IllegalFormatConversionException:
+                    // d != java.lang.String' later on when trying to format a String
+                    // as %d (number).
+                    if (label.contains("%d")) {
+                        // a number is requested
+                        state = item.getState();
+                        if (!(state instanceof DecimalType)) {
+                            state = item.getStateAs(DecimalType.class);
+                        }
+                    } else {
+                        state = item.getState();
                     }
-                } else {
-                    state = item.getState();
                 }
             } catch (ItemNotFoundException e) {
                 logger.error("Cannot retrieve item for widget {}", w.eClass().getInstanceTypeName());
             }
 
-            if (state == null || state instanceof UnDefType) {
-                formatPattern = formatUndefined(formatPattern);
-            } else if (state instanceof Type) {
-                // The following exception handling has been added to work around a Java bug with formatting
-                // numbers. See http://bugs.sun.com/view_bug.do?bug_id=6476425
-                // Without this catch, the whole sitemap, or page can not be displayed!
-                // This also handles IllegalFormatConversionException, which is a subclass of IllegalArgument.
-                try {
-                    formatPattern = ((Type) state).format(formatPattern);
-                } catch (IllegalArgumentException e) {
-                    logger.warn("Exception while formatting value '{}' of item {} with format '{}': {}", state,
-                            itemName, formatPattern, e);
-                    formatPattern = new String("Err");
+            if (label.contains("[")) {
+                if (state == null || state instanceof UnDefType) {
+                    formatPattern = formatUndefined(formatPattern);
+                } else if (state instanceof Type) {
+                    // The following exception handling has been added to work around a Java bug with formatting
+                    // numbers. See http://bugs.sun.com/view_bug.do?bug_id=6476425
+                    // Without this catch, the whole sitemap, or page can not be displayed!
+                    // This also handles IllegalFormatConversionException, which is a subclass of IllegalArgument.
+                    try {
+                        formatPattern = ((Type) state).format(formatPattern);
+                    } catch (IllegalArgumentException e) {
+                        logger.warn("Exception while formatting value '{}' of item {} with format '{}': {}", state,
+                                itemName, formatPattern, e);
+                        formatPattern = new String("Err");
+                    }
                 }
-            }
 
-            label = label.substring(0, indexOpenBracket + 1) + formatPattern + label.substring(indexCloseBracket);
+                label = label.substring(0, indexOpenBracket + 1) + formatPattern + label.substring(indexCloseBracket);
+            }
         }
 
         label = transform(label);
@@ -345,7 +369,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     /**
      * Takes the given <code>formatPattern</code> and replaces it with a analog
      * String-based pattern to replace all value Occurrences with a dash ("-")
-     * 
+     *
      * @param formatPattern the original pattern which will be replaces by a
      *            String pattern.
      * @return a formatted String with dashes ("-") as value replacement
@@ -467,7 +491,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 Item item = getItem(itemName);
                 return item.getState();
             } catch (ItemNotFoundException e) {
-                logger.error("Cannot retrieve item '{}' for widget {}", new String[] { itemName,
+                logger.error("Cannot retrieve item '{}' for widget {}", new Object[] { itemName,
                         w.eClass().getInstanceTypeName() });
             }
         }
@@ -521,7 +545,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
      * This method creates a list of children for a group dynamically.
      * If there are no explicit children defined in a sitemap, the children
      * can thus be created on the fly by iterating over the members of the group item.
-     * 
+     *
      * @param group The group widget to get children for
      * @return a list of default widgets provided for the member items
      */

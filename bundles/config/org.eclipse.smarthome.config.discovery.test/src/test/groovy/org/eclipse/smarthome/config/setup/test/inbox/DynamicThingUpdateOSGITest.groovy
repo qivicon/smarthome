@@ -22,6 +22,7 @@ import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.types.Command
@@ -46,7 +47,9 @@ import org.junit.Test
  */
 class DynamicThingUpdateOSGITest extends OSGiTest {
 
-    final BINDING_ID = 'dnamicUpdateBindingId'
+    def DEFAULT_TTL = 60
+
+        final BINDING_ID = 'dnamicUpdateBindingId'
     final THING_TYPE_ID = 'dnamicUpdateThingType'
     final THING_ID = 'dynamicUpdateThingId'
 
@@ -90,7 +93,8 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
             'thingUpdated' : { Thing updatedThing ->
                 this.thingUpdated = true
                 this.updatedThing = updatedThing
-            }
+            },
+            'setCallback': {}
         ] as ThingHandler )
 
         return thingHandler
@@ -101,7 +105,7 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
             'supportsThingType' : { ThingTypeUID thingTypeUID ->
                 return THING_TYPE_UID.equals(thingTypeUID) 
             },
-            'registerHandler' : { Thing thing ->
+            'registerHandler' : { Thing thing, ThingHandlerCallback callback ->
                 thingHandler = createThingHandler(thing)
 
                 Hashtable<String, Object> properties = [
@@ -132,7 +136,7 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
         managedThingProvider.add ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
         
         Hashtable discoveryResultProps = [ "ipAddress" : "127.0.0.1" ]
-        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, discoveryResultProps, "DummyLabel1")
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, discoveryResultProps, "DummyLabel1", DEFAULT_TTL)
 
         inbox.add discoveryResult
 
@@ -153,7 +157,7 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
 
         managedThingProvider.add ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
 
-        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, [:], "DummyLabel")
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, [:], "DummyLabel", DEFAULT_TTL)
          
         inbox.add discoveryResult
 

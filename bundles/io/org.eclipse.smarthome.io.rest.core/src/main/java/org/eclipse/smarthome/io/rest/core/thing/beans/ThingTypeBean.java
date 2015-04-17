@@ -8,11 +8,13 @@
 package org.eclipse.smarthome.io.rest.core.thing.beans;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * This is a java bean that is used with JAX-RS to serialize things to JSON.
+ * This is a java bean that is used with JAX-RS to serialize thing types to JSON.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Thomas Höfer - Added thing and thing type properties
  *
  */
 public class ThingTypeBean {
@@ -20,23 +22,30 @@ public class ThingTypeBean {
     public List<ChannelDefinitionBean> channels;
     public List<ChannelGroupDefinitionBean> channelGroups;
     public List<ConfigDescriptionParameterBean> configParameters;
+    public List<String> supportedBridgeTypeUIDs;
+    public Map<String, String> properties;
     public String description;
     public String label;
 
     public String UID;
+    boolean bridge;
 
     public ThingTypeBean() {
     }
 
     public ThingTypeBean(String UID, String label, String description,
             List<ConfigDescriptionParameterBean> configParameters, List<ChannelDefinitionBean> channels,
-            List<ChannelGroupDefinitionBean> channelGroups) {
+            List<ChannelGroupDefinitionBean> channelGroups, List<String> supportedBridgeTypeUIDs,
+            Map<String, String> properties, boolean bridge) {
         this.UID = UID;
         this.label = label;
         this.description = description;
         this.configParameters = configParameters;
         this.channels = channels;
         this.channelGroups = channelGroups;
+        this.supportedBridgeTypeUIDs = supportedBridgeTypeUIDs;
+        this.properties = properties;
+        this.bridge = bridge;
     }
 
 }

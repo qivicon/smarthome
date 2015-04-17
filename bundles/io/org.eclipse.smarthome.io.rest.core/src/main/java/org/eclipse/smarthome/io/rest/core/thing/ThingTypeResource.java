@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.io.rest.core.thing;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -30,6 +29,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.FilterCriteria;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
@@ -44,8 +44,6 @@ import org.eclipse.smarthome.io.rest.core.thing.beans.ConfigDescriptionParameter
 import org.eclipse.smarthome.io.rest.core.thing.beans.FilterCriteriaBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ParameterOptionBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ThingTypeBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This is a java bean that is used with JAXB to serialize things to XML or
@@ -53,11 +51,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
+ * @author Thomas Höfer - Added thing and thing type properties
  */
 @Path("thing-types")
 public class ThingTypeResource implements RESTResource {
-
-    private Logger logger = LoggerFactory.getLogger(ThingTypeResource.class);
 
     private ThingTypeRegistry thingTypeRegistry;
     private ConfigDescriptionRegistry configDescriptionRegistry;
@@ -100,32 +97,29 @@ public class ThingTypeResource implements RESTResource {
         }
     }
 
-    public List<ConfigDescriptionParameterBean> getConfigDescriptionParameterBeans(ThingTypeUID thingTypeUID,
+    public List<ConfigDescriptionParameterBean> getConfigDescriptionParameterBeans(URI configDescriptionURI,
             Locale locale) {
-        try {
-            ConfigDescription configDescription = configDescriptionRegistry.getConfigDescription(new URI("thing-type",
-                    thingTypeUID.toString(), null), locale);
-            if (configDescription != null) {
-                List<ConfigDescriptionParameterBean> configDescriptionParameterBeans = new ArrayList<>(
-                        configDescription.getParameters().size());
-                for (ConfigDescriptionParameter configDescriptionParameter : configDescription.getParameters()) {
-                    ConfigDescriptionParameterBean configDescriptionParameterBean = new ConfigDescriptionParameterBean(
-                            configDescriptionParameter.getName(), configDescriptionParameter.getType(),
-                            configDescriptionParameter.getMinimum(), configDescriptionParameter.getMaximum(),
-                            configDescriptionParameter.getStepSize(), configDescriptionParameter.getPattern(),
-                            configDescriptionParameter.isRequired(), configDescriptionParameter.isReadOnly(),
-                            configDescriptionParameter.isMultiple(), configDescriptionParameter.getContext(),
-                            String.valueOf(configDescriptionParameter.getDefault()),
-                            configDescriptionParameter.getLabel(), configDescriptionParameter.getDescription(),
-                            createBeansForOptions(configDescriptionParameter.getOptions()),
-                            createBeansForCriteria(configDescriptionParameter.getFilterCriteria()));
-                    configDescriptionParameterBeans.add(configDescriptionParameterBean);
-                }
-                return configDescriptionParameterBeans;
+
+        ConfigDescription configDescription = configDescriptionRegistry.getConfigDescription(configDescriptionURI, locale);
+        if (configDescription != null) {
+            List<ConfigDescriptionParameterBean> configDescriptionParameterBeans = new ArrayList<>(
+                    configDescription.getParameters().size());
+            for (ConfigDescriptionParameter configDescriptionParameter : configDescription.getParameters()) {
+                ConfigDescriptionParameterBean configDescriptionParameterBean = new ConfigDescriptionParameterBean(
+                        configDescriptionParameter.getName(), configDescriptionParameter.getType(),
+                        configDescriptionParameter.getMinimum(), configDescriptionParameter.getMaximum(),
+                        configDescriptionParameter.getStepSize(), configDescriptionParameter.getPattern(),
+                        configDescriptionParameter.isRequired(), configDescriptionParameter.isReadOnly(),
+                        configDescriptionParameter.isMultiple(), configDescriptionParameter.getContext(),
+                        String.valueOf(configDescriptionParameter.getDefault()),
+                        configDescriptionParameter.getLabel(), configDescriptionParameter.getDescription(),
+                        createBeansForOptions(configDescriptionParameter.getOptions()),
+                        createBeansForCriteria(configDescriptionParameter.getFilterCriteria()));
+                configDescriptionParameterBeans.add(configDescriptionParameterBean);
             }
-        } catch (URISyntaxException ex) {
-            logger.error(ex.getMessage(), ex);
+            return configDescriptionParameterBeans;
         }
+       
         return null;
     }
 
@@ -158,9 +152,11 @@ public class ThingTypeResource implements RESTResource {
 
     private ThingTypeBean convertToThingTypeBean(ThingType thingType, Locale locale) {
         return new ThingTypeBean(thingType.getUID().toString(), thingType.getLabel(), thingType.getDescription(),
-                getConfigDescriptionParameterBeans(thingType.getUID(), locale),
+                getConfigDescriptionParameterBeans(thingType.getConfigDescriptionURI(), locale),
                 convertToChannelDefinitionBeans(thingType.getChannelDefinitions()),
-                convertToChannelGroupDefinitionBeans(thingType.getChannelGroupDefinitions()));
+                convertToChannelGroupDefinitionBeans(thingType.getChannelGroupDefinitions()),
+                thingType.getSupportedBridgeTypeUIDs(), thingType.getProperties(), 
+                thingType instanceof BridgeType);
     }
 
     private List<ChannelGroupDefinitionBean> convertToChannelGroupDefinitionBeans(
@@ -202,4 +198,5 @@ public class ThingTypeResource implements RESTResource {
 
         return thingTypeBeans;
     }
+    
 }

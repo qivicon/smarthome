@@ -44,6 +44,33 @@ The following XML snippet shows a thing type definition with 2 channels and one 
 </channel-type>
 ```
 
+In order to reuse identical channels in different bindings a channeltype can be systemwide. A channel-type can be declared as systemwide by setting its `system` property to true and can then be referenced using a `system.` prefix in a `channel` `typeId` attribute in any binding.  
+
+The following XML snippet shows a system channel-type definition and thing-type definition that references it:
+
+```xml 
+<thing-type id="thingTypeID">
+    <label>Sample Thing</label>
+    <description>Some sample description</description>
+    <channels>
+      <channel id="s" typeId="system.system-channel" />
+    </channels>
+</thing-type>
+<channel-type id="system-channel" system="true">
+    <item-type>Number</item-type>
+    <label>System Channel</label>
+    <category>QualityOfService</category>
+</channel-type>
+```
+
+There exist systemwide channels that are available by default:
+
+| Channel Type ID | Reference typeId       | Item Type    | Category         | Description  |
+|-----------------|------------------------|--------------|----------------- |------------- |
+| signal-strength | system.signal-strength | Number       | QualityOfService | Represents signal strength of a device as a Number with values 0, 1, 2, 3 or 4; 0 being worst strength and 4 being best strength.  |
+| low-battery     | system.low-battery     | Switch       | Battery          | Represents a low battery warning with possible values on/off |
+
+
 The `advanced` property indicates whether this channel is a basic or a more specific functionality of the thing. If `advanced` is set to `true` a user interface may hide this channel by default. The default value is `false` and thus will be taken if the `advanced` attribute is not specified. Especially for complex devices with a lot of channels, only a small set of channels - the most important ones - should be shown to the user to reduce complexity. Whether a channel should be declared as `advanced` depends on the device and can be decided by the binding developer. If a functionality is rarely used it should be better marked as `advanced`.
 
 In the following sections the declaration and semantics of tags, state descriptions and channel categories will be explained in more detail. For a complete sample of the thing types XML file and a full list of possible configuration options please see the [XML Configuration Guide](configuration.md).
@@ -66,7 +93,7 @@ The state description allows to specify restrictions and additional information 
 <state min="12" max="30" step="0.5" pattern="%d °C" readOnly="false"></state>
 ```
 
-The attributes `min` and `max` can only be declared for channel with the item type `Number`. It defines the range of the numeric value. The Java data type is a BigDecimal. For example user interfaces can create sliders with an appropriate scale based on this information. The `step` attribute can be declared for `Number` and `Dimmer` items and defines what is the minimal step size that can be used. The `readonly` attribute can be used for all item types and defines if the state of an item can be changed. For all sensors the `readonly` attribute should be set to `false`. The `pattern` attribute can be used for `Number` and  `String` items. It gives user interface a hint how to render the item. The format of the pattern must be compliant to the [Java Number Format](http://docs.oracle.com/javase/tutorial/java/data/numberformat.html). The pattern can be localized (see also [Internationalization](internationalization.md))
+The attributes `min` and `max` can only be declared for channel with the item type `Number`. It defines the range of the numeric value. The Java data type is a BigDecimal. For example user interfaces can create sliders with an appropriate scale based on this information. The `step` attribute can be declared for `Number` and `Dimmer` items and defines what is the minimal step size that can be used. The `readonly` attribute can be used for all item types and defines if the state of an item can be changed. For all sensors the `readonly` attribute should be set to `true`. The `pattern` attribute can be used for `Number` and  `String` items. It gives user interface a hint how to render the item. The format of the pattern must be compliant to the [Java Number Format](http://docs.oracle.com/javase/tutorial/java/data/numberformat.html). The pattern can be localized (see also [Internationalization](internationalization.md))
 
 Some channels might have only a limited and countable set of states. These states can be specified as options. A `String` item must be used as item type. The following XML snippet defines a list of predefined state options:
 
@@ -109,6 +136,7 @@ The channel type definition allows to specify a category. Together with the defi
 | Player        | RW              | Player                 |
 | PowerOutlet   | RW              | Switch                 |
 | Pressure      | R               | Number                 |
+| QualityOfService      | R       | Number                 |
 | Rain          | R               | Switch, Number         |
 | Recorder      | RW              | String                 |
 | Smoke         | R               | Switch                 |
@@ -155,3 +183,28 @@ The channel group type is defined on the same level as the thing types and chann
 ```
 
 When a thing will be created for a thing type with channel groups, the channel UID will contain the group ID in the last segment divided by a hash (#). If an Item should be linked to channel within a group, the channel UID would be `binding:multiChannelSwitchActor:myDevice:switchActor1#switch` for the XML example before.
+
+## Properties
+Solutions based on Eclipse SmartHome might require meta data from a device. These meta data could include 
+
+- general device information, e.g. the device vendor, the device series or the model ID, ...
+- device characteristics, e.g. if it is battery based, which home automation protocol is used, what is the current firmware version or the serial number, ...
+- physical descriptions, e.g. what is the size, the weight or the color of the device, ...
+- any other meta data that should be made available for the solution by the binding
+
+Depending on the solution the provided meta data can be used for different purposes. Among others the one solution could use the data during a device pairing process whereas another solution might use the data to group the devices/things by the vendors or by the home automation protocols on an user interface. To define such thing meta data the thing type definition provides the possibility to specify so-called `properties`:
+
+```xml 
+    <thing-type id="thingTypeId">
+        ...
+        <properties>
+             <property name="vendor">MyThingVendor</property>
+             <property name="modelId">thingTypeId</property>
+             <property name="protocol">ZigBee</property>
+             ...
+        </properties>
+		...
+    </thing-type>
+```
+
+In general each `property` must have a name attribute which should be written in camel case syntax. The actual property value is defined as plain text and is placed as child node of the property element. It is recommended that at least the vendor and the model id properties are specified here since they should be definable for the most of the devices. In contrast to the properties defined in the 'ThingType' definitions the thing handler [documentation](../architecture/thing-handler.md) explains how properties can be set during runtime.

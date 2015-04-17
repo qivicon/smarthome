@@ -8,21 +8,26 @@
 package org.eclipse.smarthome.core.thing.internal;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
+import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * The {@link ThingImpl} class is a concrete implementation of the {@link Thing}.
@@ -33,6 +38,7 @@ import com.google.common.collect.ImmutableList;
  * @author Benedikt Niehues - Fix ESH Bug 450236
  *         https://bugs.eclipse.org/bugs/show_bug.cgi?id=450236 - Considering
  *         ThingType Description
+ * @author Thomas Höfer - Added thing and thing type properties
  *
  */
 public class ThingImpl implements Thing {
@@ -43,15 +49,16 @@ public class ThingImpl implements Thing {
 
     private Configuration configuration = new Configuration();
 
+    private Map<String, String> properties = new HashMap<>();
+
     private ThingUID uid;
 
-    transient volatile private ThingStatus status = ThingStatus.OFFLINE;
+    private ThingTypeUID thingTypeUID;
+
+    transient volatile private ThingStatusInfo status = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED,
+            ThingStatusDetail.NONE).build();
 
     transient volatile private ThingHandler thingHandler;
-
-    transient volatile private List<ThingListener> thingListeners = new CopyOnWriteArrayList<>();
-
-    private ThingTypeUID thingTypeUID;
 
     transient volatile private GroupItem linkedItem;
 
@@ -81,23 +88,6 @@ public class ThingImpl implements Thing {
         this.uid = thingUID;
         this.thingTypeUID = new ThingTypeUID(thingUID.getBindingId(), thingUID.getThingTypeId());
         this.channels = new ArrayList<>(0);
-    }
-
-    /**
-     * Adds the thing listener.
-     *
-     * @param thingListener
-     *            the thing listener
-     */
-    public void addThingListener(ThingListener thingListener) {
-        this.thingListeners.add(thingListener);
-    }
-
-    @Override
-    public void channelUpdated(ChannelUID channelUID, State state) {
-        for (ThingListener thingListener : thingListeners) {
-            thingListener.channelUpdated(channelUID, state);
-        }
     }
 
     @Override
@@ -140,18 +130,8 @@ public class ThingImpl implements Thing {
     }
 
     @Override
-    public ThingStatus getStatus() {
+    public ThingStatusInfo getStatusInfo() {
         return status;
-    }
-
-    /**
-     * Removes the thing listener.
-     *
-     * @param thingListener
-     *            the thing listener
-     */
-    public void removeThingListener(ThingListener thingListener) {
-        this.thingListeners.remove(thingListener);
     }
 
     @Override
@@ -177,7 +157,7 @@ public class ThingImpl implements Thing {
     }
 
     @Override
-    public void setStatus(ThingStatus status) {
+    public void setStatusInfo(ThingStatusInfo status) {
         this.status = status;
     }
 
@@ -198,6 +178,26 @@ public class ThingImpl implements Thing {
     @Override
     public boolean isLinked() {
         return getLinkedItem() != null;
+    }
+
+    @Override
+    public Map<String, String> getProperties() {
+        synchronized (this) {
+            return ImmutableMap.copyOf(properties);
+        }
+    }
+
+    @Override
+    public String setProperty(String name, String value) {
+        if (Strings.isNullOrEmpty(name)) {
+            throw new IllegalArgumentException("Property name must not be null or empty");
+        }
+        synchronized (this) {
+            if (value == null) {
+                return properties.remove(name);
+            }
+            return properties.put(name, value);
+        }
     }
 
     @Override

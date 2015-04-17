@@ -48,14 +48,19 @@ import org.osgi.service.component.ComponentContext
  * 
  * @author Alex Tugarev - Initial contribution
  * @author Dennis Nobel - Added test for bug 459628 (lifecycle problem)
+ * @author Thomas Höfer - Thing type constructor modified because of thing properties introduction
  */
 class ThingLinkManagerOSGiTest extends OSGiTest{
     
     def ThingRegistry thingRegistry 
     def ThingSetupManager thingSetupManager
-
+    
+    Map context = new HashMap<>()
+    
     @Before
     void setup() {
+        context.clear();
+        
         registerVolatileStorageService()
         
         thingRegistry = getService(ThingRegistry)
@@ -73,7 +78,7 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         
         def ChannelType channelType = new ChannelType(new ChannelTypeUID("hue:alarm"), false, "Number", " ", "", null, null, state, null)
         
-        def thingTypeProvider = new TestThingTypeProvider([ new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [ new ChannelDefinition("1", channelType) ], null, null) ])
+        def thingTypeProvider = new TestThingTypeProvider([ new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [ new ChannelDefinition("1", channelType) ], null, null, null) ])
         registerService(thingTypeProvider)
 
         thingSetupManager = getService(ThingSetupManager)
@@ -152,6 +157,22 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         }
     }
     
+    @Test
+    void 'assert that channelLinked and channelUnlinked at ThingHandler is called'() {
+        ThingUID thingUID = new ThingUID("hue:lamp:lamp1")
+        thingSetupManager.addThing(thingUID, new Configuration(), /* bridge */ null)
+        
+        def channelUID = new ChannelUID(thingUID, "1")
+        
+        assertThat context.get("linkedChannel"), is(equalTo(channelUID))
+        assertThat context.get("unlinkedChannel"), is(null)
+        
+        thingSetupManager.disableChannel(channelUID)
+        
+        assertThat context.get("unlinkedChannel"), is(equalTo(channelUID))
+    }
+    
+    
     /*
      * Helper
      */
@@ -166,6 +187,8 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         protected ThingHandler createHandler(Thing thing) {
             return new BaseThingHandler(thing) {
                 public void handleCommand(ChannelUID channelUID, Command command) { }
+                void channelLinked(ChannelUID channelUID) {ThingLinkManagerOSGiTest.this.context.put("linkedChannel", channelUID)};
+                void channelUnlinked(ChannelUID channelUID) {ThingLinkManagerOSGiTest.this.context.put("unlinkedChannel", channelUID)};
             }
         }
     }

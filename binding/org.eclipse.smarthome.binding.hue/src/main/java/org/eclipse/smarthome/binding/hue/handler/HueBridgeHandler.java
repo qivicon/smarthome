@@ -22,6 +22,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import nl.q42.jue.Config;
 import nl.q42.jue.FullConfig;
 import nl.q42.jue.FullLight;
 import nl.q42.jue.HueBridge;
@@ -36,6 +37,7 @@ import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
@@ -51,7 +53,8 @@ import org.slf4j.LoggerFactory;
  * @author Oliver Libutzki
  * @author Kai Kreuzer - improved state handling
  * @author Andre Fuechsel - implemented getFullLights(), startSearch()
- *
+ * @author Thomas Höfer - added thing properties
+ * @author Stefan Bußweiler - Added new thing status handling 
  */
 public class HueBridgeHandler extends BaseBridgeHandler {
 
@@ -127,6 +130,14 @@ public class HueBridgeHandler extends BaseBridgeHandler {
                                     logger.error("An exception occurred while calling the BridgeHeartbeatListener", e);
                                 }
                             }
+                        }
+
+                        final Config config = fullConfig.getConfig();
+                        if (config != null) {
+                            Map<String, String> properties = editProperties();
+                            properties.put(Thing.PROPERTY_SERIAL_NUMBER, config.getMACAddress());
+                            properties.put(Thing.PROPERTY_FIRMWARE_VERSION, config.getSoftwareVersion());
+                            updateProperties(properties);
                         }
                     }
                 } catch (UnauthorizedException | IllegalStateException e) {
@@ -231,7 +242,9 @@ public class HueBridgeHandler extends BaseBridgeHandler {
             }
             onUpdate();
         } else {
-            logger.warn("Cannot connect to hue bridge. IP address or user name not set.");
+            String warn = "Cannot connect to hue bridge. IP address or user name not set.";
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR, warn);
+            logger.warn(warn);
         }
     }
 
@@ -250,7 +263,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
      */
     public void onConnectionLost(HueBridge bridge) {
         logger.debug("Bridge connection lost. Updating thing status to OFFLINE.");
-        updateStatus(ThingStatus.OFFLINE);
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.BRIDGE_OFFLINE);
     }
 
     /**
@@ -291,14 +304,6 @@ public class HueBridgeHandler extends BaseBridgeHandler {
                     logger.debug("Failed adding user '{}' to Hue bridge.", userName);
                 }
             }
-        }
-    }
-
-    @Override
-    protected void updateStatus(ThingStatus status) {
-        super.updateStatus(status);
-        for (Thing child : getThing().getThings()) {
-            child.setStatus(status);
         }
     }
 

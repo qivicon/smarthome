@@ -9,17 +9,20 @@ package org.eclipse.smarthome.core.thing.xml.internal;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.util.NodeAttributes;
+import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.SystemChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 
 import com.thoughtworks.xstream.converters.ConversionException;
@@ -29,8 +32,10 @@ import com.thoughtworks.xstream.converters.ConversionException;
  * contains all fields needed to create a concrete {@link ThingType} object.
  * <p>
  * If a {@link ConfigDescription} object exists, it must be added to the according {@link ConfigDescriptionProvider}.
- *
+ * 
  * @author Michael Grammling - Initial Contribution
+ * @author Ivan Iliev - Added support for system wide channel types
+ * @author Thomas Höfer - Added thing and thing type properties
  */
 public class ThingTypeXmlResult {
 
@@ -40,11 +45,13 @@ public class ThingTypeXmlResult {
     protected String description;
     protected List<NodeAttributes> channelTypeReferences;
     protected List<NodeAttributes> channelGroupTypeReferences;
+    protected List<NodeValue> properties;
     protected URI configDescriptionURI;
     protected ConfigDescription configDescription;
 
     public ThingTypeXmlResult(ThingTypeUID thingTypeUID, List<String> supportedBridgeTypeUIDs, String label,
-            String description, List<NodeAttributes>[] channelTypeReferenceObjects, Object[] configDescriptionObjects) {
+            String description, List<NodeAttributes>[] channelTypeReferenceObjects, List<NodeValue> properties,
+            Object[] configDescriptionObjects) {
 
         this.thingTypeUID = thingTypeUID;
         this.supportedBridgeTypeUIDs = supportedBridgeTypeUIDs;
@@ -52,6 +59,7 @@ public class ThingTypeXmlResult {
         this.description = description;
         this.channelTypeReferences = channelTypeReferenceObjects[0];
         this.channelGroupTypeReferences = channelTypeReferenceObjects[1];
+        this.properties = properties;
         this.configDescriptionURI = (URI) configDescriptionObjects[0];
         this.configDescription = (ConfigDescription) configDescriptionObjects[1];
     }
@@ -74,6 +82,11 @@ public class ThingTypeXmlResult {
                     String typeId = channelTypeReference.getAttribute("typeId");
 
                     String typeUID = String.format("%s:%s", this.thingTypeUID.getBindingId(), typeId);
+
+                    int systemPrefixIdx = typeId.indexOf(SystemChannelTypeProvider.NAMESPACE_PREFIX);
+                    if (systemPrefixIdx != -1) {
+                        typeUID = XmlHelper.getSystemUID(typeId);
+                    }
 
                     ChannelType channelType = channelTypes.get(typeUID);
                     if (channelType != null) {
@@ -124,12 +137,24 @@ public class ThingTypeXmlResult {
         return channelGroupTypeDefinitions;
     }
 
+    protected Map<String, String> toPropertiesMap() {
+        if (properties == null) {
+            return null;
+        }
+
+        Map<String, String> propertiesMap = new HashMap<>();
+        for (NodeValue property : properties) {
+            propertiesMap.put(property.getAttributes().get("name"), (String) property.getValue());
+        }
+        return propertiesMap;
+    }
+
     public ThingType toThingType(Map<String, ChannelGroupType> channelGroupTypes, Map<String, ChannelType> channelTypes)
             throws ConversionException {
 
         ThingType thingType = new ThingType(this.thingTypeUID, this.supportedBridgeTypeUIDs, this.label,
                 this.description, toChannelDefinitions(this.channelTypeReferences, channelTypes),
-                toChannelGroupDefinitions(this.channelGroupTypeReferences, channelGroupTypes),
+                toChannelGroupDefinitions(this.channelGroupTypeReferences, channelGroupTypes), toPropertiesMap(),
                 this.configDescriptionURI);
 
         return thingType;
@@ -140,8 +165,8 @@ public class ThingTypeXmlResult {
         return "ThingTypeXmlResult [thingTypeUID=" + thingTypeUID + ", supportedBridgeTypeUIDs="
                 + supportedBridgeTypeUIDs + ", label=" + label + ", description=" + description
                 + ", channelTypeReferences=" + channelTypeReferences + ", channelGroupTypeReferences="
-                + channelGroupTypeReferences + ", configDescriptionURI=" + configDescriptionURI
-                + ", configDescription=" + configDescription + "]";
+                + channelGroupTypeReferences + ", properties=" + properties + ", configDescriptionURI="
+                + configDescriptionURI + ", configDescription=" + configDescription + "]";
     }
 
 }
