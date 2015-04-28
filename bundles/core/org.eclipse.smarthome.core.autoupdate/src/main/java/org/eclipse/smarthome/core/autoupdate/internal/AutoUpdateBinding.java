@@ -134,7 +134,8 @@ public class AutoUpdateBinding extends AbstractEventSubscriber {
                     }
                 }
                 if (isAccepted) {
-                    eventPublisher.postUpdate(itemName, newState, "org.eclipse.smarthome.core.autoupdate");
+                    // old EventPublisher method, not supported anymore
+                    // eventPublisher.postUpdate(itemName, newState, "org.eclipse.smarthome.core.autoupdate");
                 } else {
                     logger.debug("Received update of a not accepted type (" + newState.getClass().getSimpleName()
                             + ") for item " + itemName);

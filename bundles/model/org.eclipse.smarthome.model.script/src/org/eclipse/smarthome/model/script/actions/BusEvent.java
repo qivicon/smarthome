@@ -75,7 +75,8 @@ public class BusEvent {
             try {
                 Item item = registry.getItem(itemName);
                 Command command = TypeParser.parseCommand(item.getAcceptedCommandTypes(), commandString);
-                publisher.sendCommand(itemName, command);
+                // old EventPublisher method, not supported anymore
+                // publisher.sendCommand(itemName, command);
             } catch (ItemNotFoundException e) {
                 LoggerFactory.getLogger(BusEvent.class).warn("Item '" + itemName + "' does not exist.");
             }
@@ -92,7 +93,8 @@ public class BusEvent {
     static public Object sendCommand(Item item, Command command) {
         EventPublisher publisher = ScriptActivator.eventPublisherTracker.getService();
         if (publisher != null && item != null) {
-            publisher.sendCommand(item.getName(), command);
+            // old EventPublisher method, not supported anymore
+            // publisher.sendCommand(item.getName(), command);
         }
         return null;
     }
@@ -138,7 +140,8 @@ public class BusEvent {
             try {
                 Item item = registry.getItem(itemName);
                 State state = TypeParser.parseState(item.getAcceptedDataTypes(), stateString);
-                publisher.postUpdate(itemName, state);
+                // old EventPublisher method, not supported anymore
+                // publisher.postUpdate(itemName, state);
             } catch (ItemNotFoundException e) {
                 LoggerFactory.getLogger(BusEvent.class).warn("Item '" + itemName + "' does not exist.");
             }
@@ -156,7 +159,8 @@ public class BusEvent {
     static public Object postUpdate(Item item, State state) {
         EventPublisher publisher = ScriptActivator.eventPublisherTracker.getService();
         if (publisher != null && item != null) {
-            publisher.postUpdate(item.getName(), state);
+            // old EventPublisher method, not supported anymore
+            // publisher.postUpdate(item.getName(), state);
         }
         return null;
     }

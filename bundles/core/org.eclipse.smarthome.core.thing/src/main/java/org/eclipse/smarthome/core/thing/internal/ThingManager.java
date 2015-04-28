@@ -122,7 +122,8 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         public void stateUpdated(ChannelUID channelUID, State state) {
             Set<String> items = itemChannelLinkRegistry.getLinkedItems(channelUID);
             for (String item : items) {
-                eventPublisher.postUpdate(item, state, channelUID.toString());
+                // old EventPublisher method, not supported anymore
+                // eventPublisher.postUpdate(item, state, channelUID.toString());
             }
         }
         
@@ -130,7 +131,8 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         public void postCommand(ChannelUID channelUID, Command command) {
             Set<String> items = itemChannelLinkRegistry.getLinkedItems(channelUID);
             for (String item : items) {
-                eventPublisher.postCommand(item, command, channelUID.toString());
+                // old EventPublisher method, not supported anymore
+                // eventPublisher.postCommand(item, command, channelUID.toString());
             }
         }
 

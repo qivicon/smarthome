@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Michael Grammling - Javadoc extended, stability improved, Checkstyle compliance
  */
-public abstract class  AbstractEventSubscriber implements OldEventSubscriber, EventHandler {
+public abstract class  AbstractEventSubscriber implements EventHandler {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -132,10 +132,6 @@ public abstract class  AbstractEventSubscriber implements OldEventSubscriber, Ev
         receiveCommand(itemName, command);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void receiveCommand(String itemName, Command command) {
         // default implementation: do nothing
     }
@@ -161,10 +157,6 @@ public abstract class  AbstractEventSubscriber implements OldEventSubscriber, Ev
         receiveUpdate(itemName, newState);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void receiveUpdate(String itemName, State newState) {
         // default implementation: do nothing
     }

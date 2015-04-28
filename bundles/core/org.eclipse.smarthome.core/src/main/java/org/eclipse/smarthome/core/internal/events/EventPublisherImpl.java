@@ -37,7 +37,7 @@ import org.osgi.service.event.EventAdmin;
  *         event bus are no longer needed (permissions should be added at some other place
  *         in the future)
  */
-public class EventPublisherImpl implements EventPublisher {
+public class EventPublisherImpl {
 
     private EventAdmin eventAdmin;
 
@@ -49,10 +49,6 @@ public class EventPublisherImpl implements EventPublisher {
         this.eventAdmin = null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void sendCommand(final String itemName, final Command command, final String source)
             throws IllegalArgumentException, IllegalStateException {
 
@@ -80,10 +76,6 @@ public class EventPublisherImpl implements EventPublisher {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void postCommand(final String itemName, final Command command, final String source)
             throws IllegalArgumentException, IllegalStateException {
 
@@ -111,10 +103,6 @@ public class EventPublisherImpl implements EventPublisher {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void postUpdate(final String itemName, final State newState, final String source)
             throws IllegalArgumentException, IllegalStateException {
 
@@ -164,24 +152,16 @@ public class EventPublisherImpl implements EventPublisher {
         return new Event(createTopic(EventType.UPDATE, itemName), properties);
     }
 
-    @Override
     public void sendCommand(String itemName, Command command) throws IllegalArgumentException, IllegalStateException {
         sendCommand(itemName, command, null);
     }
 
-    @Override
     public void postCommand(String itemName, Command command) throws IllegalArgumentException, IllegalStateException {
         postCommand(itemName, command, null);
     }
 
-    @Override
     public void postUpdate(String itemName, State newState) throws IllegalArgumentException, IllegalStateException {
         postUpdate(itemName, newState, null);
     }
     
-    @Override
-    public void postEvent(org.eclipse.smarthome.core.events.Event event) {
-        // do nothing
-    }
-
 }

@@ -53,8 +53,8 @@ public class UpdateConsoleCommandExtension extends AbstractConsoleCommandExtensi
                     String stateName = args[1];
                     State state = TypeParser.parseState(item.getAcceptedDataTypes(), stateName);
                     if (state != null) {
-                        this.eventPublisher.postUpdate(item.getName(), state);
-                        console.println("Update has been sent successfully.");
+                        // this.eventPublisher.postUpdate(item.getName(), state);
+                        //  console.println("Update has been sent successfully.");
                     } else {
                         console.println("Error: State '" + stateName + "' is not valid for item '" + itemName + "'");
                         console.print("Valid data types are: ( ");

@@ -89,7 +89,8 @@ public class CmdServlet extends BaseServlet {
 
                     Command command = TypeParser.parseCommand(item.getAcceptedCommandTypes(), commandName);
                     if (command != null) {
-                        eventPublisher.sendCommand(itemName, command);
+                        // old EventPublisher method, not supported anymore
+                        // eventPublisher.sendCommand(itemName, command);
                     } else {
                         logger.warn("Received unknown command '{}' for item '{}'", commandName, itemName);
                     }

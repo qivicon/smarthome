@@ -21,9 +21,6 @@ import org.eclipse.smarthome.core.events.EventFactory;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.events.EventSubscriber;
-import org.eclipse.smarthome.core.events.OldEventSubscriber;
-import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.State;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
 
@@ -175,39 +172,6 @@ public class OSGiEventHandler implements EventHandler, EventPublisher {
     private String decodeTopic(String topic) {
         // TODO: find appropriate encoding character
         return topic.replaceAll("-", ":");
-    }
-
-    @Override
-    public void sendCommand(String itemName, Command command) throws IllegalArgumentException, IllegalStateException {
-        // TODO: method will be removed from EventPublisher interface
-    }
-
-    @Override
-    public void sendCommand(String itemName, Command command, String source) throws IllegalArgumentException,
-            IllegalStateException {
-        // TODO: method will be removed from EventPublisher interface
-    }
-
-    @Override
-    public void postCommand(String itemName, Command command) throws IllegalArgumentException, IllegalStateException {
-        // TODO: method will be removed from EventPublisher interface
-    }
-
-    @Override
-    public void postCommand(String itemName, Command command, String source) throws IllegalArgumentException,
-            IllegalStateException {
-        // TODO: method will be removed from EventPublisher interface
-    }
-
-    @Override
-    public void postUpdate(String itemName, State newState) throws IllegalArgumentException, IllegalStateException {
-        // TODO: method will be removed from EventPublisher interface
-    }
-
-    @Override
-    public void postUpdate(String itemName, State newState, String source) throws IllegalArgumentException,
-            IllegalStateException {
-        // TODO: method will be removed from EventPublisher interface
     }
 
 }
