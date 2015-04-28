@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Michael Grammling - Javadoc extended, stability improved, Checkstyle compliance
  */
-public abstract class AbstractEventSubscriber implements EventSubscriber, EventHandler {
+public abstract class  AbstractEventSubscriber implements OldEventSubscriber, EventHandler {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 

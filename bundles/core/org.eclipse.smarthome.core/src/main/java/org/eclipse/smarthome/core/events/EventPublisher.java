@@ -132,4 +132,13 @@ public interface EventPublisher {
     void postUpdate(String itemName, State newState, String source) throws IllegalArgumentException,
             IllegalStateException;
 
+    /**
+     * Posts an event through the event bus in an in an asynchronous way.
+     * 
+     * @param event the event posted through the event bus
+     * 
+     * @throws IllegalArgumentException if the event is null
+     * @throws IllegalStateException if the underlying event bus module is not available
+     */
+    void postEvent(Event event) throws IllegalArgumentException, IllegalStateException;
 }
