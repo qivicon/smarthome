@@ -98,7 +98,7 @@ class ThingEventOSGiTests extends OSGiTest {
             }
         };
         Dictionary<String, String> properties = new Hashtable<String, String>();
-        properties.put(EventConstants.EVENT_TOPIC, "smarthome/things/*")
+        properties.put(EventConstants.EVENT_TOPIC, "smarthome")
         registerService(eventHandler, EventHandler.class.getName(), properties);
 
         def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()

@@ -17,5 +17,5 @@
       <provide interface="org.osgi.service.event.EventHandler"/>
       <provide interface="org.eclipse.smarthome.core.events.EventPublisher"/>
    </service>
-   <property name="event.topics" type="String" value="smarthome/*"/>
+   <property name="event.topics" type="String" value="smarthome"/>
 </scr:component>

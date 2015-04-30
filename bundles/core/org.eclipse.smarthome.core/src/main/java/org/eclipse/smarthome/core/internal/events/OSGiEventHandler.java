@@ -25,18 +25,13 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
 
 import com.google.common.collect.Sets;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
 
 /**
  * The {@link OSGiEventHandler} provides an OSGi based default implementation for the Eclipse SmartHome (ESH) event bus.
  * 
- * The OSGiEventHandler tracks {@link OldEventSubscriber}s and {@link EventFactory}s, receives OSGi events (by
+ * The OSGiEventHandler tracks {@link EventSubscriber}s and {@link EventFactory}s, receives OSGi events (by
  * implementing the OSGi {@link EventHandler} interface) and dispatches the received OSGi events as ESH {@link Event}s
- * to the {@link OldEventSubscriber}s.
+ * to the {@link EventSubscriber}s.
  * 
  * Based on the event type of the received OSGi event the corresponding EventFactory is determined in order to create an
  * event instance. The OSGiEventHandler dispatches the created ESH event to the EventSubscribers if the provided
@@ -51,9 +46,9 @@ public class OSGiEventHandler implements EventHandler, EventPublisher {
 
     private EventAdmin osgiEventAdmin;
 
-    private Map<String, EventFactory> typedEventFactoryCache = new ConcurrentHashMap<String, EventFactory>();
+    private final Map<String, EventFactory> typedEventFactoryCache = new ConcurrentHashMap<String, EventFactory>();
 
-    private Map<String, Set<EventSubscriber>> typedEventSubscriberCache = new ConcurrentHashMap<String, Set<EventSubscriber>>();
+    private final Map<String, Set<EventSubscriber>> typedEventSubscriberCache = new ConcurrentHashMap<String, Set<EventSubscriber>>();
 
     protected void setEventAdmin(EventAdmin eventAdmin) {
         this.osgiEventAdmin = eventAdmin;
@@ -109,15 +104,26 @@ public class OSGiEventHandler implements EventHandler, EventPublisher {
 
     @Override
     public void handleEvent(org.osgi.service.event.Event osgiEvent) {
-        String eventType = osgiEvent.getProperty("type").toString();
-        String payload = osgiEvent.getProperty("payload").toString();
-        String topic = decodeTopic(osgiEvent.getTopic());
+        Object typeObj = osgiEvent.getProperty("type");
+        Object payloadObj = osgiEvent.getProperty("payload");
+        Object topicObj = osgiEvent.getProperty("topic");
 
-        Set<EventSubscriber> eventSubscribers = typedEventSubscriberCache.get(eventType);
-        EventFactory eventFactory = typedEventFactoryCache.get(eventType);
+        if (typeObj instanceof String && payloadObj instanceof String && topicObj instanceof String) {
+            String typeStr = (String) typeObj;
+            String payloadStr = (String) payloadObj;
+            String topicStr = (String) topicObj;
+            if (!typeStr.isEmpty() && !payloadStr.isEmpty() && !topicStr.isEmpty()) {
+                dispatchAsESHEvent((String) typeObj, (String) payloadObj, (String) topicObj);
+            }
+        }
+    }
+
+    private void dispatchAsESHEvent(final String type, final String payload, final String topic) {
+        Set<EventSubscriber> eventSubscribers = typedEventSubscriberCache.get(type);
+        EventFactory eventFactory = typedEventFactoryCache.get(type);
 
         if (eventSubscribers != null && !eventSubscribers.isEmpty() && eventFactory != null) {
-            Event eshEvent = eventFactory.createEvent(eventType, topic, payload);
+            Event eshEvent = eventFactory.createEvent(type, topic, payload);
 
             for (EventSubscriber eventSubscriber : eventSubscribers) {
                 EventFilter filter = eventSubscriber.getEventFilter();
@@ -146,7 +152,8 @@ public class OSGiEventHandler implements EventHandler, EventPublisher {
                     Dictionary<String, Object> properties = new Hashtable<String, Object>(2);
                     properties.put("type", event.getType());
                     properties.put("payload", event.getPayload());
-                    eventAdmin.postEvent(new org.osgi.service.event.Event(encodeTopic(event.getTopic()), properties));
+                    properties.put("topic", event.getTopic());
+                    eventAdmin.postEvent(new org.osgi.service.event.Event("smarthome", properties));
                     return null;
                 }
             });
@@ -175,16 +182,6 @@ public class OSGiEventHandler implements EventHandler, EventPublisher {
         if (eventAdmin == null) {
             throw new IllegalStateException("The event bus module is not available!");
         }
-    }
-
-    private String encodeTopic(String topic) {
-        // TODO: find appropriate encoding character
-        return topic.replaceAll(":", "-");
-    }
-
-    private String decodeTopic(String topic) {
-        // TODO: find appropriate encoding character
-        return topic.replaceAll("-", ":");
     }
 
 }
