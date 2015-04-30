@@ -25,6 +25,11 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
 
 import com.google.common.collect.Sets;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
 
 /**
  * The {@link OSGiEventHandler} provides an OSGi based default implementation for the Eclipse SmartHome (ESH) event bus.
@@ -151,17 +156,25 @@ public class OSGiEventHandler implements EventHandler, EventPublisher {
     }
 
     private void assertValidArgument(Event event) throws IllegalArgumentException {
+        String errorMsg = "The %s of the 'event' argument must not be null or empty.";
         if (event == null) {
             throw new IllegalArgumentException("Argument 'event' must not be null.");
         }
-        // TODO: further check to ensure 'valid' event argument
+        if (event.getType() == null || event.getType().isEmpty()) {
+            throw new IllegalArgumentException(String.format(errorMsg, "type"));
+        }
+        if (event.getPayload() == null || event.getPayload().isEmpty()) {
+            throw new IllegalArgumentException(String.format(errorMsg, "payload"));
+        }
+        if (event.getTopic() == null || event.getTopic().isEmpty()) {
+            throw new IllegalArgumentException(String.format(errorMsg, "topic"));
+        }
     }
 
     private void assertValidState(EventAdmin eventAdmin) throws IllegalStateException {
         if (eventAdmin == null) {
             throw new IllegalStateException("The event bus module is not available!");
         }
-        // TODO: further checks to ensure 'valid' event bus module
     }
 
     private String encodeTopic(String topic) {
