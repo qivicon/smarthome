@@ -79,25 +79,28 @@ public class OSGiEventHandler implements EventHandler, EventPublisher {
     }
 
     protected void addEventSubscriber(EventSubscriber eventSubscriber) {
-        Set<String> supportedEventTypes = eventSubscriber.getSubscribedEventTypes();
+        Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
 
-        for (String supportedEventType : supportedEventTypes) {
-            if (typedEventSubscriberCache.containsKey(supportedEventType)) {
-                typedEventSubscriberCache.get(supportedEventType).add(eventSubscriber);
+        for (String subscribedEventType : subscribedEventTypes) {
+            if (typedEventSubscriberCache.containsKey(subscribedEventType)) {
+                Set<EventSubscriber> cachedEventSubscribers = typedEventSubscriberCache.get(subscribedEventType);
+                if(!cachedEventSubscribers.contains(eventSubscriber)) {
+                    cachedEventSubscribers.add(eventSubscriber);
+                }
             } else {
-                typedEventSubscriberCache.put(supportedEventType, Sets.newHashSet(eventSubscriber));
+                typedEventSubscriberCache.put(subscribedEventType, Sets.newHashSet(eventSubscriber));
             }
         }
     }
 
     protected void removeEventSubscriber(EventSubscriber eventSubscriber) {
-        Set<String> supportedEventTypes = eventSubscriber.getSubscribedEventTypes();
+        Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
 
-        for (String supportedEventType : supportedEventTypes) {
-            Set<EventSubscriber> cachedEventSubscribers = typedEventSubscriberCache.get(supportedEventType);
+        for (String subscribedEventType : subscribedEventTypes) {
+            Set<EventSubscriber> cachedEventSubscribers = typedEventSubscriberCache.get(subscribedEventType);
             cachedEventSubscribers.remove(eventSubscriber);
             if (cachedEventSubscribers.isEmpty()) {
-                typedEventSubscriberCache.remove(supportedEventType);
+                typedEventSubscriberCache.remove(subscribedEventType);
             }
         }
     }
