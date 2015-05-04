@@ -27,18 +27,14 @@ import org.osgi.service.event.EventHandler;
 import com.google.common.collect.Sets;
 
 /**
- * The {@link OSGiEventHandler} provides an OSGi based default implementation for the Eclipse SmartHome (ESH) event bus.
+ * The {@link OSGiEventHandler} provides an OSGi based default implementation of the Eclipse SmartHome event bus.
  * 
  * The OSGiEventHandler tracks {@link EventSubscriber}s and {@link EventFactory}s, receives OSGi events (by
  * implementing the OSGi {@link EventHandler} interface) and dispatches the received OSGi events as ESH {@link Event}s
- * to the {@link EventSubscriber}s.
- * 
- * Based on the event type of the received OSGi event the corresponding EventFactory is determined in order to create an
- * event instance. The OSGiEventHandler dispatches the created ESH event to the EventSubscribers if the provided
- * EventFilter applies.
+ * to the {@link EventSubscriber}s if the provided filter applies.
  * 
  * The {@link OSGiEventHandler} also serves as {@link EventPublisher} by implementing the EventPublisher interface.
- * Events are send via the OSGi Event Admin mechanism.
+ * Events are send in an asynchronous way via OSGi Event Admin mechanism.
  * 
  * @author Stefan Bußweiler - Initial contribution
  */
@@ -84,7 +80,7 @@ public class OSGiEventHandler implements EventHandler, EventPublisher {
         for (String subscribedEventType : subscribedEventTypes) {
             if (typedEventSubscriberCache.containsKey(subscribedEventType)) {
                 Set<EventSubscriber> cachedEventSubscribers = typedEventSubscriberCache.get(subscribedEventType);
-                if(!cachedEventSubscribers.contains(eventSubscriber)) {
+                if (!cachedEventSubscribers.contains(eventSubscriber)) {
                     cachedEventSubscribers.add(eventSubscriber);
                 }
             } else {
@@ -116,7 +112,7 @@ public class OSGiEventHandler implements EventHandler, EventPublisher {
             String payloadStr = (String) payloadObj;
             String topicStr = (String) topicObj;
             if (!typeStr.isEmpty() && !payloadStr.isEmpty() && !topicStr.isEmpty()) {
-                dispatchAsESHEvent((String) typeObj, (String) payloadObj, (String) topicObj);
+                dispatchAsESHEvent(typeStr, payloadStr, topicStr);
             }
         }
     }
@@ -152,7 +148,7 @@ public class OSGiEventHandler implements EventHandler, EventPublisher {
             AccessController.doPrivileged(new PrivilegedExceptionAction<Void>() {
                 @Override
                 public Void run() throws Exception {
-                    Dictionary<String, Object> properties = new Hashtable<String, Object>(2);
+                    Dictionary<String, Object> properties = new Hashtable<String, Object>(3);
                     properties.put("type", event.getType());
                     properties.put("payload", event.getPayload());
                     properties.put("topic", event.getTopic());
@@ -161,7 +157,7 @@ public class OSGiEventHandler implements EventHandler, EventPublisher {
                 }
             });
         } catch (PrivilegedActionException pae) {
-            throw new IllegalStateException("Cannot post the command.", pae.getException());
+            throw new IllegalStateException("Cannot post the event via the event bus.", pae.getException());
         }
     }
 
