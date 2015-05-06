@@ -136,7 +136,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
     }
 
     @Override
-    public void postEvent(final Event event) throws IllegalArgumentException, IllegalStateException {
+    public void post(final Event event) throws IllegalArgumentException, IllegalStateException {
         EventAdmin eventAdmin = this.osgiEventAdmin;
         assertValidArgument(event);
         assertValidState(eventAdmin);

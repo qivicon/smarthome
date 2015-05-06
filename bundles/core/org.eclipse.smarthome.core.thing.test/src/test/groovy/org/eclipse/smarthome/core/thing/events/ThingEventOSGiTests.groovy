@@ -72,7 +72,7 @@ class ThingEventOSGiTests extends OSGiTest {
     
         def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
         Event event = ThingEventFactory.createThingStatusInfoEvent(THING_UID, statusInfo)
-        eventPublisher.postEvent(event)
+        eventPublisher.post(event)
                 
         waitForAssert {assertThat receiveTypedEventCalled, is(true)}
         
@@ -103,7 +103,7 @@ class ThingEventOSGiTests extends OSGiTest {
 
         def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
         Event event = ThingEventFactory.createThingStatusInfoEvent(THING_UID, statusInfo)
-        eventPublisher.postEvent(event)
+        eventPublisher.post(event)
 
         waitForAssert {assertThat handleEventCalled, is(true)}
         

@@ -23,5 +23,5 @@ public interface EventPublisher {
      * @throws IllegalArgumentException if the event is null
      * @throws IllegalStateException if the underlying event bus module is not available
      */
-    void postEvent(Event event) throws IllegalArgumentException, IllegalStateException;
+    void post(Event event) throws IllegalArgumentException, IllegalStateException;
 }

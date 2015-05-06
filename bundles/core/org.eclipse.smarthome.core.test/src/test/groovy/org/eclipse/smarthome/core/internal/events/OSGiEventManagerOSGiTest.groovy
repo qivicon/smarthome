@@ -91,7 +91,7 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
     @Test
     void 'OSGiEventManager dispatches event data correctly'() {
         Event typeAEvent = createEvent(EVENT_TYPE_A)
-        eventPublisher.postEvent(typeAEvent)
+        eventPublisher.post(typeAEvent)
 
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber1, not(null)}
         assertThat receivedEvent_TypeBasedSubscriber1.getType(), is(typeAEvent.getType())
@@ -110,7 +110,7 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
         Event typeBEvent = createEvent(EVENT_TYPE_B)
         Event typeCEvent = createEvent(EVENT_TYPE_C)
 
-        eventPublisher.postEvent(typeAEvent)
+        eventPublisher.post(typeAEvent)
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber1, not(null)}
         assertThat receivedEvent_TypeBasedSubscriber1.getType(), is(EVENT_TYPE_A)
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber2, not(null)}
@@ -118,14 +118,14 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
         waitForAssert {assertThat receivedEvent_TopicBasedSubscriber3, is(null)}
         resetReceivedEvents()
 
-        eventPublisher.postEvent(typeBEvent)
+        eventPublisher.post(typeBEvent)
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber1, is(null)}
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber2, is(null)}
         waitForAssert {assertThat receivedEvent_TopicBasedSubscriber3, not(null)}
         assertThat receivedEvent_TopicBasedSubscriber3.getType(), is(EVENT_TYPE_B)
         resetReceivedEvents()
 
-        eventPublisher.postEvent(typeCEvent)
+        eventPublisher.post(typeCEvent)
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber1, is(null)}
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber2, is(null)}
         waitForAssert {assertThat receivedEvent_TopicBasedSubscriber3, not(null)}
@@ -134,32 +134,32 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
 
     @Test
     void 'OSGiEventManager dispatches no event after subscriber unregistration'() {
-        eventPublisher.postEvent(createEvent(EVENT_TYPE_A))
+        eventPublisher.post(createEvent(EVENT_TYPE_A))
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber1, not(null)}
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber2, not(null)}
         resetReceivedEvents()
 
         unregisterService("TYPE_BASED_SUBSCRIBER_1")
-        eventPublisher.postEvent(createEvent(EVENT_TYPE_A))
+        eventPublisher.post(createEvent(EVENT_TYPE_A))
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber1, is(null)}
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber2, not(null)}
         resetReceivedEvents()
 
         unregisterService("TYPE_BASED_SUBSCRIBER_2")
-        eventPublisher.postEvent(createEvent(EVENT_TYPE_A))
+        eventPublisher.post(createEvent(EVENT_TYPE_A))
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber1, is(null)}
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber2, is(null)}
     }
 
     @Test
     void 'OSGiEventManager dispatches no event after factory unregistration'() {
-        eventPublisher.postEvent(createEvent(EVENT_TYPE_A))
+        eventPublisher.post(createEvent(EVENT_TYPE_A))
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber1, not(null)}
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber2, not(null)}
         unregisterService("EVENT_TYPE_FACTORY_A_B")
         resetReceivedEvents()
 
-        eventPublisher.postEvent(createEvent(EVENT_TYPE_A))
+        eventPublisher.post(createEvent(EVENT_TYPE_A))
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber1, is(null)}
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber2, is(null)}
     }
@@ -167,28 +167,28 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
     @Test
     public void 'OSGiEventManager validates events before posted'() {
         try {
-            eventPublisher.postEvent(null)
+            eventPublisher.post(null)
         } catch(IllegalArgumentException e) {
             assertThat e.getMessage(), is("Argument 'event' must not be null.")
         }
 
         Event event = createEvent(null, "{a: 'A', b: 'B'}", "smarthome/some/topic")
         try {
-            eventPublisher.postEvent(event)
+            eventPublisher.post(event)
         } catch(IllegalArgumentException e) {
             assertThat e.getMessage(), is("The type of the 'event' argument must not be null or empty.")
         }
 
         event = createEvent(EVENT_TYPE_A, null, "smarthome/some/topic")
         try {
-            eventPublisher.postEvent(event)
+            eventPublisher.post(event)
         } catch(IllegalArgumentException e) {
             assertThat e.getMessage(), is("The payload of the 'event' argument must not be null or empty.")
         }
 
         event = createEvent(EVENT_TYPE_A, "{a: 'A', b: 'B'}", null)
         try {
-            eventPublisher.postEvent(event)
+            eventPublisher.post(event)
         } catch(IllegalArgumentException e) {
             assertThat e.getMessage(), is("The topic of the 'event' argument must not be null or empty.")
         }
