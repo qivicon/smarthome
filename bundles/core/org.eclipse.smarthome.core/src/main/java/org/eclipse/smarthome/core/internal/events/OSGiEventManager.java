@@ -11,6 +11,7 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Dictionary;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
@@ -127,10 +128,10 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
     }
 
     private void dispatchAsESHEvent(final String type, final String payload, final String topic) {
-        Set<EventSubscriber> eventSubscribers = typedEventSubscriberCache.get(type);
         EventFactory eventFactory = typedEventFactoryCache.get(type);
+        Set<EventSubscriber> eventSubscribers = getEventSubscribers(type);
 
-        if (eventSubscribers != null && !eventSubscribers.isEmpty() && eventFactory != null) {
+        if (eventFactory != null && !eventSubscribers.isEmpty()) {
             Event eshEvent = eventFactory.createEvent(type, topic, payload);
 
             for (EventSubscriber eventSubscriber : eventSubscribers) {
@@ -142,6 +143,18 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
                 }
             }
         }
+    }
+
+    private Set<EventSubscriber> getEventSubscribers(String eventType) {
+        Set<EventSubscriber> eventTypeSubscribers = typedEventSubscriberCache.get(eventType);
+        Set<EventSubscriber> allEventTypeSubscribers = typedEventSubscriberCache.get(EventSubscriber.ALL_EVENT_TYPES);
+
+        Set<EventSubscriber> subscribers = new HashSet<EventSubscriber>();
+        if (eventTypeSubscribers != null)
+            subscribers.addAll(eventTypeSubscribers);
+        if (allEventTypeSubscribers != null)
+            subscribers.addAll(allEventTypeSubscribers);
+        return subscribers;
     }
 
     @Override

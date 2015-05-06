@@ -37,6 +37,8 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
 
     Event receivedEvent_TopicBasedSubscriber3
 
+    Event receivedEvent_allEventTypesSubscriber4
+
     @Before
     public void setUp() {
         resetReceivedEvents()
@@ -78,6 +80,13 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
             getEventFilter: { new TopicEventFilter("smarthome/some/topic") },
         ] as EventSubscriber
         registerService("TOPIC_BASED_SUBSCRIBER_3", EventSubscriber, topicBasedSubscriber3)
+
+        def allEventTypesSubscriber4 = [
+            receive: { event -> receivedEvent_allEventTypesSubscriber4 = event },
+            getSubscribedEventTypes: { Sets.newHashSet(EventSubscriber.ALL_EVENT_TYPES) },
+            getEventFilter: { new TopicEventFilter("smarthome/some/topic") },
+        ] as EventSubscriber
+        registerService("ALL_EVENT_TYPES_SUBSCRIBER_4", EventSubscriber, allEventTypesSubscriber4)
     }
 
     @After
@@ -116,6 +125,8 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber2, not(null)}
         assertThat receivedEvent_TypeBasedSubscriber2.getType(), is(EVENT_TYPE_A)
         waitForAssert {assertThat receivedEvent_TopicBasedSubscriber3, is(null)}
+        waitForAssert {assertThat receivedEvent_allEventTypesSubscriber4, not(null)}
+        assertThat receivedEvent_allEventTypesSubscriber4.getType(), is(EVENT_TYPE_A)
         resetReceivedEvents()
 
         eventPublisher.post(typeBEvent)
@@ -123,6 +134,8 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber2, is(null)}
         waitForAssert {assertThat receivedEvent_TopicBasedSubscriber3, not(null)}
         assertThat receivedEvent_TopicBasedSubscriber3.getType(), is(EVENT_TYPE_B)
+        waitForAssert {assertThat receivedEvent_allEventTypesSubscriber4, not(null)}
+        assertThat receivedEvent_allEventTypesSubscriber4.getType(), is(EVENT_TYPE_B)
         resetReceivedEvents()
 
         eventPublisher.post(typeCEvent)
@@ -130,6 +143,8 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber2, is(null)}
         waitForAssert {assertThat receivedEvent_TopicBasedSubscriber3, not(null)}
         assertThat receivedEvent_TopicBasedSubscriber3.getType(), is(EVENT_TYPE_C)
+        waitForAssert {assertThat receivedEvent_allEventTypesSubscriber4, not(null)}
+        assertThat receivedEvent_allEventTypesSubscriber4.getType(), is(EVENT_TYPE_C)
     }
 
     @Test
@@ -215,5 +230,6 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
         receivedEvent_TypeBasedSubscriber1 = null
         receivedEvent_TypeBasedSubscriber2 = null
         receivedEvent_TopicBasedSubscriber3 = null
+        receivedEvent_allEventTypesSubscriber4 = null
     }
 }
