@@ -7,10 +7,16 @@
  */
 package org.eclipse.smarthome.core.events;
 
+/**
+ * The {@link TypedEventFilter} is a default Eclipse SmartHome {@link EventFilter} implementation that ensures filtering
+ * of events based on an event type.
+ * 
+ * @author Stefan Bußweiler - Initial contribution
+ */
 public class TypedEventFilter implements EventFilter {
 
-    private final String eventType; 
-    
+    private final String eventType;
+
     public TypedEventFilter(String eventType) {
         this.eventType = eventType;
     }

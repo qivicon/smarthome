@@ -16,23 +16,22 @@ import java.util.Set;
  * @author Stefan Bußweiler - Initial contribution
  */
 public interface EventSubscriber {
-    
+
     public static String ALL_EVENT_TYPES = "ALL";
-    
+
     /**
-     * Gets the event types to which the event subscriber has subscribed.
+     * Gets the event types to which the event subscriber is subscribed to.
      * 
      * @return subscribed event types
      */
     Set<String> getSubscribedEventTypes();
 
     /**
-     * Gets an {@link EventFilter}.
+     * Gets an {@link EventFilter} in order to receive specific events if the filter applies.
      * 
      * @return the event filter
      */
-    EventFilter getEventFilter(); 
-    
+    EventFilter getEventFilter();
 
     /**
      * Callback method for receiving {@link Event}s from the Eclipse SmartHome event bus.

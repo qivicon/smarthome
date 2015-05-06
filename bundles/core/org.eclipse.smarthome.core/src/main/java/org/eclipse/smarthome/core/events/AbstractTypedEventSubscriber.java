@@ -13,10 +13,10 @@ import com.google.common.collect.ImmutableSet;
 
 /**
  * The {@link AbstractTypedEventSubscriber} is an abstract implementation of the {@link EventSubscriber} event listener
- * interface which belongs to the Eclipse SmartHome event bus.
+ * interface.
  * 
- * This class helps to subscribe to a specific event type and provides a default filter. To receive an event, casted to
- * the specific event type, the {@link #receiveTypedEvent(T)} method must be implemented.
+ * This class helps to subscribe to a specific event type and provides the {@link TypedEventFilter}. To receive an event - casted to
+ * the specific event typ - the {@link #receiveTypedEvent(T)} method must be implemented.
  * 
  * @author Stefan Bußweiler - Initial contribution
  *

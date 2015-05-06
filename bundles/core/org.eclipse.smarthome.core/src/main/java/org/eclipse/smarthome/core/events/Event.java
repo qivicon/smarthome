@@ -8,8 +8,8 @@
 package org.eclipse.smarthome.core.events;
 
 /**
- * SmartHome {@link Event} objects are delivered through the Eclipse SmartHome event bus to {@link EventSubscriber}
- * implementations which subscribe to the topic of the event.
+ * {@link Event} objects are delivered by the {@link EventPublisher} through the Eclipse SmartHome event bus.
+ * The callback interface {@link EventSubscriber} can be implemented in order to receive such events.
  * 
  * @author Stefan Bußweiler - Initial contribution
  */
@@ -30,7 +30,7 @@ public interface Event {
     String getTopic();
 
     /**
-     * Gets the event as an serialized string.
+     * Gets the payload as a serialized string.
      * 
      * @return the serialized event
      */

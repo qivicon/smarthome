@@ -8,14 +8,15 @@
 package org.eclipse.smarthome.core.events;
 
 /**
- * {@link EventFilter}s can be used for filtering {@ Event}s. 
+ * An {@link EventFilter} can be provided by an {@link EventSubscriber} in order
+ * to receive specific {@link Event}s by an {@link EventPublisher} if the filter applies.
  * 
  * @author Stefan Bußweiler - Initial contribution
  */
 public interface EventFilter {
-    
+
     /**
-     * Apply the filter on an event. 
+     * Apply the filter on an event.
      * 
      * @param event the event
      * @return true if the filter criterion applies
