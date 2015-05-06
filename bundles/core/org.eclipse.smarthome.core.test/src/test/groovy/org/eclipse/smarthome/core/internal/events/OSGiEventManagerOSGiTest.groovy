@@ -163,9 +163,43 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber1, is(null)}
         waitForAssert {assertThat receivedEvent_TypeBasedSubscriber2, is(null)}
     }
+    
+    @Test
+    public void 'OSGiEventManager validates events before posted'() {
+        try {
+            eventPublisher.postEvent(null)
+        } catch(IllegalArgumentException e) {
+            assertThat e.getMessage(), is("Argument 'event' must not be null.")
+        }
+
+        Event event = createEvent(null, "{a: 'A', b: 'B'}", "smarthome/some/topic")
+        try {
+            eventPublisher.postEvent(event)
+        } catch(IllegalArgumentException e) {
+            assertThat e.getMessage(), is("The type of the 'event' argument must not be null or empty.")
+        }
+
+        event = createEvent(EVENT_TYPE_A, null, "smarthome/some/topic")
+        try {
+            eventPublisher.postEvent(event)
+        } catch(IllegalArgumentException e) {
+            assertThat e.getMessage(), is("The payload of the 'event' argument must not be null or empty.")
+        }
+
+        event = createEvent(EVENT_TYPE_A, "{a: 'A', b: 'B'}", null)
+        try {
+            eventPublisher.postEvent(event)
+        } catch(IllegalArgumentException e) {
+            assertThat e.getMessage(), is("The topic of the 'event' argument must not be null or empty.")
+        }
+    }
 
     private Event createEvent(String eventType) {
-        [ getType: { eventType }, getPayload: { "{a: 'A', b: 'B'}" }, getTopic: { "smarthome/some/topic" } ] as Event
+        createEvent(eventType, "{a: 'A', b: 'B'}", "smarthome/some/topic")
+    }
+    
+    private Event createEvent(String eventType, String payload, String topic) {
+        [ getType: { eventType }, getPayload: { payload }, getTopic: { topic } ] as Event
     }
 
     private void registerService(String key, Class clazz, Object serviceObject) {
