@@ -23,6 +23,8 @@ import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 
@@ -39,6 +41,8 @@ import com.google.common.collect.Sets;
  * @author Stefan Bußweiler - Initial contribution
  */
 public class OSGiEventManager implements EventHandler, EventPublisher {
+
+    private Logger logger = LoggerFactory.getLogger(OSGiEventManager.class);
 
     private EventAdmin osgiEventAdmin;
 
@@ -112,7 +116,12 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
             String payloadStr = (String) payloadObj;
             String topicStr = (String) topicObj;
             if (!typeStr.isEmpty() && !payloadStr.isEmpty() && !topicStr.isEmpty()) {
-                dispatchAsESHEvent(typeStr, payloadStr, topicStr);
+                try {
+                    dispatchAsESHEvent(typeStr, payloadStr, topicStr);
+                } catch (Exception e) {
+                    logger.debug("Dispatching of ESH-Event in OSGiEventManager failed, "
+                            + "because one of the registered factory/subscriber has thrown an exception.", e);
+                }
             }
         }
     }
