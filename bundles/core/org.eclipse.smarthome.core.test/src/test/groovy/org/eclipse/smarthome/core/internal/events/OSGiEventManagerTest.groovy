@@ -7,11 +7,11 @@ import org.junit.Test
 import org.eclipse.smarthome.core.events.Event
 
 
-class OSGiEventHandlerTest {
+class OSGiEventManagerTest {
 
     @Test
     public void 'OSGiEventHandler validates events before posted'() {
-        OSGiEventHandler eventHandler = new OSGiEventHandler();
+        OSGiEventManager eventHandler = new OSGiEventManager();
 
         try {
             eventHandler.postEvent(null)
