@@ -16,7 +16,9 @@ package org.eclipse.smarthome.core.events;
 public interface EventFilter {
 
     /**
-     * Apply the filter on an event.
+     * Apply the filter on an event. <p> This method is called for each subscribed {@link Event} of an
+     * {@link EventSubscriber}. If the filter applies, the event will be dispatched to the
+     * {@link EventSubscriber#receive(Event)} method.
      * 
      * @param event the event
      * @return true if the filter criterion applies

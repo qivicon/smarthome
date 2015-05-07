@@ -17,6 +17,10 @@ import java.util.Set;
  */
 public interface EventSubscriber {
 
+    /**
+     * The constant {@link #ALL_EVENT_TYPES} must be returned by the {@link #getSubscribedEventTypes()} method, if the
+     * event subscriber should subscribe to all event types.
+     */
     public static String ALL_EVENT_TYPES = "ALL";
 
     /**
@@ -27,14 +31,16 @@ public interface EventSubscriber {
     Set<String> getSubscribedEventTypes();
 
     /**
-     * Gets an {@link EventFilter} in order to receive specific events if the filter applies.
+     * Gets an {@link EventFilter} in order to receive specific events if the filter applies. If there is no
+     * filter all subscribed event types are received.
      * 
-     * @return the event filter
+     * @return the event filter, or null
      */
     EventFilter getEventFilter();
 
     /**
-     * Callback method for receiving {@link Event}s from the Eclipse SmartHome event bus.
+     * Callback method for receiving {@link Event}s from the Eclipse SmartHome event bus. This method is called for
+     * every event where the event subscriber is subscribed to and the event filter applies.
      * 
      * @param event the received event
      */

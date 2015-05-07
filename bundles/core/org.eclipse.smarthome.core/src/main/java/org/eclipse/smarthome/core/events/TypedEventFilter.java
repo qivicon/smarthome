@@ -17,6 +17,11 @@ public class TypedEventFilter implements EventFilter {
 
     private final String eventType;
 
+    /**
+     * Constructs a new typed event filter.
+     * 
+     * @param eventType the event type
+     */
     public TypedEventFilter(String eventType) {
         this.eventType = eventType;
     }

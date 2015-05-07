@@ -26,6 +26,11 @@ public abstract class AbstractTypedEventSubscriber<T extends Event> implements E
 
     private final String eventType;
 
+    /**
+     * Constructs a new typed event subscriber. Must be called in the subclass.
+     * 
+     * @param eventType the event type
+     */
     public AbstractTypedEventSubscriber(String eventType) {
         this.eventType = eventType;
     }
@@ -46,6 +51,11 @@ public abstract class AbstractTypedEventSubscriber<T extends Event> implements E
         receiveTypedEvent((T) event);
     }
 
+    /**
+     * Callback method for receiving typed events of type T.
+     * 
+     * @param event the received event
+     */
     protected abstract void receiveTypedEvent(T event);
 
 }

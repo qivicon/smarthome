@@ -17,6 +17,11 @@ public class TopicEventFilter implements EventFilter {
 
     private final String topicRegex;
     
+    /**
+     * Constructs a new topic event filter.
+     * 
+     * @param topicRegex the regular expression of a topic
+     */
     public TopicEventFilter(String topicRegex) {
         this.topicRegex = topicRegex;
     }
