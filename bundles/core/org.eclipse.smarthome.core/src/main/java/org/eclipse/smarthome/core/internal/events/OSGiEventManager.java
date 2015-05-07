@@ -117,13 +117,10 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
             String payloadStr = (String) payloadObj;
             String topicStr = (String) topicObj;
             if (!typeStr.isEmpty() && !payloadStr.isEmpty() && !topicStr.isEmpty()) {
-                try {
-                    dispatchAsESHEvent(typeStr, payloadStr, topicStr);
-                } catch (Exception e) {
-                    logger.debug("Dispatching of ESH-Event in OSGiEventManager failed, "
-                            + "because one of the registered factory/subscriber has thrown an exception.", e);
-                }
+                dispatchAsESHEvent(typeStr, payloadStr, topicStr);
             }
+        } else {
+            logger.error("The handled OSGi event is invalid. Received event: {}", osgiEvent);
         }
     }
 
@@ -132,14 +129,26 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         Set<EventSubscriber> eventSubscribers = getEventSubscribers(type);
 
         if (eventFactory != null && !eventSubscribers.isEmpty()) {
-            Event eshEvent = eventFactory.createEvent(type, topic, payload);
-
-            for (EventSubscriber eventSubscriber : eventSubscribers) {
-                EventFilter filter = eventSubscriber.getEventFilter();
-                if (filter == null) {
-                    eventSubscriber.receive(eshEvent);
-                } else if (filter.apply(eshEvent)) {
-                    eventSubscriber.receive(eshEvent);
+            Event eshEvent = null;
+            try {
+                eshEvent = eventFactory.createEvent(type, topic, payload);
+            } catch (Exception e) {
+                logger.error("Creation of ESH-Event failed, "
+                        + "because one of the registered event factories has thrown an exception.", e);
+            }
+            if (eshEvent != null) {
+                for (EventSubscriber eventSubscriber : eventSubscribers) {
+                    try {
+                        EventFilter filter = eventSubscriber.getEventFilter();
+                        if (filter == null) {
+                            eventSubscriber.receive(eshEvent);
+                        } else if (filter.apply(eshEvent)) {
+                            eventSubscriber.receive(eshEvent);
+                        }
+                    } catch (Exception e) {
+                        logger.error("Dispatching/filtering of ESH-Event failed, "
+                                + "because one of the registered subscriber/filter has thrown an exception.", e);
+                    }
                 }
             }
         }
