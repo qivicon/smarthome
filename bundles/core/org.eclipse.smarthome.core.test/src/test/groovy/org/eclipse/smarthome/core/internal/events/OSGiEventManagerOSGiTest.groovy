@@ -183,6 +183,7 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
     public void 'OSGiEventManager validates events before posted'() {
         try {
             eventPublisher.post(null)
+            fail("IllegalArgumentException expected!")
         } catch(IllegalArgumentException e) {
             assertThat e.getMessage(), is("Argument 'event' must not be null.")
         }
@@ -190,6 +191,7 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
         Event event = createEvent(null, "{a: 'A', b: 'B'}", "smarthome/some/topic")
         try {
             eventPublisher.post(event)
+            fail("IllegalArgumentException expected!")
         } catch(IllegalArgumentException e) {
             assertThat e.getMessage(), is("The type of the 'event' argument must not be null or empty.")
         }
@@ -197,6 +199,7 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
         event = createEvent(EVENT_TYPE_A, null, "smarthome/some/topic")
         try {
             eventPublisher.post(event)
+            fail("IllegalArgumentException expected!")
         } catch(IllegalArgumentException e) {
             assertThat e.getMessage(), is("The payload of the 'event' argument must not be null or empty.")
         }
@@ -204,6 +207,7 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
         event = createEvent(EVENT_TYPE_A, "{a: 'A', b: 'B'}", null)
         try {
             eventPublisher.post(event)
+            fail("IllegalArgumentException expected!")
         } catch(IllegalArgumentException e) {
             assertThat e.getMessage(), is("The topic of the 'event' argument must not be null or empty.")
         }
