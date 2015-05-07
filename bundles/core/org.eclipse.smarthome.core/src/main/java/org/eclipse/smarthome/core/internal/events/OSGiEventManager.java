@@ -27,7 +27,9 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.SetMultimap;
 
 /**
  * The {@link OSGiEventManager} provides an OSGi based default implementation of the Eclipse SmartHome event bus.
@@ -49,7 +51,8 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
 
     private final Map<String, EventFactory> typedEventFactoryCache = new ConcurrentHashMap<String, EventFactory>();
 
-    private final Map<String, Set<EventSubscriber>> typedEventSubscriberCache = new ConcurrentHashMap<String, Set<EventSubscriber>>();
+    private final SetMultimap<String, EventSubscriber> typedEventSubscriberCache = Multimaps
+            .synchronizedSetMultimap(HashMultimap.<String, EventSubscriber> create());
 
     protected void setEventAdmin(EventAdmin eventAdmin) {
         this.osgiEventAdmin = eventAdmin;
@@ -63,8 +66,10 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         Set<String> supportedEventTypes = eventFactory.getSupportedEventTypes();
 
         for (String supportedEventType : supportedEventTypes) {
-            if (!typedEventFactoryCache.containsKey(supportedEventType)) {
-                typedEventFactoryCache.put(supportedEventType, eventFactory);
+            synchronized (this) {
+                if (!typedEventFactoryCache.containsKey(supportedEventType)) {
+                    typedEventFactoryCache.put(supportedEventType, eventFactory);
+                }
             }
         }
     }
@@ -73,9 +78,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         Set<String> supportedEventTypes = eventFactory.getSupportedEventTypes();
 
         for (String supportedEventType : supportedEventTypes) {
-            if (typedEventFactoryCache.containsKey(supportedEventType)) {
-                typedEventFactoryCache.remove(supportedEventType);
-            }
+            typedEventFactoryCache.remove(supportedEventType);
         }
     }
 
@@ -83,13 +86,10 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
 
         for (String subscribedEventType : subscribedEventTypes) {
-            if (typedEventSubscriberCache.containsKey(subscribedEventType)) {
-                Set<EventSubscriber> cachedEventSubscribers = typedEventSubscriberCache.get(subscribedEventType);
-                if (!cachedEventSubscribers.contains(eventSubscriber)) {
-                    cachedEventSubscribers.add(eventSubscriber);
+            synchronized (this) {
+                if (!typedEventSubscriberCache.containsEntry(subscribedEventType, eventSubscriber)) {
+                    typedEventSubscriberCache.put(subscribedEventType, eventSubscriber);
                 }
-            } else {
-                typedEventSubscriberCache.put(subscribedEventType, Sets.newHashSet(eventSubscriber));
             }
         }
     }
@@ -98,11 +98,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
 
         for (String subscribedEventType : subscribedEventTypes) {
-            Set<EventSubscriber> cachedEventSubscribers = typedEventSubscriberCache.get(subscribedEventType);
-            cachedEventSubscribers.remove(eventSubscriber);
-            if (cachedEventSubscribers.isEmpty()) {
-                typedEventSubscriberCache.remove(subscribedEventType);
-            }
+            typedEventSubscriberCache.remove(subscribedEventType, eventSubscriber);
         }
     }
 
