@@ -12,7 +12,10 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener
+import org.eclipse.smarthome.core.events.EventFactory;
 import org.eclipse.smarthome.core.events.EventPublisher
+import org.eclipse.smarthome.core.events.EventSubscriber;
+import org.eclipse.smarthome.core.events.TypedEventFilter
 import org.eclipse.smarthome.core.library.types.DecimalType
 import org.eclipse.smarthome.core.library.types.StringType
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -31,6 +34,8 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
+import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
+import org.eclipse.smarthome.core.thing.events.ThingStatusInfoEvent;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
 import org.eclipse.smarthome.core.types.State
@@ -41,6 +46,8 @@ import org.junit.Test
 import org.osgi.service.event.Event
 import org.osgi.service.event.EventConstants
 import org.osgi.service.event.EventHandler
+
+import com.google.common.collect.Sets;
 
 class ThingManagerOSGiTest extends OSGiTest {
 
@@ -383,5 +390,77 @@ class ThingManagerOSGiTest extends OSGiTest {
         } finally {
             thingRegistry.removeRegistryChangeListener(registryChangeListener)
         }
+    }
+    
+    @Test
+    void 'ThingManager posts thing status events if the status of a thing is updated'() {
+        ThingHandlerCallback callback
+        ThingStatusInfoEvent receivedEvent
+        
+        def thingHandler = [
+            setCallback: {callbackArg ->
+                callback = callbackArg
+            }
+        ] as ThingHandler
+        
+        def thingHandlerFactory = [
+            supportsThingType: {ThingTypeUID thingTypeUID -> true},
+            registerHandler: {thing, handlerCallback ->
+                registerService(thingHandler,[
+                    (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
+                    (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
+                ] as Hashtable)}
+        ] as ThingHandlerFactory
+        registerService(thingHandlerFactory)
+        
+        def thingStatusEventSubscriber = [
+            receive: { event -> receivedEvent = event as ThingStatusInfoEvent },
+            getSubscribedEventTypes: { Sets.newHashSet(ThingStatusInfoEvent.TYPE) },
+            getEventFilter: { new TypedEventFilter(ThingStatusInfoEvent.TYPE) },
+        ] as EventSubscriber
+        registerService(thingStatusEventSubscriber)
+        
+        // set status to INITIALIZING
+        def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build()
+        ThingStatusInfoEvent event = ThingEventFactory.createThingStatusInfoEvent(THING.getUID(), statusInfo)
+        managedThingProvider.add(THING)
+        
+        waitForAssert {assertThat receivedEvent, not(null)}
+        assertThat receivedEvent.getType(), is(event.getType())
+        assertThat receivedEvent.getPayload(), is(event.getPayload())
+        assertThat receivedEvent.getTopic(), is(event.getTopic())
+        receivedEvent = null
+        
+        // set status to ONLINE
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
+        event = ThingEventFactory.createThingStatusInfoEvent(THING.getUID(), statusInfo)
+        callback.statusUpdated(THING, statusInfo)
+        
+        waitForAssert {assertThat receivedEvent, not(null)}
+        assertThat receivedEvent.getType(), is(event.getType())
+        assertThat receivedEvent.getPayload(), is(event.getPayload())
+        assertThat receivedEvent.getTopic(), is(event.getTopic())
+        receivedEvent = null
+
+        // set status to OFFLINE
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR).build()
+        event = ThingEventFactory.createThingStatusInfoEvent(THING.getUID(), statusInfo)
+        callback.statusUpdated(THING, statusInfo)
+        
+        waitForAssert {assertThat receivedEvent, not(null)}
+        assertThat receivedEvent.getType(), is(event.getType())
+        assertThat receivedEvent.getPayload(), is(event.getPayload())
+        assertThat receivedEvent.getTopic(), is(event.getTopic())
+        receivedEvent = null
+        
+        // set status to UNINITIALIZED
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR).build()
+        event = ThingEventFactory.createThingStatusInfoEvent(THING.getUID(), statusInfo)
+        unregisterService(THING.getHandler())
+        
+        waitForAssert {assertThat receivedEvent, not(null)}
+        assertThat receivedEvent.getType(), is(event.getType())
+        assertThat receivedEvent.getPayload(), is(event.getPayload())
+        assertThat receivedEvent.getTopic(), is(event.getTopic())
     }
 }
