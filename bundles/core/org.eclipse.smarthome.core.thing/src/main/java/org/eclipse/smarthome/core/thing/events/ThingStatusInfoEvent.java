@@ -11,8 +11,17 @@ import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
+/**
+ * {@link ThingStatusInfoEvent}s will be delivered through the Eclipse SmartHome event bus if the status of a thing has
+ * changed. Thing status info objects can be created with the {@link ThingEventFactory}.
+ * 
+ * @author Stefan Bußweiler - Initial contribution
+ */
 public class ThingStatusInfoEvent implements Event {
 
+    /**
+     * The thing status event type.
+     */
     public final static String TYPE = ThingStatusInfoEvent.class.getSimpleName();
 
     private final String topic;
@@ -23,6 +32,14 @@ public class ThingStatusInfoEvent implements Event {
 
     private final ThingStatusInfo thingStatusInfo;
 
+    /**
+     * Creates a new thing status event object.
+     * 
+     * @param topic the topic
+     * @param payload the payload
+     * @param thingUID the thing UID
+     * @param thingStatusInfo the thing status info object
+     */
     public ThingStatusInfoEvent(String topic, String payload, ThingUID thingUID, ThingStatusInfo thingStatusInfo) {
         this.topic = topic;
         this.payload = payload;
@@ -45,10 +62,19 @@ public class ThingStatusInfoEvent implements Event {
         return payload;
     }
 
+    /**
+     * Gets the thing UID.
+     * 
+     * @return the thing UID
+     */
     public ThingUID getThingUID() {
         return thingUID;
     }
 
+    /**
+     * Gets the thing 
+     * @return
+     */
     public ThingStatusInfo getStatusInfo() {
         return thingStatusInfo;
     }

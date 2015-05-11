@@ -11,29 +11,49 @@ import java.util.Set;
 
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFactory;
+import org.eclipse.smarthome.core.events.Topic;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 
+/**
+ * A {@link ThingEventFactory} is responsible for creating thing event instances, e.g. {@link ThingStatusInfoEvent}s.
+ * 
+ * @author Stefan Bußweiler - Initial contribution
+ */
 public class ThingEventFactory implements EventFactory {
-
-    private static final String THING_STATUS_INFO_EVENT_TOPIC = "smarthome/things/{thingUID}/status";
 
     private final Set<String> supportedEventTypes = ImmutableSet.of(ThingStatusInfoEvent.TYPE);
 
+    private static final Gson jsonConverter = new Gson();
+
     @Override
-    public Event createEvent(String eventType, String topic, String payload) {
-        Event event = null;
-        if (supportedEventTypes.contains(eventType)) {
-            if (eventType.equals(ThingStatusInfoEvent.TYPE)) {
-                ThingStatusInfo thingStatusInfo = new Gson().fromJson(payload, ThingStatusInfo.class);
-                ThingUID thingUID = new ThingUID(getTopicElement(topic, 2));
-                event = new ThingStatusInfoEvent(topic, payload, thingUID, thingStatusInfo);
-            }
+    public Event createEvent(String eventType, String topic, String payload) throws Exception {
+        checkArguments(eventType, topic, payload);
+        if (eventType.equals(ThingStatusInfoEvent.TYPE)) {
+            return createThingStatusInfoEvent(eventType, topic, payload);
+        } else {
+            throw new IllegalArgumentException("The event type '" + eventType + "' is not supported by this factory.");
         }
-        return event;
+    }
+
+    private void checkArguments(String eventType, String topic, String payload) {
+        Preconditions.checkArgument(eventType != null && !eventType.isEmpty(),
+                "The argument 'eventType' must not be null or empty.");
+        Preconditions.checkArgument(topic != null && !topic.isEmpty(),
+                "The argument 'topic' must not be null or empty.");
+        Preconditions.checkArgument(payload != null && !payload.isEmpty(),
+                "The argument 'payload' must not be null or empty.");
+    }
+
+    private Event createThingStatusInfoEvent(String eventType, String topic, String payload) throws Exception {
+        Topic topicObj = new Topic(topic);
+        ThingUID thingUID = new ThingUID(topicObj.getEntityId());
+        ThingStatusInfo thingStatusInfo = jsonConverter.fromJson(payload, ThingStatusInfo.class);
+        return new ThingStatusInfoEvent(topic, payload, thingUID, thingStatusInfo);
     }
 
     @Override
@@ -41,19 +61,23 @@ public class ThingEventFactory implements EventFactory {
         return supportedEventTypes;
     }
 
+    /**
+     * Creates a new thing status info event based on a thing UID and a thing status info object.
+     * 
+     * @param thingUID the thing UID
+     * @param thingStatusInfo the thing status info object
+     * @return the created thing status info event
+     */
     public static ThingStatusInfoEvent createThingStatusInfoEvent(ThingUID thingUID, ThingStatusInfo thingStatusInfo) {
-        String topic = buildThingStatusTopic(thingUID);
-        String payload = new Gson().toJson(thingStatusInfo);
-        return new ThingStatusInfoEvent(topic, payload, thingUID, thingStatusInfo);
+        checkArguments(thingUID, thingStatusInfo);
+        Topic topicObj = new Topic("smarthome", "things", thingUID.getAsString(), "status");
+        String payload = jsonConverter.toJson(thingStatusInfo);
+        return new ThingStatusInfoEvent(topicObj.getAsString(), payload, thingUID, thingStatusInfo);
     }
 
-    private String getTopicElement(String topic, int position) {
-        String segments[] = topic.split("/");
-        return (segments.length > position) ? segments[position] : null;
-    }
-
-    private static String buildThingStatusTopic(ThingUID thingUID) {
-        return THING_STATUS_INFO_EVENT_TOPIC.replace("{thingUID}", thingUID.getAsString());
+    private static void checkArguments(ThingUID thingUID, ThingStatusInfo thingStatusInfo) {
+        Preconditions.checkArgument(thingUID != null, "The argument 'thingUID' must not be null.");
+        Preconditions.checkArgument(thingStatusInfo != null, "The argument 'thingStatusInfo' must not be null.");
     }
 
 }
