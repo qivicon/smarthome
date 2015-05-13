@@ -1,36 +1,79 @@
+/**
+ * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.eclipse.smarthome.core.items.events;
 
-import org.eclipse.smarthome.core.events.Event;
-import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.events.AbstractEvent;
 import org.eclipse.smarthome.core.types.Command;
 
-public class ItemCommandEvent implements Event {
+/**
+ * {@link ItemCommandEvent}s can be used to deliver commands through the Eclipse SmartHome event bus.
+ * Command events can be created with the {@link ItemEventFactory}.
+ * 
+ * @author Stefan Bußweiler - Initial contribution
+ */
+public class ItemCommandEvent extends AbstractEvent {
+
+    /**
+     * The item command event type.
+     */
+    public final static String TYPE = ItemCommandEvent.class.getSimpleName();
+
+    private final String itemName;
+
+    private final Command command;
+
+    private final String source;
+
+    /**
+     * Constructs a new item command event object.
+     * 
+     * @param topic the topic
+     * @param payload the payload
+     * @param itemName the item name
+     * @param command the command
+     */
+    public ItemCommandEvent(String topic, String payload, String itemName, Command command, String source) {
+        super(topic, payload);
+        this.itemName = itemName;
+        this.command = command;
+        this.source = source;
+    }
 
     @Override
     public String getType() {
-        return ItemCommandEvent.class.getName();
+        return TYPE;
     }
 
-    @Override
-    public String getTopic() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-    
-    @Override
-    public String getPayload() {
-        // TODO Auto-generated method stub
-        return null;
+    /**
+     * Gets the item name.
+     * 
+     * @return the item name
+     */
+    public String getItemName() {
+        return itemName;
     }
 
-    public Item getItemName() {
-        // TODO
-        return null;
-    }
-
+    /**
+     * Gets the item command.
+     * 
+     * @return the item command
+     */
     public Command getItemCommand() {
-        // TODO
-        return null;
+        return command;
     }
-    
+
+    /**
+     * Gets the source of the item command.
+     * 
+     * @return the source
+     */
+    public String getSource() {
+        return source;
+    }
+
 }
