@@ -62,40 +62,6 @@ class ItemEventFactoryTests {
     }
 
     @Test
-    void 'ItemEventFactory creates Event as ItemCommandEvent (type HSBType) correctly'() {
-        HSBType command = new HSBType(new DecimalType(90), new PercentType(80), new PercentType(70));
-        String payload = new Gson().toJson(new ItemEventPayloadBean(ITEM_NAME, command.getClass().getName(), command.toString(), SOURCE))
-
-        Event event = factory.createEvent(ITEM_COMMAND_TYPE, ITEM_COMMAND_TOPIC, payload)
-
-        assertThat event, is(instanceOf(ItemCommandEvent))
-        ItemCommandEvent itemCommandEvent = event as ItemCommandEvent
-        assertThat itemCommandEvent.getType(), is(ITEM_COMMAND_TYPE)
-        assertThat itemCommandEvent.getTopic(), is(ITEM_COMMAND_TOPIC)
-        assertThat itemCommandEvent.getPayload(), is(payload)
-        assertThat itemCommandEvent.getItemName(), is(ITEM_NAME)
-        assertThat itemCommandEvent.getSource(), is(SOURCE)
-        assertThat itemCommandEvent.getItemCommand(), is(instanceOf(HSBType))
-        assertThat itemCommandEvent.getItemCommand(), is(command)
-    }
-
-    @Test
-    void 'ItemEventFactory creates ItemCommandEvent (type HSBType) correctly'() {
-        HSBType command = new HSBType(new DecimalType(90), new PercentType(80), new PercentType(70));
-        String payload = new Gson().toJson(new ItemEventPayloadBean(ITEM_NAME, command.getClass().getName(), command.toString(), SOURCE))
-
-        ItemCommandEvent event = ItemEventFactory.createItemCommandEvent(ITEM_NAME, command, SOURCE)
-
-        assertThat event.getType(), is(ITEM_COMMAND_TYPE)
-        assertThat event.getTopic(), is(ITEM_COMMAND_TOPIC)
-        assertThat event.getPayload(), is(payload)
-        assertThat event.getItemName(), is(ITEM_NAME)
-        assertThat event.getSource(), is(SOURCE)
-        assertThat event.getItemCommand(), is(instanceOf(HSBType))
-        assertThat event.getItemCommand(), is(command)
-    }
-
-    @Test
     void 'ItemEventFactory creates Event as ItemUpdateEvent (type OnOffType) correctly'() {
         OnOffType state = OnOffType.ON
         String payload = new Gson().toJson(new ItemEventPayloadBean(ITEM_NAME, state.getClass().getName(), state.toString(), SOURCE))
@@ -111,6 +77,22 @@ class ItemEventFactoryTests {
         assertThat itemUpdateEvent.getSource(), is(SOURCE)
         assertThat itemUpdateEvent.getItemState(), is(instanceOf(OnOffType))
         assertThat itemUpdateEvent.getItemState(), is(state)
+    }
+
+    @Test
+    void 'ItemEventFactory creates ItemUpdateEvent (type OnOffType) correctly'() {
+        OnOffType state = OnOffType.ON
+        String payload = new Gson().toJson(new ItemEventPayloadBean(ITEM_NAME, state.getClass().getName(), state.toString(), SOURCE))
+
+        ItemUpdateEvent event = ItemEventFactory.createItemUpdateEvent(ITEM_NAME, state, SOURCE)
+
+        assertThat event.getType(), is(ITEM_UPDATE_TYPE)
+        assertThat event.getTopic(), is(ITEM_UPDATE_TOPIC)
+        assertThat event.getPayload(), is(payload)
+        assertThat event.getItemName(), is(ITEM_NAME)
+        assertThat event.getSource(), is(SOURCE)
+        assertThat event.getItemState(), is(instanceOf(OnOffType))
+        assertThat event.getItemState(), is(state)
     }
 
     @Test
