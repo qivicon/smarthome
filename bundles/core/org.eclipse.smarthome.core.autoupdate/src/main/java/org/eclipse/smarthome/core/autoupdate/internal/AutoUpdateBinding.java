@@ -8,18 +8,25 @@
 package org.eclipse.smarthome.core.autoupdate.internal;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
-import org.eclipse.smarthome.core.events.AbstractEventSubscriber;
+import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * <p>
@@ -34,8 +41,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Thomas.Eichstaedt-Engelen - Initial contribution
  * @author Kai Kreuzer - added sending real events
+ * @author Stefan Bußweiler - Migration to new ESH event concept
  */
-public class AutoUpdateBinding extends AbstractEventSubscriber {
+public class AutoUpdateBinding implements EventSubscriber {
 
     private final Logger logger = LoggerFactory.getLogger(AutoUpdateBinding.class);
 
@@ -69,6 +77,24 @@ public class AutoUpdateBinding extends AbstractEventSubscriber {
     public void unsetItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = null;
     }
+    
+    @Override
+    public Set<String> getSubscribedEventTypes() {
+        return ImmutableSet.of(ItemCommandEvent.TYPE);
+    }
+
+    @Override
+    public EventFilter getEventFilter() {
+        return null;
+    }
+
+    @Override
+    public void receive(Event event) {
+        if(event instanceof ItemCommandEvent) {
+            ItemCommandEvent itemCommandEvent = (ItemCommandEvent) event;
+            receiveCommand(itemCommandEvent.getItemName(), itemCommandEvent.getItemCommand());
+        }
+    }
 
     /**
      * <p>
@@ -86,7 +112,6 @@ public class AutoUpdateBinding extends AbstractEventSubscriber {
      * @param command the command being received and posted as {@link State} update if <code>command</code> is instance
      *            of {@link State} as well.
      */
-    @Override
     public void receiveCommand(String itemName, Command command) {
         Boolean autoUpdate = null;
         for (AutoUpdateBindingConfigProvider provider : providers) {
@@ -134,8 +159,8 @@ public class AutoUpdateBinding extends AbstractEventSubscriber {
                     }
                 }
                 if (isAccepted) {
-                    // old EventPublisher method, not supported anymore
-                    // eventPublisher.postUpdate(itemName, newState, "org.eclipse.smarthome.core.autoupdate");
+                    eventPublisher.post(ItemEventFactory.createItemUpdateEvent(itemName, newState,
+                            "org.eclipse.smarthome.core.autoupdate"));
                 } else {
                     logger.debug("Received update of a not accepted type (" + newState.getClass().getSimpleName()
                             + ") for item " + itemName);
