@@ -106,6 +106,18 @@ public class ItemEventFactory implements EventFactory {
     }
 
     /**
+     * Creates an item command event.
+     * 
+     * @param itemName the name of the item to send the command for
+     * @param command the command to send
+     * 
+     * @return the created item command event
+     */
+    public static ItemCommandEvent createItemCommandEvent(String itemName, Command command) {
+        return createItemCommandEvent(itemName, command, null);
+    }
+
+    /**
      * Creates an item update event.
      * 
      * @param itemName the name of the item to send the update for
@@ -121,6 +133,18 @@ public class ItemEventFactory implements EventFactory {
                 source);
         String payload = jsonConverter.toJson(bean);
         return new ItemUpdateEvent(topicObj.getAsString(), payload, itemName, state, source);
+    }
+
+    /**
+     * Creates an item update event.
+     * 
+     * @param itemName the name of the item to send the update for
+     * @param state the new state to send
+     * 
+     * @return the created item update event
+     */
+    public static ItemUpdateEvent createItemUpdateEvent(String itemName, State state) {
+        return createItemUpdateEvent(itemName, state, null);
     }
 
     private static void checkArguments(String itemName, Type type, String typeArgumentName) {
