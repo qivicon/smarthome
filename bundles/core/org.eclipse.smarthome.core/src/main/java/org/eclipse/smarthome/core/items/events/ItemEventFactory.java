@@ -15,6 +15,7 @@ import org.eclipse.smarthome.core.events.EventFactory;
 import org.eclipse.smarthome.core.events.Topic;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.Type;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -96,7 +97,7 @@ public class ItemEventFactory implements EventFactory {
      * @return the created item command event
      */
     public static ItemCommandEvent createItemCommandEvent(String itemName, Command command, String source) {
-        // TODO check arguments: source can be null
+        checkArguments(itemName, command, "command");
         Topic topicObj = new Topic("smarthome", "items", itemName, "command");
         ItemEventPayloadBean bean = new ItemEventPayloadBean(itemName, command.getClass().getName(),
                 command.toString(), source);
@@ -114,12 +115,18 @@ public class ItemEventFactory implements EventFactory {
      * @return the created item update event
      */
     public static ItemUpdateEvent createItemUpdateEvent(String itemName, State state, String source) {
-        // TODO check arguments: source can be null
+        checkArguments(itemName, state, "state");
         Topic topicObj = new Topic("smarthome", "items", itemName, "update");
         ItemEventPayloadBean bean = new ItemEventPayloadBean(itemName, state.getClass().getName(), state.toString(),
                 source);
         String payload = jsonConverter.toJson(bean);
         return new ItemUpdateEvent(topicObj.getAsString(), payload, itemName, state, source);
+    }
+
+    private static void checkArguments(String itemName, Type type, String typeArgumentName) {
+        Preconditions.checkArgument(itemName != null && !itemName.isEmpty(),
+                "The argument 'itemName' must not be null or empty.");
+        Preconditions.checkArgument(type != null, "The argument '" + typeArgumentName + "' must not be null or empty.");
     }
 
     /**
