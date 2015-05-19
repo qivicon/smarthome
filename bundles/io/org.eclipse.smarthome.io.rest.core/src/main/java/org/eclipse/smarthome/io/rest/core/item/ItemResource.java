@@ -39,6 +39,7 @@ import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -70,6 +71,7 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Added methods for item management
  * @author Andre Fuechsel - Added tag support
  * @author Chris Jackson - Added method to write complete item bean
+ * @author Stefan Bußweiler - Migration to new ESH event concept
  */
 @Path(ItemResource.PATH_ITEMS)
 public class ItemResource implements RESTResource {
@@ -162,8 +164,7 @@ public class ItemResource implements RESTResource {
             State state = TypeParser.parseState(item.getAcceptedDataTypes(), value);
             if (state != null) {
                 logger.debug("Received HTTP PUT request at '{}' with value '{}'.", uriInfo.getPath(), value);
-                // old EventPublisher method, not supported anymore
-                // eventPublisher.postUpdate(itemname, state);
+                eventPublisher.post(ItemEventFactory.createItemUpdateEvent(itemname, state));
                 return Response.ok().build();
             } else {
                 logger.warn("Received HTTP PUT request at '{}' with an invalid status value '{}'.", uriInfo.getPath(),
@@ -200,8 +201,7 @@ public class ItemResource implements RESTResource {
             }
             if (command != null) {
                 logger.debug("Received HTTP POST request at '{}' with value '{}'.", uriInfo.getPath(), value);
-                // old EventPublisher method, not supported anymore
-                // eventPublisher.postCommand(itemname, command);
+                eventPublisher.post(ItemEventFactory.createItemCommandEvent(itemname, command));
                 return Response.created(localUriInfo.getAbsolutePathBuilder().path("state").build()).build();
             } else {
                 logger.warn("Received HTTP POST request at '{}' with an invalid status value '{}'.", uriInfo.getPath(),
