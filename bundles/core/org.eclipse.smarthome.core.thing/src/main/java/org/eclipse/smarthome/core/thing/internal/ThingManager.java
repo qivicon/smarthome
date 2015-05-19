@@ -15,10 +15,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.eclipse.smarthome.core.events.AbstractEventSubscriber;
 import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.events.EventSubscriber;
+import org.eclipse.smarthome.core.events.TopicEventFilter;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
+import org.eclipse.smarthome.core.items.events.ItemUpdateEvent;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
@@ -45,6 +50,8 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSet;
+
 /**
  * {@link ThingManager} tracks all things in the {@link ThingRegistry} and
  * mediates the communication between the {@link Thing} and the {@link ThingHandler} from the binding. Therefore it
@@ -56,9 +63,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Added dynamic configuration update
- * @author Stefan Bußweiler - Added new thing status handling 
+ * @author Stefan Bußweiler - Added new thing status handling, migration to new ESH event concept 
  */
-public class ThingManager extends AbstractEventSubscriber implements ThingTracker {
+public class ThingManager implements EventSubscriber, ThingTracker {
 
     private final class ThingHandlerTracker extends ServiceTracker<ThingHandler, ThingHandler> {
 
@@ -124,8 +131,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         public void stateUpdated(ChannelUID channelUID, State state) {
             Set<String> items = itemChannelLinkRegistry.getLinkedItems(channelUID);
             for (String item : items) {
-                // old EventPublisher method, not supported anymore
-                // eventPublisher.postUpdate(item, state, channelUID.toString());
+                eventPublisher.post(ItemEventFactory.createItemUpdateEvent(item, state, channelUID.toString()));
             }
         }
         
@@ -133,8 +139,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         public void postCommand(ChannelUID channelUID, Command command) {
             Set<String> items = itemChannelLinkRegistry.getLinkedItems(channelUID);
             for (String item : items) {
-                // old EventPublisher method, not supported anymore
-                // eventPublisher.postCommand(item, command, channelUID.toString());
+                eventPublisher.post(ItemEventFactory.createItemCommandEvent(item, command, channelUID.toString()));
             }
         }
 
@@ -209,9 +214,30 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         setThingStatus(thing, statusInfo);
         thingHandler.setCallback(null);
     }
+    
+    @Override
+    public Set<String> getSubscribedEventTypes() {
+        return ImmutableSet.of(ItemCommandEvent.TYPE, ItemUpdateEvent.TYPE);
+    }
 
     @Override
-    public void receiveCommand(String itemName, Command command, String source) {
+    public EventFilter getEventFilter() {
+        return new TopicEventFilter("smarthome/.*");
+    }
+
+    @Override
+    public void receive(Event event) {
+        if (event instanceof ItemUpdateEvent) {
+            ItemUpdateEvent itemUpdateEvent = (ItemUpdateEvent) event;
+            receiveUpdate(itemUpdateEvent.getItemName(), itemUpdateEvent.getItemState(), itemUpdateEvent.getSource());
+        } else if (event instanceof ItemCommandEvent) {
+            ItemCommandEvent itemCommandEvent = (ItemCommandEvent) event;
+            receiveCommand(itemCommandEvent.getItemName(), itemCommandEvent.getItemCommand(),
+                    itemCommandEvent.getSource());
+        }
+    }
+
+    private void receiveCommand(String itemName, Command command, String source) {
         Set<ChannelUID> boundChannels = this.itemChannelLinkRegistry.getBoundChannels(itemName);
         for (ChannelUID channelUID : boundChannels) {
             // make sure a command event is not sent back to its source
@@ -241,8 +267,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         }
     }
 
-    @Override
-    public void receiveUpdate(String itemName, State newState, String source) {
+    private void receiveUpdate(String itemName, State newState, String source) {
         Set<ChannelUID> boundChannels = this.itemChannelLinkRegistry.getBoundChannels(itemName);
         for (ChannelUID channelUID : boundChannels) {
             // make sure an update event is not sent back to its source
@@ -502,7 +527,9 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     
     private void setThingStatus(Thing thing, ThingStatusInfo thingStatusInfo) {
         thing.setStatusInfo(thingStatusInfo);
-        eventPublisher.post(ThingEventFactory.createThingStatusInfoEvent(thing.getUID(), thingStatusInfo));
+        if(eventPublisher != null) {
+            eventPublisher.post(ThingEventFactory.createThingStatusInfoEvent(thing.getUID(), thingStatusInfo));
+        }
     }
 
 }
