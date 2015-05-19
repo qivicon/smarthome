@@ -15,6 +15,7 @@ import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
@@ -30,6 +31,7 @@ import com.google.common.collect.Maps;
  * be sent to the bus, so that all interested bundles are notified.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Stefan Bußweiler - Migration to new ESH event concept
  *
  */
 public class BusEvent {
@@ -75,8 +77,7 @@ public class BusEvent {
             try {
                 Item item = registry.getItem(itemName);
                 Command command = TypeParser.parseCommand(item.getAcceptedCommandTypes(), commandString);
-                // old EventPublisher method, not supported anymore
-                // publisher.sendCommand(itemName, command);
+                publisher.post(ItemEventFactory.createItemCommandEvent(itemName, command));
             } catch (ItemNotFoundException e) {
                 LoggerFactory.getLogger(BusEvent.class).warn("Item '" + itemName + "' does not exist.");
             }
@@ -93,8 +94,7 @@ public class BusEvent {
     static public Object sendCommand(Item item, Command command) {
         EventPublisher publisher = ScriptActivator.eventPublisherTracker.getService();
         if (publisher != null && item != null) {
-            // old EventPublisher method, not supported anymore
-            // publisher.sendCommand(item.getName(), command);
+            publisher.post(ItemEventFactory.createItemCommandEvent(item.getName(), command));
         }
         return null;
     }
@@ -140,8 +140,7 @@ public class BusEvent {
             try {
                 Item item = registry.getItem(itemName);
                 State state = TypeParser.parseState(item.getAcceptedDataTypes(), stateString);
-                // old EventPublisher method, not supported anymore
-                // publisher.postUpdate(itemName, state);
+                publisher.post(ItemEventFactory.createItemUpdateEvent(itemName, state));
             } catch (ItemNotFoundException e) {
                 LoggerFactory.getLogger(BusEvent.class).warn("Item '" + itemName + "' does not exist.");
             }
@@ -159,8 +158,7 @@ public class BusEvent {
     static public Object postUpdate(Item item, State state) {
         EventPublisher publisher = ScriptActivator.eventPublisherTracker.getService();
         if (publisher != null && item != null) {
-            // old EventPublisher method, not supported anymore
-            // publisher.postUpdate(item.getName(), state);
+            publisher.post(ItemEventFactory.createItemUpdateEvent(item.getName(), state));
         }
         return null;
     }
