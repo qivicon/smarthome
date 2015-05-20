@@ -34,7 +34,7 @@ public abstract class AbstractItemEventSubscriber implements EventSubscriber {
 
     @Override
     public EventFilter getEventFilter() {
-        return new TopicEventFilter("smarthome/items/.*");
+        return new TopicEventFilter("smarthome/items(/.*)?");
     }
 
     @Override
