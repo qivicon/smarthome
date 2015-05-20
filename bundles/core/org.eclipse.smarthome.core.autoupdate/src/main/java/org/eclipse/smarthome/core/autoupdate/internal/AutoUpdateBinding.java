@@ -8,25 +8,20 @@
 package org.eclipse.smarthome.core.autoupdate.internal;
 
 import java.util.Collection;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
-import org.eclipse.smarthome.core.events.Event;
-import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableSet;
 
 /**
  * <p>
@@ -43,7 +38,7 @@ import com.google.common.collect.ImmutableSet;
  * @author Kai Kreuzer - added sending real events
  * @author Stefan Bußweiler - Migration to new ESH event concept
  */
-public class AutoUpdateBinding implements EventSubscriber {
+public class AutoUpdateBinding extends AbstractItemEventSubscriber {
 
     private final Logger logger = LoggerFactory.getLogger(AutoUpdateBinding.class);
 
@@ -78,24 +73,6 @@ public class AutoUpdateBinding implements EventSubscriber {
         this.itemRegistry = null;
     }
     
-    @Override
-    public Set<String> getSubscribedEventTypes() {
-        return ImmutableSet.of(ItemCommandEvent.TYPE);
-    }
-
-    @Override
-    public EventFilter getEventFilter() {
-        return null;
-    }
-
-    @Override
-    public void receive(Event event) {
-        if(event instanceof ItemCommandEvent) {
-            ItemCommandEvent itemCommandEvent = (ItemCommandEvent) event;
-            receiveCommand(itemCommandEvent.getItemName(), itemCommandEvent.getItemCommand());
-        }
-    }
-
     /**
      * <p>
      * Iterates through all registered {@link AutoUpdateBindingConfigProvider}s and checks whether an autoupdate
@@ -112,8 +89,11 @@ public class AutoUpdateBinding implements EventSubscriber {
      * @param command the command being received and posted as {@link State} update if <code>command</code> is instance
      *            of {@link State} as well.
      */
-    public void receiveCommand(String itemName, Command command) {
+    @Override
+    protected void receiveCommand(ItemCommandEvent commandEvent) {
         Boolean autoUpdate = null;
+        String itemName = commandEvent.getItemName();
+        Command command = commandEvent.getItemCommand();
         for (AutoUpdateBindingConfigProvider provider : providers) {
             Boolean au = provider.autoUpdate(itemName);
             if (au != null) {

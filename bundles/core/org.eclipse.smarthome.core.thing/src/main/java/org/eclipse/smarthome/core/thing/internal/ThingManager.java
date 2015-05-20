@@ -15,12 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.eclipse.smarthome.core.events.Event;
-import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.events.EventSubscriber;
-import org.eclipse.smarthome.core.events.TopicEventFilter;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.items.events.ItemUpdateEvent;
@@ -50,8 +47,6 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSet;
-
 /**
  * {@link ThingManager} tracks all things in the {@link ThingRegistry} and
  * mediates the communication between the {@link Thing} and the {@link ThingHandler} from the binding. Therefore it
@@ -65,7 +60,7 @@ import com.google.common.collect.ImmutableSet;
  * @author Michael Grammling - Added dynamic configuration update
  * @author Stefan Bußweiler - Added new thing status handling, migration to new ESH event concept 
  */
-public class ThingManager implements EventSubscriber, ThingTracker {
+public class ThingManager extends AbstractItemEventSubscriber implements ThingTracker {
 
     private final class ThingHandlerTracker extends ServiceTracker<ThingHandler, ThingHandler> {
 
@@ -216,32 +211,13 @@ public class ThingManager implements EventSubscriber, ThingTracker {
     }
     
     @Override
-    public Set<String> getSubscribedEventTypes() {
-        return ImmutableSet.of(ItemCommandEvent.TYPE, ItemUpdateEvent.TYPE);
-    }
-
-    @Override
-    public EventFilter getEventFilter() {
-        return new TopicEventFilter("smarthome/.*");
-    }
-
-    @Override
-    public void receive(Event event) {
-        if (event instanceof ItemUpdateEvent) {
-            ItemUpdateEvent itemUpdateEvent = (ItemUpdateEvent) event;
-            receiveUpdate(itemUpdateEvent.getItemName(), itemUpdateEvent.getItemState(), itemUpdateEvent.getSource());
-        } else if (event instanceof ItemCommandEvent) {
-            ItemCommandEvent itemCommandEvent = (ItemCommandEvent) event;
-            receiveCommand(itemCommandEvent.getItemName(), itemCommandEvent.getItemCommand(),
-                    itemCommandEvent.getSource());
-        }
-    }
-
-    private void receiveCommand(String itemName, Command command, String source) {
+    protected void receiveCommand(ItemCommandEvent commandEvent) {
+        String itemName = commandEvent.getItemName();
+        Command command = commandEvent.getItemCommand();
         Set<ChannelUID> boundChannels = this.itemChannelLinkRegistry.getBoundChannels(itemName);
         for (ChannelUID channelUID : boundChannels) {
             // make sure a command event is not sent back to its source
-            if (!channelUID.toString().equals(source)) {
+            if (!channelUID.toString().equals(commandEvent.getSource())) {
                 Thing thing = getThing(channelUID.getThingUID());
                 if (thing != null) {
                     ThingHandler handler = thing.getHandler();
@@ -267,11 +243,14 @@ public class ThingManager implements EventSubscriber, ThingTracker {
         }
     }
 
-    private void receiveUpdate(String itemName, State newState, String source) {
+    @Override
+    protected void receiveUpdate(ItemUpdateEvent updateEvent) {
+        String itemName = updateEvent.getItemName();
+        State newState = updateEvent.getItemState();
         Set<ChannelUID> boundChannels = this.itemChannelLinkRegistry.getBoundChannels(itemName);
         for (ChannelUID channelUID : boundChannels) {
             // make sure an update event is not sent back to its source
-            if (!channelUID.toString().equals(source)) {
+            if (!channelUID.toString().equals(updateEvent.getSource())) {
                 Thing thing = getThing(channelUID.getThingUID());
                 if (thing != null) {
                     ThingHandler handler = thing.getHandler();

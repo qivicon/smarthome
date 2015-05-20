@@ -7,25 +7,17 @@
  */
 package org.eclipse.smarthome.core.internal.items;
 
-import java.util.Set;
-
-import org.eclipse.smarthome.core.events.Event;
-import org.eclipse.smarthome.core.events.EventFilter;
-import org.eclipse.smarthome.core.events.EventSubscriber;
-import org.eclipse.smarthome.core.events.TopicEventFilter;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemUpdateEvent;
-import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableSet;
 
 /**
  * The ItemUpdater listens on the event bus and passes any received status update
@@ -34,7 +26,7 @@ import com.google.common.collect.ImmutableSet;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Stefan Bußweiler - Migration to new ESH event concept
  */
-public class ItemUpdater implements EventSubscriber {
+public class ItemUpdater extends AbstractItemEventSubscriber {
 
     private final Logger logger = LoggerFactory.getLogger(ItemUpdater.class);
 
@@ -49,28 +41,10 @@ public class ItemUpdater implements EventSubscriber {
     }
 
     @Override
-    public Set<String> getSubscribedEventTypes() {
-        return ImmutableSet.of(ItemCommandEvent.TYPE, ItemUpdateEvent.TYPE);
-    }
-
-    @Override
-    public EventFilter getEventFilter() {
-        return new TopicEventFilter("smarthome/*");
-    }
-
-    @Override
-    public void receive(Event event) {
-        if (event instanceof ItemUpdateEvent) {
-            ItemUpdateEvent itemUpdateEvent = (ItemUpdateEvent) event;
-            receiveUpdate(itemUpdateEvent.getItemName(), itemUpdateEvent.getItemState());
-        } else if (event instanceof ItemCommandEvent) {
-            ItemCommandEvent itemCommandEvent = (ItemCommandEvent) event;
-            receiveCommand(itemCommandEvent.getItemName(), itemCommandEvent.getItemCommand());
-        }
-    }
-
-    public void receiveUpdate(String itemName, State newStatus) {
+    protected void receiveUpdate(ItemUpdateEvent updateEvent) {
         if (itemRegistry != null) {
+            String itemName = updateEvent.getItemName();
+            State newStatus = updateEvent.getItemState();
             try {
                 GenericItem item = (GenericItem) itemRegistry.getItem(itemName);
                 boolean isAccepted = false;
@@ -104,14 +78,15 @@ public class ItemUpdater implements EventSubscriber {
         }
     }
 
-    public void receiveCommand(String itemName, Command command) {
+    @Override
+    protected void receiveCommand(ItemCommandEvent commandEvent) {
         // if the item is a group, we have to pass the command to it as it needs to pass the command to its members
         if (itemRegistry != null) {
             try {
-                Item item = itemRegistry.getItem(itemName);
+                Item item = itemRegistry.getItem(commandEvent.getItemName());
                 if (item instanceof GroupItem) {
                     GroupItem groupItem = (GroupItem) item;
-                    groupItem.send(command);
+                    groupItem.send(commandEvent.getItemCommand());
                 }
             } catch (ItemNotFoundException e) {
                 logger.debug("Received command for non-existing item: {}", e.getMessage());
