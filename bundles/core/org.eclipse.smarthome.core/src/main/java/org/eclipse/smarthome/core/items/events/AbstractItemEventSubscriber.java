@@ -12,7 +12,6 @@ import java.util.Set;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventSubscriber;
-import org.eclipse.smarthome.core.events.TopicEventFilter;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -34,7 +33,7 @@ public abstract class AbstractItemEventSubscriber implements EventSubscriber {
 
     @Override
     public EventFilter getEventFilter() {
-        return new TopicEventFilter("smarthome/items(/.*)?");
+        return null;
     }
 
     @Override

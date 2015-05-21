@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.eclipse.smarthome.core.thing.events;
 
 import static org.hamcrest.CoreMatchers.*
@@ -14,6 +21,11 @@ import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.junit.Test;
 
+/**
+ * {@link ThingEventFactoryTests} tests the {@link ThingEventFactory}.
+ *
+ * @author Stefan Bußweiler - Initial contribution
+ */
 class ThingEventFactoryTests {
     def THING_STATUS_INFO = ThingStatusInfoBuilder
             .create(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR)

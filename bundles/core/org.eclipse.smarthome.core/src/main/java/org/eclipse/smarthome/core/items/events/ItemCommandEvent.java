@@ -12,7 +12,7 @@ import org.eclipse.smarthome.core.types.Command;
 
 /**
  * {@link ItemCommandEvent}s can be used to deliver commands through the Eclipse SmartHome event bus.
- * Command events can be created with the {@link ItemEventFactory}.
+ * Command events must be created with the {@link ItemEventFactory}.
  * 
  * @author Stefan Bußweiler - Initial contribution
  */
@@ -36,6 +36,7 @@ public class ItemCommandEvent extends AbstractEvent {
      * @param payload the payload
      * @param itemName the item name
      * @param command the command
+     * @param source the source
      */
     public ItemCommandEvent(String topic, String payload, String itemName, Command command, String source) {
         super(topic, payload);

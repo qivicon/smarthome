@@ -7,58 +7,40 @@
  */
 package org.eclipse.smarthome.core.thing.events;
 
-import java.util.Set;
-
+import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
-import org.eclipse.smarthome.core.events.EventFactory;
 import org.eclipse.smarthome.core.events.Topic;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
-import com.google.gson.Gson;
+import com.google.common.collect.Sets;
 
 /**
  * A {@link ThingEventFactory} is responsible for creating thing event instances, e.g. {@link ThingStatusInfoEvent}s.
  * 
  * @author Stefan Bußweiler - Initial contribution
  */
-public class ThingEventFactory implements EventFactory {
+public class ThingEventFactory extends AbstractEventFactory {
 
-    private final Set<String> supportedEventTypes = ImmutableSet.of(ThingStatusInfoEvent.TYPE);
-
-    private static final Gson jsonConverter = new Gson();
-
-    @Override
-    public Event createEvent(String eventType, String topic, String payload) throws Exception {
-        checkArguments(eventType, topic, payload);
-        if (eventType.equals(ThingStatusInfoEvent.TYPE)) {
-            return createThingStatusInfoEvent(eventType, topic, payload);
-        } else {
-            throw new IllegalArgumentException("The event type '" + eventType + "' is not supported by this factory.");
-        }
+    /**
+     * Constructs a new ThingEventFactory.
+     */
+    public ThingEventFactory() {
+        super(Sets.newHashSet(ThingStatusInfoEvent.TYPE));
     }
 
-    private void checkArguments(String eventType, String topic, String payload) {
-        Preconditions.checkArgument(eventType != null && !eventType.isEmpty(),
-                "The argument 'eventType' must not be null or empty.");
-        Preconditions.checkArgument(topic != null && !topic.isEmpty(),
-                "The argument 'topic' must not be null or empty.");
-        Preconditions.checkArgument(payload != null && !payload.isEmpty(),
-                "The argument 'payload' must not be null or empty.");
+    @Override
+    protected Event createEventByType(String eventType, String topic, String payload) throws Exception {
+        boolean isThingStatusEvent = eventType.equals(ThingStatusInfoEvent.TYPE);
+        return isThingStatusEvent ? createThingStatusInfoEvent(eventType, topic, payload) : null;
     }
 
     private Event createThingStatusInfoEvent(String eventType, String topic, String payload) throws Exception {
         Topic topicObj = new Topic(topic);
         ThingUID thingUID = new ThingUID(topicObj.getEntityId());
-        ThingStatusInfo thingStatusInfo = jsonConverter.fromJson(payload, ThingStatusInfo.class);
+        ThingStatusInfo thingStatusInfo = deserializePayload(payload, ThingStatusInfo.class);
         return new ThingStatusInfoEvent(topic, payload, thingUID, thingStatusInfo);
-    }
-
-    @Override
-    public Set<String> getSupportedEventTypes() {
-        return supportedEventTypes;
     }
 
     /**
@@ -66,12 +48,13 @@ public class ThingEventFactory implements EventFactory {
      * 
      * @param thingUID the thing UID
      * @param thingStatusInfo the thing status info object
+     * 
      * @return the created thing status info event
      */
     public static ThingStatusInfoEvent createThingStatusInfoEvent(ThingUID thingUID, ThingStatusInfo thingStatusInfo) {
         checkArguments(thingUID, thingStatusInfo);
         Topic topicObj = new Topic("smarthome", "things", thingUID.getAsString(), "status");
-        String payload = jsonConverter.toJson(thingStatusInfo);
+        String payload = serializePayload(thingStatusInfo);
         return new ThingStatusInfoEvent(topicObj.getAsString(), payload, thingUID, thingStatusInfo);
     }
 

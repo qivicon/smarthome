@@ -91,15 +91,4 @@ class AbstractItemEventSubscriberOSGiTest extends OSGiTest {
         waitForAssert { assertThat updateEvent, is(null)}
     }
     
-    
-    @Test
-    public void 'AbstractItemEventSubscriber do not receive events if the event topic is not supported'() {
-        String payload = new Gson().toJson(new ItemEventPayloadBean(ITEM_NAME, OnOffType.ON.getClass().getName(), OnOffType.ON.toString(), ""))
-        Event event = [ getType: { ItemCommandEvent.TYPE }, getPayload: { payload }, getTopic: { "not/supported/topic" } ] as Event
-        
-        eventPublisher.post(event)
-        waitForAssert { assertThat commandEvent, is(null)}
-        waitForAssert { assertThat updateEvent, is(null)}
-    }
-    
 }

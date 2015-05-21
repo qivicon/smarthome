@@ -50,7 +50,8 @@ public class Topic {
     public Topic(String topic) {
         String[] segments = topic.split(SEPARATOR);
         if (segments.length != 4)
-            throw new IllegalArgumentException("..");
+            throw new IllegalArgumentException("A topic must have four elements and follow the structure: "
+                    + "c.f. {namespace}/{entityType}/{entityId}/{action}");
         this.namespace = segments[0];
         this.entityType = segments[1];
         this.entityId = segments[2];

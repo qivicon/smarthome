@@ -21,12 +21,12 @@ public interface EventFactory {
     /**
      * Create a new event instance of a specific event type.
      * 
-     * @param eventTypeName the event type
+     * @param eventType the event type
      * @param topic the topic
      * @param payload the payload
      * 
-     * @return the created event
-     * @throws Exception if the creation of the event failed
+     * @return the created event instance
+     * @throws Exception if the creation of the event fails
      */
     Event createEvent(String eventType, String topic, String payload) throws Exception;
 

@@ -72,7 +72,7 @@ public class AutoUpdateBinding extends AbstractItemEventSubscriber {
     public void unsetItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = null;
     }
-    
+
     /**
      * <p>
      * Iterates through all registered {@link AutoUpdateBindingConfigProvider}s and checks whether an autoupdate

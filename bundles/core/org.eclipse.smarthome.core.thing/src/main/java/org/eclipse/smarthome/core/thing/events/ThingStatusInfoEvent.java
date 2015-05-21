@@ -7,26 +7,22 @@
  */
 package org.eclipse.smarthome.core.thing.events;
 
-import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.AbstractEvent;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
  * {@link ThingStatusInfoEvent}s will be delivered through the Eclipse SmartHome event bus if the status of a thing has
- * changed. Thing status info objects can be created with the {@link ThingEventFactory}.
+ * changed. Thing status info objects must be created with the {@link ThingEventFactory}.
  * 
  * @author Stefan Bußweiler - Initial contribution
  */
-public class ThingStatusInfoEvent implements Event {
+public class ThingStatusInfoEvent extends AbstractEvent {
 
     /**
      * The thing status event type.
      */
     public final static String TYPE = ThingStatusInfoEvent.class.getSimpleName();
-
-    private final String topic;
-
-    private final String payload;
 
     private final ThingUID thingUID;
 
@@ -41,8 +37,7 @@ public class ThingStatusInfoEvent implements Event {
      * @param thingStatusInfo the thing status info object
      */
     public ThingStatusInfoEvent(String topic, String payload, ThingUID thingUID, ThingStatusInfo thingStatusInfo) {
-        this.topic = topic;
-        this.payload = payload;
+        super(topic, payload);
         this.thingUID = thingUID;
         this.thingStatusInfo = thingStatusInfo;
     }
@@ -50,16 +45,6 @@ public class ThingStatusInfoEvent implements Event {
     @Override
     public String getType() {
         return TYPE;
-    }
-
-    @Override
-    public String getTopic() {
-        return topic;
-    }
-
-    @Override
-    public String getPayload() {
-        return payload;
     }
 
     /**
@@ -72,8 +57,9 @@ public class ThingStatusInfoEvent implements Event {
     }
 
     /**
-     * Gets the thing 
-     * @return
+     * Gets the thing
+     * 
+     * @return the thing status info
      */
     public ThingStatusInfo getStatusInfo() {
         return thingStatusInfo;

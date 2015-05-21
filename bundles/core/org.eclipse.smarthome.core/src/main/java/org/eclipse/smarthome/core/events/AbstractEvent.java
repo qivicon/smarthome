@@ -19,7 +19,7 @@ public abstract class AbstractEvent implements Event {
     private final String payload;
 
     /**
-     * Creates a new event.
+     * Must be called in subclass constructor to create a new event.
      * 
      * @param topic the topic
      * @param payload the payload

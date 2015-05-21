@@ -8,18 +8,16 @@
 package org.eclipse.smarthome.core.items.events;
 
 import java.lang.reflect.Method;
-import java.util.Set;
 
+import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
-import org.eclipse.smarthome.core.events.EventFactory;
 import org.eclipse.smarthome.core.events.Topic;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
-import com.google.gson.Gson;
+import com.google.common.collect.Sets;
 
 /**
  * An {@link ItemEventFactory} is responsible for creating item event instances, e.g. {@link ItemCommandEvent}s and
@@ -27,35 +25,28 @@ import com.google.gson.Gson;
  * 
  * @author Stefan Bußweiler - Initial contribution
  */
-public class ItemEventFactory implements EventFactory {
+public class ItemEventFactory extends AbstractEventFactory {
 
-    private final Set<String> supportedEventTypes = ImmutableSet.of(ItemCommandEvent.TYPE, ItemUpdateEvent.TYPE);
-
-    private static final Gson jsonConverter = new Gson();
+    /**
+     * Constructs a new ItemEventFactory.
+     */
+    public ItemEventFactory() {
+        super(Sets.newHashSet(ItemCommandEvent.TYPE, ItemUpdateEvent.TYPE));
+    }
 
     @Override
-    public Event createEvent(final String eventType, final String topic, final String payload) throws Exception {
-        checkArguments(eventType, topic, payload);
+    protected Event createEventByType(String eventType, String topic, String payload) throws Exception {
+        Event event = null;
         if (eventType.equals(ItemCommandEvent.TYPE)) {
-            return createItemCommandEvent(eventType, topic, payload);
+            event = createItemCommandEvent(eventType, topic, payload);
         } else if (eventType.equals(ItemUpdateEvent.TYPE)) {
-            return createItemUpdateEvent(eventType, topic, payload);
-        } else {
-            throw new IllegalArgumentException("The event type '" + eventType + "' is not supported by this factory.");
+            event = createItemUpdateEvent(eventType, topic, payload);
         }
+        return event;
     }
 
-    private void checkArguments(String eventType, String topic, String payload) {
-        Preconditions.checkArgument(eventType != null && !eventType.isEmpty(),
-                "The argument 'eventType' must not be null or empty.");
-        Preconditions.checkArgument(topic != null && !topic.isEmpty(),
-                "The argument 'topic' must not be null or empty.");
-        Preconditions.checkArgument(payload != null && !payload.isEmpty(),
-                "The argument 'payload' must not be null or empty.");
-    }
-
-    private Event createItemCommandEvent(final String eventType, final String topic, final String payload) {
-        ItemEventPayloadBean bean = jsonConverter.fromJson(payload, ItemEventPayloadBean.class);
+    private Event createItemCommandEvent(String eventType, String topic, String payload) {
+        ItemEventPayloadBean bean = deserializePayload(payload, ItemEventPayloadBean.class);
         Command command = null;
         try {
             command = (Command) parse(bean.getClazz(), bean.getValue());
@@ -65,8 +56,8 @@ public class ItemEventFactory implements EventFactory {
         return new ItemCommandEvent(topic, payload, bean.getName(), command, bean.getSource());
     }
 
-    private Event createItemUpdateEvent(final String eventType, final String topic, final String payload) {
-        ItemEventPayloadBean bean = jsonConverter.fromJson(payload, ItemEventPayloadBean.class);
+    private Event createItemUpdateEvent(String eventType, String topic, String payload) {
+        ItemEventPayloadBean bean = deserializePayload(payload, ItemEventPayloadBean.class);
         State state = null;
         try {
             state = (State) parse(bean.getClazz(), bean.getValue());
@@ -80,11 +71,6 @@ public class ItemEventFactory implements EventFactory {
         Class<?> stateClass = Class.forName(className);
         Method valueOfMethod = stateClass.getMethod("valueOf", String.class);
         return valueOfMethod.invoke(stateClass, valueToParse);
-    }
-
-    @Override
-    public Set<String> getSupportedEventTypes() {
-        return supportedEventTypes;
     }
 
     /**
@@ -101,7 +87,7 @@ public class ItemEventFactory implements EventFactory {
         Topic topicObj = new Topic("smarthome", "items", itemName, "command");
         ItemEventPayloadBean bean = new ItemEventPayloadBean(itemName, command.getClass().getName(),
                 command.toString(), source);
-        String payload = jsonConverter.toJson(bean);
+        String payload = serializePayload(bean);
         return new ItemCommandEvent(topicObj.getAsString(), payload, itemName, command, source);
     }
 
@@ -131,7 +117,7 @@ public class ItemEventFactory implements EventFactory {
         Topic topicObj = new Topic("smarthome", "items", itemName, "update");
         ItemEventPayloadBean bean = new ItemEventPayloadBean(itemName, state.getClass().getName(), state.toString(),
                 source);
-        String payload = jsonConverter.toJson(bean);
+        String payload = serializePayload(bean);
         return new ItemUpdateEvent(topicObj.getAsString(), payload, itemName, state, source);
     }
 
@@ -154,7 +140,7 @@ public class ItemEventFactory implements EventFactory {
     }
 
     /**
-     * This is a java bean that is used to serialize item event payload.
+     * This is a java bean that is used to serialize/deserialize item event payload.
      */
     private static class ItemEventPayloadBean {
         private String name;
