@@ -25,6 +25,8 @@ import com.google.common.collect.ImmutableSet;
 public abstract class AbstractTypedEventSubscriber<T extends Event> implements EventSubscriber {
 
     private final String eventType;
+    
+    private final EventFilter eventFilter;
 
     /**
      * Constructs a new typed event subscriber. Must be called in the subclass.
@@ -33,6 +35,7 @@ public abstract class AbstractTypedEventSubscriber<T extends Event> implements E
      */
     public AbstractTypedEventSubscriber(String eventType) {
         this.eventType = eventType;
+        this.eventFilter = new TypedEventFilter(eventType);
     }
 
     @Override
@@ -42,7 +45,7 @@ public abstract class AbstractTypedEventSubscriber<T extends Event> implements E
 
     @Override
     public EventFilter getEventFilter() {
-        return new TypedEventFilter(eventType);
+        return eventFilter;
     }
 
     @SuppressWarnings("unchecked")
