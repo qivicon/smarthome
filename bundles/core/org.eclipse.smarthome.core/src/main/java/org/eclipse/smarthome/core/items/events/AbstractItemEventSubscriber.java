@@ -26,9 +26,11 @@ import com.google.common.collect.ImmutableSet;
  */
 public abstract class AbstractItemEventSubscriber implements EventSubscriber {
 
+    private final Set<String> subscribedEventTypes = ImmutableSet.of(ItemUpdateEvent.TYPE, ItemCommandEvent.TYPE);
+    
     @Override
     public Set<String> getSubscribedEventTypes() {
-        return ImmutableSet.of(ItemUpdateEvent.TYPE, ItemCommandEvent.TYPE);
+        return subscribedEventTypes;
     }
 
     @Override
