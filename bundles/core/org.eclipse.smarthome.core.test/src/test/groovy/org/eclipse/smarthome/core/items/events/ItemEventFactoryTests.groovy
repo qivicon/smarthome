@@ -12,13 +12,8 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.events.Event
-import org.eclipse.smarthome.core.events.Topic
-import org.eclipse.smarthome.core.items.events.ItemEventFactory.ItemEventPayloadBean;
-import org.eclipse.smarthome.core.library.types.DecimalType;
-import org.eclipse.smarthome.core.library.types.HSBType;
-import org.eclipse.smarthome.core.library.types.OnOffType;
-import org.eclipse.smarthome.core.library.types.PercentType;
-import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.items.events.ItemEventFactory.ItemEventPayloadBean
+import org.eclipse.smarthome.core.library.types.OnOffType
 import org.junit.Test
 
 import com.google.gson.Gson
@@ -34,8 +29,8 @@ class ItemEventFactoryTests {
     def SOURCE = "binding:type:id:channel"
     def ITEM_COMMAND_TYPE = ItemCommandEvent.TYPE
     def ITEM_UPDATE_TYPE = ItemUpdateEvent.TYPE
-    def ITEM_COMMAND_TOPIC = new Topic("items", ITEM_NAME, "command").getAsString()
-    def ITEM_UPDATE_TOPIC = new Topic("items", ITEM_NAME, "update").getAsString()
+    def ITEM_COMMAND_TOPIC = ItemEventFactory.ITEM_COMAND_EVENT_TOPIC.replace("{itemName}", ITEM_NAME)
+    def ITEM_UPDATE_TOPIC = ItemEventFactory.ITEM_UPDATE_EVENT_TOPIC.replace("{itemName}", ITEM_NAME)
 
     ItemEventFactory factory = new ItemEventFactory()
 
@@ -62,7 +57,7 @@ class ItemEventFactoryTests {
         OnOffType command = OnOffType.ON
         String payload = new Gson().toJson(new ItemEventPayloadBean(ITEM_NAME, command.getClass().getName(), command.toString(), SOURCE))
 
-        ItemCommandEvent event = ItemEventFactory.createItemCommandEvent(ITEM_NAME, command, SOURCE)
+        ItemCommandEvent event = ItemEventFactory.createCommandEvent(ITEM_NAME, command, SOURCE)
 
         assertThat event.getType(), is(ITEM_COMMAND_TYPE)
         assertThat event.getTopic(), is(ITEM_COMMAND_TOPIC)
@@ -96,7 +91,7 @@ class ItemEventFactoryTests {
         OnOffType state = OnOffType.ON
         String payload = new Gson().toJson(new ItemEventPayloadBean(ITEM_NAME, state.getClass().getName(), state.toString(), SOURCE))
 
-        ItemUpdateEvent event = ItemEventFactory.createItemUpdateEvent(ITEM_NAME, state, SOURCE)
+        ItemUpdateEvent event = ItemEventFactory.createUpdateEvent(ITEM_NAME, state, SOURCE)
 
         assertThat event.getType(), is(ITEM_UPDATE_TYPE)
         assertThat event.getTopic(), is(ITEM_UPDATE_TOPIC)

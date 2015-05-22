@@ -55,7 +55,7 @@ public class UpdateConsoleCommandExtension extends AbstractConsoleCommandExtensi
                     String stateName = args[1];
                     State state = TypeParser.parseState(item.getAcceptedDataTypes(), stateName);
                     if (state != null) {
-                        eventPublisher.post(ItemEventFactory.createItemUpdateEvent(item.getName(), state));
+                        eventPublisher.post(ItemEventFactory.createUpdateEvent(item.getName(), state));
                         console.println("Update has been sent successfully.");
                     } else {
                         console.println("Error: State '" + stateName + "' is not valid for item '" + itemName + "'");

@@ -38,7 +38,7 @@ public class ItemUpdateEvent extends AbstractEvent {
      * @param itemState the item state
      * @param source the source
      */
-    public ItemUpdateEvent(String topic, String payload, String itemName, State itemState, String source) {
+    protected ItemUpdateEvent(String topic, String payload, String itemName, State itemState, String source) {
         super(topic, payload);
         this.itemName = itemName;
         this.itemState = itemState;

@@ -62,13 +62,13 @@ class AbstractItemEventSubscriberOSGiTest extends OSGiTest {
 
     @Test
     public void 'AbstractItemEventSubscriber receives ItemCommandEvents and ItemUpdateEvents correctly'() {
-        eventPublisher.post(ItemEventFactory.createItemCommandEvent(ITEM_NAME, OnOffType.ON))
+        eventPublisher.post(ItemEventFactory.createCommandEvent(ITEM_NAME, OnOffType.ON))
         waitForAssert { assertThat commandEvent, not(null)}
         waitForAssert { assertThat updateEvent, is(null)}
         
         commandEvent = null
         updateEvent = null
-        eventPublisher.post(ItemEventFactory.createItemUpdateEvent(ITEM_NAME, OnOffType.ON))
+        eventPublisher.post(ItemEventFactory.createUpdateEvent(ITEM_NAME, OnOffType.ON))
         waitForAssert { assertThat commandEvent, is(null)}
         waitForAssert { assertThat updateEvent, not(null)}
     }

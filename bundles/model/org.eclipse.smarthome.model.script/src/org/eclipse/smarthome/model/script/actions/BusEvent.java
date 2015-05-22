@@ -77,7 +77,7 @@ public class BusEvent {
             try {
                 Item item = registry.getItem(itemName);
                 Command command = TypeParser.parseCommand(item.getAcceptedCommandTypes(), commandString);
-                publisher.post(ItemEventFactory.createItemCommandEvent(itemName, command));
+                publisher.post(ItemEventFactory.createCommandEvent(itemName, command));
             } catch (ItemNotFoundException e) {
                 LoggerFactory.getLogger(BusEvent.class).warn("Item '" + itemName + "' does not exist.");
             }
@@ -94,7 +94,7 @@ public class BusEvent {
     static public Object sendCommand(Item item, Command command) {
         EventPublisher publisher = ScriptActivator.eventPublisherTracker.getService();
         if (publisher != null && item != null) {
-            publisher.post(ItemEventFactory.createItemCommandEvent(item.getName(), command));
+            publisher.post(ItemEventFactory.createCommandEvent(item.getName(), command));
         }
         return null;
     }
@@ -140,7 +140,7 @@ public class BusEvent {
             try {
                 Item item = registry.getItem(itemName);
                 State state = TypeParser.parseState(item.getAcceptedDataTypes(), stateString);
-                publisher.post(ItemEventFactory.createItemUpdateEvent(itemName, state));
+                publisher.post(ItemEventFactory.createUpdateEvent(itemName, state));
             } catch (ItemNotFoundException e) {
                 LoggerFactory.getLogger(BusEvent.class).warn("Item '" + itemName + "' does not exist.");
             }
@@ -158,7 +158,7 @@ public class BusEvent {
     static public Object postUpdate(Item item, State state) {
         EventPublisher publisher = ScriptActivator.eventPublisherTracker.getService();
         if (publisher != null && item != null) {
-            publisher.post(ItemEventFactory.createItemUpdateEvent(item.getName(), state));
+            publisher.post(ItemEventFactory.createUpdateEvent(item.getName(), state));
         }
         return null;
     }

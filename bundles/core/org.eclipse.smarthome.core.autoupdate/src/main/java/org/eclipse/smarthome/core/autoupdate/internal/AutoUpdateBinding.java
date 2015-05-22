@@ -139,7 +139,7 @@ public class AutoUpdateBinding extends AbstractItemEventSubscriber {
                     }
                 }
                 if (isAccepted) {
-                    eventPublisher.post(ItemEventFactory.createItemUpdateEvent(itemName, newState,
+                    eventPublisher.post(ItemEventFactory.createUpdateEvent(itemName, newState,
                             "org.eclipse.smarthome.core.autoupdate"));
                 } else {
                     logger.debug("Received update of a not accepted type (" + newState.getClass().getSimpleName()

@@ -36,7 +36,7 @@ public class ThingStatusInfoEvent extends AbstractEvent {
      * @param thingUID the thing UID
      * @param thingStatusInfo the thing status info object
      */
-    public ThingStatusInfoEvent(String topic, String payload, ThingUID thingUID, ThingStatusInfo thingStatusInfo) {
+    protected ThingStatusInfoEvent(String topic, String payload, ThingUID thingUID, ThingStatusInfo thingStatusInfo) {
         super(topic, payload);
         this.thingUID = thingUID;
         this.thingStatusInfo = thingStatusInfo;

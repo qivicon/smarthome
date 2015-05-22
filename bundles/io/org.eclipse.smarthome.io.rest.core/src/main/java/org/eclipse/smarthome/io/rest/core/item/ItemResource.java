@@ -164,7 +164,7 @@ public class ItemResource implements RESTResource {
             State state = TypeParser.parseState(item.getAcceptedDataTypes(), value);
             if (state != null) {
                 logger.debug("Received HTTP PUT request at '{}' with value '{}'.", uriInfo.getPath(), value);
-                eventPublisher.post(ItemEventFactory.createItemUpdateEvent(itemname, state));
+                eventPublisher.post(ItemEventFactory.createUpdateEvent(itemname, state));
                 return Response.ok().build();
             } else {
                 logger.warn("Received HTTP PUT request at '{}' with an invalid status value '{}'.", uriInfo.getPath(),
@@ -201,7 +201,7 @@ public class ItemResource implements RESTResource {
             }
             if (command != null) {
                 logger.debug("Received HTTP POST request at '{}' with value '{}'.", uriInfo.getPath(), value);
-                eventPublisher.post(ItemEventFactory.createItemCommandEvent(itemname, command));
+                eventPublisher.post(ItemEventFactory.createCommandEvent(itemname, command));
                 return Response.created(localUriInfo.getAbsolutePathBuilder().path("state").build()).build();
             } else {
                 logger.warn("Received HTTP POST request at '{}' with an invalid status value '{}'.", uriInfo.getPath(),

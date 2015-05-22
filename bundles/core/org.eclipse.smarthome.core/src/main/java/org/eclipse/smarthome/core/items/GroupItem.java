@@ -179,7 +179,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         if (eventPublisher != null) {
             for (Item member : members) {
                 // try to send the command to the bus
-                eventPublisher.post(ItemEventFactory.createItemCommandEvent(member.getName(), command));
+                eventPublisher.post(ItemEventFactory.createCommandEvent(member.getName(), command));
             }
         }
     }

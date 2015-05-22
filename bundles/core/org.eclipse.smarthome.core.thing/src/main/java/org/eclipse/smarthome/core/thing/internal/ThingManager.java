@@ -126,7 +126,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         public void stateUpdated(ChannelUID channelUID, State state) {
             Set<String> items = itemChannelLinkRegistry.getLinkedItems(channelUID);
             for (String item : items) {
-                eventPublisher.post(ItemEventFactory.createItemUpdateEvent(item, state, channelUID.toString()));
+                eventPublisher.post(ItemEventFactory.createUpdateEvent(item, state, channelUID.toString()));
             }
         }
         
@@ -134,7 +134,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         public void postCommand(ChannelUID channelUID, Command command) {
             Set<String> items = itemChannelLinkRegistry.getLinkedItems(channelUID);
             for (String item : items) {
-                eventPublisher.post(ItemEventFactory.createItemCommandEvent(item, command, channelUID.toString()));
+                eventPublisher.post(ItemEventFactory.createCommandEvent(item, command, channelUID.toString()));
             }
         }
 
@@ -507,7 +507,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     private void setThingStatus(Thing thing, ThingStatusInfo thingStatusInfo) {
         thing.setStatusInfo(thingStatusInfo);
         if(eventPublisher != null) {
-            eventPublisher.post(ThingEventFactory.createThingStatusInfoEvent(thing.getUID(), thingStatusInfo));
+            eventPublisher.post(ThingEventFactory.createStatusInfoEvent(thing.getUID(), thingStatusInfo));
         }
     }
 

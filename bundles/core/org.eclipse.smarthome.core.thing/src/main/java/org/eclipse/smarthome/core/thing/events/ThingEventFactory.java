@@ -9,7 +9,6 @@ package org.eclipse.smarthome.core.thing.events;
 
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
-import org.eclipse.smarthome.core.events.Topic;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
@@ -23,6 +22,8 @@ import com.google.common.collect.Sets;
  */
 public class ThingEventFactory extends AbstractEventFactory {
 
+    private static final String THING_STATUS_INFO_EVENT_TOPIC = "smarthome/things/{thingUID}/status";
+
     /**
      * Constructs a new ThingEventFactory.
      */
@@ -33,12 +34,13 @@ public class ThingEventFactory extends AbstractEventFactory {
     @Override
     protected Event createEventByType(String eventType, String topic, String payload) throws Exception {
         boolean isThingStatusEvent = eventType.equals(ThingStatusInfoEvent.TYPE);
-        return isThingStatusEvent ? createThingStatusInfoEvent(eventType, topic, payload) : null;
+        return isThingStatusEvent ? createStatusInfoEvent(eventType, topic, payload) : null;
     }
 
-    private Event createThingStatusInfoEvent(String eventType, String topic, String payload) throws Exception {
-        Topic topicObj = new Topic(topic);
-        ThingUID thingUID = new ThingUID(topicObj.getEntityId());
+    private Event createStatusInfoEvent(String eventType, String topic, String payload) throws Exception {
+        // TODO: thingUID determination will be replaced in QSDK-2530
+        String[] segments = topic.split("/");
+        ThingUID thingUID = new ThingUID(segments[2]);
         ThingStatusInfo thingStatusInfo = deserializePayload(payload, ThingStatusInfo.class);
         return new ThingStatusInfoEvent(topic, payload, thingUID, thingStatusInfo);
     }
@@ -51,11 +53,11 @@ public class ThingEventFactory extends AbstractEventFactory {
      * 
      * @return the created thing status info event
      */
-    public static ThingStatusInfoEvent createThingStatusInfoEvent(ThingUID thingUID, ThingStatusInfo thingStatusInfo) {
+    public static ThingStatusInfoEvent createStatusInfoEvent(ThingUID thingUID, ThingStatusInfo thingStatusInfo) {
         checkArguments(thingUID, thingStatusInfo);
-        Topic topicObj = new Topic("smarthome", "things", thingUID.getAsString(), "status");
+        String topic = THING_STATUS_INFO_EVENT_TOPIC.replace("{thingUID}", thingUID.getAsString());
         String payload = serializePayload(thingStatusInfo);
-        return new ThingStatusInfoEvent(topicObj.getAsString(), payload, thingUID, thingStatusInfo);
+        return new ThingStatusInfoEvent(topic, payload, thingUID, thingStatusInfo);
     }
 
     private static void checkArguments(ThingUID thingUID, ThingStatusInfo thingStatusInfo) {

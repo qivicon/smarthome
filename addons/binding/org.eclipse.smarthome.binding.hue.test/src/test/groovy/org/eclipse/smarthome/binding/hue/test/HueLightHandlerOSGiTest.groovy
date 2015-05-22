@@ -372,7 +372,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 	        EventPublisher eventPublisher = getService(EventPublisher)
 	        assertThat eventPublisher, is(notNullValue())
 						
-	        eventPublisher.post(ItemEventFactory.createItemCommandEvent(item, command))
+	        eventPublisher.post(ItemEventFactory.createCommandEvent(item, command))
 			
 	        waitForAssert({assertTrue addressWrapper.isSet}, 10000)
 	        waitForAssert({assertTrue bodyWrapper.isSet}, 10000)

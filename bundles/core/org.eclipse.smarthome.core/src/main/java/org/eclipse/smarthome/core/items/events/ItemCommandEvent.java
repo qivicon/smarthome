@@ -38,7 +38,7 @@ public class ItemCommandEvent extends AbstractEvent {
      * @param command the command
      * @param source the source
      */
-    public ItemCommandEvent(String topic, String payload, String itemName, Command command, String source) {
+    protected ItemCommandEvent(String topic, String payload, String itemName, Command command, String source) {
         super(topic, payload);
         this.itemName = itemName;
         this.command = command;

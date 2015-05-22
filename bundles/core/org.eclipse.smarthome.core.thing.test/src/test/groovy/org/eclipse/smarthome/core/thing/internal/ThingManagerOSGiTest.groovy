@@ -148,13 +148,13 @@ class ThingManagerOSGiTest extends OSGiTest {
         ] as Hashtable)
         
         // event should be delivered
-        eventPublisher.post(ItemEventFactory.createItemUpdateEvent(itemName, new DecimalType(10)))
+        eventPublisher.post(ItemEventFactory.createUpdateEvent(itemName, new DecimalType(10)))
         waitForAssert { assertThat handleUpdateWasCalled, is(true) }
        
         handleUpdateWasCalled = false
         
         // event should not be delivered, because the source is the same
-        eventPublisher.post(ItemEventFactory.createItemUpdateEvent(itemName, new DecimalType(10), CHANNEL_UID.toString()))
+        eventPublisher.post(ItemEventFactory.createUpdateEvent(itemName, new DecimalType(10), CHANNEL_UID.toString()))
         waitFor {handleUpdateWasCalled == true}
         assertThat handleUpdateWasCalled, is(false) 
     }
@@ -442,7 +442,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         
         // set status to INITIALIZING
         def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build()
-        ThingStatusInfoEvent event = ThingEventFactory.createThingStatusInfoEvent(THING.getUID(), statusInfo)
+        ThingStatusInfoEvent event = ThingEventFactory.createStatusInfoEvent(THING.getUID(), statusInfo)
         managedThingProvider.add(THING)
         
         waitForAssert {assertThat receivedEvent, not(null)}
@@ -453,7 +453,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         
         // set status to ONLINE
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
-        event = ThingEventFactory.createThingStatusInfoEvent(THING.getUID(), statusInfo)
+        event = ThingEventFactory.createStatusInfoEvent(THING.getUID(), statusInfo)
         callback.statusUpdated(THING, statusInfo)
         
         waitForAssert {assertThat receivedEvent, not(null)}
@@ -464,7 +464,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         // set status to OFFLINE
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR).build()
-        event = ThingEventFactory.createThingStatusInfoEvent(THING.getUID(), statusInfo)
+        event = ThingEventFactory.createStatusInfoEvent(THING.getUID(), statusInfo)
         callback.statusUpdated(THING, statusInfo)
         
         waitForAssert {assertThat receivedEvent, not(null)}
@@ -475,7 +475,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         
         // set status to UNINITIALIZED
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR).build()
-        event = ThingEventFactory.createThingStatusInfoEvent(THING.getUID(), statusInfo)
+        event = ThingEventFactory.createStatusInfoEvent(THING.getUID(), statusInfo)
         unregisterService(THING.getHandler())
         
         waitForAssert {assertThat receivedEvent, not(null)}

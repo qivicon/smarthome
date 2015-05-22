@@ -11,7 +11,6 @@ import java.lang.reflect.Method;
 
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
-import org.eclipse.smarthome.core.events.Topic;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
@@ -26,7 +25,11 @@ import com.google.common.collect.Sets;
  * @author Stefan Bußweiler - Initial contribution
  */
 public class ItemEventFactory extends AbstractEventFactory {
+    
+    private static final String ITEM_COMAND_EVENT_TOPIC = "smarthome/items/{itemName}/command";
 
+    private static final String ITEM_UPDATE_EVENT_TOPIC = "smarthome/items/{itemName}/update";
+    
     /**
      * Constructs a new ItemEventFactory.
      */
@@ -38,14 +41,14 @@ public class ItemEventFactory extends AbstractEventFactory {
     protected Event createEventByType(String eventType, String topic, String payload) throws Exception {
         Event event = null;
         if (eventType.equals(ItemCommandEvent.TYPE)) {
-            event = createItemCommandEvent(eventType, topic, payload);
+            event = createCommandEvent(eventType, topic, payload);
         } else if (eventType.equals(ItemUpdateEvent.TYPE)) {
-            event = createItemUpdateEvent(eventType, topic, payload);
+            event = createUpdateEvent(eventType, topic, payload);
         }
         return event;
     }
 
-    private Event createItemCommandEvent(String eventType, String topic, String payload) {
+    private Event createCommandEvent(String eventType, String topic, String payload) {
         ItemEventPayloadBean bean = deserializePayload(payload, ItemEventPayloadBean.class);
         Command command = null;
         try {
@@ -56,7 +59,7 @@ public class ItemEventFactory extends AbstractEventFactory {
         return new ItemCommandEvent(topic, payload, bean.getName(), command, bean.getSource());
     }
 
-    private Event createItemUpdateEvent(String eventType, String topic, String payload) {
+    private Event createUpdateEvent(String eventType, String topic, String payload) {
         ItemEventPayloadBean bean = deserializePayload(payload, ItemEventPayloadBean.class);
         State state = null;
         try {
@@ -82,13 +85,13 @@ public class ItemEventFactory extends AbstractEventFactory {
      * 
      * @return the created item command event
      */
-    public static ItemCommandEvent createItemCommandEvent(String itemName, Command command, String source) {
+    public static ItemCommandEvent createCommandEvent(String itemName, Command command, String source) {
         checkArguments(itemName, command, "command");
-        Topic topicObj = new Topic("smarthome", "items", itemName, "command");
+        String topic = ITEM_COMAND_EVENT_TOPIC.replace("{itemName}", itemName);
         ItemEventPayloadBean bean = new ItemEventPayloadBean(itemName, command.getClass().getName(),
                 command.toString(), source);
         String payload = serializePayload(bean);
-        return new ItemCommandEvent(topicObj.getAsString(), payload, itemName, command, source);
+        return new ItemCommandEvent(topic, payload, itemName, command, source);
     }
 
     /**
@@ -99,8 +102,8 @@ public class ItemEventFactory extends AbstractEventFactory {
      * 
      * @return the created item command event
      */
-    public static ItemCommandEvent createItemCommandEvent(String itemName, Command command) {
-        return createItemCommandEvent(itemName, command, null);
+    public static ItemCommandEvent createCommandEvent(String itemName, Command command) {
+        return createCommandEvent(itemName, command, null);
     }
 
     /**
@@ -112,13 +115,13 @@ public class ItemEventFactory extends AbstractEventFactory {
      * 
      * @return the created item update event
      */
-    public static ItemUpdateEvent createItemUpdateEvent(String itemName, State state, String source) {
+    public static ItemUpdateEvent createUpdateEvent(String itemName, State state, String source) {
         checkArguments(itemName, state, "state");
-        Topic topicObj = new Topic("smarthome", "items", itemName, "update");
+        String topic = ITEM_UPDATE_EVENT_TOPIC.replace("{itemName}", itemName);
         ItemEventPayloadBean bean = new ItemEventPayloadBean(itemName, state.getClass().getName(), state.toString(),
                 source);
         String payload = serializePayload(bean);
-        return new ItemUpdateEvent(topicObj.getAsString(), payload, itemName, state, source);
+        return new ItemUpdateEvent(topic, payload, itemName, state, source);
     }
 
     /**
@@ -129,8 +132,8 @@ public class ItemEventFactory extends AbstractEventFactory {
      * 
      * @return the created item update event
      */
-    public static ItemUpdateEvent createItemUpdateEvent(String itemName, State state) {
-        return createItemUpdateEvent(itemName, state, null);
+    public static ItemUpdateEvent createUpdateEvent(String itemName, State state) {
+        return createUpdateEvent(itemName, state, null);
     }
 
     private static void checkArguments(String itemName, Type type, String typeArgumentName) {

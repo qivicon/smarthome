@@ -54,7 +54,7 @@ public class SendConsoleCommandExtension extends AbstractConsoleCommandExtension
                     String commandName = args[1];
                     Command command = TypeParser.parseCommand(item.getAcceptedCommandTypes(), commandName);
                     if (command != null) {
-                        eventPublisher.post(ItemEventFactory.createItemCommandEvent(itemName, command));
+                        eventPublisher.post(ItemEventFactory.createCommandEvent(itemName, command));
                         console.println("Command has been sent successfully.");
                     } else {
                         console.println("Error: Command '" + commandName + "' is not valid for item '" + itemName + "'");

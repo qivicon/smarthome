@@ -11,15 +11,14 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import com.google.gson.Gson
-import org.eclipse.smarthome.core.events.Event;
-import org.eclipse.smarthome.core.events.Topic
-import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.ThingStatusDetail;
-import org.eclipse.smarthome.core.thing.ThingStatusInfo;
+import org.eclipse.smarthome.core.events.Event
+import org.eclipse.smarthome.core.thing.ThingStatus
+import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingUID
-import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
-import org.junit.Test;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
+import org.junit.Test
+
+import com.google.gson.Gson
 
 /**
  * {@link ThingEventFactoryTests} tests the {@link ThingEventFactory}.
@@ -32,7 +31,7 @@ class ThingEventFactoryTests {
             .withDescription("Some description").build();
     def THING_UID = new ThingUID("binding:type:id")
     def TYPE = ThingStatusInfoEvent.TYPE
-    def TOPIC = new Topic("things", THING_UID.getAsString(), "status").getAsString()
+    def TOPIC = ThingEventFactory.THING_STATUS_INFO_EVENT_TOPIC.replace("{thingUID}", THING_UID.getAsString())
     def PAYLOAD = new Gson().toJson(THING_STATUS_INFO)
 
     ThingEventFactory factory = new ThingEventFactory()
@@ -52,7 +51,7 @@ class ThingEventFactoryTests {
 
     @Test
     void 'ThingEventFactory creates ThingStatusInfoEvent correctly'() {
-        ThingStatusInfoEvent event = ThingEventFactory.createThingStatusInfoEvent(THING_UID, THING_STATUS_INFO)
+        ThingStatusInfoEvent event = ThingEventFactory.createStatusInfoEvent(THING_UID, THING_STATUS_INFO)
 
         assertThat event.getType(), is(TYPE)
         assertThat event.getTopic(), is(TOPIC)

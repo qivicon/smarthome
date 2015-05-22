@@ -169,7 +169,7 @@ abstract public class GenericItem implements ActiveItem {
     protected void internalSend(Command command) {
         // try to send the command to the bus
         if (eventPublisher != null) {
-            eventPublisher.post(ItemEventFactory.createItemCommandEvent(this.getName(), command));
+            eventPublisher.post(ItemEventFactory.createCommandEvent(this.getName(), command));
         }
     }
 
