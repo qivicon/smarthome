@@ -12,9 +12,9 @@ The following diagram introduces the interfaces of the Eclipse SmartHome event m
 The `EventPublisher` posts `Event`s through the Eclipse SmartHome event bus in an asynchronous way. The `EventSubscriber` defines the callback interface to receive  events of specific types to which the event subscriber is subscribed to (`EventSubscriber.getSubscribedEventTypes()`). An event subscriber can provide an `EventFilter` in order to filter events based on the topic or the content. If there is no filter all subscribed event types are received. The event itself will be subclassed for each event type, which exists in the System (e.g. ItemCommandEvent, ItemUpdateEvent, ThingStatusInfoEvent, etc.). As for different event types different concrete classes exist, an `EventFactory` creates concrete event type instances. 
 
 ### The Events
-This section lists all events provided by Eclipse SmartHome. An event has a topic, a type and a payload. The payload is serialized with JSON and is determined by its event type. Each concrete event implementation (e.g. ItemCommandEvent, ItemUpdateEvent) provides the payload as high level methods as well. A topic clearly defines the target of the event and is structured as follows:
+This section lists all events provided by Eclipse SmartHome. An event has a topic, a type and a payload. The payload is serialized with JSON and is determined by its event type. Each event implementation (e.g. ItemCommandEvent, ItemUpdateEvent) provides the payload as high level methods as well. A topic clearly defines the target of the event and its structure is similar to a REST URI, except the last part, the action:
 
-`{namespace}/{entityType}/{entityId}/{action}`, e.g. `smarthome/items/{itemName}/command`
+`{namespace}/{entityType}/{entity}/{action}`, e.g. `smarthome/items/{itemName}/command`
 
 The following table lists all events, its topics and the corresponding factories.
 
@@ -63,7 +63,7 @@ public class SomeItemEventSubscriber implements EventSubscriber {
 	}
 }
 ```
-The `SomeItemEventSubscriber` is subscribed to the event types `ItemUpdateEvent` and `ItemCommandEvent` (a string representation of the event type can be obtained by a public member `TYPE` and is normally presented by the class name) and provides a topic filter with the regular expression "smarthome/items/.*". The method `EventFilter.apply()` will be called for each event on the event bus to which the event subscriber is subscribed to. If the filter applies, the event will be received by the `EventSubscriber.receive()` method. Received events can be casted to the event implementation class for further processing. 
+The `SomeItemEventSubscriber` is subscribed to the event types `ItemUpdateEvent` and `ItemCommandEvent`. A string representation of the event types can be obtained by a public member `TYPE` which normally presents the name of the class. The subscriber provides a topic filter with the regular expression "smarthome/items/.*". The filter method `EventFilter.apply()` will be called for each event on the event bus to which the event subscriber is subscribed to. If the filter applies, the event will be received by the `EventSubscriber.receive()` method. Received events can be casted to the event implementation class for further processing. Both - the filter and the subscribed types - should be class members and not directly returned by the corresponding methods due to performance reasons.
 
 Each event subscriber must be registered via OSGi Declarative Services (DS) with the interface `org.eclipse.smarthome.event.EventSubscriber` as illustrated below.
 
