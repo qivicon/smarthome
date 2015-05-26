@@ -77,4 +77,9 @@ public class ItemCommandEvent extends AbstractEvent {
         return source;
     }
 
+    @Override
+    public String toString() {
+        return "Item '" + itemName + "' received command " + command;
+    }
+
 }

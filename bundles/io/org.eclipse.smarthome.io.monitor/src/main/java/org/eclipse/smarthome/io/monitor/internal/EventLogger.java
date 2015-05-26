@@ -33,8 +33,9 @@ public class EventLogger implements EventSubscriber {
 
     @Override
     public void receive(Event event) {
-        logger.debug("Received event of type '{}' under the topic '{}' with payload: '{}'", event.getType(),
+        logger.trace("Received event of type '{}' under the topic '{}' with payload: '{}'", event.getType(),
                 event.getTopic(), event.getPayload());
+        logger.debug(event.toString());
     }
 
 }

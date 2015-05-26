@@ -26,7 +26,7 @@ public class ItemUpdateEvent extends AbstractEvent {
     private final String itemName;
 
     private final State itemState;
-    
+
     private final String source;
 
     /**
@@ -67,7 +67,7 @@ public class ItemUpdateEvent extends AbstractEvent {
     public State getItemState() {
         return itemState;
     }
-    
+
     /**
      * Gets the source of the item command.
      * 
@@ -75,6 +75,11 @@ public class ItemUpdateEvent extends AbstractEvent {
      */
     public String getSource() {
         return source;
+    }
+
+    @Override
+    public String toString() {
+        return "State of item '" + itemName + "' updated to " + itemState;
     }
 
 }

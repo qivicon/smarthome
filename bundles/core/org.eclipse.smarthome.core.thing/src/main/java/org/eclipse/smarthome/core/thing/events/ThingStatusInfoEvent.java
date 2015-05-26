@@ -65,4 +65,10 @@ public class ThingStatusInfoEvent extends AbstractEvent {
         return thingStatusInfo;
     }
 
+    @Override
+    public String toString() {
+        return "Status of thing '" + thingUID + "' updated to " + thingStatusInfo.getStatus() + " with detail "
+                + thingStatusInfo.getStatusDetail();
+    }
+
 }
