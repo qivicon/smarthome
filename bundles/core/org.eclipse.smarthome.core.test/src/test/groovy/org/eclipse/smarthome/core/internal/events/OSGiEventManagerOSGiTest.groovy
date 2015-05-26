@@ -9,7 +9,6 @@ import org.eclipse.smarthome.core.events.EventFactory
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.events.TopicEventFilter
-import org.eclipse.smarthome.core.events.TypedEventFilter
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
@@ -63,14 +62,14 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
         def typeBasedSubscriber1 = [
             receive: { event -> receivedEvent_TypeBasedSubscriber1 = event },
             getSubscribedEventTypes: { Sets.newHashSet(EVENT_TYPE_A) },
-            getEventFilter: { new TypedEventFilter(EVENT_TYPE_A) },
+            getEventFilter: { null },
         ] as EventSubscriber
         registerService("TYPE_BASED_SUBSCRIBER_1", EventSubscriber, typeBasedSubscriber1)
 
         def typeBasedSubscriber2 = [
             receive: { event -> receivedEvent_TypeBasedSubscriber2 = event },
             getSubscribedEventTypes: { Sets.newHashSet(EVENT_TYPE_A) },
-            getEventFilter: { new TypedEventFilter(EVENT_TYPE_A) },
+            getEventFilter: { null },
         ] as EventSubscriber
         registerService("TYPE_BASED_SUBSCRIBER_2", EventSubscriber, typeBasedSubscriber2)
 

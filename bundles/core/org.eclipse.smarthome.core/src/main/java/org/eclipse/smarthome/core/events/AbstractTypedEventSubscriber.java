@@ -12,11 +12,10 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 
 /**
- * The {@link AbstractTypedEventSubscriber} is an abstract implementation of the {@link EventSubscriber} event listener
- * interface.
- * 
- * This class helps to subscribe to a specific event type and provides the {@link TypedEventFilter}. To receive an event - casted to
- * the specific event typ - the {@link #receiveTypedEvent(T)} method must be implemented.
+ * The {@link AbstractTypedEventSubscriber} is an abstract implementation of the {@link EventSubscriber} interface which
+ * helps to subscribe to a specific event type. To receive an event - casted to the specific event type - the
+ * {@link #receiveTypedEvent(T)} method must be implemented. This implementation provides no event filter. To filter
+ * events based on the topic or some content the {@link #getEventFilter()} method can be overridden.
  * 
  * @author Stefan Bußweiler - Initial contribution
  *
@@ -24,8 +23,6 @@ import com.google.common.collect.ImmutableSet;
  */
 public abstract class AbstractTypedEventSubscriber<T extends Event> implements EventSubscriber {
 
-    private final EventFilter eventFilter;
-    
     private final Set<String> subscribedEventTypes;
 
     /**
@@ -34,7 +31,6 @@ public abstract class AbstractTypedEventSubscriber<T extends Event> implements E
      * @param eventType the event type
      */
     public AbstractTypedEventSubscriber(String eventType) {
-        this.eventFilter = new TypedEventFilter(eventType);
         this.subscribedEventTypes = ImmutableSet.of(eventType);
     }
 
@@ -45,7 +41,7 @@ public abstract class AbstractTypedEventSubscriber<T extends Event> implements E
 
     @Override
     public EventFilter getEventFilter() {
-        return eventFilter;
+        return null;
     }
 
     @SuppressWarnings("unchecked")

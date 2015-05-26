@@ -16,7 +16,6 @@ import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.events.TopicEventFilter
-import org.eclipse.smarthome.core.events.TypedEventFilter
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent
 import org.eclipse.smarthome.core.items.events.ItemEventFactory
 import org.eclipse.smarthome.core.items.events.ItemUpdateEvent
@@ -436,7 +435,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         def thingStatusEventSubscriber = [
             receive: { event -> receivedEvent = event as ThingStatusInfoEvent },
             getSubscribedEventTypes: { Sets.newHashSet(ThingStatusInfoEvent.TYPE) },
-            getEventFilter: { new TypedEventFilter(ThingStatusInfoEvent.TYPE) },
+            getEventFilter: { null },
         ] as EventSubscriber
         registerService(thingStatusEventSubscriber)
         
