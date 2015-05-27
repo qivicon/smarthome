@@ -8,9 +8,9 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.rest.sse">
-   <implementation class="org.eclipse.smarthome.io.rest.sse.impl.SseResource"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.io.rest.sse.core.event.type.provider">
+   <implementation class="org.eclipse.smarthome.io.rest.sse.impl.CoreEventTypeProvider"/>
    <service>
-      <provide interface="org.eclipse.smarthome.io.rest.sse.EventChannel"/>
+      <provide interface="org.eclipse.smarthome.io.rest.sse.EventTypeProvider"/>
    </service>
 </scr:component>
