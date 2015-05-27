@@ -15,17 +15,17 @@ import java.util.List;
 import javax.ws.rs.core.UriBuilder;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
+import org.eclipse.smarthome.config.discovery.bean.DiscoveryResultBean;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.bean.GroupItemBean;
+import org.eclipse.smarthome.core.items.bean.ItemBean;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.io.rest.core.discovery.beans.DiscoveryResultBean;
+import org.eclipse.smarthome.core.thing.bean.ChannelBean;
+import org.eclipse.smarthome.core.thing.bean.ThingBean;
 import org.eclipse.smarthome.io.rest.core.item.ItemResource;
-import org.eclipse.smarthome.io.rest.core.item.beans.GroupItemBean;
-import org.eclipse.smarthome.io.rest.core.item.beans.ItemBean;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ChannelBean;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ThingBean;
 
 public class BeanMapper {
 

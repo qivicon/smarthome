@@ -5,11 +5,8 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.rest.core.binding.beans;
+package org.eclipse.smarthome.core.binding.bean;
 
-import java.util.Set;
-
-import org.eclipse.smarthome.io.rest.core.thing.beans.ThingTypeBean;
 
 /**
  * This is a java bean that is used to serialize binding info objects to JSON.
@@ -23,17 +20,15 @@ public class BindingInfoBean {
     public String description;
     public String id;
     public String name;
-    public Set<ThingTypeBean> thingTypes;
 
     public BindingInfoBean() {
     }
 
-    public BindingInfoBean(String id, String name, String author, String description, Set<ThingTypeBean> thingTypes) {
+    public BindingInfoBean(String id, String name, String author, String description) {
         this.id = id;
         this.name = name;
         this.author = author;
         this.description = description;
-        this.thingTypes = thingTypes;
     }
 
 }

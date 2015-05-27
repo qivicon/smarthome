@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.rest.sitemap.internal.beans;
+package org.eclipse.smarthome.model.bean;
 
 /**
  * This is a java bean that is used with JAXB to serialize sitemaps to JSON.

@@ -27,11 +27,13 @@ Import-Package: com.google.common.base,
  org.osgi.util.tracker,
  org.slf4j
 Export-Package: org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.core.thing.bean,
  org.eclipse.smarthome.core.thing.binding,
  org.eclipse.smarthome.core.thing.binding.builder,
  org.eclipse.smarthome.core.thing.events,
  org.eclipse.smarthome.core.thing.i18n,
  org.eclipse.smarthome.core.thing.link,
+ org.eclipse.smarthome.core.thing.link.bean,
  org.eclipse.smarthome.core.thing.setup,
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.thing.util

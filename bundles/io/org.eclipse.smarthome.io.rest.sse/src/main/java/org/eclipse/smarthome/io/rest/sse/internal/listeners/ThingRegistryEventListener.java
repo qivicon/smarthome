@@ -13,7 +13,7 @@ import java.util.List;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingRegistryChangeListener;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ThingBean;
+import org.eclipse.smarthome.core.thing.bean.ThingBean;
 import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 import org.eclipse.smarthome.io.rest.sse.EventType;
 import org.eclipse.smarthome.io.rest.sse.SseResource;

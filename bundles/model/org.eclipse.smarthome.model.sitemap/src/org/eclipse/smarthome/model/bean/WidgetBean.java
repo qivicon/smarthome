@@ -5,13 +5,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.rest.sitemap.internal.beans;
+package org.eclipse.smarthome.model.bean;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.smarthome.io.rest.core.item.beans.ItemBean;
+import org.eclipse.smarthome.core.items.bean.ItemBean;
 
 /**
  * This is a java bean that is used with JAXB to serialize widgets to JSON.

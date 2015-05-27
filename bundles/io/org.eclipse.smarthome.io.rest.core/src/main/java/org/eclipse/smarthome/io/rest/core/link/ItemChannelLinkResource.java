@@ -24,8 +24,8 @@ import org.eclipse.smarthome.core.thing.link.AbstractLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
+import org.eclipse.smarthome.core.thing.link.bean.ItemChannelLinkBean;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.link.beans.ItemChannelLinkBean;
 
 /**
  * This class acts as a REST resource for links.

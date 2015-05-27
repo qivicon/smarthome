@@ -5,20 +5,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.rest.sitemap.internal.beans;
+package org.eclipse.smarthome.core.items.bean;
 
 /**
- * This is a java bean that is used to serialize command mappings to JSON.
+ * This is a java bean that is used to serialize group items to JSON.
  * 
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public class MappingBean {
+public class GroupItemBean extends ItemBean {
 
-    public String command;
-    public String label;
-
-    public MappingBean() {
-    }
+    public ItemBean[] members;
 
 }

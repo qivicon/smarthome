@@ -27,12 +27,12 @@ import javax.ws.rs.core.UriInfo;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
+import org.eclipse.smarthome.config.discovery.bean.DiscoveryResultBean;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.discovery.beans.DiscoveryResultBean;
 import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 
 /**

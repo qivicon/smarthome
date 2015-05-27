@@ -14,7 +14,7 @@ import java.util.List;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
-import org.eclipse.smarthome.io.rest.core.item.beans.ItemBean;
+import org.eclipse.smarthome.core.items.bean.ItemBean;
 import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 import org.eclipse.smarthome.io.rest.sse.EventType;
 import org.eclipse.smarthome.io.rest.sse.SseResource;

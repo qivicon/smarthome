@@ -29,13 +29,13 @@ import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.GroupItem;
+import org.eclipse.smarthome.core.items.bean.ItemBean;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.bean.ThingBean;
 import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.item.beans.ItemBean;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ThingBean;
 import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 
 /**

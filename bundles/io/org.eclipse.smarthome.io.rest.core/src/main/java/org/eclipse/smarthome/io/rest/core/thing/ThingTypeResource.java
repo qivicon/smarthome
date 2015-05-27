@@ -30,6 +30,13 @@ import org.eclipse.smarthome.config.core.FilterCriteria;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.bean.ChannelDefinitionBean;
+import org.eclipse.smarthome.core.thing.bean.ChannelGroupDefinitionBean;
+import org.eclipse.smarthome.core.thing.bean.ConfigDescriptionParameterBean;
+import org.eclipse.smarthome.core.thing.bean.FilterCriteriaBean;
+import org.eclipse.smarthome.core.thing.bean.ParameterGroupBean;
+import org.eclipse.smarthome.core.thing.bean.ParameterOptionBean;
+import org.eclipse.smarthome.core.thing.bean.ThingTypeBean;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
@@ -39,13 +46,6 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.LocaleUtil;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ChannelDefinitionBean;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ChannelGroupDefinitionBean;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ConfigDescriptionParameterBean;
-import org.eclipse.smarthome.io.rest.core.thing.beans.FilterCriteriaBean;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ParameterGroupBean;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ParameterOptionBean;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ThingTypeBean;
 
 /**
  * This is a java bean that is used with JAXB to serialize things to XML or

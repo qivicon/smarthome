@@ -5,15 +5,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.rest.core.thing.beans;
+package org.eclipse.smarthome.core.thing.bean;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.items.bean.GroupItemBean;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
-import org.eclipse.smarthome.io.rest.core.item.beans.GroupItemBean;
 
 /**
  * This is a java bean that is used with JAX-RS to serialize things to JSON.
