@@ -27,8 +27,6 @@ public class ItemStateEvent extends AbstractEvent {
 
     private final State itemState;
 
-    private final String source;
-
     /**
      * Constructs a new item state event.
      * 
@@ -36,13 +34,12 @@ public class ItemStateEvent extends AbstractEvent {
      * @param payload the payload
      * @param itemName the item name
      * @param itemState the item state
-     * @param source the source
+     * @param source the source, can be null
      */
     protected ItemStateEvent(String topic, String payload, String itemName, State itemState, String source) {
-        super(topic, payload);
+        super(topic, payload, source);
         this.itemName = itemName;
         this.itemState = itemState;
-        this.source = source;
     }
 
     @Override
@@ -66,15 +63,6 @@ public class ItemStateEvent extends AbstractEvent {
      */
     public State getItemState() {
         return itemState;
-    }
-
-    /**
-     * Gets the source of the item command.
-     * 
-     * @return the source
-     */
-    public String getSource() {
-        return source;
     }
 
     @Override

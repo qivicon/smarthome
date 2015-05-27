@@ -32,7 +32,7 @@ public class ThingEventFactory extends AbstractEventFactory {
     }
 
     @Override
-    protected Event createEventByType(String eventType, String topic, String payload) throws Exception {
+    protected Event createEventByType(String eventType, String topic, String payload, String source) throws Exception {
         boolean isThingStatusEvent = eventType.equals(ThingStatusInfoEvent.TYPE);
         return isThingStatusEvent ? createStatusInfoEvent(eventType, topic, payload) : null;
     }

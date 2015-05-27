@@ -27,8 +27,6 @@ public class ItemCommandEvent extends AbstractEvent {
 
     private final Command command;
 
-    private final String source;
-
     /**
      * Constructs a new item command event object.
      * 
@@ -36,13 +34,12 @@ public class ItemCommandEvent extends AbstractEvent {
      * @param payload the payload
      * @param itemName the item name
      * @param command the command
-     * @param source the source
+     * @param source the source, can be null
      */
     protected ItemCommandEvent(String topic, String payload, String itemName, Command command, String source) {
-        super(topic, payload);
+        super(topic, payload, source);
         this.itemName = itemName;
         this.command = command;
-        this.source = source;
     }
 
     @Override
@@ -66,15 +63,6 @@ public class ItemCommandEvent extends AbstractEvent {
      */
     public Command getItemCommand() {
         return command;
-    }
-
-    /**
-     * Gets the source of the item command.
-     * 
-     * @return the source
-     */
-    public String getSource() {
-        return source;
     }
 
     @Override

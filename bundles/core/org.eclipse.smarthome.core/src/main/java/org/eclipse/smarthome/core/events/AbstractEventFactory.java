@@ -15,7 +15,7 @@ import com.google.gson.Gson;
 
 /**
  * The {@link AbstractEventFactory} defines an abstract implementation of the {@link EventFactory} interface. Subclasses
- * must implement the abstract method {@link #createEventByType(String, String, String)} in order to create event
+ * must implement the abstract method {@link #createEventByType(String, String, String, String)} in order to create event
  * instances based on the event type.
  * 
  * @author Stefan Bußweiler - Initial contribution
@@ -36,12 +36,12 @@ public abstract class AbstractEventFactory implements EventFactory {
     }
 
     @Override
-    public Event createEvent(String eventType, String topic, String payload) throws Exception {
+    public Event createEvent(String eventType, String topic, String payload, String source) throws Exception {
         checkArguments(eventType, topic, payload);
         if (!getSupportedEventTypes().contains(eventType)) {
             throw new IllegalArgumentException("The event type '" + eventType + "' is not supported by this factory.");
         } else {
-            return createEventByType(eventType, topic, payload);
+            return createEventByType(eventType, topic, payload, source);
         }
     }
 
@@ -65,11 +65,13 @@ public abstract class AbstractEventFactory implements EventFactory {
      * @param eventType the event type
      * @param topic the topic
      * @param payload the payload
+     * @param source the source, can be null
      * 
      * @return the created event instance
      * @throws Exception if the creation of the event fails
      */
-    protected abstract Event createEventByType(String eventType, String topic, String payload) throws Exception;
+    protected abstract Event createEventByType(String eventType, String topic, String payload, String source)
+            throws Exception;
 
     /**
      * Serializes the payload object into its equivalent Json representation.

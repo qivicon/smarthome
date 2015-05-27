@@ -77,14 +77,14 @@ class AbstractItemEventSubscriberOSGiTest extends OSGiTest {
     public void 'AbstractItemEventSubscriber do not receive events if event type is not supported'() {
         def someEventType = "SOME_EVENT_TYPE"
         def someEventFactory = [
-            createEvent: { eventType, topic, payload ->
-                [ getType: {eventType}, getTopic: {topic}, getPayload: {payload} ] as Event
+            createEvent: { eventType, topic, payload, source ->
+                [ getType: {eventType}, getTopic: {topic}, getPayload: {payload}, getSource: {source} ] as Event
             },
             getSupportedEventTypes: { Sets.newHashSet(someEventType) }
         ] as EventFactory
         registerService(someEventFactory)
 
-        Event event = [ getType: { someEventType }, getPayload: { "{a: 'A', b: 'B'}" }, getTopic: { "smarthome/items" } ] as Event
+        Event event = [ getType: { someEventType }, getPayload: { "{a: 'A', b: 'B'}" }, getTopic: { "smarthome/items" }, getSource: { null } ] as Event
         
         eventPublisher.post(event)
         waitForAssert { assertThat commandEvent, is(null)}

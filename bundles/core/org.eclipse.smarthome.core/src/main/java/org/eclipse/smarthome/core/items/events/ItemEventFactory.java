@@ -25,11 +25,11 @@ import com.google.common.collect.Sets;
  * @author Stefan Bußweiler - Initial contribution
  */
 public class ItemEventFactory extends AbstractEventFactory {
-    
+
     private static final String ITEM_COMAND_EVENT_TOPIC = "smarthome/items/{itemName}/command";
 
     private static final String ITEM_STATE_EVENT_TOPIC = "smarthome/items/{itemName}/state";
-    
+
     /**
      * Constructs a new ItemEventFactory.
      */
@@ -38,17 +38,17 @@ public class ItemEventFactory extends AbstractEventFactory {
     }
 
     @Override
-    protected Event createEventByType(String eventType, String topic, String payload) throws Exception {
+    protected Event createEventByType(String eventType, String topic, String payload, String source) throws Exception {
         Event event = null;
         if (eventType.equals(ItemCommandEvent.TYPE)) {
-            event = createCommandEvent(eventType, topic, payload);
+            event = createCommandEvent(eventType, topic, payload, source);
         } else if (eventType.equals(ItemStateEvent.TYPE)) {
-            event = createStateEvent(eventType, topic, payload);
+            event = createStateEvent(eventType, topic, payload, source);
         }
         return event;
     }
 
-    private Event createCommandEvent(String eventType, String topic, String payload) {
+    private Event createCommandEvent(String eventType, String topic, String payload, String source) {
         ItemEventPayloadBean bean = deserializePayload(payload, ItemEventPayloadBean.class);
         Command command = null;
         try {
@@ -56,10 +56,10 @@ public class ItemEventFactory extends AbstractEventFactory {
         } catch (Exception e) {
             throw new IllegalArgumentException("Parsing of item command event failed.", e);
         }
-        return new ItemCommandEvent(topic, payload, bean.getName(), command, bean.getSource());
+        return new ItemCommandEvent(topic, payload, bean.getName(), command, source);
     }
 
-    private Event createStateEvent(String eventType, String topic, String payload) {
+    private Event createStateEvent(String eventType, String topic, String payload, String source) {
         ItemEventPayloadBean bean = deserializePayload(payload, ItemEventPayloadBean.class);
         State state = null;
         try {
@@ -67,7 +67,7 @@ public class ItemEventFactory extends AbstractEventFactory {
         } catch (Exception e) {
             throw new IllegalArgumentException("Parsing of item state event failed.", e);
         }
-        return new ItemStateEvent(topic, payload, bean.getName(), state, bean.getSource());
+        return new ItemStateEvent(topic, payload, bean.getName(), state, source);
     }
 
     private Object parse(String className, String valueToParse) throws Exception {
@@ -88,8 +88,7 @@ public class ItemEventFactory extends AbstractEventFactory {
     public static ItemCommandEvent createCommandEvent(String itemName, Command command, String source) {
         checkArguments(itemName, command, "command");
         String topic = ITEM_COMAND_EVENT_TOPIC.replace("{itemName}", itemName);
-        ItemEventPayloadBean bean = new ItemEventPayloadBean(itemName, command.getClass().getName(),
-                command.toString(), source);
+        ItemEventPayloadBean bean = new ItemEventPayloadBean(itemName, command.getClass().getName(), command.toString());
         String payload = serializePayload(bean);
         return new ItemCommandEvent(topic, payload, itemName, command, source);
     }
@@ -118,8 +117,7 @@ public class ItemEventFactory extends AbstractEventFactory {
     public static ItemStateEvent createStateEvent(String itemName, State state, String source) {
         checkArguments(itemName, state, "state");
         String topic = ITEM_STATE_EVENT_TOPIC.replace("{itemName}", itemName);
-        ItemEventPayloadBean bean = new ItemEventPayloadBean(itemName, state.getClass().getName(), state.toString(),
-                source);
+        ItemEventPayloadBean bean = new ItemEventPayloadBean(itemName, state.getClass().getName(), state.toString());
         String payload = serializePayload(bean);
         return new ItemStateEvent(topic, payload, itemName, state, source);
     }
@@ -149,13 +147,11 @@ public class ItemEventFactory extends AbstractEventFactory {
         private String name;
         private String clazz;
         private String value;
-        private String source;
 
-        public ItemEventPayloadBean(String name, String clazz, String value, String source) {
+        public ItemEventPayloadBean(String name, String clazz, String value) {
             this.name = name;
             this.clazz = clazz;
             this.value = value;
-            this.source = source;
         }
 
         public String getName() {
@@ -170,9 +166,6 @@ public class ItemEventFactory extends AbstractEventFactory {
             return value;
         }
 
-        public String getSource() {
-            return source;
-        }
     }
 
 }

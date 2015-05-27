@@ -37,9 +37,9 @@ class ItemEventFactoryTests {
     @Test
     void 'ItemEventFactory creates Event as ItemCommandEvent (type OnOffType) correctly'() {
         OnOffType command = OnOffType.ON
-        String payload = new Gson().toJson(new ItemEventPayloadBean(ITEM_NAME, command.getClass().getName(), command.toString(), SOURCE))
+        String payload = new Gson().toJson(new ItemEventPayloadBean(ITEM_NAME, command.getClass().getName(), command.toString()))
 
-        Event event = factory.createEvent(ITEM_COMMAND_TYPE, ITEM_COMMAND_TOPIC, payload)
+        Event event = factory.createEvent(ITEM_COMMAND_TYPE, ITEM_COMMAND_TOPIC, payload, SOURCE)
 
         assertThat event, is(instanceOf(ItemCommandEvent))
         ItemCommandEvent itemCommandEvent = event as ItemCommandEvent
@@ -55,7 +55,7 @@ class ItemEventFactoryTests {
     @Test
     void 'ItemEventFactory creates ItemCommandEvent (type OnOffType) correctly'() {
         OnOffType command = OnOffType.ON
-        String payload = new Gson().toJson(new ItemEventPayloadBean(ITEM_NAME, command.getClass().getName(), command.toString(), SOURCE))
+        String payload = new Gson().toJson(new ItemEventPayloadBean(ITEM_NAME, command.getClass().getName(), command.toString()))
 
         ItemCommandEvent event = ItemEventFactory.createCommandEvent(ITEM_NAME, command, SOURCE)
 
@@ -71,9 +71,9 @@ class ItemEventFactoryTests {
     @Test
     void 'ItemEventFactory creates Event as ItemUpdateEvent (type OnOffType) correctly'() {
         OnOffType state = OnOffType.ON
-        String payload = new Gson().toJson(new ItemEventPayloadBean(ITEM_NAME, state.getClass().getName(), state.toString(), SOURCE))
+        String payload = new Gson().toJson(new ItemEventPayloadBean(ITEM_NAME, state.getClass().getName(), state.toString()))
 
-        Event event = factory.createEvent(ITEM_UPDATE_TYPE, ITEM_UPDATE_TOPIC, payload)
+        Event event = factory.createEvent(ITEM_UPDATE_TYPE, ITEM_UPDATE_TOPIC, payload, SOURCE)
 
         assertThat event, is(instanceOf(ItemStateEvent))
         ItemStateEvent itemUpdateEvent = event as ItemStateEvent
@@ -89,7 +89,7 @@ class ItemEventFactoryTests {
     @Test
     void 'ItemEventFactory creates ItemUpdateEvent (type OnOffType) correctly'() {
         OnOffType state = OnOffType.ON
-        String payload = new Gson().toJson(new ItemEventPayloadBean(ITEM_NAME, state.getClass().getName(), state.toString(), SOURCE))
+        String payload = new Gson().toJson(new ItemEventPayloadBean(ITEM_NAME, state.getClass().getName(), state.toString()))
 
         ItemStateEvent event = ItemEventFactory.createStateEvent(ITEM_NAME, state, SOURCE)
 
@@ -105,7 +105,7 @@ class ItemEventFactoryTests {
     @Test
     public void 'ItemEventFactory throws exception for not supported event types' () {
         try {
-            factory.createEvent("SOME_NOT_SUPPORTED_TYPE", ITEM_COMMAND_TOPIC, "{\"some\":\"invalidPayload")
+            factory.createEvent("SOME_NOT_SUPPORTED_TYPE", ITEM_COMMAND_TOPIC, "{\"some\":\"invalidPayload", SOURCE)
             fail("IllegalArgumentException expected!")
         } catch(IllegalArgumentException e) {
             assertThat e.getMessage(), is("The event type 'SOME_NOT_SUPPORTED_TYPE' is not supported by this factory.")
@@ -116,19 +116,19 @@ class ItemEventFactoryTests {
     public void 'ItemEventFactory validates arguments'() {
         def payload = "{\"some\":\"invalidPayload"
         try {
-            factory.createEvent("", ITEM_COMMAND_TOPIC, payload)
+            factory.createEvent("", ITEM_COMMAND_TOPIC, payload, null)
             fail("IllegalArgumentException expected!")
         } catch(IllegalArgumentException e) {
             assertThat e.getMessage(), is("The argument 'eventType' must not be null or empty.")
         }
         try {
-            factory.createEvent(ITEM_COMMAND_TYPE, "", payload)
+            factory.createEvent(ITEM_COMMAND_TYPE, "", payload, null)
             fail("IllegalArgumentException expected!")
         } catch(IllegalArgumentException e) {
             assertThat e.getMessage(), is("The argument 'topic' must not be null or empty.")
         }
         try {
-            factory.createEvent(ITEM_COMMAND_TYPE, ITEM_COMMAND_TOPIC, "")
+            factory.createEvent(ITEM_COMMAND_TYPE, ITEM_COMMAND_TOPIC, "", null)
             fail("IllegalArgumentException expected!")
         } catch(IllegalArgumentException e) {
             assertThat e.getMessage(), is("The argument 'payload' must not be null or empty.")

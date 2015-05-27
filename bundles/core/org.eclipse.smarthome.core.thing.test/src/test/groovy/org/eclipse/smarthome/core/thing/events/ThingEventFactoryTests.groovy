@@ -38,7 +38,7 @@ class ThingEventFactoryTests {
 
     @Test
     void 'ThingEventFactory creates Event as ThingStatusInfoEvent correctly'() {
-        Event event = factory.createEvent(TYPE, TOPIC, PAYLOAD)
+        Event event = factory.createEvent(TYPE, TOPIC, PAYLOAD, "")
 
         assertThat event, is(instanceOf(ThingStatusInfoEvent))
         ThingStatusInfoEvent statusEvent = event as ThingStatusInfoEvent
@@ -63,7 +63,7 @@ class ThingEventFactoryTests {
     @Test
     public void 'ThingEventFactory throws exception for not supported event types' () {
         try {
-            factory.createEvent("SOME_NOT_SUPPORTED_TYPE", TOPIC, PAYLOAD)
+            factory.createEvent("SOME_NOT_SUPPORTED_TYPE", TOPIC, PAYLOAD, "")
             fail("IllegalArgumentException expected!")
         } catch(IllegalArgumentException e) {
             assertThat e.getMessage(), is("The event type 'SOME_NOT_SUPPORTED_TYPE' is not supported by this factory.")
@@ -73,19 +73,19 @@ class ThingEventFactoryTests {
     @Test
     public void 'ThingEventFactory validates arguments'() {
         try {
-            factory.createEvent("", TOPIC, PAYLOAD)
+            factory.createEvent("", TOPIC, PAYLOAD, null)
             fail("IllegalArgumentException expected!")
         } catch(IllegalArgumentException e) {
             assertThat e.getMessage(), is("The argument 'eventType' must not be null or empty.")
         }
         try {
-            factory.createEvent(TYPE, "", PAYLOAD)
+            factory.createEvent(TYPE, "", PAYLOAD, null)
             fail("IllegalArgumentException expected!")
         } catch(IllegalArgumentException e) {
             assertThat e.getMessage(), is("The argument 'topic' must not be null or empty.")
         }
         try {
-            factory.createEvent(TYPE, TOPIC, "")
+            factory.createEvent(TYPE, TOPIC, "", null)
             fail("IllegalArgumentException expected!")
         } catch(IllegalArgumentException e) {
             assertThat e.getMessage(), is("The argument 'payload' must not be null or empty.")

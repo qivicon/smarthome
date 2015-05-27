@@ -36,4 +36,11 @@ public interface Event {
      */
     String getPayload();
 
+    /**
+     * Gets the name of the source identifying the sender.
+     * 
+     * @return the name of the source
+     */
+    String getSource();
+
 }

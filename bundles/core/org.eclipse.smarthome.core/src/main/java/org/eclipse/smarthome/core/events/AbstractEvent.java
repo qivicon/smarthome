@@ -18,15 +18,19 @@ public abstract class AbstractEvent implements Event {
 
     private final String payload;
 
+    private final String source;
+
     /**
      * Must be called in subclass constructor to create a new event.
      * 
      * @param topic the topic
      * @param payload the payload
+     * @param source the source
      */
-    public AbstractEvent(String topic, String payload) {
+    public AbstractEvent(String topic, String payload, String source) {
         this.topic = topic;
         this.payload = payload;
+        this.source = source;
     }
 
     @Override
@@ -37,6 +41,11 @@ public abstract class AbstractEvent implements Event {
     @Override
     public String getPayload() {
         return payload;
+    }
+
+    @Override
+    public String getSource() {
+        return source;
     }
 
 }

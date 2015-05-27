@@ -44,16 +44,16 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
         eventPublisher = getService(EventPublisher)
 
         def eventTypeFactoryAB = [
-            createEvent: { eventType, topic, payload ->
-                [ getType: {eventType}, getTopic: {topic}, getPayload: {payload} ] as Event
+            createEvent: { eventType, topic, payload, source ->
+                [ getType: {eventType}, getTopic: {topic}, getPayload: {payload}, getSource: {source} ] as Event
             },
             getSupportedEventTypes: { Sets.newHashSet(EVENT_TYPE_A, EVENT_TYPE_B) }
         ] as EventFactory
         registerService("EVENT_TYPE_FACTORY_A_B", EventFactory, eventTypeFactoryAB)
 
         def eventTypeFactoryC = [
-            createEvent: { eventType, topic, payload ->
-                [ getType: {eventType}, getTopic: {topic}, getPayload: {payload} ] as Event
+            createEvent: { eventType, topic, payload, source ->
+                [ getType: {eventType}, getTopic: {topic}, getPayload: {payload}, getSource: {source} ] as Event
             },
             getSupportedEventTypes: { Sets.newHashSet(EVENT_TYPE_C) }
         ] as EventFactory
@@ -217,7 +217,7 @@ class OSGiEventManagerOSGiTest extends OSGiTest {
     }
     
     private Event createEvent(String eventType, String payload, String topic) {
-        [ getType: { eventType }, getPayload: { payload }, getTopic: { topic } ] as Event
+        [ getType: { eventType }, getPayload: { payload }, getTopic: { topic }, getSource: { null } ] as Event
     }
 
     private void registerService(String key, Class clazz, Object serviceObject) {

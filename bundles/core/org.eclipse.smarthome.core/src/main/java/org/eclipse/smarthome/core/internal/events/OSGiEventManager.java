@@ -107,25 +107,27 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         Object typeObj = osgiEvent.getProperty("type");
         Object payloadObj = osgiEvent.getProperty("payload");
         Object topicObj = osgiEvent.getProperty("topic");
+        Object sourceObj = osgiEvent.getProperty("source");
 
         if (typeObj instanceof String && payloadObj instanceof String && topicObj instanceof String) {
             String typeStr = (String) typeObj;
             String payloadStr = (String) payloadObj;
             String topicStr = (String) topicObj;
+            String sourceStr = (sourceObj instanceof String) ? (String) sourceObj : null;
             if (!typeStr.isEmpty() && !payloadStr.isEmpty() && !topicStr.isEmpty()) {
-                handleEvent(typeStr, payloadStr, topicStr);
+                handleEvent(typeStr, payloadStr, topicStr, sourceStr);
             }
         } else {
             logger.error("The handled OSGi event is invalid. Received event: {}", osgiEvent);
         }
     }
 
-    private void handleEvent(final String type, final String payload, final String topic) {
+    private void handleEvent(final String type, final String payload, final String topic, final String source) {
         EventFactory eventFactory = typedEventFactoryCache.get(type);
         Set<EventSubscriber> eventSubscribers = getEventSubscribers(type);
 
         if (eventFactory != null && !eventSubscribers.isEmpty()) {
-            Event eshEvent = createESHEvent(eventFactory, type, payload, topic);
+            Event eshEvent = createESHEvent(eventFactory, type, payload, topic, source);
             if (eshEvent != null) {
                 dispatchESHEvent(eventSubscribers, eshEvent);
             }
@@ -133,10 +135,10 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
     }
 
     private Event createESHEvent(final EventFactory eventFactory, final String type, final String payload,
-            final String topic) {
+            final String topic, final String source) {
         Event eshEvent = null;
         try {
-            eshEvent = eventFactory.createEvent(type, topic, payload);
+            eshEvent = eventFactory.createEvent(type, topic, payload, source);
         } catch (Exception e) {
             logger.error("Creation of ESH-Event failed, "
                     + "because one of the registered event factories has thrown an exception.", e);
@@ -189,6 +191,9 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
                     properties.put("type", event.getType());
                     properties.put("payload", event.getPayload());
                     properties.put("topic", event.getTopic());
+                    if(event.getSource() != null) {
+                        properties.put("source", event.getSource());
+                    }
                     eventAdmin.postEvent(new org.osgi.service.event.Event("smarthome", properties));
                     return null;
                 }
