@@ -9,7 +9,7 @@ package org.eclipse.smarthome.io.rest.sse.internal.listeners;
 
 import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
-import org.eclipse.smarthome.core.items.events.ItemUpdateEvent;
+import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.io.rest.sse.EventType;
 import org.eclipse.smarthome.io.rest.sse.SseResource;
 
@@ -39,7 +39,7 @@ public class OSGiEventListener extends AbstractItemEventSubscriber {
     }
 
     @Override
-    protected void receiveUpdate(ItemUpdateEvent updateEvent) {
+    protected void receiveUpdate(ItemStateEvent updateEvent) {
         sseResource.broadcastEvent(updateEvent.getItemName(), EventType.UPDATE, updateEvent.getItemState().toString());
     }
 }

@@ -20,7 +20,7 @@ import com.google.common.collect.Sets;
 
 /**
  * An {@link ItemEventFactory} is responsible for creating item event instances, e.g. {@link ItemCommandEvent}s and
- * {@link ItemUpdateEvent}s.
+ * {@link ItemStateEvent}s.
  * 
  * @author Stefan Bußweiler - Initial contribution
  */
@@ -28,13 +28,13 @@ public class ItemEventFactory extends AbstractEventFactory {
     
     private static final String ITEM_COMAND_EVENT_TOPIC = "smarthome/items/{itemName}/command";
 
-    private static final String ITEM_UPDATE_EVENT_TOPIC = "smarthome/items/{itemName}/update";
+    private static final String ITEM_STATE_EVENT_TOPIC = "smarthome/items/{itemName}/state";
     
     /**
      * Constructs a new ItemEventFactory.
      */
     public ItemEventFactory() {
-        super(Sets.newHashSet(ItemCommandEvent.TYPE, ItemUpdateEvent.TYPE));
+        super(Sets.newHashSet(ItemCommandEvent.TYPE, ItemStateEvent.TYPE));
     }
 
     @Override
@@ -42,8 +42,8 @@ public class ItemEventFactory extends AbstractEventFactory {
         Event event = null;
         if (eventType.equals(ItemCommandEvent.TYPE)) {
             event = createCommandEvent(eventType, topic, payload);
-        } else if (eventType.equals(ItemUpdateEvent.TYPE)) {
-            event = createUpdateEvent(eventType, topic, payload);
+        } else if (eventType.equals(ItemStateEvent.TYPE)) {
+            event = createStateEvent(eventType, topic, payload);
         }
         return event;
     }
@@ -59,15 +59,15 @@ public class ItemEventFactory extends AbstractEventFactory {
         return new ItemCommandEvent(topic, payload, bean.getName(), command, bean.getSource());
     }
 
-    private Event createUpdateEvent(String eventType, String topic, String payload) {
+    private Event createStateEvent(String eventType, String topic, String payload) {
         ItemEventPayloadBean bean = deserializePayload(payload, ItemEventPayloadBean.class);
         State state = null;
         try {
             state = (State) parse(bean.getClazz(), bean.getValue());
         } catch (Exception e) {
-            throw new IllegalArgumentException("Parsing of item update event failed.", e);
+            throw new IllegalArgumentException("Parsing of item state event failed.", e);
         }
-        return new ItemUpdateEvent(topic, payload, bean.getName(), state, bean.getSource());
+        return new ItemStateEvent(topic, payload, bean.getName(), state, bean.getSource());
     }
 
     private Object parse(String className, String valueToParse) throws Exception {
@@ -107,33 +107,33 @@ public class ItemEventFactory extends AbstractEventFactory {
     }
 
     /**
-     * Creates an item update event.
+     * Creates an item state event.
      * 
-     * @param itemName the name of the item to send the update for
+     * @param itemName the name of the item to send the state update for
      * @param state the new state to send
      * @param source the name of the source identifying the sender, can be null
      * 
-     * @return the created item update event
+     * @return the created item state event
      */
-    public static ItemUpdateEvent createUpdateEvent(String itemName, State state, String source) {
+    public static ItemStateEvent createStateEvent(String itemName, State state, String source) {
         checkArguments(itemName, state, "state");
-        String topic = ITEM_UPDATE_EVENT_TOPIC.replace("{itemName}", itemName);
+        String topic = ITEM_STATE_EVENT_TOPIC.replace("{itemName}", itemName);
         ItemEventPayloadBean bean = new ItemEventPayloadBean(itemName, state.getClass().getName(), state.toString(),
                 source);
         String payload = serializePayload(bean);
-        return new ItemUpdateEvent(topic, payload, itemName, state, source);
+        return new ItemStateEvent(topic, payload, itemName, state, source);
     }
 
     /**
-     * Creates an item update event.
+     * Creates an item state event.
      * 
-     * @param itemName the name of the item to send the update for
+     * @param itemName the name of the item to send the state update for
      * @param state the new state to send
      * 
-     * @return the created item update event
+     * @return the created item state event
      */
-    public static ItemUpdateEvent createUpdateEvent(String itemName, State state) {
-        return createUpdateEvent(itemName, state, null);
+    public static ItemStateEvent createStateEvent(String itemName, State state) {
+        return createStateEvent(itemName, state, null);
     }
 
     private static void checkArguments(String itemName, Type type, String typeArgumentName) {

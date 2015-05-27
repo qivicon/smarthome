@@ -11,17 +11,17 @@ import org.eclipse.smarthome.core.events.AbstractEvent;
 import org.eclipse.smarthome.core.types.State;
 
 /**
- * {@link ItemUpdateEvent}s can be used to deliver item status updates through the Eclipse SmartHome event bus.
- * Update events must be created with the {@link ItemEventFactory}.
+ * {@link ItemStateEvent}s can be used to deliver item status updates through the Eclipse SmartHome event bus.
+ * State events must be created with the {@link ItemEventFactory}.
  * 
  * @author Stefan Bußweiler - Initial contribution
  */
-public class ItemUpdateEvent extends AbstractEvent {
+public class ItemStateEvent extends AbstractEvent {
 
     /**
-     * The item update event type.
+     * The item state event type.
      */
-    public final static String TYPE = ItemUpdateEvent.class.getSimpleName();
+    public final static String TYPE = ItemStateEvent.class.getSimpleName();
 
     private final String itemName;
 
@@ -30,7 +30,7 @@ public class ItemUpdateEvent extends AbstractEvent {
     private final String source;
 
     /**
-     * Constructs a new item update event.
+     * Constructs a new item state event.
      * 
      * @param topic the topic
      * @param payload the payload
@@ -38,7 +38,7 @@ public class ItemUpdateEvent extends AbstractEvent {
      * @param itemState the item state
      * @param source the source
      */
-    protected ItemUpdateEvent(String topic, String payload, String itemName, State itemState, String source) {
+    protected ItemStateEvent(String topic, String payload, String itemName, State itemState, String source) {
         super(topic, payload);
         this.itemName = itemName;
         this.itemState = itemState;

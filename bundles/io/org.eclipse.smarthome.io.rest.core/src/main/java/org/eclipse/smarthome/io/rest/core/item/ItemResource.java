@@ -164,7 +164,7 @@ public class ItemResource implements RESTResource {
             State state = TypeParser.parseState(item.getAcceptedDataTypes(), value);
             if (state != null) {
                 logger.debug("Received HTTP PUT request at '{}' with value '{}'.", uriInfo.getPath(), value);
-                eventPublisher.post(ItemEventFactory.createUpdateEvent(itemname, state));
+                eventPublisher.post(ItemEventFactory.createStateEvent(itemname, state));
                 return Response.ok().build();
             } else {
                 logger.warn("Received HTTP PUT request at '{}' with an invalid status value '{}'.", uriInfo.getPath(),

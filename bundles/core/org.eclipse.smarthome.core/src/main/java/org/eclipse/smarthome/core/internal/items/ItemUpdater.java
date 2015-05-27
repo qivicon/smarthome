@@ -14,7 +14,7 @@ import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
-import org.eclipse.smarthome.core.items.events.ItemUpdateEvent;
+import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class ItemUpdater extends AbstractItemEventSubscriber {
     }
 
     @Override
-    protected void receiveUpdate(ItemUpdateEvent updateEvent) {
+    protected void receiveUpdate(ItemStateEvent updateEvent) {
         if (itemRegistry != null) {
             String itemName = updateEvent.getItemName();
             State newStatus = updateEvent.getItemState();

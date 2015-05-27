@@ -20,7 +20,7 @@ import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
-import org.eclipse.smarthome.core.items.events.ItemUpdateEvent;
+import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
@@ -126,7 +126,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         public void stateUpdated(ChannelUID channelUID, State state) {
             Set<String> items = itemChannelLinkRegistry.getLinkedItems(channelUID);
             for (String item : items) {
-                eventPublisher.post(ItemEventFactory.createUpdateEvent(item, state, channelUID.toString()));
+                eventPublisher.post(ItemEventFactory.createStateEvent(item, state, channelUID.toString()));
             }
         }
         
@@ -244,7 +244,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     }
 
     @Override
-    protected void receiveUpdate(ItemUpdateEvent updateEvent) {
+    protected void receiveUpdate(ItemStateEvent updateEvent) {
         String itemName = updateEvent.getItemName();
         State newState = updateEvent.getItemState();
         Set<ChannelUID> boundChannels = this.itemChannelLinkRegistry.getBoundChannels(itemName);

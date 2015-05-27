@@ -140,7 +140,7 @@ public class BusEvent {
             try {
                 Item item = registry.getItem(itemName);
                 State state = TypeParser.parseState(item.getAcceptedDataTypes(), stateString);
-                publisher.post(ItemEventFactory.createUpdateEvent(itemName, state));
+                publisher.post(ItemEventFactory.createStateEvent(itemName, state));
             } catch (ItemNotFoundException e) {
                 LoggerFactory.getLogger(BusEvent.class).warn("Item '" + itemName + "' does not exist.");
             }
@@ -158,7 +158,7 @@ public class BusEvent {
     static public Object postUpdate(Item item, State state) {
         EventPublisher publisher = ScriptActivator.eventPublisherTracker.getService();
         if (publisher != null && item != null) {
-            publisher.post(ItemEventFactory.createUpdateEvent(item.getName(), state));
+            publisher.post(ItemEventFactory.createStateEvent(item.getName(), state));
         }
         return null;
     }

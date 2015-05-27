@@ -18,7 +18,7 @@ import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.events.TopicEventFilter
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent
 import org.eclipse.smarthome.core.items.events.ItemEventFactory
-import org.eclipse.smarthome.core.items.events.ItemUpdateEvent
+import org.eclipse.smarthome.core.items.events.ItemStateEvent
 import org.eclipse.smarthome.core.library.types.DecimalType
 import org.eclipse.smarthome.core.library.types.StringType
 import org.eclipse.smarthome.core.thing.Bridge
@@ -147,13 +147,13 @@ class ThingManagerOSGiTest extends OSGiTest {
         ] as Hashtable)
         
         // event should be delivered
-        eventPublisher.post(ItemEventFactory.createUpdateEvent(itemName, new DecimalType(10)))
+        eventPublisher.post(ItemEventFactory.createStateEvent(itemName, new DecimalType(10)))
         waitForAssert { assertThat handleUpdateWasCalled, is(true) }
        
         handleUpdateWasCalled = false
         
         // event should not be delivered, because the source is the same
-        eventPublisher.post(ItemEventFactory.createUpdateEvent(itemName, new DecimalType(10), CHANNEL_UID.toString()))
+        eventPublisher.post(ItemEventFactory.createStateEvent(itemName, new DecimalType(10), CHANNEL_UID.toString()))
         waitFor {handleUpdateWasCalled == true}
         assertThat handleUpdateWasCalled, is(false) 
     }
@@ -184,17 +184,17 @@ class ThingManagerOSGiTest extends OSGiTest {
        Event receivedEvent = null  
        def itemUpdateEventSubscriber = [
             receive: { event -> receivedEvent = event },
-            getSubscribedEventTypes: { Sets.newHashSet(ItemUpdateEvent.TYPE) },
-            getEventFilter: { new TopicEventFilter("smarthome/items/.*/update") },
+            getSubscribedEventTypes: { Sets.newHashSet(ItemStateEvent.TYPE) },
+            getEventFilter: { new TopicEventFilter("smarthome/items/.*/state") },
         ] as EventSubscriber
         registerService(itemUpdateEventSubscriber)
 
         // thing manager posts the update to the event bus via EventPublisher
         callback.stateUpdated(CHANNEL_UID, new StringType("Value"))
         waitForAssert { assertThat receivedEvent, not(null) }
-        assertThat receivedEvent, is(instanceOf(ItemUpdateEvent))
-        ItemUpdateEvent itemUpdateEvent = receivedEvent as ItemUpdateEvent
-        assertThat itemUpdateEvent.getTopic(), is("smarthome/items/name/update")
+        assertThat receivedEvent, is(instanceOf(ItemStateEvent))
+        ItemStateEvent itemUpdateEvent = receivedEvent as ItemStateEvent
+        assertThat itemUpdateEvent.getTopic(), is("smarthome/items/name/state")
         assertThat itemUpdateEvent.getItemName(), is(itemName)
         assertThat itemUpdateEvent.getSource(), is(CHANNEL_UID.toString())
         assertThat itemUpdateEvent.getItemState(), is(instanceOf(StringType))
@@ -207,9 +207,9 @@ class ThingManagerOSGiTest extends OSGiTest {
         
         callback.stateUpdated(CHANNEL_UID, new StringType("Value"))
         waitForAssert { assertThat receivedEvent, not(null) }
-        assertThat receivedEvent, is(instanceOf(ItemUpdateEvent))
-        itemUpdateEvent = receivedEvent as ItemUpdateEvent
-        assertThat itemUpdateEvent.getTopic(), is("smarthome/items/name/update")
+        assertThat receivedEvent, is(instanceOf(ItemStateEvent))
+        itemUpdateEvent = receivedEvent as ItemStateEvent
+        assertThat itemUpdateEvent.getTopic(), is("smarthome/items/name/state")
         assertThat itemUpdateEvent.getItemName(), is(itemName)
         assertThat itemUpdateEvent.getSource(), is(CHANNEL_UID.toString())
         assertThat itemUpdateEvent.getItemState(), is(instanceOf(StringType))

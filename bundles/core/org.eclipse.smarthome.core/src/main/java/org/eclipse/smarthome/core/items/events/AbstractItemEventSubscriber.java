@@ -17,16 +17,16 @@ import com.google.common.collect.ImmutableSet;
 
 /**
  * The {@link AbstractItemEventSubscriber} defines an abstract implementation of the {@link EventSubscriber} interface
- * for receiving {@link ItemUpdateEvent}s and {@link ItemCommandEvent}s from the Eclipse SmartHome event bus. </p>
+ * for receiving {@link ItemStateEvent}s and {@link ItemCommandEvent}s from the Eclipse SmartHome event bus. </p>
  * 
- * A subclass can implement the methods {@link #receiveUpdate(ItemUpdateEvent)} and
+ * A subclass can implement the methods {@link #receiveUpdate(ItemStateEvent)} and
  * {@link #receiveCommand(ItemCommandEvent)} in order to receive and handle such item events.
  * 
  * @author Stefan Bußweiler - Initial contribution
  */
 public abstract class AbstractItemEventSubscriber implements EventSubscriber {
 
-    private final Set<String> subscribedEventTypes = ImmutableSet.of(ItemUpdateEvent.TYPE, ItemCommandEvent.TYPE);
+    private final Set<String> subscribedEventTypes = ImmutableSet.of(ItemStateEvent.TYPE, ItemCommandEvent.TYPE);
     
     @Override
     public Set<String> getSubscribedEventTypes() {
@@ -40,8 +40,8 @@ public abstract class AbstractItemEventSubscriber implements EventSubscriber {
 
     @Override
     public void receive(Event event) {
-        if (event instanceof ItemUpdateEvent) {
-            receiveUpdate((ItemUpdateEvent) event);
+        if (event instanceof ItemStateEvent) {
+            receiveUpdate((ItemStateEvent) event);
         } else if (event instanceof ItemCommandEvent) {
             receiveCommand((ItemCommandEvent) event);
         }
@@ -62,7 +62,7 @@ public abstract class AbstractItemEventSubscriber implements EventSubscriber {
      * 
      * @param updateEvent the item update event
      */
-    protected void receiveUpdate(ItemUpdateEvent updateEvent) {
+    protected void receiveUpdate(ItemStateEvent updateEvent) {
         // Default implementation: do nothing.
         // Can be implemented by subclass in order to handle item updates.
     }

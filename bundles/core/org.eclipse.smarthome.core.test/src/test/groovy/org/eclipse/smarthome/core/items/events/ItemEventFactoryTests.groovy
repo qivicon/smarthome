@@ -28,9 +28,9 @@ class ItemEventFactoryTests {
     def ITEM_NAME = "ItemA"
     def SOURCE = "binding:type:id:channel"
     def ITEM_COMMAND_TYPE = ItemCommandEvent.TYPE
-    def ITEM_UPDATE_TYPE = ItemUpdateEvent.TYPE
+    def ITEM_UPDATE_TYPE = ItemStateEvent.TYPE
     def ITEM_COMMAND_TOPIC = ItemEventFactory.ITEM_COMAND_EVENT_TOPIC.replace("{itemName}", ITEM_NAME)
-    def ITEM_UPDATE_TOPIC = ItemEventFactory.ITEM_UPDATE_EVENT_TOPIC.replace("{itemName}", ITEM_NAME)
+    def ITEM_UPDATE_TOPIC = ItemEventFactory.ITEM_STATE_EVENT_TOPIC.replace("{itemName}", ITEM_NAME)
 
     ItemEventFactory factory = new ItemEventFactory()
 
@@ -75,8 +75,8 @@ class ItemEventFactoryTests {
 
         Event event = factory.createEvent(ITEM_UPDATE_TYPE, ITEM_UPDATE_TOPIC, payload)
 
-        assertThat event, is(instanceOf(ItemUpdateEvent))
-        ItemUpdateEvent itemUpdateEvent = event as ItemUpdateEvent
+        assertThat event, is(instanceOf(ItemStateEvent))
+        ItemStateEvent itemUpdateEvent = event as ItemStateEvent
         assertThat itemUpdateEvent.getType(), is(ITEM_UPDATE_TYPE)
         assertThat itemUpdateEvent.getTopic(), is(ITEM_UPDATE_TOPIC)
         assertThat itemUpdateEvent.getPayload(), is(payload)
@@ -91,7 +91,7 @@ class ItemEventFactoryTests {
         OnOffType state = OnOffType.ON
         String payload = new Gson().toJson(new ItemEventPayloadBean(ITEM_NAME, state.getClass().getName(), state.toString(), SOURCE))
 
-        ItemUpdateEvent event = ItemEventFactory.createUpdateEvent(ITEM_NAME, state, SOURCE)
+        ItemStateEvent event = ItemEventFactory.createStateEvent(ITEM_NAME, state, SOURCE)
 
         assertThat event.getType(), is(ITEM_UPDATE_TYPE)
         assertThat event.getTopic(), is(ITEM_UPDATE_TOPIC)
