@@ -11,8 +11,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.core.common.registry.AbstractProvider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
@@ -25,6 +28,8 @@ import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemsChangeListener;
 import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.StateDescription;
+import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.model.core.EventType;
 import org.eclipse.smarthome.model.core.ModelRepository;
@@ -46,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Thomas.Eichstaedt-Engelen
  */
-public class GenericItemProvider extends AbstractProvider<Item> implements ModelRepositoryChangeListener, ItemProvider {
+public class GenericItemProvider extends AbstractProvider<Item> implements ModelRepositoryChangeListener, ItemProvider, StateDescriptionProvider {
 
     private final Logger logger = LoggerFactory.getLogger(GenericItemProvider.class);
 
@@ -56,6 +61,9 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
     private ModelRepository modelRepository = null;
 
     private Collection<ItemFactory> itemFactorys = new ArrayList<ItemFactory>();
+    
+    private Map<String, StateDescription> stateDescriptions = new ConcurrentHashMap<>();
+    
 
     public GenericItemProvider() {
     }
@@ -111,6 +119,7 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
     @Override
     public Collection<Item> getAll() {
         List<Item> items = new ArrayList<Item>();
+        stateDescriptions.clear();
         for (String name : modelRepository.getAllModelNamesOfType("items")) {
             items.addAll(getItemsFromModel(name));
         }
@@ -147,9 +156,9 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
                 return;
             }
 
-            // clear the old binding configuration
+            // start binding configuration processing
             for (BindingConfigReader reader : bindingConfigReaders.values()) {
-                reader.removeConfigurations(modelName);
+                reader.startConfigurationUpdate(modelName);
             }
 
             // create items and read new binding configuration
@@ -158,6 +167,11 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
                 if (item != null) {
                     internalDispatchBindings(modelName, item, modelItem.getBindings());
                 }
+            }
+
+            // end binding configuration processing
+            for (BindingConfigReader reader : bindingConfigReaders.values()) {
+                reader.stopConfigurationUpdate(modelName);
             }
         }
     }
@@ -183,7 +197,13 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
             String itemName = normalItem.getName();
             item = createItemOfType(normalItem.getType(), itemName);
         }
-        item.setLabel(modelItem.getLabel());
+        String label = modelItem.getLabel();
+        String format = StringUtils.substringBetween(label, "[", "]");
+        if(format != null) {
+            label = StringUtils.substringBefore(label, "[").trim();
+            stateDescriptions.put(modelItem.getName(), new StateDescription(null, null, null, format, false, null));
+        }
+        item.setLabel(label);
         item.setCategory(modelItem.getIcon());
         assignTags(modelItem, item);
         return item;
@@ -242,6 +262,13 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
                 } else {
                     logger.error("Group function 'NOT OR' requires two arguments. Using Equality instead.");
                 }
+            case COUNT:
+            	if (args.size() == 1) {
+            		groupFunction = new ArithmeticGroupFunction.Count(args.get(0));
+            		break;
+            	} else {
+            		logger.error("Group function 'COUNT' requires one argument. Using Equality instead.");
+            	}
             case AVG:
                 groupFunction = new ArithmeticGroupFunction.Avg();
                 break;
@@ -344,10 +371,14 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
                 } catch (BindingConfigParseException e) {
                     logger.error("Binding configuration of type '" + bindingType + "' of item ‘" + item.getName()
                             + "‘ could not be parsed correctly.", e);
+                } catch (Exception e) {
+                    // Catch badly behaving binding exceptions and continue processing
+                    logger.error("Binding configuration of type '" + bindingType + "' of item ‘" + item.getName()
+                            + "‘ could not be parsed correctly.", e);
                 }
             } else {
                 logger.trace("Couldn't find config reader for binding type '{}' > "
-                        + "parsing binding configuration of Iten '{}' aborted!", bindingType, item);
+                        + "parsing binding configuration of Item '{}' aborted!", bindingType, item);
             }
         }
     }
@@ -411,6 +442,11 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
 
         logger.debug("Couldn't find ItemFactory for item '{}' of type '{}'", itemName, itemType);
         return null;
+    }
+
+    @Override
+    public StateDescription getStateDescription(String itemName, Locale locale) {
+        return stateDescriptions.get(itemName);
     }
 
 }

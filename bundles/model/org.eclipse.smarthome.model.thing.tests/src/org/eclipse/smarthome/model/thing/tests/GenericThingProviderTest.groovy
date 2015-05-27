@@ -17,7 +17,6 @@ import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.model.core.ModelRepository
 import org.eclipse.smarthome.test.OSGiTest
-import org.hamcrest.core.AnyOf;
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -224,4 +223,62 @@ class GenericThingProviderTest extends OSGiTest {
 		assertThat bulb2.thingTypeUID.toString(), is("hue:LCT001")
 
 	}
+	
+	@Test
+	void 'assert that thingid can contain all characters allowed in config-description XSD'() {
+
+		def things = thingRegistry.getAll()
+		assertThat things.size(), is(0)
+
+		String model =
+			'''
+            hue:1-thing-id-with-5-dashes_and_3_underscores:thing1 [ lightId = "1"]{
+                Switch : notification [ duration = "5" ]
+            }	
+			'''
+		modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+		def actualThings = thingRegistry.getAll()
+
+		assertThat actualThings.size(), is(1)
+
+
+		def thing1 = actualThings.find {
+			"hue:1-thing-id-with-5-dashes_and_3_underscores:thing1".equals(it.UID.toString())
+		}
+
+		assertThat thing1, isA(Thing)
+		assertThat thing1.bridgeUID, is(nullValue())
+		assertThat thing1.configuration.values().size(), is(1)
+		assertThat thing1.configuration.get("lightId"), is("1")
+		assertThat thing1.thingTypeUID.toString(), is("hue:1-thing-id-with-5-dashes_and_3_underscores")
+	}
+
+    @Test
+    void 'assert that bridge UID can be set'() {
+
+        def things = thingRegistry.getAll()
+        assertThat things.size(), is(0)
+
+        String model =
+            '''
+            hue:bridge:bridge1 []
+            hue:LCT001:bridge1:bulb (hue:bridge:bridge1) [] 
+            '''
+        
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+        def actualThings = thingRegistry.getAll()
+
+        assertThat actualThings.size(), is(2)
+
+        Thing thing = actualThings.find {
+            !(it instanceof Bridge)
+        }
+        Bridge bridge = actualThings.find {
+            it instanceof Bridge
+        }
+
+        assertThat thing.bridgeUID.toString(), is("hue:bridge:bridge1") 
+        assertThat bridge.things.contains(thing), is(true)
+    }
+
 }

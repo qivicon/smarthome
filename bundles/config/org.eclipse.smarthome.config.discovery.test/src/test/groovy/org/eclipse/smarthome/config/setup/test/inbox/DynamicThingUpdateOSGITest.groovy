@@ -22,6 +22,7 @@ import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.types.Command
@@ -43,11 +44,14 @@ import org.junit.Test
  * A dummy {@link ThingHandler} and {@link ThingHandlerFactory} is used to detect an updated event.
  * 
  * @author Michael Grammling - Initial Contribution
+ * @author Thomas Höfer - Added representation
  */
 class DynamicThingUpdateOSGITest extends OSGiTest {
 
-    final BINDING_ID = 'dnamicUpdateBindingId'
-    final THING_TYPE_ID = 'dnamicUpdateThingType'
+    def DEFAULT_TTL = 60
+
+    final BINDING_ID = 'dynamicUpdateBindingId'
+    final THING_TYPE_ID = 'dynamicUpdateThingType'
     final THING_ID = 'dynamicUpdateThingId'
 
     final ThingTypeUID THING_TYPE_UID = new ThingTypeUID(BINDING_ID, THING_TYPE_ID)
@@ -77,7 +81,9 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
 
     @After
     void cleanUp() {
-        managedThingProvider.all.each { managedThingProvider.remove(it.getUID()) }
+        managedThingProvider.all.each {
+            managedThingProvider.remove(it.getUID())
+        }
     }
 
     ThingHandler createThingHandler(Thing thing) {
@@ -85,11 +91,15 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
             'initialize' : { },
             'dispose' : { },
             'getThing' : { return thing },
-            'handleCommand' : { ChannelUID channelUID, Command command -> },
-            'handleUpdate' : { ChannelUID channelUID, State newState -> },
+            'handleCommand' : { ChannelUID channelUID, Command command ->
+            },
+            'handleUpdate' : { ChannelUID channelUID, State newState ->
+            },
             'thingUpdated' : { Thing updatedThing ->
                 this.thingUpdated = true
                 this.updatedThing = updatedThing
+            },
+            'setCallback': {
             }
         ] as ThingHandler )
 
@@ -99,9 +109,9 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
     ThingHandlerFactory createThingHandlerFactory() {
         ThingHandlerFactory thingHandlerFactory = ( [
             'supportsThingType' : { ThingTypeUID thingTypeUID ->
-                return THING_TYPE_UID.equals(thingTypeUID) 
+                return THING_TYPE_UID.equals(thingTypeUID)
             },
-            'registerHandler' : { Thing thing ->
+            'registerHandler' : { Thing thing, ThingHandlerCallback callback ->
                 thingHandler = createThingHandler(thing)
 
                 Hashtable<String, Object> properties = [
@@ -112,11 +122,11 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
             'unregisterHandler' : { Thing thing ->
                 unregisterService(thingHandler)
             },
-            'createThing' : { ThingTypeUID thingTypeUID, Configuration configuration,
-                    ThingUID thingUID, ThingUID bridgeUID ->
+            'createThing' : { ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID, ThingUID bridgeUID ->
                 return null
             },
-            'removeThing' : { ThingUID thingUID -> }
+            'removeThing' : { ThingUID thingUID ->
+            }
         ] as ThingHandlerFactory )
 
         return thingHandlerFactory;
@@ -130,9 +140,9 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
         registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
 
         managedThingProvider.add ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
-        
+
         Hashtable discoveryResultProps = [ "ipAddress" : "127.0.0.1" ]
-        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, discoveryResultProps, "DummyLabel1")
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, discoveryResultProps, "ipAddress", "DummyLabel1", DEFAULT_TTL)
 
         inbox.add discoveryResult
 
@@ -153,8 +163,8 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
 
         managedThingProvider.add ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
 
-        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, [:], "DummyLabel")
-         
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, [:], null, "DummyLabel", DEFAULT_TTL)
+
         inbox.add discoveryResult
 
         assertThat inbox.getAll().size(), is(0)
@@ -162,5 +172,4 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
 
         unregisterService(thingHandlerFactory)
     }
-
 }

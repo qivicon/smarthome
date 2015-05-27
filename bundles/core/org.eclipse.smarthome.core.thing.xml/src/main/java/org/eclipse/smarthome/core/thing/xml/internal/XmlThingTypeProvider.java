@@ -28,19 +28,22 @@ import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
+import org.eclipse.smarthome.core.thing.type.SystemChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
 import org.osgi.framework.Bundle;
+import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * The {@link XmlThingTypeProvider} is a concrete implementation of the {@link ThingTypeProvider} service interface.
  * <p>
  * This implementation manages any {@link ThingType} objects associated to specific modules. If a specific module
  * disappears, any registered {@link ThingType} objects associated with that module are released.
- *
+ * 
  * @author Michael Grammling - Initial Contribution
  * @author Dennis Nobel - Added locale support
+ * @author Ivan Iliev - Added support for system wide channel types
  */
 public class XmlThingTypeProvider implements ThingTypeProvider {
 
@@ -48,8 +51,15 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
 
     private ThingTypeI18nUtil thingTypeI18nUtil;
 
-    public XmlThingTypeProvider() {
+    private ServiceTracker<SystemChannelTypeProvider, SystemChannelTypeProvider> serviceTracker;
+
+    private XmlSystemChannelTypeProvider xmlSystemChannelTypeProvider;
+
+    public XmlThingTypeProvider(ServiceTracker<SystemChannelTypeProvider, SystemChannelTypeProvider> serviceTracker,
+            XmlSystemChannelTypeProvider xmlSystemChannelTypeProvider) {
         this.bundleThingTypesMap = new HashMap<>(10);
+        this.serviceTracker = serviceTracker;
+        this.xmlSystemChannelTypeProvider = xmlSystemChannelTypeProvider;
     }
 
     private List<ThingType> acquireThingTypes(Bundle bundle) {
@@ -73,9 +83,11 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
      * specified module.
      * <p>
      * This method returns silently, if any of the parameters is {@code null}.
-     *
-     * @param bundle the module to which the Thing type to be added
-     * @param thingType the Thing type to be added
+     * 
+     * @param bundle
+     *            the module to which the Thing type to be added
+     * @param thingType
+     *            the Thing type to be added
      */
     public synchronized void addThingType(Bundle bundle, ThingType thingType) {
         if (thingType != null) {
@@ -107,9 +119,8 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
                     state, channelType.getConfigDescriptionURI());
 
             return new ChannelDefinition(channelDefinition.getId(), localizedChannelType);
-        } else {
-            return channelDefinition;
         }
+        return channelDefinition;
     }
 
     private ChannelGroupDefinition createLocalizedChannelGroupDefinition(Bundle bundle,
@@ -158,9 +169,8 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
 
             return new StateDescription(state.getMinimum(), state.getMaximum(), state.getStep(), pattern,
                     state.isReadOnly(), localizedOptions);
-        } else {
-            return null;
         }
+        return null;
     }
 
     private ThingType createLocalizedThingType(Bundle bundle, ThingType thingType, Locale locale) {
@@ -189,16 +199,15 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
             if (thingType instanceof BridgeType) {
                 BridgeType bridgeType = (BridgeType) thingType;
                 return new BridgeType(bridgeType.getUID(), bridgeType.getSupportedBridgeTypeUIDs(), label, description,
-                        localizedChannelDefinitions, localizedChannelGroupDefinitions,
+                        localizedChannelDefinitions, localizedChannelGroupDefinitions, thingType.getProperties(),
                         bridgeType.getConfigDescriptionURI());
-            } else {
-                return new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(), label, description,
-                        localizedChannelDefinitions, localizedChannelGroupDefinitions,
-                        thingType.getConfigDescriptionURI());
             }
-        } else {
-            return thingType;
+            return new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(), label, description,
+                    localizedChannelDefinitions, localizedChannelGroupDefinitions, thingType.getProperties(),
+                    thingType.getConfigDescriptionURI());
+
         }
+        return thingType;
     }
 
     @Override
@@ -241,7 +250,7 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
      * with the specified module.
      * <p>
      * This method returns silently if the module is {@code null}.
-     *
+     * 
      * @param bundle
      *            the module for which all associated Thing types to be removed
      */
@@ -255,6 +264,27 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
         }
     }
 
+    public void addXmlSystemChannelType(ChannelType type) {
+        xmlSystemChannelTypeProvider.addChannelType(type);
+    }
+
+    public boolean removeXmlSystemChannelType(ChannelType type) {
+        return xmlSystemChannelTypeProvider.removeChannelType(type);
+    }
+
+    public List<ChannelType> getAllSystemChannelTypes() {
+
+        List<ChannelType> channelTypes = new ArrayList<ChannelType>();
+
+        Object[] providers = serviceTracker.getServices();
+
+        for (Object provider : providers) {
+            channelTypes.addAll(((SystemChannelTypeProvider) provider).getSystemChannelTypes());
+        }
+
+        return channelTypes;
+    }
+
     @Bind
     public void setI18nProvider(I18nProvider i18nProvider) {
         this.thingTypeI18nUtil = new ThingTypeI18nUtil(i18nProvider);
@@ -264,5 +294,4 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
     public void unsetI18nProvider(I18nProvider i18nProvider) {
         this.thingTypeI18nUtil = null;
     }
-
 }

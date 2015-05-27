@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.config.discovery.internal;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,8 +24,11 @@ public class DiscoveryResultImpl implements DiscoveryResult {
     private ThingUID thingUID;
 
     private Map<String, Object> properties;
+    private String representationProperty;
     private DiscoveryResultFlag flag;
     private String label;
+    private long timestamp;
+    private long timeToLive = TTL_UNLIMITED;
 
     /**
      * Package protected default constructor to allow reflective instantiation.
@@ -41,24 +45,34 @@ public class DiscoveryResultImpl implements DiscoveryResult {
      *            must be created. A typical {@code Thing} ID could be the
      *            serial number. It's usually <i>not</i> a product name.
      * @param properties the properties to be set (could be null or empty)
+     * @param representationProperty the representationProperty to be set (could be null or empty)
      * @param label the human readable label to set (could be null or empty)
      * @param bridgeUID the unique bridge ID to be set
+     * @param timeToLive time to live in seconds
      *
      * @throws IllegalArgumentException
      *             if the Thing type UID or the Thing UID is null
      */
-    public DiscoveryResultImpl(ThingUID thingUID, ThingUID bridgeUID, Map<String, Object> properties, String label)
-            throws IllegalArgumentException {
+    public DiscoveryResultImpl(ThingUID thingUID, ThingUID bridgeUID, Map<String, Object> properties,
+            String representationProperty, String label, long timeToLive) throws IllegalArgumentException {
 
         if (thingUID == null) {
             throw new IllegalArgumentException("The thing UID must not be null!");
         }
+        if (timeToLive < 1 && timeToLive != TTL_UNLIMITED) {
+            throw new IllegalArgumentException("The ttl must not be 0 or negative!");
+        }
+
         this.thingUID = thingUID;
 
         this.bridgeUID = bridgeUID;
         this.properties = Collections.unmodifiableMap((properties != null) ? new HashMap<>(properties)
                 : new HashMap<String, Object>());
+        this.representationProperty = representationProperty;
         this.label = label == null ? "" : label;
+
+        this.timestamp = new Date().getTime();
+        this.timeToLive = timeToLive;
 
         this.flag = DiscoveryResultFlag.NEW;
     }
@@ -121,6 +135,21 @@ public class DiscoveryResultImpl implements DiscoveryResult {
     }
 
     /**
+     * Returns the representation property of this result object.
+     * <p>
+     * The representation property represents an unique human and/or machine readable identifier of the thing that was
+     * discovered. Its actual value can be retrieved from the {@link DiscoveryResult#getProperties()} map. Such unique
+     * identifiers are among others the <code>ipAddress</code>, the <code>macAddress</code> or the
+     * <code>serialNumber</code> of the discovered thing.
+     * 
+     * @return the representation property of this result object (could be null)
+     */
+    @Override
+    public String getRepresentationProperty() {
+        return this.representationProperty;
+    }
+
+    /**
      * Returns the flag of this result object.<br>
      * The flag signals e.g. if the result is {@link DiscoveryResultFlag#NEW} or has been marked as
      * {@link DiscoveryResultFlag#IGNORED}. In the latter
@@ -168,7 +197,10 @@ public class DiscoveryResultImpl implements DiscoveryResult {
         if ((sourceResult != null) && (sourceResult.getThingUID().equals(this.thingUID))) {
 
             this.properties = sourceResult.getProperties();
+            this.representationProperty = sourceResult.getRepresentationProperty();
             this.label = sourceResult.getLabel();
+            this.timestamp = new Date().getTime();
+            this.timeToLive = sourceResult.getTimeToLive();
         }
     }
 
@@ -215,7 +247,16 @@ public class DiscoveryResultImpl implements DiscoveryResult {
     @Override
     public String toString() {
         return "DiscoveryResult [thingUID=" + thingUID + ", properties=" + properties + ", flag=" + flag + ", label="
-                + label + ", bridgeUID=" + bridgeUID + "]";
+                + label + ", bridgeUID=" + bridgeUID + ", ttl=" + timeToLive + ", timestamp=" + timestamp + "]";
     }
 
+    @Override
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    @Override
+    public long getTimeToLive() {
+        return timeToLive;
+    }
 }

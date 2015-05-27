@@ -86,13 +86,6 @@ public class ThingSetupManagerResource implements RESTResource {
         Configuration configuration = getConfiguration(thingBean);
 
         Thing thing = thingSetupManager.getThing(thingUID);
-        if (thing != null) {
-            if (bridgeUID != null) {
-                thing.setBridgeUID(bridgeUID);
-            }
-            updateConfiguration(thing, configuration);
-            thingSetupManager.updateThing(thing);
-        }
 
         String label = thingBean.item.label;
         List<String> groupNames = thingBean.item.groupNames;
@@ -100,27 +93,24 @@ public class ThingSetupManagerResource implements RESTResource {
         if (thing != null) {
             GroupItem thingGroupItem = thing.getLinkedItem();
             if (thingGroupItem != null) {
-                boolean itemUpdated = false;
+                boolean labelChanged = false;
                 if (thingGroupItem.getLabel() == null || !thingGroupItem.getLabel().equals(label)) {
                     thingGroupItem.setLabel(label);
-                    itemUpdated = true;
+                    labelChanged = true;
                 }
-                for (String groupName : groupNames) {
-                    if (!thingGroupItem.getGroupNames().contains(groupName)) {
-                        thingGroupItem.addGroupName(groupName);
-                        itemUpdated = true;
-                    }
-                }
-                for (String groupName : thingGroupItem.getGroupNames()) {
-                    if (!groupNames.contains(groupName)) {
-                        thingGroupItem.removeGroupName(groupName);
-                        itemUpdated = true;
-                    }
-                }
-                if (itemUpdated) {
+                boolean groupsChanged = setGroupNames(thingGroupItem, groupNames);
+                if (labelChanged || groupsChanged) {
                     thingSetupManager.updateItem(thingGroupItem);
                 }
             }
+        }
+
+        if (thing != null) {
+            if (bridgeUID != null) {
+                thing.setBridgeUID(bridgeUID);
+            }
+            updateConfiguration(thing, configuration);
+            thingSetupManager.updateThing(thing);
         }
 
         return Response.ok().build();
@@ -161,10 +151,29 @@ public class ThingSetupManagerResource implements RESTResource {
     }
 
     @PUT
-    @Path("/labels/{thingUID}")
+    @Path("/things/{thingUID}/label")
     @Consumes(MediaType.TEXT_PLAIN)
     public Response setLabel(@PathParam("thingUID") String thingUID, String label) {
         thingSetupManager.setLabel(new ThingUID(thingUID), label);
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/things/{thingUID}/groups")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response setGroups(@PathParam("thingUID") String thingUID, List<String> groupNames) {
+        Thing thing = thingSetupManager.getThing(new ThingUID(thingUID));
+
+        if (thing != null) {
+            GroupItem thingGroupItem = thing.getLinkedItem();
+            if (thingGroupItem != null) {
+                boolean groupsChanged = setGroupNames(thingGroupItem, groupNames);
+                if (groupsChanged) {
+                    thingSetupManager.updateItem(thingGroupItem);
+                }
+            }
+        }
+
         return Response.ok().build();
     }
 
@@ -195,7 +204,7 @@ public class ThingSetupManagerResource implements RESTResource {
         thingSetupManager.removeHomeGroup(itemName);
         return Response.ok().build();
     }
-    
+
     @PUT
     @Path("groups/{itemName}/label")
     @Consumes(MediaType.TEXT_PLAIN)
@@ -230,4 +239,20 @@ public class ThingSetupManagerResource implements RESTResource {
         }
     }
 
+    private boolean setGroupNames(GroupItem thingGroupItem, List<String> groupNames) {
+        boolean itemUpdated = false;
+        for (String groupName : groupNames) {
+            if (!thingGroupItem.getGroupNames().contains(groupName)) {
+                thingGroupItem.addGroupName(groupName);
+                itemUpdated = true;
+            }
+        }
+        for (String groupName : thingGroupItem.getGroupNames()) {
+            if (!groupNames.contains(groupName)) {
+                thingGroupItem.removeGroupName(groupName);
+                itemUpdated = true;
+            }
+        }
+        return itemUpdated;
+    }
 }
