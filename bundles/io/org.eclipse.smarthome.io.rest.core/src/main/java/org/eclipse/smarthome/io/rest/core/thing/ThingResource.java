@@ -40,11 +40,11 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.bean.ThingBean;
+import org.eclipse.smarthome.core.thing.bean.ThingBeanMapper;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,7 +105,7 @@ public class ThingResource implements RESTResource {
     public Response getByUID(@PathParam("thingUID") String thingUID) {
         Thing thing = thingRegistry.get((new ThingUID(thingUID)));
         if (thing != null) {
-            return Response.ok(BeanMapper.mapThingToBean(thing)).build();
+            return Response.ok(ThingBeanMapper.mapThingToBean(thing)).build();
         } else {
             return Response.noContent().build();
         }
@@ -259,7 +259,7 @@ public class ThingResource implements RESTResource {
     private Set<ThingBean> convertToListBean(Collection<Thing> things) {
         Set<ThingBean> thingBeans = new LinkedHashSet<>();
         for (Thing thing : things) {
-            ThingBean thingBean = BeanMapper.mapThingToBean(thing);
+            ThingBean thingBean = ThingBeanMapper.mapThingToBean(thing);
             thingBeans.add(thingBean);
         }
         return thingBeans;

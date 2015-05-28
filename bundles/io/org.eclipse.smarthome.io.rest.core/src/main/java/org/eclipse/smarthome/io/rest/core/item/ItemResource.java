@@ -40,6 +40,7 @@ import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.items.bean.ItemBean;
+import org.eclipse.smarthome.core.items.bean.ItemBeanMapper;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
@@ -49,7 +50,6 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -419,7 +419,7 @@ public class ItemResource implements RESTResource {
         }
         if (items != null) {
             for (Item item : items) {
-                beans.add(BeanMapper.mapItemToBean(item, recursive, uriInfo.getBaseUri().toASCIIString()));
+                beans.add(ItemBeanMapper.mapItemToBean(item, recursive, uriInfo.getBaseUri()));
             }
         }
         return beans;
@@ -428,7 +428,7 @@ public class ItemResource implements RESTResource {
     private ItemBean getItemDataBean(String itemname) {
         Item item = getItem(itemname);
         if (item != null) {
-            return BeanMapper.mapItemToBean(item, true, uriInfo.getBaseUri().toASCIIString());
+            return ItemBeanMapper.mapItemToBean(item, true, uriInfo.getBaseUri());
         } else {
             logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             throw new WebApplicationException(404);

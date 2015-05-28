@@ -26,7 +26,6 @@ Import-Package:
  org.eclipse.smarthome.core.thing.bean,
  org.eclipse.smarthome.core.thing.link,
  org.eclipse.smarthome.core.types,
- org.eclipse.smarthome.io.rest.core.util,
  org.glassfish.hk2.utilities.binding,
  org.glassfish.jersey.internal.inject,
  org.glassfish.jersey.media.sse,

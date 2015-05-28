@@ -14,7 +14,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingRegistryChangeListener;
 import org.eclipse.smarthome.core.thing.bean.ThingBean;
-import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
+import org.eclipse.smarthome.core.thing.bean.ThingBeanMapper;
 import org.eclipse.smarthome.io.rest.sse.EventType;
 import org.eclipse.smarthome.io.rest.sse.SseResource;
 
@@ -71,7 +71,7 @@ public class ThingRegistryEventListener implements ThingRegistryChangeListener {
             List<ThingBean> thingBeans = new ArrayList<ThingBean>();
 
             for (Thing thing : elements) {
-                thingBeans.add(BeanMapper.mapThingToBean(thing));
+                thingBeans.add(ThingBeanMapper.mapThingToBean(thing));
             }
 
             eventObject = thingBeans;

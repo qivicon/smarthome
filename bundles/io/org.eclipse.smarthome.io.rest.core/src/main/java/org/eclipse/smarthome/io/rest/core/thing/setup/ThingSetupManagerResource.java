@@ -30,13 +30,14 @@ import javax.ws.rs.core.UriInfo;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.bean.ItemBean;
+import org.eclipse.smarthome.core.items.bean.ItemBeanMapper;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.bean.ThingBean;
+import org.eclipse.smarthome.core.thing.bean.ThingBeanMapper;
 import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 
 /**
  * This class acts as a REST resource for the setup manager.
@@ -144,7 +145,7 @@ public class ThingSetupManagerResource implements RESTResource {
         List<ThingBean> thingBeans = new ArrayList<>();
         Collection<Thing> things = thingSetupManager.getThings();
         for (Thing thing : things) {
-            ThingBean thingItemBean = BeanMapper.mapThingToBean(thing, uriInfo.getBaseUri().toASCIIString());
+            ThingBean thingItemBean = ThingBeanMapper.mapThingToBean(thing, uriInfo.getBaseUri());
             thingBeans.add(thingItemBean);
         }
         return Response.ok(thingBeans).build();
@@ -184,7 +185,7 @@ public class ThingSetupManagerResource implements RESTResource {
         List<ItemBean> itemBeans = new ArrayList<>();
         Collection<GroupItem> homeGroups = thingSetupManager.getHomeGroups();
         for (GroupItem homeGroupItem : homeGroups) {
-            ItemBean itemBean = BeanMapper.mapItemToBean(homeGroupItem, true, uriInfo.getBaseUri().toASCIIString());
+            ItemBean itemBean = ItemBeanMapper.mapItemToBean(homeGroupItem, true, uriInfo.getBaseUri());
             itemBeans.add(itemBean);
         }
         return Response.ok(itemBeans).build();

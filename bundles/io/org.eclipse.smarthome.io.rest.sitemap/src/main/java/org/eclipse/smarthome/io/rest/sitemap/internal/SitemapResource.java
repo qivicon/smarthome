@@ -35,9 +35,9 @@ import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.StateChangeListener;
+import org.eclipse.smarthome.core.items.bean.ItemBeanMapper;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 import org.eclipse.smarthome.model.bean.MappingBean;
 import org.eclipse.smarthome.model.bean.PageBean;
 import org.eclipse.smarthome.model.bean.SitemapBean;
@@ -49,6 +49,7 @@ import org.eclipse.smarthome.model.sitemap.Image;
 import org.eclipse.smarthome.model.sitemap.LinkableWidget;
 import org.eclipse.smarthome.model.sitemap.List;
 import org.eclipse.smarthome.model.sitemap.Mapping;
+import org.eclipse.smarthome.model.sitemap.Mapview;
 import org.eclipse.smarthome.model.sitemap.Selection;
 import org.eclipse.smarthome.model.sitemap.Setpoint;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
@@ -57,7 +58,6 @@ import org.eclipse.smarthome.model.sitemap.Slider;
 import org.eclipse.smarthome.model.sitemap.Switch;
 import org.eclipse.smarthome.model.sitemap.Video;
 import org.eclipse.smarthome.model.sitemap.Webview;
-import org.eclipse.smarthome.model.sitemap.Mapview;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
 import org.slf4j.Logger;
@@ -286,7 +286,7 @@ public class SitemapResource implements RESTResource {
             try {
                 Item item = itemUIRegistry.getItem(widget.getItem());
                 if (item != null) {
-                    bean.item = BeanMapper.mapItemToBean(item, false, UriBuilder.fromUri(uri).build().toASCIIString());
+                    bean.item = ItemBeanMapper.mapItemToBean(item, false, UriBuilder.fromUri(uri).build());
                 }
             } catch (ItemNotFoundException e) {
                 logger.debug(e.getMessage());

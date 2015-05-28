@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.io.rest.sse.internal.listeners;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -15,7 +16,7 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.core.items.bean.ItemBean;
-import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
+import org.eclipse.smarthome.core.items.bean.ItemBeanMapper;
 import org.eclipse.smarthome.io.rest.sse.EventType;
 import org.eclipse.smarthome.io.rest.sse.SseResource;
 
@@ -76,7 +77,7 @@ public class ItemRegistryEventListener implements ItemRegistryChangeListener {
             List<ItemBean> itemBeans = new ArrayList<ItemBean>();
 
             for (Item item : elements) {
-                itemBeans.add(BeanMapper.mapItemToBean(item, false, "/"));
+                itemBeans.add(ItemBeanMapper.mapItemToBean(item, false, URI.create("/")));
             }
 
             eventObject = itemBeans;
