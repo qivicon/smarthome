@@ -167,6 +167,8 @@ public class ThingSetupManager {
      * @param enableChannels
      *            defines if all not 'advanced' channels should be enabled
      *            directly
+     * @param properties
+     *            map of properties to be added to the thing (can be null)
      * @return created {@link Thing} instance (can be null)
      */
     public Thing addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label,
@@ -222,6 +224,8 @@ public class ThingSetupManager {
      * @param enableChannels
      *            defines if all not 'advanced' channels should be enabled
      *            directly
+     * @param properties
+     *            map of properties to be added to the thing (can be null)
      * @return created {@link Thing} instance (can be null)
      */
     public Thing addThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID bridgeUID, String label,
