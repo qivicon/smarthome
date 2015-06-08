@@ -10,6 +10,7 @@ package org.eclipse.smarthome.io.rest.sse.internal.util;
 import javax.servlet.ServletRequest;
 import javax.ws.rs.core.MediaType;
 
+import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.io.rest.sse.EventType;
 import org.eclipse.smarthome.io.rest.sse.beans.EventBean;
 import org.glassfish.jersey.media.sse.OutboundEvent;
@@ -62,6 +63,25 @@ public class SseUtil {
                 .build();
 
         return event;
+    }
+
+    /**
+     * Creates a new {@link OutboundEvent} object containing an {@link EventBean} created for the given event.
+     * 
+     * @param event the event
+     * 
+     * @return a new OutboundEvent
+     */
+    public static OutboundEvent buildEvent(Event event) {
+        EventBean eventBean = new EventBean();
+        eventBean.topic = event.getTopic();
+        eventBean.object = event.getPayload();
+
+        OutboundEvent.Builder eventBuilder = new OutboundEvent.Builder();
+        OutboundEvent outboundEvent = eventBuilder.name("message").mediaType(MediaType.APPLICATION_JSON_TYPE)
+                .data(eventBean).build();
+
+        return outboundEvent;
     }
 
     /**

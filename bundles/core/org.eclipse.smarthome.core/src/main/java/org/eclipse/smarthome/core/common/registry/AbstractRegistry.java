@@ -29,7 +29,7 @@ import com.google.common.collect.Iterables;
  */
 public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E>, Registry<E, K> {
 
-    private enum EventType {
+    protected enum EventType {
         ADDED, REMOVED, UPDATED;
     }
 

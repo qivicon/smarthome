@@ -27,6 +27,7 @@ import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemsChangeListener;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -373,4 +374,31 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
             throw new IllegalStateException("ManagedProvider is not available");
         }
     }
+
+    @Override
+    protected void notifyListeners(Item oldElement, Item element, EventType eventType) {
+        super.notifyListeners(oldElement, element, eventType);
+         notifyEventSubscribers(oldElement, element, eventType);
+    }
+
+    protected void notifyEventSubscribers(Item oldItem, Item item, EventType eventType) {
+        try {
+            switch (eventType) {
+                case ADDED:
+                    eventPublisher.post(ItemEventFactory.createAddedEvent(item));
+                    break;
+                case REMOVED:
+                    eventPublisher.post(ItemEventFactory.createRemovedEvent(item));
+                    break;
+                case UPDATED:
+                    eventPublisher.post(ItemEventFactory.createUpdateEvent(item, oldItem));
+                    break;
+                default:
+                    break;
+            }
+        } catch (Exception ex) {
+            logger.error("Could not inform event subscribers about the '" + eventType.name() + "' event.", ex);
+        }
+    }
+    
 }
