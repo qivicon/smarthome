@@ -10,15 +10,54 @@ package org.eclipse.smarthome.core.items.bean;
 import java.net.URI;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
+import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.ItemFactory;
+
+import com.google.common.base.Preconditions;
 
 /**
  * The {@link ItemBeanMapper} is an utility class to map items into item beans.
  */
 public class ItemBeanMapper {
-    
+
+    /**
+     * Maps item bean into item object.
+     *
+     * @param bean the bean
+     * @param itemFactories the item factories in order to create the items
+     * @return the item object
+     */
+    public static Item mapBeanToItem(ItemBean bean, Set<ItemFactory> itemFactories) {
+        Preconditions.checkArgument(bean != null, "The argument 'bean' must no be null.");
+        Preconditions.checkArgument(itemFactories != null, "The argument 'itemFactories' must no be null.");
+
+        GenericItem newItem = null;
+        if (bean.type != null) {
+            if (bean.type.equals("GroupItem")) {
+                newItem = new GroupItem(bean.name);
+            } else {
+                String itemType = bean.type.substring(0, bean.type.length() - 4);
+                for (ItemFactory itemFactory : itemFactories) {
+                    newItem = itemFactory.createItem(itemType, bean.name);
+                    if (newItem != null) {
+                        break;
+                    }
+                }
+            }
+            if (newItem != null) {
+                newItem.setLabel(bean.label);
+                newItem.setCategory(bean.category);
+                newItem.addGroupNames(bean.groupNames);
+                newItem.addTags(bean.tags);
+            }
+        }
+        return newItem;
+    }
+
     /**
      * Maps item into item bean object.
      * 

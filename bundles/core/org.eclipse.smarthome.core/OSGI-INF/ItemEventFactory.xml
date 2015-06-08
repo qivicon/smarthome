@@ -13,4 +13,5 @@
    <service>
       <provide interface="org.eclipse.smarthome.core.events.EventFactory"/>
    </service>
+   <reference bind="addItemFactory" cardinality="1..n" interface="org.eclipse.smarthome.core.items.ItemFactory" name="ItemFactory" policy="static" unbind="removeItemFactory"/>
 </scr:component>

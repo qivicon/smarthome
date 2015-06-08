@@ -8,9 +8,18 @@
 package org.eclipse.smarthome.core.items.events;
 
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.ItemFactory;
+import org.eclipse.smarthome.core.items.bean.ItemBean;
+import org.eclipse.smarthome.core.items.bean.ItemBeanMapper;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
@@ -30,25 +39,48 @@ public class ItemEventFactory extends AbstractEventFactory {
 
     private static final String ITEM_STATE_EVENT_TOPIC = "smarthome/items/{itemName}/state";
 
+    private static final String ITEM_ADDED_EVENT_TOPIC = "smarthome/items/{itemName}/added";
+
+    private static final String ITEM_REMOVED_EVENT_TOPIC = "smarthome/items/{itemName}/removed";
+
+    private static final String ITEM_UPDATED_EVENT_TOPIC = "smarthome/items/{itemName}/updated";
+
+    private final Set<ItemFactory> itemFactories = new HashSet<>();
+
+    protected void addItemFactory(ItemFactory itemFactory) {
+        this.itemFactories.add(itemFactory);
+    }
+
+    protected void removeItemFactory(ItemFactory itemFactory) {
+        this.itemFactories.remove(itemFactory);
+    }
+
     /**
      * Constructs a new ItemEventFactory.
      */
     public ItemEventFactory() {
-        super(Sets.newHashSet(ItemCommandEvent.TYPE, ItemStateEvent.TYPE));
+        super(Sets.newHashSet(ItemCommandEvent.TYPE, ItemStateEvent.TYPE, ItemAddedEvent.TYPE, ItemUpdatedEvent.TYPE,
+                ItemRemovedEvent.TYPE));
     }
 
     @Override
     protected Event createEventByType(String eventType, String topic, String payload, String source) throws Exception {
         Event event = null;
         if (eventType.equals(ItemCommandEvent.TYPE)) {
-            event = createCommandEvent(eventType, topic, payload, source);
+            event = createCommandEvent(topic, payload, source);
         } else if (eventType.equals(ItemStateEvent.TYPE)) {
-            event = createStateEvent(eventType, topic, payload, source);
+            event = createStateEvent(topic, payload, source);
+        } else if (eventType.equals(ItemAddedEvent.TYPE)) {
+            event = createAddedEvent(topic, payload);
+        } else if (eventType.equals(ItemUpdatedEvent.TYPE)) {
+            event = createUpdatedEvent(topic, payload);
+        } else if (eventType.equals(ItemRemovedEvent.TYPE)) {
+            event = createRemovedEvent(topic, payload);
         }
         return event;
     }
 
-    private Event createCommandEvent(String eventType, String topic, String payload, String source) {
+    private Event createCommandEvent(String topic, String payload, String source) {
         ItemEventPayloadBean bean = deserializePayload(payload, ItemEventPayloadBean.class);
         Command command = null;
         try {
@@ -59,7 +91,7 @@ public class ItemEventFactory extends AbstractEventFactory {
         return new ItemCommandEvent(topic, payload, bean.getName(), command, source);
     }
 
-    private Event createStateEvent(String eventType, String topic, String payload, String source) {
+    private Event createStateEvent(String topic, String payload, String source) {
         ItemEventPayloadBean bean = deserializePayload(payload, ItemEventPayloadBean.class);
         State state = null;
         try {
@@ -74,6 +106,28 @@ public class ItemEventFactory extends AbstractEventFactory {
         Class<?> stateClass = Class.forName(className);
         Method valueOfMethod = stateClass.getMethod("valueOf", String.class);
         return valueOfMethod.invoke(stateClass, valueToParse);
+    }
+
+    private Event createAddedEvent(String topic, String payload) {
+        ItemBean bean = deserializePayload(payload, ItemBean.class);
+        Item item = ItemBeanMapper.mapBeanToItem(bean, itemFactories);
+        return new ItemAddedEvent(topic, payload, item);
+    }
+
+    private Event createUpdatedEvent(String topic, String payload) {
+        ItemBean[] bean = deserializePayload(payload, ItemBean[].class);
+        if (bean.length != 2) {
+            throw new IllegalArgumentException("ItemUpdateEvent creation failed, caused by invalid payload: " + payload);
+        }
+        Item item = ItemBeanMapper.mapBeanToItem(bean[0], itemFactories);
+        Item oldItem = ItemBeanMapper.mapBeanToItem(bean[1], itemFactories);
+        return new ItemUpdatedEvent(topic, payload, item, oldItem);
+    }
+
+    private Event createRemovedEvent(String topic, String payload) {
+        ItemBean bean = deserializePayload(payload, ItemBean.class);
+        Item item = ItemBeanMapper.mapBeanToItem(bean, itemFactories);
+        return new ItemRemovedEvent(topic, payload, item);
     }
 
     /**
@@ -132,6 +186,63 @@ public class ItemEventFactory extends AbstractEventFactory {
      */
     public static ItemStateEvent createStateEvent(String itemName, State state) {
         return createStateEvent(itemName, state, null);
+    }
+
+    /**
+     * Creates an item added event.
+     * 
+     * @param item the item
+     * 
+     * @return the created item add event
+     */
+    public static ItemAddedEvent createAddedEvent(Item item) {
+        Preconditions.checkArgument(item != null, "The argument 'item' must no be null.");
+        String topic = buildTopic(ITEM_ADDED_EVENT_TOPIC, item.getName());
+        Object bean = mapItemToBean(item);
+        String payload = serializePayload(bean);
+        return new ItemAddedEvent(topic, payload, item);
+    }
+
+    /**
+     * Creates an item removed event.
+     * 
+     * @param item the item
+     * 
+     * @return the created item removed event
+     */
+    public static ItemRemovedEvent createRemovedEvent(Item item) {
+        Preconditions.checkArgument(item != null, "The argument 'item' must no be null.");
+        String topic = buildTopic(ITEM_REMOVED_EVENT_TOPIC, item.getName());
+        Object bean = mapItemToBean(item);
+        String payload = serializePayload(bean);
+        return new ItemRemovedEvent(topic, payload, item);
+    }
+
+    /**
+     * Creates an item updated event.
+     * 
+     * @param item the item
+     * @param oldItem the old item
+     * 
+     * @return the created item updated event
+     */
+    public static ItemUpdatedEvent createUpdateEvent(Item item, Item oldItem) {
+        Preconditions.checkArgument(item != null, "The argument 'item' must no be null.");
+        Preconditions.checkArgument(oldItem != null, "The argument 'oldItem' must no be null.");
+        String topic = buildTopic(ITEM_UPDATED_EVENT_TOPIC, item.getName());
+        List<ItemBean> itemBeans = new LinkedList<ItemBean>();
+        itemBeans.add(mapItemToBean(item));
+        itemBeans.add(mapItemToBean(oldItem));
+        String payload = serializePayload(itemBeans);
+        return new ItemUpdatedEvent(topic, payload, item, oldItem);
+    }
+
+    private static String buildTopic(String topic, String itemName) {
+        return topic.replace("{itemName}", itemName);
+    }
+
+    private static ItemBean mapItemToBean(Item item) {
+        return ItemBeanMapper.mapItemToBean(item, false, URI.create("/"));
     }
 
     private static void checkArguments(String itemName, Type type, String typeArgumentName) {
