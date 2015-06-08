@@ -140,8 +140,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
         @Override
         public void statusUpdated(Thing thing, ThingStatusInfo thingStatus) {
-            logger.debug("Thing status of thing {} changed: {}", thing.getUID(), thingStatus.toString());
             setThingStatus(thing, thingStatus);
+            logger.debug("Status of {} changed to {}", thing.getUID(), thingStatus.toString());
 
             if (thing instanceof Bridge) {
                 Bridge bridge = (Bridge) thing;

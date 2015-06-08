@@ -29,6 +29,7 @@ public class ChannelBeanMapper {
         for (Item item : channel.getLinkedItems()) {
             linkedItemNames.add(item.getName());
         }
-        return new ChannelBean(channel.getUID().getId(), channel.getAcceptedItemType().toString(), linkedItemNames);
+        return new ChannelBean(channel.getUID().getId(), channel.getAcceptedItemType().toString(), linkedItemNames,
+                channel.getProperties());
     }
 }

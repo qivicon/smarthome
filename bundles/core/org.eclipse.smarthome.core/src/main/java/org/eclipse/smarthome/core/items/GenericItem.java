@@ -357,10 +357,12 @@ abstract public class GenericItem implements ActiveItem {
 
     @Override
     public StateDescription getStateDescription(Locale locale) {
-        for (StateDescriptionProvider stateDescriptionProvider : stateDescriptionProviders) {
-            StateDescription stateDescription = stateDescriptionProvider.getStateDescription(this.name, locale);
-            if(stateDescription != null) {
-                return stateDescription;
+        if(stateDescriptionProviders != null) {
+            for (StateDescriptionProvider stateDescriptionProvider : stateDescriptionProviders) {
+                StateDescription stateDescription = stateDescriptionProvider.getStateDescription(this.name, locale);
+                if(stateDescription != null) {
+                    return stateDescription;
+                }
             }
         }
         return null;

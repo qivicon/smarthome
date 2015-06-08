@@ -335,6 +335,7 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber implements ItemR
 
     @Override
     public void updated(Item oldItem, Item item) {
-        // nothing to do
+    	removed(oldItem);
+    	added(item);
     }
 }

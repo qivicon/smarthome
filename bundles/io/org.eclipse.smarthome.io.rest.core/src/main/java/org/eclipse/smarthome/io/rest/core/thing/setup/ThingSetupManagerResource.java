@@ -8,11 +8,9 @@
 package org.eclipse.smarthome.io.rest.core.thing.setup;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -38,6 +36,7 @@ import org.eclipse.smarthome.core.thing.bean.ThingBean;
 import org.eclipse.smarthome.core.thing.bean.ThingBeanMapper;
 import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.core.thing.ThingResource;
 
 /**
  * This class acts as a REST resource for the setup manager.
@@ -64,7 +63,7 @@ public class ThingSetupManagerResource implements RESTResource {
             bridgeUID = new ThingUID(thingBean.bridgeUID);
         }
 
-        Configuration configuration = getConfiguration(thingBean);
+        Configuration configuration = ThingResource.getConfiguration(thingBean);
 
         thingSetupManager.addThing(thingUIDObject, configuration, bridgeUID, thingBean.item.label,
                 thingBean.item.groupNames);
@@ -84,14 +83,14 @@ public class ThingSetupManagerResource implements RESTResource {
             bridgeUID = new ThingUID(thingBean.bridgeUID);
         }
 
-        Configuration configuration = getConfiguration(thingBean);
+        Configuration configuration = ThingResource.getConfiguration(thingBean);
 
         Thing thing = thingSetupManager.getThing(thingUID);
 
-        String label = thingBean.item.label;
-        List<String> groupNames = thingBean.item.groupNames;
+        if(thingBean.item != null && thing != null) {
+            String label = thingBean.item.label;
+            List<String> groupNames = thingBean.item.groupNames;
 
-        if (thing != null) {
             GroupItem thingGroupItem = thing.getLinkedItem();
             if (thingGroupItem != null) {
                 boolean labelChanged = false;
@@ -110,7 +109,7 @@ public class ThingSetupManagerResource implements RESTResource {
             if (bridgeUID != null) {
                 thing.setBridgeUID(bridgeUID);
             }
-            updateConfiguration(thing, configuration);
+            ThingResource.updateConfiguration(thing, configuration);
             thingSetupManager.updateThing(thing);
         }
 
@@ -220,24 +219,6 @@ public class ThingSetupManagerResource implements RESTResource {
 
     protected void unsetThingSetupManager(ThingSetupManager thingSetupManager) {
         this.thingSetupManager = null;
-    }
-
-    private Configuration getConfiguration(ThingBean thingBean) {
-        Configuration configuration = new Configuration();
-
-        for (Entry<String, Object> parameter : thingBean.configuration.entrySet()) {
-            String name = parameter.getKey();
-            Object value = parameter.getValue();
-            configuration.put(name, value instanceof Double ? new BigDecimal((Double) value) : value);
-        }
-
-        return configuration;
-    }
-
-    private void updateConfiguration(Thing thing, Configuration configuration) {
-        for (String parameterName : configuration.keySet()) {
-            thing.getConfiguration().put(parameterName, configuration.get(parameterName));
-        }
     }
 
     private boolean setGroupNames(GroupItem thingGroupItem, List<String> groupNames) {

@@ -83,6 +83,7 @@ public class ItemBeanMapper {
         }
         bean.name = item.getName();
         bean.state = item.getState().toString();
+        // bean.state = considerTransformation(item.getState().toString(), item.getStateDescription());
         bean.type = item.getClass().getSimpleName();
         if (uri != null) {
             String fullPath = uri.toASCIIString() + "/items/" + bean.name;
@@ -92,6 +93,25 @@ public class ItemBeanMapper {
         bean.tags = item.getTags();
         bean.category = item.getCategory();
         bean.stateDescription = item.getStateDescription();
+        // bean.stateDescription = considerTransformation(item.getStateDescription());
         bean.groupNames = item.getGroupNames();
     }
+
+    // private static StateDescription considerTransformation(StateDescription desc) {
+    // if (desc == null || desc.getPattern() == null) {
+    // return desc;
+    // } else {
+    // return TransformationHelper.isTransform(desc.getPattern()) ? new StateDescription(desc.getMinimum(),
+    // desc.getMaximum(), desc.getStep(), "", desc.isReadOnly(), desc.getOptions()) : desc;
+    // }
+    // }
+    //
+    // private static String considerTransformation(String state, StateDescription stateDescription) {
+    // if (stateDescription != null && stateDescription.getPattern() != null) {
+    // return TransformationHelper.transform(RESTCoreActivator.getBundleContext(), stateDescription.getPattern(),
+    // state.toString());
+    // } else {
+    // return state;
+    // }
+    // }
 }
