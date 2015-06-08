@@ -21,6 +21,13 @@ public class ItemAddedEvent extends AbstractItemRegistryEvent {
      */
     public final static String TYPE = ItemAddedEvent.class.getSimpleName();
 
+    /**
+     * Constructs a new item added event object.
+     *
+     * @param topic the topic
+     * @param payload the payload
+     * @param item the item
+     */
     protected ItemAddedEvent(String topic, String payload, Item item) {
         super(topic, payload, null, item);
     }

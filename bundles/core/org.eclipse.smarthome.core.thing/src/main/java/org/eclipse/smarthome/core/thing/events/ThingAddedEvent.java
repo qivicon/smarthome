@@ -5,31 +5,31 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.items.events;
+package org.eclipse.smarthome.core.thing.events;
 
-import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.thing.Thing;
 
 /**
- * An {@link ItemRemovedEvent} notifies subscribers that an item has been removed.
+ * A {@link ThingAddedEvent} notifies subscribers that a thing has been added.
  *
  * @author Stefan Bußweiler - Initial contribution
  */
-public class ItemRemovedEvent extends AbstractItemRegistryEvent {
+public class ThingAddedEvent extends AbstractThingRegistryEvent {
 
     /**
-     * The item removed event type.
+     * The thing added event type.
      */
-    public final static String TYPE = ItemRemovedEvent.class.getSimpleName();
+    public final String TYPE = ThingAddedEvent.class.getSimpleName();
 
     /**
-     * Constructs a new item removed event object.
+     * Constructs a new thing added event object.
      *
      * @param topic the topic
      * @param payload the payload
-     * @param item the item
+     * @param thing the thing
      */
-    protected ItemRemovedEvent(String topic, String payload, Item item) {
-        super(topic, payload, null, item);
+    protected ThingAddedEvent(String topic, String payload, Thing thing) {
+        super(topic, payload, null, thing);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class ItemRemovedEvent extends AbstractItemRegistryEvent {
 
     @Override
     public String toString() {
-        return "Item '" + getItem().getName() + "' has been removed.";
+        return "Thing '" + getThing().getUID() + "' has been added.";
     }
 
 }

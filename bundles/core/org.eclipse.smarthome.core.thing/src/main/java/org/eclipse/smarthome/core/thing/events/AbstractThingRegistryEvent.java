@@ -5,40 +5,40 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.items.events;
+package org.eclipse.smarthome.core.thing.events;
 
 import org.eclipse.smarthome.core.events.AbstractEvent;
-import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.thing.Thing;
 
 /**
- * Abstract implementation of an item registry event.
+ * Abstract implementation of a thing registry event.
  *
  * @author Stefan Bußweiler - Initial contribution
  */
-public abstract class AbstractItemRegistryEvent extends AbstractEvent {
+public abstract class AbstractThingRegistryEvent extends AbstractEvent {
 
-    private final Item item;
+    private final Thing thing;
 
     /**
-     * Must be called in subclass constructor to create a new item registry event.
+     * Must be called in subclass constructor to create a new thing registry event.
      *
      * @param topic the topic
      * @param payload the payload
      * @param source the source, can be null
-     * @param item the item
+     * @param thing the thing
      */
-    protected AbstractItemRegistryEvent(String topic, String payload, String source, Item item) {
+    protected AbstractThingRegistryEvent(String topic, String payload, String source, Thing thing) {
         super(topic, payload, source);
-        this.item = item;
+        this.thing = thing;
     }
 
     /**
-     * Gets the item.
+     * Gets the thing.
      * 
-     * @return the item
+     * @return the thing
      */
-    public Item getItem() {
-        return item;
+    public Thing getThing() {
+        return thing;
     }
 
 }

@@ -23,6 +23,14 @@ public class ItemUpdatedEvent extends AbstractItemRegistryEvent {
      */
     public final static String TYPE = ItemUpdatedEvent.class.getSimpleName();
 
+    /**
+     * Constructs a new item updated event object.
+     *
+     * @param topic the topic
+     * @param payload the payload
+     * @param item the item
+     * @param oldItem the old item
+     */
     protected ItemUpdatedEvent(String topic, String payload, Item item, Item oldItem) {
         super(topic, payload, null, item);
         this.oldItem = oldItem;
