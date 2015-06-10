@@ -43,6 +43,7 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.osgi.service.component.ComponentContext
+import org.osgi.service.event.EventAdmin;
 
 /**
  * 
@@ -155,6 +156,7 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
             thingManger.setThingRegistry(getService(ThingRegistry))
             thingManger.setItemChannelLinkRegistry(getService(ItemChannelLinkRegistry))
             thingManger.setItemThingLinkRegistry(getService(ItemThingLinkRegistry))
+			thingManger.setEventAdmin(getService(EventAdmin))
             thingManger.activate(componentContext)
             
             def channels = thing.getChannels()

@@ -11,6 +11,9 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import java.util.Dictionary;
+import java.util.Hashtable;
+
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.library.types.DecimalType
@@ -39,6 +42,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.osgi.service.event.Event
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants
 import org.osgi.service.event.EventHandler
 
@@ -349,6 +353,61 @@ class ThingManagerOSGiTest extends OSGiTest {
         for(Thing bridgeThing : bridge.getThings()) {
             assertThat bridgeThing.statusInfo, is(thingStatusInfo)
         }
+    }
+
+    @Test
+    void 'ThingManager handles thing status updates via eventing correctly'() {
+        boolean handleEventCalled = false
+        ThingHandlerCallback callback;
+        Event someEvent;
+
+        EventHandler eventHandler = new EventHandler() {
+
+            @Override
+            public void handleEvent(Event event) {
+                someEvent = event
+                handleEventCalled = true
+            }
+        };
+        Dictionary<String, String> properties = new Hashtable<String, String>();
+    
+        properties.put(EventConstants.EVENT_TOPIC, "smarthome/things/status")     
+        registerService(eventHandler, EventHandler.class.getName(), properties);
+        
+        managedThingProvider.add(THING)
+        def thingHandler = [
+            setCallback: {callbackArg ->
+                callback = callbackArg
+            }
+        ] as ThingHandler
+        
+        registerService(thingHandler,[
+            (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
+            (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
+        ] as Hashtable)
+
+        EventHandler h = getService(EventHandler)
+        
+        def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
+        callback.statusUpdated(THING, statusInfo)
+        assertThat THING.statusInfo, is(statusInfo)
+        
+        waitForAssert {assertThat handleEventCalled, is(true)}
+        
+        String uid = someEvent.getProperty("uid")
+        String status = someEvent.getProperty("status")
+        String statusDetail = someEvent.getProperty("statusDetail")
+        String statusDescription = someEvent.getProperty("statusDescription")
+        
+        assertNotNull uid
+        assertNotNull status
+        assertNotNull statusDetail
+        assertNotNull statusDescription
+        
+        assertThat uid, is(THING.getUID().getAsString())
+        assertThat status, is("ONLINE")
+        assertThat statusDetail, is("NONE")
+        assertThat statusDescription, is("")
     }
 
     @Test
