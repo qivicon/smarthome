@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.EventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,9 +38,12 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
     private final Logger logger = LoggerFactory.getLogger(AbstractRegistry.class);
 
     protected Map<Provider<E>, Collection<E>> elementMap = new ConcurrentHashMap<>();
+
     protected Collection<RegistryChangeListener<E>> listeners = new CopyOnWriteArraySet<>();
 
     protected ManagedProvider<E, K> managedProvider;
+
+    protected EventPublisher eventPublisher;
 
     @Override
     public void added(Provider<E> provider, E element) {
@@ -262,4 +267,28 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
         }
     }
 
+    protected void setEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
+
+    protected void unsetEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = null;
+    }
+
+    /**
+     * This method can be used in a subclass in order to post events through the Eclipse SmartHome events bus. A common
+     * use case is to notify event subscribers about an element which has been added/removed/updated to the registry.
+     * 
+     * @param event the event
+     */
+    protected void notifyEventSubscribers(Event event) {
+        if (eventPublisher != null) {
+            try {
+                eventPublisher.post(event);
+            } catch (Exception ex) {
+                logger.error("Could not inform event subscribers about the '" + event.getType() + "' event.", ex);
+            }
+        }
+    }
+    
 }

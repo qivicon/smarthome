@@ -45,12 +45,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
 
     private final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
 
-    /**
-     * if an EventPublisher service is available, we provide it to all items, so
-     * that they can communicate over the bus
-     */
-    protected EventPublisher eventPublisher;
-
     protected List<StateDescriptionProvider> stateDescriptionProviders = new CopyOnWriteArrayList<>();
 
     @Override
@@ -303,15 +297,17 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
         }
     }
 
+    @Override
     protected void setEventPublisher(EventPublisher eventPublisher) {
-        this.eventPublisher = eventPublisher;
+        super.setEventPublisher(eventPublisher);
         for (Item item : getItems()) {
             ((GenericItem) item).setEventPublisher(eventPublisher);
         }
     }
 
+    @Override
     protected void unsetEventPublisher(EventPublisher eventPublisher) {
-        this.eventPublisher = null;
+        super.unsetEventPublisher(eventPublisher);
         for (Item item : getItems()) {
             ((GenericItem) item).setEventPublisher(null);
         }
@@ -386,29 +382,21 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
     }
 
     @Override
-    protected void notifyListeners(Item oldElement, Item element, EventType eventType) {
-        super.notifyListeners(oldElement, element, eventType);
-         notifyEventSubscribers(oldElement, element, eventType);
+    protected void notifyListenersAboutAddedElement(Item element) {
+        super.notifyListenersAboutAddedElement(element);
+        notifyEventSubscribers(ItemEventFactory.createAddedEvent(element));
     }
 
-    protected void notifyEventSubscribers(Item oldItem, Item item, EventType eventType) {
-        try {
-            switch (eventType) {
-                case ADDED:
-                    eventPublisher.post(ItemEventFactory.createAddedEvent(item));
-                    break;
-                case REMOVED:
-                    eventPublisher.post(ItemEventFactory.createRemovedEvent(item));
-                    break;
-                case UPDATED:
-                    eventPublisher.post(ItemEventFactory.createUpdateEvent(item, oldItem));
-                    break;
-                default:
-                    break;
-            }
-        } catch (Exception ex) {
-            logger.error("Could not inform event subscribers about the '" + eventType.name() + "' event.", ex);
-        }
+    @Override
+    protected void notifyListenersAboutRemovedElement(Item element) {
+        super.notifyListenersAboutRemovedElement(element);
+        notifyEventSubscribers(ItemEventFactory.createRemovedEvent(element));
+    }
+
+    @Override
+    protected void notifyListenersAboutUpdatedElement(Item oldElement, Item element) {
+        super.notifyListenersAboutUpdatedElement(oldElement, element);
+        notifyEventSubscribers(ItemEventFactory.createUpdateEvent(element, oldElement));
     }
     
 }
