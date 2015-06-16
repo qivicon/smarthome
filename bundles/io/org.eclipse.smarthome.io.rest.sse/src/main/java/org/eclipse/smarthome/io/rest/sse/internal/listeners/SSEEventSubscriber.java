@@ -9,12 +9,20 @@ package org.eclipse.smarthome.io.rest.sse.internal.listeners;
 
 import java.util.Set;
 
+import org.eclipse.smarthome.config.discovery.inbox.events.InboxAddedEvent;
+import org.eclipse.smarthome.config.discovery.inbox.events.InboxRemovedEvent;
+import org.eclipse.smarthome.config.discovery.inbox.events.InboxUpdatedEvent;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.items.events.ItemAddedEvent;
+import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemRemovedEvent;
+import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.items.events.ItemUpdatedEvent;
+import org.eclipse.smarthome.core.thing.events.ThingAddedEvent;
+import org.eclipse.smarthome.core.thing.events.ThingRemovedEvent;
+import org.eclipse.smarthome.core.thing.events.ThingUpdatedEvent;
 import org.eclipse.smarthome.io.rest.sse.EventType;
 import org.eclipse.smarthome.io.rest.sse.SseResource;
 
@@ -28,10 +36,13 @@ import com.google.common.collect.ImmutableSet;
  */
 public class SSEEventSubscriber implements EventSubscriber {
 
-    private SseResource sseResource;
+    private final Set<String> subscribedEventTypes = ImmutableSet.of(
+            ThingAddedEvent.TYPE, ThingRemovedEvent.TYPE, ThingUpdatedEvent.TYPE,
+            ItemAddedEvent.TYPE, ItemRemovedEvent.TYPE, ItemUpdatedEvent.TYPE,
+            ItemCommandEvent.TYPE, ItemStateEvent.TYPE, 
+            InboxAddedEvent.TYPE, InboxRemovedEvent.TYPE, InboxUpdatedEvent.TYPE);
 
-    private final Set<String> subscribedEventTypes = ImmutableSet.of(ItemAddedEvent.TYPE, ItemRemovedEvent.TYPE,
-            ItemUpdatedEvent.TYPE);
+    private SseResource sseResource;
 
     protected void setSseResource(SseResource sseResource) {
         this.sseResource = sseResource;
@@ -53,12 +64,28 @@ public class SSEEventSubscriber implements EventSubscriber {
 
     @Override
     public void receive(Event event) {
-        if (event instanceof ItemAddedEvent) {
+        if (event instanceof ThingAddedEvent) {
+            sseResource.broadcastEvent(EventType.THING_ADDED, event);
+        } else if (event instanceof ThingRemovedEvent) {
+            sseResource.broadcastEvent(EventType.THING_REMOVED, event);
+        } else if (event instanceof ThingUpdatedEvent) {
+            sseResource.broadcastEvent(EventType.THING_UPDATED, event);
+        } else if (event instanceof ItemAddedEvent) {
             sseResource.broadcastEvent(EventType.ITEM_ADDED, event);
         } else if (event instanceof ItemRemovedEvent) {
             sseResource.broadcastEvent(EventType.ITEM_REMOVED, event);
         } else if (event instanceof ItemUpdatedEvent) {
             sseResource.broadcastEvent(EventType.ITEM_UPDATED, event);
+        } else if (event instanceof ItemCommandEvent) {
+            sseResource.broadcastEvent(EventType.COMMAND, event);
+        } else if (event instanceof ItemStateEvent) {
+            sseResource.broadcastEvent(EventType.UPDATE, event);
+        } else if (event instanceof InboxAddedEvent) {
+            sseResource.broadcastEvent(EventType.INBOX_THING_ADDED, event);
+        } else if (event instanceof InboxRemovedEvent) {
+            sseResource.broadcastEvent(EventType.INBOX_THING_REMOVED, event);
+        } else if (event instanceof InboxUpdatedEvent) {
+            sseResource.broadcastEvent(EventType.INBOX_THING_UPDATED, event);
         }
     }
 
