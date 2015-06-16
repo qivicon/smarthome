@@ -7,13 +7,18 @@
  */
 package org.eclipse.smarthome.core.thing.events;
 
+import java.util.List;
+
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.bean.ThingBean;
+import org.eclipse.smarthome.core.thing.bean.ThingBeanMapper;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -35,21 +40,49 @@ public class ThingEventFactory extends AbstractEventFactory {
      * Constructs a new ThingEventFactory.
      */
     public ThingEventFactory() {
-        super(Sets.newHashSet(ThingStatusInfoEvent.TYPE));
+        super(Sets.newHashSet(ThingStatusInfoEvent.TYPE, ThingAddedEvent.TYPE, ThingRemovedEvent.TYPE,
+                ThingUpdatedEvent.TYPE));
     }
 
     @Override
     protected Event createEventByType(String eventType, String topic, String payload, String source) throws Exception {
-        boolean isThingStatusEvent = eventType.equals(ThingStatusInfoEvent.TYPE);
-        return isThingStatusEvent ? createStatusInfoEvent(eventType, topic, payload) : null;
+        Event event = null;
+        if (eventType.equals(ThingStatusInfoEvent.TYPE)) {
+            event = createStatusInfoEvent(topic, payload);
+        } else if (eventType.equals(ThingAddedEvent.TYPE)) {
+            event = createAddedEvent(topic, payload);
+        } else if (eventType.equals(ThingRemovedEvent.TYPE)) {
+            event = createRemovedEvent(topic, payload);
+        } else if (eventType.equals(ThingUpdatedEvent.TYPE)) {
+            event = createUpdatedEvent(topic, payload);
+        }
+        return event;
     }
 
-    private Event createStatusInfoEvent(String eventType, String topic, String payload) throws Exception {
+    private Event createStatusInfoEvent(String topic, String payload) throws Exception {
         // TODO: thingUID determination will be replaced in QSDK-2530
         String[] segments = topic.split("/");
         ThingUID thingUID = new ThingUID(segments[2]);
         ThingStatusInfo thingStatusInfo = deserializePayload(payload, ThingStatusInfo.class);
         return new ThingStatusInfoEvent(topic, payload, thingUID, thingStatusInfo);
+    }
+
+    private Event createAddedEvent(String topic, String payload) throws Exception {
+        ThingBean thingBean = deserializePayload(payload, ThingBean.class);
+        return new ThingAddedEvent(topic, payload, thingBean);
+    }
+
+    private Event createRemovedEvent(String topic, String payload) throws Exception {
+        ThingBean thingBean = deserializePayload(payload, ThingBean.class);
+        return new ThingRemovedEvent(topic, payload, thingBean);
+    }
+
+    private Event createUpdatedEvent(String topic, String payload) throws Exception {
+        ThingBean[] thingBean = deserializePayload(payload, ThingBean[].class);
+        if (thingBean.length != 2)
+            throw new IllegalArgumentException("ThingUpdateEvent creation failed, caused by invalid payload: "
+                    + payload);
+        return new ThingUpdatedEvent(topic, payload, thingBean[0], thingBean[1]);
     }
 
     /**
@@ -79,9 +112,12 @@ public class ThingEventFactory extends AbstractEventFactory {
      * 
      * @return the created thing added event
      */
-    public static Event createAddedEvent(Thing thing) {
-        // TODO Auto-generated method stub
-        return null;
+    public static ThingAddedEvent createAddedEvent(Thing thing) {
+        // TODO: param checks
+        String topic = buildTopic(THING_ADDED_EVENT_TOPIC, thing.getUID().getAsString());
+        ThingBean thingDTO = mapThingToBean(thing);
+        String payload = serializePayload(thingDTO);
+        return new ThingAddedEvent(topic, payload, thingDTO);
     }
 
     /**
@@ -91,9 +127,12 @@ public class ThingEventFactory extends AbstractEventFactory {
      * 
      * @return the created thing removed event
      */
-    public static Event createRemovedEvent(Thing thing) {
-        // TODO Auto-generated method stub
-        return null;
+    public static ThingRemovedEvent createRemovedEvent(Thing thing) {
+        // TODO: param checks
+        String topic = buildTopic(THING_REMOVED_EVENT_TOPIC, thing.getUID().getAsString());
+        ThingBean thingDTO = mapThingToBean(thing);
+        String payload = serializePayload(thingDTO);
+        return new ThingRemovedEvent(topic, payload, thingDTO);
     }
 
     /**
@@ -103,9 +142,24 @@ public class ThingEventFactory extends AbstractEventFactory {
      * @param oldThing the old thing
      * @return the created item updated event
      */
-    public static Event createUpdateEvent(Thing thing, Thing oldThing) {
-        // TODO Auto-generated method stub
-        return null;
+    public static ThingUpdatedEvent createUpdateEvent(Thing thing, Thing oldThing) {
+        // TODO : param checks
+        String topic = buildTopic(THING_UPDATED_EVENT_TOPIC, thing.getUID().getAsString());
+        ThingBean thingDTO = mapThingToBean(thing);
+        ThingBean oldThingDTO = mapThingToBean(oldThing);
+        List<ThingBean> beans = Lists.newLinkedList();
+        beans.add(thingDTO);
+        beans.add(oldThingDTO);
+        String payload = serializePayload(beans);
+        return new ThingUpdatedEvent(topic, payload, thingDTO, oldThingDTO);
+    }
+
+    private static String buildTopic(String topic, String thingUID) {
+        return topic.replace("{thingUID}", thingUID);
+    }
+
+    private static ThingBean mapThingToBean(Thing thing) {
+        return ThingBeanMapper.mapThingToBean(thing);
     }
 
 }

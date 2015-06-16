@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.events;
 
-import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.bean.ThingBean;
 
 /**
  * A {@link ThingUpdatedEvent} notifies subscribers that a thing has been updated.
@@ -21,7 +21,7 @@ public class ThingUpdatedEvent extends AbstractThingRegistryEvent {
      */
     public final static String TYPE = ThingUpdatedEvent.class.getSimpleName();
 
-    private final Thing oldThing;
+    private final ThingBean oldThing;
 
     /**
      * Constructs a new thing updated event object.
@@ -31,7 +31,7 @@ public class ThingUpdatedEvent extends AbstractThingRegistryEvent {
      * @param thing the thing
      * @param oldThing the old thing
      */
-    public ThingUpdatedEvent(String topic, String payload, Thing thing, Thing oldThing) {
+    protected ThingUpdatedEvent(String topic, String payload, ThingBean thing, ThingBean oldThing) {
         super(topic, payload, null, thing);
         this.oldThing = oldThing;
     }
@@ -46,13 +46,13 @@ public class ThingUpdatedEvent extends AbstractThingRegistryEvent {
      * 
      * @return the oldThing
      */
-    public Thing getOldThing() {
+    public ThingBean getOldThing() {
         return oldThing;
     }
 
     @Override
     public String toString() {
-        return "Thing '" + getThing().getUID() + "' has been updated.";
+        return "Thing '" + getThing().UID + "' has been updated.";
     }
 
 }

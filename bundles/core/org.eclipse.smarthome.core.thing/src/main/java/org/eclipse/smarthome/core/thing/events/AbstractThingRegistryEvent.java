@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.core.thing.events;
 
 import org.eclipse.smarthome.core.events.AbstractEvent;
-import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.bean.ThingBean;
 
 /**
  * Abstract implementation of a thing registry event.
@@ -17,7 +17,7 @@ import org.eclipse.smarthome.core.thing.Thing;
  */
 public abstract class AbstractThingRegistryEvent extends AbstractEvent {
 
-    private final Thing thing;
+    private final ThingBean thing;
 
     /**
      * Must be called in subclass constructor to create a new thing registry event.
@@ -27,7 +27,7 @@ public abstract class AbstractThingRegistryEvent extends AbstractEvent {
      * @param source the source, can be null
      * @param thing the thing
      */
-    protected AbstractThingRegistryEvent(String topic, String payload, String source, Thing thing) {
+    protected AbstractThingRegistryEvent(String topic, String payload, String source, ThingBean thing) {
         super(topic, payload, source);
         this.thing = thing;
     }
@@ -37,7 +37,7 @@ public abstract class AbstractThingRegistryEvent extends AbstractEvent {
      * 
      * @return the thing
      */
-    public Thing getThing() {
+    public ThingBean getThing() {
         return thing;
     }
 
