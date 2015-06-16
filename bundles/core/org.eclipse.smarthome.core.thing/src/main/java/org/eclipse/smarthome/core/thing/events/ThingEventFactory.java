@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.thing.events;
 
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
@@ -23,6 +24,12 @@ import com.google.common.collect.Sets;
 public class ThingEventFactory extends AbstractEventFactory {
 
     private static final String THING_STATUS_INFO_EVENT_TOPIC = "smarthome/things/{thingUID}/status";
+
+    private static final String THING_ADDED_EVENT_TOPIC = "smarthome/things/{thingUID}/added";
+
+    private static final String THING_REMOVED_EVENT_TOPIC = "smarthome/things/{thingUID}/removed";
+
+    private static final String THING_UPDATED_EVENT_TOPIC = "smarthome/things/{thingUID}/updated";
 
     /**
      * Constructs a new ThingEventFactory.
@@ -63,6 +70,42 @@ public class ThingEventFactory extends AbstractEventFactory {
     private static void checkArguments(ThingUID thingUID, ThingStatusInfo thingStatusInfo) {
         Preconditions.checkArgument(thingUID != null, "The argument 'thingUID' must not be null.");
         Preconditions.checkArgument(thingStatusInfo != null, "The argument 'thingStatusInfo' must not be null.");
+    }
+
+    /**
+     * Creates a thing added event.
+     * 
+     * @param thing the thing
+     * 
+     * @return the created thing added event
+     */
+    public static Event createAddedEvent(Thing thing) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * Creates a thing removed event.
+     * 
+     * @param thing the thing
+     * 
+     * @return the created thing removed event
+     */
+    public static Event createRemovedEvent(Thing thing) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * Creates a thing updated event.
+     * 
+     * @param thing the thing
+     * @param oldThing the old thing
+     * @return the created item updated event
+     */
+    public static Event createUpdateEvent(Thing thing, Thing oldThing) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

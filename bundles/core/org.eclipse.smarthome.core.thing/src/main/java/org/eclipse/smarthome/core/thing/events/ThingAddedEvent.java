@@ -19,7 +19,7 @@ public class ThingAddedEvent extends AbstractThingRegistryEvent {
     /**
      * The thing added event type.
      */
-    public final String TYPE = ThingAddedEvent.class.getSimpleName();
+    public final static String TYPE = ThingAddedEvent.class.getSimpleName();
 
     /**
      * Constructs a new thing added event object.
