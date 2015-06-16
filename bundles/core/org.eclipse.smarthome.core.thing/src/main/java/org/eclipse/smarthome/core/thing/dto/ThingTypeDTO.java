@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.thing.bean;
+package org.eclipse.smarthome.core.thing.dto;
 
 import java.util.List;
 import java.util.Map;
@@ -18,13 +18,13 @@ import java.util.Map;
  * @author Chris Jackson - Added parameter groups
  *
  */
-public class ThingTypeBean {
+public class ThingTypeDTO {
 
-    public List<ChannelDefinitionBean> channels;
-    public List<ChannelGroupDefinitionBean> channelGroups;
-    public List<ConfigDescriptionParameterBean> configParameters;
+    public List<ChannelDefinitionDTO> channels;
+    public List<ChannelGroupDefinitionDTO> channelGroups;
+    public List<ConfigDescriptionParameterDTO> configParameters;
     public List<String> supportedBridgeTypeUIDs;
-    public List<ParameterGroupBean> parameterGroups;
+    public List<ParameterGroupDTO> parameterGroups;
     public Map<String, String> properties;
     public String description;
     public String label;
@@ -32,13 +32,13 @@ public class ThingTypeBean {
     public String UID;
     boolean bridge;
 
-    public ThingTypeBean() {
+    public ThingTypeDTO() {
     }
 
-    public ThingTypeBean(String UID, String label, String description,
-            List<ConfigDescriptionParameterBean> configParameters, List<ChannelDefinitionBean> channels,
-            List<ChannelGroupDefinitionBean> channelGroups, List<String> supportedBridgeTypeUIDs,
-            Map<String, String> properties, boolean bridge, List<ParameterGroupBean> parameterGroups) {
+    public ThingTypeDTO(String UID, String label, String description,
+            List<ConfigDescriptionParameterDTO> configParameters, List<ChannelDefinitionDTO> channels,
+            List<ChannelGroupDefinitionDTO> channelGroups, List<String> supportedBridgeTypeUIDs,
+            Map<String, String> properties, boolean bridge, List<ParameterGroupDTO> parameterGroups) {
         this.UID = UID;
         this.label = label;
         this.description = description;

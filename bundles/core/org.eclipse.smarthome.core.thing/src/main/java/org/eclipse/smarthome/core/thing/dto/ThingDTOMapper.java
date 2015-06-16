@@ -5,22 +5,22 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.thing.bean;
+package org.eclipse.smarthome.core.thing.dto;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.smarthome.core.items.GroupItem;
-import org.eclipse.smarthome.core.items.bean.GroupItemBean;
-import org.eclipse.smarthome.core.items.bean.ItemBeanMapper;
+import org.eclipse.smarthome.core.items.dto.GroupItemDTO;
+import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
 
 /**
- * The {@link ThingBeanMapper} is an utility class to map things into thing beans.
+ * The {@link ThingDTOMapper} is an utility class to map things into thing beans.
  */
-public class ThingBeanMapper {
+public class ThingDTOMapper {
     
     /**
      * Maps thing into thing bean object.
@@ -28,7 +28,7 @@ public class ThingBeanMapper {
      * @param thing the thing
      * @return the thing bean object
      */
-    public static ThingBean mapThingToBean(Thing thing) {
+    public static ThingDTO mapThingToBean(Thing thing) {
         return mapThingToBean(thing, null);
     }
 
@@ -39,10 +39,10 @@ public class ThingBeanMapper {
      * @param uri the uri
      * @return the thing bean object
      */
-    public static ThingBean mapThingToBean(Thing thing, URI uri) {
-        List<ChannelBean> channelBeans = new ArrayList<>();
+    public static ThingDTO mapThingToBean(Thing thing, URI uri) {
+        List<ChannelDTO> channelBeans = new ArrayList<>();
         for (Channel channel : thing.getChannels()) {
-            ChannelBean channelBean = ChannelBeanMapper.mapChannelToBean(channel);
+            ChannelDTO channelBean = ChannelDTOMapper.mapChannelToBean(channel);
             channelBeans.add(channelBean);
         }
 
@@ -50,10 +50,10 @@ public class ThingBeanMapper {
         String bridgeUID = thing.getBridgeUID() != null ? thing.getBridgeUID().toString() : null;
 
         GroupItem groupItem = thing.getLinkedItem();
-        GroupItemBean groupItemBean = groupItem != null ? (GroupItemBean) ItemBeanMapper.mapItemToBean(groupItem, true, uri)
+        GroupItemDTO groupItemBean = groupItem != null ? (GroupItemDTO) ItemDTOMapper.mapItemToBean(groupItem, true, uri)
                 : null;
 
-        return new ThingBean(thingUID, bridgeUID, thing.getStatusInfo(), channelBeans, thing.getConfiguration(),
+        return new ThingDTO(thingUID, bridgeUID, thing.getStatusInfo(), channelBeans, thing.getConfiguration(),
                 thing.getProperties(), groupItemBean);
     }
     

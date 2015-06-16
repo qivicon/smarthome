@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.model.bean;
+package org.eclipse.smarthome.model.dto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,19 +16,19 @@ import java.util.List;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public class PageBean {
+public class PageDTO {
 
     public String id;
 
     public String title;
     public String icon;
     public String link;
-    public PageBean parent;
+    public PageDTO parent;
     public boolean leaf;
 
-    public List<WidgetBean> widgets = new ArrayList<WidgetBean>();
+    public List<WidgetDTO> widgets = new ArrayList<WidgetDTO>();
 
-    public PageBean() {
+    public PageDTO() {
     }
 
 }

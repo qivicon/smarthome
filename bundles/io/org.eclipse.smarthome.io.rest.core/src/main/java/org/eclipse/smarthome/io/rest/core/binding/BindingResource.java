@@ -22,7 +22,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoRegistry;
-import org.eclipse.smarthome.core.binding.bean.BindingInfoBean;
+import org.eclipse.smarthome.core.binding.dto.BindingInfoDTO;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.LocaleUtil;
 
@@ -55,18 +55,18 @@ public class BindingResource implements RESTResource {
         Locale locale = LocaleUtil.getLocale(language);
 
         Set<BindingInfo> bindingInfos = bindingInfoRegistry.getBindingInfos(locale);
-        Set<BindingInfoBean> bindingInfoBeans = convertToListBean(bindingInfos, locale);
+        Set<BindingInfoDTO> bindingInfoBeans = convertToListBean(bindingInfos, locale);
 
         return Response.ok(bindingInfoBeans).build();
     }
 
-    private BindingInfoBean convertToBindingBean(BindingInfo bindingInfo, Locale locale) {
-        return new BindingInfoBean(bindingInfo.getId(), bindingInfo.getName(), bindingInfo.getAuthor(),
+    private BindingInfoDTO convertToBindingBean(BindingInfo bindingInfo, Locale locale) {
+        return new BindingInfoDTO(bindingInfo.getId(), bindingInfo.getName(), bindingInfo.getAuthor(),
                 bindingInfo.getDescription());
     }
 
-    private Set<BindingInfoBean> convertToListBean(Set<BindingInfo> bindingInfos, Locale locale) {
-        Set<BindingInfoBean> bindingInfoBeans = new LinkedHashSet<>();
+    private Set<BindingInfoDTO> convertToListBean(Set<BindingInfo> bindingInfos, Locale locale) {
+        Set<BindingInfoDTO> bindingInfoBeans = new LinkedHashSet<>();
         for (BindingInfo bindingInfo : bindingInfos) {
             bindingInfoBeans.add(convertToBindingBean(bindingInfo, locale));
         }

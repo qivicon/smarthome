@@ -5,22 +5,22 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.thing.link.bean;
+package org.eclipse.smarthome.core.thing.link.dto;
 
 /**
  * This is a java bean that is used to serialize links.
  *
  * @author Dennis Nobel - Initial contribution
  */
-public class ItemChannelLinkBean {
+public class ItemChannelLinkDTO {
 
     private String channelUID;
     private String itemName;
 
-    public ItemChannelLinkBean() {
+    public ItemChannelLinkDTO() {
     }
 
-    public ItemChannelLinkBean(String itemName, String channelUID) {
+    public ItemChannelLinkDTO(String itemName, String channelUID) {
         this.itemName = itemName;
         this.channelUID = channelUID;
     }

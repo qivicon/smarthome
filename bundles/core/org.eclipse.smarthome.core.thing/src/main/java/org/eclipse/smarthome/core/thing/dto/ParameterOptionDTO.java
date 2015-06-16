@@ -5,25 +5,25 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.thing.bean;
+package org.eclipse.smarthome.core.thing.dto;
 
 /**
- * This is a java bean that is used with JAX-RS to serialize filter criteria of a
+ * This is a java bean that is used with JAX-RS to serialize options of a
  * parameter to JSON.
  *
  * @author Alex Tugarev - Initial contribution
  *
  */
-public class FilterCriteriaBean {
+public class ParameterOptionDTO {
 
+    public String label;
     public String value;
-    public String name;
 
-    public FilterCriteriaBean() {
+    public ParameterOptionDTO() {
     }
 
-    public FilterCriteriaBean(String name, String value) {
-        this.name = name;
+    public ParameterOptionDTO(String value, String label) {
         this.value = value;
+        this.label = label;
     }
 }

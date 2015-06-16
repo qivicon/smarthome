@@ -15,8 +15,8 @@ import java.util.List;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
-import org.eclipse.smarthome.core.items.bean.ItemBean;
-import org.eclipse.smarthome.core.items.bean.ItemBeanMapper;
+import org.eclipse.smarthome.core.items.dto.ItemDTO;
+import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.io.rest.sse.EventType;
 import org.eclipse.smarthome.io.rest.sse.SseResource;
 
@@ -74,10 +74,10 @@ public class ItemRegistryEventListener implements ItemRegistryChangeListener {
     private void broadcastItemEvent(String itemIdentifier, EventType eventType, Item... elements) {
         Object eventObject = null;
         if (elements != null && elements.length > 0) {
-            List<ItemBean> itemBeans = new ArrayList<ItemBean>();
+            List<ItemDTO> itemBeans = new ArrayList<ItemDTO>();
 
             for (Item item : elements) {
-                itemBeans.add(ItemBeanMapper.mapItemToBean(item, false, URI.create("/")));
+                itemBeans.add(ItemDTOMapper.mapItemToBean(item, false, URI.create("/")));
             }
 
             eventObject = itemBeans;

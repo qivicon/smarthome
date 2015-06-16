@@ -39,8 +39,8 @@ import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
-import org.eclipse.smarthome.core.items.bean.ItemBean;
-import org.eclipse.smarthome.core.items.bean.ItemBeanMapper;
+import org.eclipse.smarthome.core.items.dto.ItemDTO;
+import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
@@ -342,7 +342,7 @@ public class ItemResource implements RESTResource {
     @PUT
     @Path("/{itemname: [a-zA-Z_0-9]*}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createOrUpdateItem(@PathParam("itemname") String itemname, ItemBean item) {
+    public Response createOrUpdateItem(@PathParam("itemname") String itemname, ItemDTO item) {
 
     	// If we didn't get an item bean, then return!
     	if (item == null) {
@@ -400,8 +400,8 @@ public class ItemResource implements RESTResource {
         return null;
     }
 
-    private List<ItemBean> getItemBeans(String type, String tags, boolean recursive) {
-        List<ItemBean> beans = new LinkedList<ItemBean>();
+    private List<ItemDTO> getItemBeans(String type, String tags, boolean recursive) {
+        List<ItemDTO> beans = new LinkedList<ItemDTO>();
         Collection<Item> items;
         if (tags == null) {
             if (type == null) {
@@ -419,16 +419,16 @@ public class ItemResource implements RESTResource {
         }
         if (items != null) {
             for (Item item : items) {
-                beans.add(ItemBeanMapper.mapItemToBean(item, recursive, uriInfo.getBaseUri()));
+                beans.add(ItemDTOMapper.mapItemToBean(item, recursive, uriInfo.getBaseUri()));
             }
         }
         return beans;
     }
 
-    private ItemBean getItemDataBean(String itemname) {
+    private ItemDTO getItemDataBean(String itemname) {
         Item item = getItem(itemname);
         if (item != null) {
-            return ItemBeanMapper.mapItemToBean(item, true, uriInfo.getBaseUri());
+            return ItemDTOMapper.mapItemToBean(item, true, uriInfo.getBaseUri());
         } else {
             logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             throw new WebApplicationException(404);

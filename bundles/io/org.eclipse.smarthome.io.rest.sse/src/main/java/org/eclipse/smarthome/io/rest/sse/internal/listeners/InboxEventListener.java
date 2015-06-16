@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.io.rest.sse.internal.listeners;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
-import org.eclipse.smarthome.config.discovery.bean.DiscoveryResultBeanMapper;
+import org.eclipse.smarthome.config.discovery.dto.DiscoveryResultDTOMapper;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxListener;
 import org.eclipse.smarthome.io.rest.sse.EventType;
@@ -62,7 +62,7 @@ public class InboxEventListener implements InboxListener {
     }
 
     private void broadcastInboxEvent(String resultIdentifier, EventType eventType, DiscoveryResult discoveryResult) {
-        sseResource.broadcastEvent(resultIdentifier, eventType, DiscoveryResultBeanMapper.mapDiscoveryResultToBean(discoveryResult));
+        sseResource.broadcastEvent(resultIdentifier, eventType, DiscoveryResultDTOMapper.mapDiscoveryResultToBean(discoveryResult));
     }
 
 }

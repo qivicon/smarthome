@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.thing.bean;
+package org.eclipse.smarthome.core.thing.dto;
 
 /**
  * This is a java bean that is used with JAX-RS to serialize options of a
@@ -14,7 +14,7 @@ package org.eclipse.smarthome.core.thing.bean;
  * @author Chris Jackson - Initial contribution
  *
  */
-public class ParameterGroupBean {
+public class ParameterGroupDTO {
 
     public String name;
     public String context;
@@ -22,10 +22,10 @@ public class ParameterGroupBean {
     public String label;
     public String description;
 
-    public ParameterGroupBean() {
+    public ParameterGroupDTO() {
     }
 
-    public ParameterGroupBean(String name, String context, Boolean advanced, String label, String description) {
+    public ParameterGroupDTO(String name, String context, Boolean advanced, String label, String description) {
         this.name = name;
         this.context = context;
         this.advanced = advanced;

@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.thing.bean;
+package org.eclipse.smarthome.core.thing.dto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +14,9 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.Channel;
 
 /**
- * The {@link ChannelBeanMapper} is an utility class to map channels into channel beans.
+ * The {@link ChannelDTOMapper} is an utility class to map channels into channel beans.
  */
-public class ChannelBeanMapper {
+public class ChannelDTOMapper {
     
     /**
      * Maps channel into channel bean object.
@@ -24,12 +24,12 @@ public class ChannelBeanMapper {
      * @param channel the channel
      * @return the channel bean object
      */
-    public static ChannelBean mapChannelToBean(Channel channel) {
+    public static ChannelDTO mapChannelToBean(Channel channel) {
         List<String> linkedItemNames = new ArrayList<>();
         for (Item item : channel.getLinkedItems()) {
             linkedItemNames.add(item.getName());
         }
-        return new ChannelBean(channel.getUID().getId(), channel.getAcceptedItemType().toString(), linkedItemNames,
+        return new ChannelDTO(channel.getUID().getId(), channel.getAcceptedItemType().toString(), linkedItemNames,
                 channel.getProperties());
     }
 }

@@ -36,14 +36,14 @@ import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.StateChangeListener;
-import org.eclipse.smarthome.core.items.bean.ItemBeanMapper;
+import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.model.bean.MappingBean;
-import org.eclipse.smarthome.model.bean.PageBean;
-import org.eclipse.smarthome.model.bean.SitemapBean;
-import org.eclipse.smarthome.model.bean.WidgetBean;
 import org.eclipse.smarthome.model.core.ModelRepository;
+import org.eclipse.smarthome.model.dto.MappingDTO;
+import org.eclipse.smarthome.model.dto.PageDTO;
+import org.eclipse.smarthome.model.dto.SitemapDTO;
+import org.eclipse.smarthome.model.dto.WidgetDTO;
 import org.eclipse.smarthome.model.sitemap.Chart;
 import org.eclipse.smarthome.model.sitemap.Frame;
 import org.eclipse.smarthome.model.sitemap.Image;
@@ -140,7 +140,7 @@ public class SitemapResource implements RESTResource {
         return Response.ok(responseObject).build();
     }
 
-    private PageBean getPageBean(String sitemapName, String pageId, URI uri) {
+    private PageDTO getPageBean(String sitemapName, String pageId, URI uri) {
         Sitemap sitemap = getSitemap(sitemapName);
         if (sitemap != null) {
             if (pageId.equals(sitemap.getName())) {
@@ -150,7 +150,7 @@ public class SitemapResource implements RESTResource {
                 Widget pageWidget = itemUIRegistry.getWidget(sitemap, pageId);
                 if (pageWidget instanceof LinkableWidget) {
                     EList<Widget> children = itemUIRegistry.getChildren((LinkableWidget) pageWidget);
-                    PageBean pageBean = createPageBean(sitemapName, itemUIRegistry.getLabel(pageWidget),
+                    PageDTO pageBean = createPageBean(sitemapName, itemUIRegistry.getLabel(pageWidget),
                             itemUIRegistry.getIcon(pageWidget), pageId, children, false, isLeaf(children), uri);
                     EObject parentPage = pageWidget.eContainer();
                     while (parentPage instanceof Frame) {
@@ -185,19 +185,19 @@ public class SitemapResource implements RESTResource {
         }
     }
 
-    public Collection<SitemapBean> getSitemapBeans(URI uri) {
-        Collection<SitemapBean> beans = new LinkedList<SitemapBean>();
+    public Collection<SitemapDTO> getSitemapBeans(URI uri) {
+        Collection<SitemapDTO> beans = new LinkedList<SitemapDTO>();
         logger.debug("Received HTTP GET request at '{}'.", UriBuilder.fromUri(uri).build().toASCIIString());
         for(SitemapProvider provider : sitemapProviders) {            
             for (String modelName : provider.getSitemapNames()) {
                 Sitemap sitemap = provider.getSitemap(modelName);
                 if (sitemap != null) {
-                    SitemapBean bean = new SitemapBean();
+                    SitemapDTO bean = new SitemapDTO();
                     bean.name = modelName;
                     bean.icon = sitemap.getIcon();
                     bean.label = sitemap.getLabel();
                     bean.link = UriBuilder.fromUri(uri).path(bean.name).build().toASCIIString();
-                    bean.homepage = new PageBean();
+                    bean.homepage = new PageDTO();
                     bean.homepage.link = bean.link + "/" + sitemap.getName();
                     beans.add(bean);
                 }
@@ -206,7 +206,7 @@ public class SitemapResource implements RESTResource {
         return beans;
     }
 
-    public SitemapBean getSitemapBean(String sitemapname, URI uri) {
+    public SitemapDTO getSitemapBean(String sitemapname, URI uri) {
         Sitemap sitemap = getSitemap(sitemapname);
         if (sitemap != null) {
             return createSitemapBean(sitemapname, sitemap, uri);
@@ -217,8 +217,8 @@ public class SitemapResource implements RESTResource {
         }
     }
 
-    private SitemapBean createSitemapBean(String sitemapName, Sitemap sitemap, URI uri) {
-        SitemapBean bean = new SitemapBean();
+    private SitemapDTO createSitemapBean(String sitemapName, Sitemap sitemap, URI uri) {
+        SitemapDTO bean = new SitemapDTO();
 
         bean.name = sitemapName;
         bean.icon = sitemap.getIcon();
@@ -230,9 +230,9 @@ public class SitemapResource implements RESTResource {
         return bean;
     }
 
-    private PageBean createPageBean(String sitemapName, String title, String icon, String pageId,
+    private PageDTO createPageBean(String sitemapName, String title, String icon, String pageId,
             EList<Widget> children, boolean drillDown, boolean isLeaf, URI uri) {
-        PageBean bean = new PageBean();
+        PageDTO bean = new PageDTO();
         bean.id = pageId;
         bean.title = title;
         bean.icon = icon;
@@ -242,7 +242,7 @@ public class SitemapResource implements RESTResource {
             int cntWidget = 0;
             for (Widget widget : children) {
                 String widgetId = pageId + "_" + cntWidget;
-                WidgetBean subWidget = createWidgetBean(sitemapName, widget, drillDown, uri, widgetId);
+                WidgetDTO subWidget = createWidgetBean(sitemapName, widget, drillDown, uri, widgetId);
                 if (subWidget != null)
                     bean.widgets.add(subWidget);
                 cntWidget++;
@@ -253,17 +253,17 @@ public class SitemapResource implements RESTResource {
         return bean;
     }
 
-    private WidgetBean createWidgetBean(String sitemapName, Widget widget, boolean drillDown, URI uri, String widgetId) {
+    private WidgetDTO createWidgetBean(String sitemapName, Widget widget, boolean drillDown, URI uri, String widgetId) {
         // Test visibility
         if (itemUIRegistry.getVisiblity(widget) == false)
             return null;
 
-        WidgetBean bean = new WidgetBean();
+        WidgetDTO bean = new WidgetDTO();
         if (widget.getItem() != null) {
             try {
                 Item item = itemUIRegistry.getItem(widget.getItem());
                 if (item != null) {
-                    bean.item = ItemBeanMapper.mapItemToBean(item, false, UriBuilder.fromUri(uri).build());
+                    bean.item = ItemDTOMapper.mapItemToBean(item, false, UriBuilder.fromUri(uri).build());
                 }
             } catch (ItemNotFoundException e) {
                 logger.debug(e.getMessage());
@@ -282,7 +282,7 @@ public class SitemapResource implements RESTResource {
                 int cntWidget = 0;
                 for (Widget child : children) {
                     widgetId += "_" + cntWidget;
-                    WidgetBean subWidget = createWidgetBean(sitemapName, child, drillDown, uri, widgetId);
+                    WidgetDTO subWidget = createWidgetBean(sitemapName, child, drillDown, uri, widgetId);
                     if (subWidget != null) {
                         bean.widgets.add(subWidget);
                         cntWidget++;
@@ -298,7 +298,7 @@ public class SitemapResource implements RESTResource {
         if (widget instanceof Switch) {
             Switch switchWidget = (Switch) widget;
             for (Mapping mapping : switchWidget.getMappings()) {
-                MappingBean mappingBean = new MappingBean();
+                MappingDTO mappingBean = new MappingDTO();
                 // Remove quotes - if they exist
                 if (mapping.getCmd() != null) {
                     if (mapping.getCmd().startsWith("\"") && mapping.getCmd().endsWith("\"")) {
@@ -314,7 +314,7 @@ public class SitemapResource implements RESTResource {
         if (widget instanceof Selection) {
             Selection selectionWidget = (Selection) widget;
             for (Mapping mapping : selectionWidget.getMappings()) {
-                MappingBean mappingBean = new MappingBean();
+                MappingDTO mappingBean = new MappingDTO();
                 // Remove quotes - if they exist
                 if (mapping.getCmd() != null) {
                     if (mapping.getCmd().startsWith("\"") && mapping.getCmd().endsWith("\"")) {

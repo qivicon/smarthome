@@ -18,8 +18,8 @@ import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
-import org.eclipse.smarthome.core.items.bean.ItemBean;
-import org.eclipse.smarthome.core.items.bean.ItemBeanMapper;
+import org.eclipse.smarthome.core.items.dto.ItemDTO;
+import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
@@ -109,24 +109,24 @@ public class ItemEventFactory extends AbstractEventFactory {
     }
 
     private Event createAddedEvent(String topic, String payload) {
-        ItemBean bean = deserializePayload(payload, ItemBean.class);
-        Item item = ItemBeanMapper.mapBeanToItem(bean, itemFactories);
+        ItemDTO bean = deserializePayload(payload, ItemDTO.class);
+        Item item = ItemDTOMapper.mapBeanToItem(bean, itemFactories);
         return new ItemAddedEvent(topic, payload, item);
     }
 
     private Event createUpdatedEvent(String topic, String payload) {
-        ItemBean[] bean = deserializePayload(payload, ItemBean[].class);
+        ItemDTO[] bean = deserializePayload(payload, ItemDTO[].class);
         if (bean.length != 2) {
             throw new IllegalArgumentException("ItemUpdateEvent creation failed, caused by invalid payload: " + payload);
         }
-        Item item = ItemBeanMapper.mapBeanToItem(bean[0], itemFactories);
-        Item oldItem = ItemBeanMapper.mapBeanToItem(bean[1], itemFactories);
+        Item item = ItemDTOMapper.mapBeanToItem(bean[0], itemFactories);
+        Item oldItem = ItemDTOMapper.mapBeanToItem(bean[1], itemFactories);
         return new ItemUpdatedEvent(topic, payload, item, oldItem);
     }
 
     private Event createRemovedEvent(String topic, String payload) {
-        ItemBean bean = deserializePayload(payload, ItemBean.class);
-        Item item = ItemBeanMapper.mapBeanToItem(bean, itemFactories);
+        ItemDTO bean = deserializePayload(payload, ItemDTO.class);
+        Item item = ItemDTOMapper.mapBeanToItem(bean, itemFactories);
         return new ItemRemovedEvent(topic, payload, item);
     }
 
@@ -230,7 +230,7 @@ public class ItemEventFactory extends AbstractEventFactory {
         Preconditions.checkArgument(item != null, "The argument 'item' must no be null.");
         Preconditions.checkArgument(oldItem != null, "The argument 'oldItem' must no be null.");
         String topic = buildTopic(ITEM_UPDATED_EVENT_TOPIC, item.getName());
-        List<ItemBean> itemBeans = new LinkedList<ItemBean>();
+        List<ItemDTO> itemBeans = new LinkedList<ItemDTO>();
         itemBeans.add(mapItemToBean(item));
         itemBeans.add(mapItemToBean(oldItem));
         String payload = serializePayload(itemBeans);
@@ -241,8 +241,8 @@ public class ItemEventFactory extends AbstractEventFactory {
         return topic.replace("{itemName}", itemName);
     }
 
-    private static ItemBean mapItemToBean(Item item) {
-        return ItemBeanMapper.mapItemToBean(item, false, URI.create("/"));
+    private static ItemDTO mapItemToBean(Item item) {
+        return ItemDTOMapper.mapItemToBean(item, false, URI.create("/"));
     }
 
     private static void checkArguments(String itemName, Type type, String typeArgumentName) {

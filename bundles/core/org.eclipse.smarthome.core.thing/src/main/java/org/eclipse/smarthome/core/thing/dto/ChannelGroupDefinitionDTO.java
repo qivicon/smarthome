@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.thing.bean;
+package org.eclipse.smarthome.core.thing.dto;
 
 import java.util.List;
 
@@ -14,17 +14,17 @@ import java.util.List;
  *
  * @author Dennis Nobel - Initial contribution
  */
-public class ChannelGroupDefinitionBean {
+public class ChannelGroupDefinitionDTO {
 
     public String id;
     public String description;
     public String label;
-    public List<ChannelDefinitionBean> channels;
+    public List<ChannelDefinitionDTO> channels;
 
-    public ChannelGroupDefinitionBean() {
+    public ChannelGroupDefinitionDTO() {
     }
 
-    public ChannelGroupDefinitionBean(String id, String label, String description, List<ChannelDefinitionBean> channels) {
+    public ChannelGroupDefinitionDTO(String id, String label, String description, List<ChannelDefinitionDTO> channels) {
         this.id = id;
         this.label = label;
         this.description = description;

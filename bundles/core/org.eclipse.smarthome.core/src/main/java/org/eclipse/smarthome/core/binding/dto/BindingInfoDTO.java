@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.binding.bean;
+package org.eclipse.smarthome.core.binding.dto;
 
 
 /**
@@ -14,17 +14,17 @@ package org.eclipse.smarthome.core.binding.bean;
  * @author Dennis Nobel - Initial contribution
  *
  */
-public class BindingInfoBean {
+public class BindingInfoDTO {
 
     public String author;
     public String description;
     public String id;
     public String name;
 
-    public BindingInfoBean() {
+    public BindingInfoDTO() {
     }
 
-    public BindingInfoBean(String id, String name, String author, String description) {
+    public BindingInfoDTO(String id, String name, String author, String description) {
         this.id = id;
         this.name = name;
         this.author = author;

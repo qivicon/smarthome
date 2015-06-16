@@ -5,15 +5,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.config.discovery.bean;
+package org.eclipse.smarthome.config.discovery.dto;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
- * The {@link DiscoveryResultBeanMapper} is an utility class to map discovery results into discovery result beans.
+ * The {@link DiscoveryResultDTOMapper} is an utility class to map discovery results into discovery result beans.
  */
-public class DiscoveryResultBeanMapper {
+public class DiscoveryResultDTOMapper {
     
     /**
      * Maps discovery result into discovery result bean object.
@@ -21,11 +21,11 @@ public class DiscoveryResultBeanMapper {
      * @param discoveryResult the discovery result
      * @return the discovery result bean object
      */
-    public static DiscoveryResultBean mapDiscoveryResultToBean(DiscoveryResult discoveryResult) {
+    public static DiscoveryResultDTO mapDiscoveryResultToBean(DiscoveryResult discoveryResult) {
         ThingUID thingUID = discoveryResult.getThingUID();
         ThingUID bridgeUID = discoveryResult.getBridgeUID();
 
-        return new DiscoveryResultBean(thingUID.toString(), bridgeUID != null ? bridgeUID.toString() : null,
+        return new DiscoveryResultDTO(thingUID.toString(), bridgeUID != null ? bridgeUID.toString() : null,
                 discoveryResult.getLabel(), discoveryResult.getFlag(), discoveryResult.getProperties(),
                 discoveryResult.getRepresentationProperty());
     }

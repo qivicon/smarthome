@@ -27,8 +27,8 @@ import javax.ws.rs.core.UriInfo;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
-import org.eclipse.smarthome.config.discovery.bean.DiscoveryResultBean;
-import org.eclipse.smarthome.config.discovery.bean.DiscoveryResultBeanMapper;
+import org.eclipse.smarthome.config.discovery.dto.DiscoveryResultDTO;
+import org.eclipse.smarthome.config.discovery.dto.DiscoveryResultDTOMapper;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -97,7 +97,7 @@ public class InboxResource implements RESTResource {
     @Produces({ MediaType.WILDCARD })
     public Response getAll() {
         List<DiscoveryResult> discoveryResults = inbox.getAll();
-        Set<DiscoveryResultBean> discoveryResultBeans = convertToListBean(discoveryResults);
+        Set<DiscoveryResultDTO> discoveryResultBeans = convertToListBean(discoveryResults);
 
         return Response.ok(discoveryResultBeans).build();
     }
@@ -117,10 +117,10 @@ public class InboxResource implements RESTResource {
     }
 
 
-    private Set<DiscoveryResultBean> convertToListBean(List<DiscoveryResult> discoveryResults) {
-        Set<DiscoveryResultBean> discoveryResultBeans = new LinkedHashSet<>();
+    private Set<DiscoveryResultDTO> convertToListBean(List<DiscoveryResult> discoveryResults) {
+        Set<DiscoveryResultDTO> discoveryResultBeans = new LinkedHashSet<>();
         for (DiscoveryResult discoveryResult : discoveryResults) {
-            discoveryResultBeans.add(DiscoveryResultBeanMapper.mapDiscoveryResultToBean(discoveryResult));
+            discoveryResultBeans.add(DiscoveryResultDTOMapper.mapDiscoveryResultToBean(discoveryResult));
         }
         return discoveryResultBeans;
     }

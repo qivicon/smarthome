@@ -27,13 +27,13 @@ import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.GroupItem;
-import org.eclipse.smarthome.core.items.bean.ItemBean;
-import org.eclipse.smarthome.core.items.bean.ItemBeanMapper;
+import org.eclipse.smarthome.core.items.dto.ItemDTO;
+import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.bean.ThingBean;
-import org.eclipse.smarthome.core.thing.bean.ThingBeanMapper;
+import org.eclipse.smarthome.core.thing.dto.ThingDTO;
+import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
 import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.thing.ThingResource;
@@ -54,7 +54,7 @@ public class ThingSetupManagerResource implements RESTResource {
     @POST
     @Path("things")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addThing(ThingBean thingBean) throws IOException {
+    public Response addThing(ThingDTO thingBean) throws IOException {
 
         ThingUID thingUIDObject = new ThingUID(thingBean.UID);
         ThingUID bridgeUID = null;
@@ -74,7 +74,7 @@ public class ThingSetupManagerResource implements RESTResource {
     @PUT
     @Path("things")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateThing(ThingBean thingBean) throws IOException {
+    public Response updateThing(ThingDTO thingBean) throws IOException {
 
         ThingUID thingUID = new ThingUID(thingBean.UID);
         ThingUID bridgeUID = null;
@@ -141,10 +141,10 @@ public class ThingSetupManagerResource implements RESTResource {
     @Path("things")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getThings() {
-        List<ThingBean> thingBeans = new ArrayList<>();
+        List<ThingDTO> thingBeans = new ArrayList<>();
         Collection<Thing> things = thingSetupManager.getThings();
         for (Thing thing : things) {
-            ThingBean thingItemBean = ThingBeanMapper.mapThingToBean(thing, uriInfo.getBaseUri());
+            ThingDTO thingItemBean = ThingDTOMapper.mapThingToBean(thing, uriInfo.getBaseUri());
             thingBeans.add(thingItemBean);
         }
         return Response.ok(thingBeans).build();
@@ -181,10 +181,10 @@ public class ThingSetupManagerResource implements RESTResource {
     @Path("groups")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getHomeGroups() {
-        List<ItemBean> itemBeans = new ArrayList<>();
+        List<ItemDTO> itemBeans = new ArrayList<>();
         Collection<GroupItem> homeGroups = thingSetupManager.getHomeGroups();
         for (GroupItem homeGroupItem : homeGroups) {
-            ItemBean itemBean = ItemBeanMapper.mapItemToBean(homeGroupItem, true, uriInfo.getBaseUri());
+            ItemDTO itemBean = ItemDTOMapper.mapItemToBean(homeGroupItem, true, uriInfo.getBaseUri());
             itemBeans.add(itemBean);
         }
         return Response.ok(itemBeans).build();
@@ -193,7 +193,7 @@ public class ThingSetupManagerResource implements RESTResource {
     @POST
     @Path("groups")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addHomeGroup(ItemBean itemBean) {
+    public Response addHomeGroup(ItemDTO itemBean) {
         thingSetupManager.addHomeGroup(itemBean.name, itemBean.label);
         return Response.ok().build();
     }

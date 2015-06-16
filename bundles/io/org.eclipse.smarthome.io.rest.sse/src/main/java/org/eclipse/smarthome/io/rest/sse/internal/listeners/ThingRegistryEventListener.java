@@ -13,8 +13,8 @@ import java.util.List;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingRegistryChangeListener;
-import org.eclipse.smarthome.core.thing.bean.ThingBean;
-import org.eclipse.smarthome.core.thing.bean.ThingBeanMapper;
+import org.eclipse.smarthome.core.thing.dto.ThingDTO;
+import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
 import org.eclipse.smarthome.io.rest.sse.EventType;
 import org.eclipse.smarthome.io.rest.sse.SseResource;
 
@@ -68,10 +68,10 @@ public class ThingRegistryEventListener implements ThingRegistryChangeListener {
     private void broadcastThingEvent(String thingIdentifier, EventType eventType, Thing... elements) {
         Object eventObject = null;
         if (elements != null && elements.length > 0) {
-            List<ThingBean> thingBeans = new ArrayList<ThingBean>();
+            List<ThingDTO> thingBeans = new ArrayList<ThingDTO>();
 
             for (Thing thing : elements) {
-                thingBeans.add(ThingBeanMapper.mapThingToBean(thing));
+                thingBeans.add(ThingDTOMapper.mapThingToBean(thing));
             }
 
             eventObject = thingBeans;

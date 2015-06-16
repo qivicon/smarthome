@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.thing.bean;
+package org.eclipse.smarthome.core.thing.dto;
 
 import java.util.Map;
 import java.util.Set;
@@ -13,12 +13,12 @@ import java.util.Set;
 import org.eclipse.smarthome.core.types.StateDescription;
 
 /**
- * This is a java bean that is used to serialize channel definitions.
+ * This is a data transfer object that is used to serialize channel definitions.
  *
  * @author Dennis Nobel - Initial contribution
  * @author Chris Jackson - Added properties
  */
-public class ChannelDefinitionBean {
+public class ChannelDefinitionDTO {
 
     public String description;
     public String id;
@@ -29,11 +29,11 @@ public class ChannelDefinitionBean {
     private StateDescription stateDescription;
     private boolean advanced;
 
-    public ChannelDefinitionBean() {
+    public ChannelDefinitionDTO() {
 
     }
 
-    public ChannelDefinitionBean(String id, String label, String description, Set<String> tags, String category,
+    public ChannelDefinitionDTO(String id, String label, String description, Set<String> tags, String category,
             StateDescription stateDescription, boolean advanced, Map<String, String> properties) {
         this.description = description;
         this.label = label;

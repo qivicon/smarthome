@@ -5,14 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.thing.bean;
+package org.eclipse.smarthome.core.thing.dto;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.items.bean.GroupItemBean;
+import org.eclipse.smarthome.core.items.dto.GroupItemDTO;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 
 /**
@@ -23,21 +23,21 @@ import org.eclipse.smarthome.core.thing.ThingStatusInfo;
  * @author Stefan Bußweiler - Added new thing status handling 
  *
  */
-public class ThingBean {
+public class ThingDTO {
 
     public String bridgeUID;
     public Map<String, Object> configuration;
     public Map<String, String> properties;
     public ThingStatusInfo statusInfo;
     public String UID;
-    public List<ChannelBean> channels;
-    public GroupItemBean item;
+    public List<ChannelDTO> channels;
+    public GroupItemDTO item;
 
-    public ThingBean() {
+    public ThingDTO() {
     }
 
-    public ThingBean(String UID, String bridgeUID, ThingStatusInfo status, List<ChannelBean> channels,
-            Configuration configuration, Map<String, String> properties, GroupItemBean item) {
+    public ThingDTO(String UID, String bridgeUID, ThingStatusInfo status, List<ChannelDTO> channels,
+            Configuration configuration, Map<String, String> properties, GroupItemDTO item) {
         this.UID = UID;
         this.bridgeUID = bridgeUID;
         this.statusInfo = status;

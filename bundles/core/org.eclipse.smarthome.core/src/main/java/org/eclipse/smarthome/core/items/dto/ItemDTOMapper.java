@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.items.bean;
+package org.eclipse.smarthome.core.items.dto;
 
 import java.net.URI;
 import java.util.Collection;
@@ -20,9 +20,9 @@ import org.eclipse.smarthome.core.items.ItemFactory;
 import com.google.common.base.Preconditions;
 
 /**
- * The {@link ItemBeanMapper} is an utility class to map items into item beans.
+ * The {@link ItemDTOMapper} is an utility class to map items into item beans.
  */
-public class ItemBeanMapper {
+public class ItemDTOMapper {
 
     /**
      * Maps item bean into item object.
@@ -31,7 +31,7 @@ public class ItemBeanMapper {
      * @param itemFactories the item factories in order to create the items
      * @return the item object
      */
-    public static Item mapBeanToItem(ItemBean bean, Set<ItemFactory> itemFactories) {
+    public static Item mapBeanToItem(ItemDTO bean, Set<ItemFactory> itemFactories) {
         Preconditions.checkArgument(bean != null, "The argument 'bean' must no be null.");
         Preconditions.checkArgument(itemFactories != null, "The argument 'itemFactories' must no be null.");
 
@@ -66,20 +66,20 @@ public class ItemBeanMapper {
      * @param uri the uri
      * @return item bean object
      */
-    public static ItemBean mapItemToBean(Item item, boolean drillDown, URI uri) {
-        ItemBean bean = item instanceof GroupItem ? new GroupItemBean() : new ItemBean();
+    public static ItemDTO mapItemToBean(Item item, boolean drillDown, URI uri) {
+        ItemDTO bean = item instanceof GroupItem ? new GroupItemDTO() : new ItemDTO();
         fillProperties(bean, item, drillDown, uri);
         return bean;
     }
     
-    private static void fillProperties(ItemBean bean, Item item, boolean drillDown, URI uri) {
+    private static void fillProperties(ItemDTO bean, Item item, boolean drillDown, URI uri) {
         if (item instanceof GroupItem && drillDown) {
             GroupItem groupItem = (GroupItem) item;
-            Collection<ItemBean> members = new LinkedHashSet<ItemBean>();
+            Collection<ItemDTO> members = new LinkedHashSet<ItemDTO>();
             for (Item member : groupItem.getMembers()) {
                 members.add(mapItemToBean(member, drillDown, uri));
             }
-            ((GroupItemBean) bean).members = members.toArray(new ItemBean[members.size()]);
+            ((GroupItemDTO) bean).members = members.toArray(new ItemDTO[members.size()]);
         }
         bean.name = item.getName();
         bean.state = item.getState().toString();

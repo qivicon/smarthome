@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.thing.bean;
+package org.eclipse.smarthome.core.thing.dto;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -22,7 +22,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
  *         attributes
  *
  */
-public class ConfigDescriptionParameterBean {
+public class ConfigDescriptionParameterDTO {
 
     public String context;
     public String defaultValue;
@@ -42,16 +42,16 @@ public class ConfigDescriptionParameterBean {
     public Boolean advanced;
     public Boolean limitToOptions;
 
-    public List<ParameterOptionBean> options;
-    public List<FilterCriteriaBean> filterCriteria;
+    public List<ParameterOptionDTO> options;
+    public List<FilterCriteriaDTO> filterCriteria;
 
-    public ConfigDescriptionParameterBean() {
+    public ConfigDescriptionParameterDTO() {
     }
 
-    public ConfigDescriptionParameterBean(String name, Type type, BigDecimal minimum, BigDecimal maximum,
+    public ConfigDescriptionParameterDTO(String name, Type type, BigDecimal minimum, BigDecimal maximum,
             BigDecimal stepsize, String pattern, Boolean required, Boolean readOnly, Boolean multiple, String context,
-            String defaultValue, String label, String description, List<ParameterOptionBean> options,
-            List<FilterCriteriaBean> filterCriteria, String groupName, Boolean advanced, Boolean limitToOptions,
+            String defaultValue, String label, String description, List<ParameterOptionDTO> options,
+            List<FilterCriteriaDTO> filterCriteria, String groupName, Boolean advanced, Boolean limitToOptions,
             Integer multipleLimit) {
         this.name = name;
         this.type = type;

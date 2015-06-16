@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.events;
 
-import org.eclipse.smarthome.core.thing.bean.ThingBean;
+import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 
 /**
  * A {@link ThingAddedEvent} notifies subscribers that a thing has been added.
@@ -28,7 +28,7 @@ public class ThingAddedEvent extends AbstractThingRegistryEvent {
      * @param payload the payload
      * @param thing the thing
      */
-    protected ThingAddedEvent(String topic, String payload, ThingBean thing) {
+    protected ThingAddedEvent(String topic, String payload, ThingDTO thing) {
         super(topic, payload, null, thing);
     }
 

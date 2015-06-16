@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.items.bean;
+package org.eclipse.smarthome.core.items.dto;
 
 import java.util.List;
 import java.util.Set;
@@ -19,7 +19,7 @@ import org.eclipse.smarthome.core.types.StateDescription;
  * @author Andre Fuechsel - added tag support
  *
  */
-public class ItemBean {
+public class ItemDTO {
 
     public String type;
     public String name;
@@ -31,7 +31,7 @@ public class ItemBean {
     public StateDescription stateDescription;
     public List<String> groupNames;
 
-    public ItemBean() {
+    public ItemDTO() {
     }
 
 }

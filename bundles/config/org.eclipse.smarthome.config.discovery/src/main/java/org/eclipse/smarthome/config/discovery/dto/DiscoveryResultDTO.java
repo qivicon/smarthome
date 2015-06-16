@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.config.discovery.bean;
+package org.eclipse.smarthome.config.discovery.dto;
 
 import java.util.Map;
 
@@ -17,7 +17,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
  * @author Dennis Nobel - Initial contribution
  * @author Thomas Höfer - Added representation
  */
-public class DiscoveryResultBean {
+public class DiscoveryResultDTO {
 
     public String bridgeUID;
     public DiscoveryResultFlag flag;
@@ -26,10 +26,10 @@ public class DiscoveryResultBean {
     public String representationProperty;
     public String thingUID;
 
-    public DiscoveryResultBean() {
+    public DiscoveryResultDTO() {
     }
 
-    public DiscoveryResultBean(String thingUID, String bridgeUID, String label, DiscoveryResultFlag flag,
+    public DiscoveryResultDTO(String thingUID, String bridgeUID, String label, DiscoveryResultFlag flag,
             Map<String, Object> properties, String representationProperty) {
         this.thingUID = thingUID;
         this.bridgeUID = bridgeUID;

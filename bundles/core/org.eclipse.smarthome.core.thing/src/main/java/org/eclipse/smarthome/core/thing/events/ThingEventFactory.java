@@ -14,8 +14,8 @@ import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.bean.ThingBean;
-import org.eclipse.smarthome.core.thing.bean.ThingBeanMapper;
+import org.eclipse.smarthome.core.thing.dto.ThingDTO;
+import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -68,17 +68,17 @@ public class ThingEventFactory extends AbstractEventFactory {
     }
 
     private Event createAddedEvent(String topic, String payload) throws Exception {
-        ThingBean thingBean = deserializePayload(payload, ThingBean.class);
+        ThingDTO thingBean = deserializePayload(payload, ThingDTO.class);
         return new ThingAddedEvent(topic, payload, thingBean);
     }
 
     private Event createRemovedEvent(String topic, String payload) throws Exception {
-        ThingBean thingBean = deserializePayload(payload, ThingBean.class);
+        ThingDTO thingBean = deserializePayload(payload, ThingDTO.class);
         return new ThingRemovedEvent(topic, payload, thingBean);
     }
 
     private Event createUpdatedEvent(String topic, String payload) throws Exception {
-        ThingBean[] thingBean = deserializePayload(payload, ThingBean[].class);
+        ThingDTO[] thingBean = deserializePayload(payload, ThingDTO[].class);
         if (thingBean.length != 2)
             throw new IllegalArgumentException("ThingUpdateEvent creation failed, caused by invalid payload: "
                     + payload);
@@ -115,7 +115,7 @@ public class ThingEventFactory extends AbstractEventFactory {
     public static ThingAddedEvent createAddedEvent(Thing thing) {
         // TODO: param checks
         String topic = buildTopic(THING_ADDED_EVENT_TOPIC, thing.getUID().getAsString());
-        ThingBean thingDTO = mapThingToBean(thing);
+        ThingDTO thingDTO = mapThingToBean(thing);
         String payload = serializePayload(thingDTO);
         return new ThingAddedEvent(topic, payload, thingDTO);
     }
@@ -130,7 +130,7 @@ public class ThingEventFactory extends AbstractEventFactory {
     public static ThingRemovedEvent createRemovedEvent(Thing thing) {
         // TODO: param checks
         String topic = buildTopic(THING_REMOVED_EVENT_TOPIC, thing.getUID().getAsString());
-        ThingBean thingDTO = mapThingToBean(thing);
+        ThingDTO thingDTO = mapThingToBean(thing);
         String payload = serializePayload(thingDTO);
         return new ThingRemovedEvent(topic, payload, thingDTO);
     }
@@ -145,9 +145,9 @@ public class ThingEventFactory extends AbstractEventFactory {
     public static ThingUpdatedEvent createUpdateEvent(Thing thing, Thing oldThing) {
         // TODO : param checks
         String topic = buildTopic(THING_UPDATED_EVENT_TOPIC, thing.getUID().getAsString());
-        ThingBean thingDTO = mapThingToBean(thing);
-        ThingBean oldThingDTO = mapThingToBean(oldThing);
-        List<ThingBean> beans = Lists.newLinkedList();
+        ThingDTO thingDTO = mapThingToBean(thing);
+        ThingDTO oldThingDTO = mapThingToBean(oldThing);
+        List<ThingDTO> beans = Lists.newLinkedList();
         beans.add(thingDTO);
         beans.add(oldThingDTO);
         String payload = serializePayload(beans);
@@ -158,8 +158,8 @@ public class ThingEventFactory extends AbstractEventFactory {
         return topic.replace("{thingUID}", thingUID);
     }
 
-    private static ThingBean mapThingToBean(Thing thing) {
-        return ThingBeanMapper.mapThingToBean(thing);
+    private static ThingDTO mapThingToBean(Thing thing) {
+        return ThingDTOMapper.mapThingToBean(thing);
     }
 
 }

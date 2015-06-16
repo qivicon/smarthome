@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.model.bean;
+package org.eclipse.smarthome.model.dto;
 
 /**
  * This is a java bean that is used with JAXB to serialize sitemaps to JSON.
@@ -14,7 +14,7 @@ package org.eclipse.smarthome.model.bean;
  * @author Chris Jackson
  *
  */
-public class SitemapBean {
+public class SitemapDTO {
 
     public String name;
     public String icon;
@@ -22,6 +22,6 @@ public class SitemapBean {
 
     public String link;
 
-    public PageBean homepage;
+    public PageDTO homepage;
 
 }

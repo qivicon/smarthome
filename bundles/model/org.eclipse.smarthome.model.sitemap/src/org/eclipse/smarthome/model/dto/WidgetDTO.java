@@ -5,13 +5,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.model.bean;
+package org.eclipse.smarthome.model.dto;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.smarthome.core.items.bean.ItemBean;
+import org.eclipse.smarthome.core.items.dto.ItemDTO;
 
 /**
  * This is a java bean that is used with JAXB to serialize widgets to JSON.
@@ -20,7 +20,7 @@ import org.eclipse.smarthome.core.items.bean.ItemBean;
  * @author Chris Jackson
  *
  */
-public class WidgetBean {
+public class WidgetDTO {
 
     public String widgetId;
     public String type;
@@ -32,7 +32,7 @@ public class WidgetBean {
     public String valuecolor;
 
     // widget-specific attributes
-    public List<MappingBean> mappings = new ArrayList<MappingBean>();
+    public List<MappingDTO> mappings = new ArrayList<MappingDTO>();
     public Boolean switchSupport;
     public Integer sendFrequency;
     public String separator;
@@ -45,13 +45,13 @@ public class WidgetBean {
     public String service;
     public String period;
 
-    public ItemBean item;
-    public PageBean linkedPage;
+    public ItemDTO item;
+    public PageDTO linkedPage;
 
     // only for frames, other linkable widgets link to a page
-    public final List<WidgetBean> widgets = new ArrayList<WidgetBean>();
+    public final List<WidgetDTO> widgets = new ArrayList<WidgetDTO>();
 
-    public WidgetBean() {
+    public WidgetDTO() {
     }
 
 }

@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.events;
 
-import org.eclipse.smarthome.core.thing.bean.ThingBean;
+import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 
 /**
  * A {@link ThingRemovedEvent} notifies subscribers that a thing has been removed.
@@ -28,7 +28,7 @@ public class ThingRemovedEvent extends AbstractThingRegistryEvent {
      * @param payload the payload
      * @param thing the thing
      */
-    protected ThingRemovedEvent(String topic, String payload, ThingBean thing) {
+    protected ThingRemovedEvent(String topic, String payload, ThingDTO thing) {
         super(topic, payload, null, thing);
     }
 

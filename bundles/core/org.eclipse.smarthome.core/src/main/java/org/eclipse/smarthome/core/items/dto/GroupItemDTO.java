@@ -5,20 +5,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.model.bean;
+package org.eclipse.smarthome.core.items.dto;
 
 /**
- * This is a java bean that is used to serialize command mappings to JSON.
+ * This is a java bean that is used to serialize group items to JSON.
  * 
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public class MappingBean {
+public class GroupItemDTO extends ItemDTO {
 
-    public String command;
-    public String label;
-
-    public MappingBean() {
-    }
+    public ItemDTO[] members;
 
 }
