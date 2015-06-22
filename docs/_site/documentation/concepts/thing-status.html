@@ -1,0 +1,388 @@
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+ 
+
+
+
+<link rel="shortcut icon" href="//www.eclipse.org/smarthome/img/favicon.png"></link>
+<title>Eclipse SmartHome - A Flexible Framework for the Smart
+	Home</title>
+ 
+<!-- CSS -->
+<link href="http://www.eclipse.org/smarthome/css/materialize.css" type="text/css" rel="stylesheet"
+	media="screen,projection" />
+<link href="http://www.eclipse.org/smarthome/css/highlight.github.css" type="text/css" rel="stylesheet"
+    	media="screen,projection" />
+<link href="../../css/styles.css" rel="stylesheet" />
+
+<!-- Font -->
+<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700'
+	rel='stylesheet' type='text/css' />
+    
+</head>
+<body class="documentation">
+	<div id="header" class="navbar-fixed">
+		<nav role="navigation">
+			<div class="container">
+				<div class="nav-wrapper">
+					<a href="../../index.html"><img id="logo" src="//www.eclipse.org/smarthome/img/eclipse_logo.png" /></a>
+					<a href="#" data-activates="nav-mobile" class="button-collapse"><i
+						class="mdi-navigation-menu"></i></a>
+					<ul class="right hide-on-med-and-down">
+						<li><a href="../../getting-started.html">Getting Started</a></li>
+						<li><a href="../../documentation/index.html">Documentation</a></li>
+						<li><a href="http://github.com/eclipse/smarthome">GitHub</a></li>
+					</ul>
+					<ul id="nav-mobile" class="side-nav">
+                        <li><a href="../../index.html">Home</a></li>
+						<li><a href="../../getting-started.html">Getting Started</a></li>
+						<li><a href="../../documentation/index.html">Documentation</a></li>
+						<li><a href="http://github.com/eclipse/smarthome">GitHub</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</div>
+    
+    <section id="documentation" class="text content-wrapper">
+        <div class="container">
+            <div class="side-nav-wrapper">
+                
+
+
+
+
+
+<ul class="nav">
+    <li>
+        <a href="../../documentation/index.html">Overview</a>
+    </li>
+    <li>
+        <a href="../../documentation/concepts/index.html">Concepts</a>
+        <ul>
+            <li>
+                 <a href="../../documentation/concepts/index.html">Overview</a>
+            </li>
+            <li>
+                 <a href="../../documentation/concepts/extensions.html">Extensions</a>
+            </li>
+            <li>
+                 <a href="../../documentation/concepts/internationalization.html">Internationalization</a>
+            </li>
+            <li>
+                 <a href="../../documentation/concepts/thing-status.html">Thing Status</a>
+            </li>
+    	</ul>
+    </li>
+	<li>
+        <a href="../../documentation/binding-development/how-to.html">Binding Development</a>
+        <ul>
+        	<li>
+                 <a href="../../documentation/binding-development/how-to.html">How To</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/thing-definition.html">Thing Definition</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/thing-handler.html">Thing Handler</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/discovery.html">Discovery</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/xml-reference.html">XML Reference Guide</a>
+            </li>
+			<li>
+                 <a href="../../documentation/binding-development/dependencies.html">Dependencies</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/docs.html">Documentation</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/faq.html">FAQ</a>
+            </li>
+        </ul>    
+    </li>
+	<li>
+        <a href="../../documentation/remote/events.html">Remote Access</a>
+        <ul>
+        	<li>
+                 <a href="../../documentation/remote/events.html">Events (SSE)</a>
+            </li>
+        </ul>    
+    </li>
+    <li>
+        <a href="../../documentation/configuration/things.html">Configuration</a>
+        <ul>
+            <li>
+                 <a href="../../documentation/configuration/things.html">Thing DSL</a>
+            </li>
+        </ul>    
+    </li>
+    <li>
+        <a href="../../documentation/contribute/contributing.html">Contribute</a>
+        <ul>
+            <li>
+                 <a href="../../documentation/contribute/contributing.html">Contributing</a>
+            </li>
+            <li>
+                 <a href="../../documentation/contribute/ide.html">IDE</a>
+            </li>
+            <li>
+                 <a href="../../documentation/contribute/guidelines.html">Guidelines</a>
+            </li>
+			<li>
+                 <a href="../../documentation/contribute/testing.html">Testing</a>
+            </li>
+        </ul>    
+    </li>
+</ul>
+            </div>    
+            <div class="content">  
+	            <h1 id="thing-status">Thing Status</h1>
+
+<p>Each thing has a status object, which helps to identify possible problems with the device or service. The following table provides an overview of the different statuses:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Status</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>UNINITIALIZED</td>
+      <td>This is the initial status of a thing, when it is added or the framework is being started. This status is also assigned, if the initializing process failed or the binding is not available. Commands, which are sent to channels will not be processed.</td>
+    </tr>
+    <tr>
+      <td>INITIALIZING</td>
+      <td>This state is assigned while the binding initializes the thing. It depends on the binding how long the initializing process takes. Commands, which are sent to channels will not be processed.</td>
+    </tr>
+    <tr>
+      <td>ONLINE</td>
+      <td>The device/service represented by a thing is assumed to be working correctly and can process commands.</td>
+    </tr>
+    <tr>
+      <td>OFFLINE</td>
+      <td>The device/service represented by a thing is assumed to be not working correctly and may not process commands. But the framework is allowed to send commands, because some radio-based devices may go back to ONLINE, if a command is send to them.</td>
+    </tr>
+    <tr>
+      <td>REMOVING</td>
+      <td>The device/service represented by a thing should be removed, but the binding did not confirm the deletion yet. Some bindings need to communicate with the device to unpair it from the system. Thing is probably not working and commands can not be processed.</td>
+    </tr>
+    <tr>
+      <td>REMOVED</td>
+      <td>This status indicates, that the device/service represented by a thing was removed from the external system. Usually this status is an intermediate status, because the thing is removed from the database after this status is assigned.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The statuses UNINITIALIZED, INITIALIZING and REMOVING are set by the framework, where as the statuses ONLINE, OFFLINE and REMOVED is assigned from a binding.</p>
+
+<h2 id="status-transitions">Status Transitions</h2>
+
+<p>The following diagram shows the allowed status transitions:</p>
+
+<p><img src="diagrams/status_transitions.png" alt="Status Transitions" /></p>
+
+<p>The initial state of a thing is UNINITIALIZED. From UNINITIALIZED the thing goes into INITIALIZING. If the initialization fails, the thing goes back to UNINITIALIZED. If the initialization succeeds, the binding sets the status of the thing to ONLINE or OFFLINE, which both means, that the thing is INITIALIZED. From one of this states the thing can go back into UNINITIALIZED, REMOVING or REMOVED. The status REMOVING and REMOVED can also be reached from any other state.</p>
+
+<h2 id="status-details">Status Details</h2>
+
+<p>A status is detailed further with a status detail object. The following table lists the different status details:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Status Detail</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>NONE</td>
+      <td>No further status details available.</td>
+    </tr>
+    <tr>
+      <td>HANDLER_MISSING_ERROR</td>
+      <td>The handler cannot be initialized, because the responsible binding is not available or started.</td>
+    </tr>
+    <tr>
+      <td>HANDLER_INITIALIZING_ERROR</td>
+      <td>The handler failed in the initialization phase.</td>
+    </tr>
+    <tr>
+      <td>CONFIGURATION_PENDING</td>
+      <td>The thing is waiting to transfer configuration information to a device. Some bindings need to communicate with the device to make sure the configuration is accepted.</td>
+    </tr>
+    <tr>
+      <td>COMMUNICATION_ERROR</td>
+      <td>Error in communication with the device. This may also be only a temporary error.</td>
+    </tr>
+    <tr>
+      <td>CONFIGURATION_ERROR</td>
+      <td>An issue with the configuration of a thing prevents the communication with the represented device or service. This issue might be solved by reconfiguring the thing.</td>
+    </tr>
+    <tr>
+      <td>BRIDGE_OFFLINE</td>
+      <td>Assuming the thing to be offline because the corresponding bridge is offline.</td>
+    </tr>
+    <tr>
+      <td>FIRMWARE_UPDATING</td>
+      <td>The thing operates currently a firmware update.</td>
+    </tr>
+    <tr>
+      <td>DUTY_CYCLE</td>
+      <td>The thing is currently in DUTY_CYCLE state, which means it is blocked for further usage.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="status-detail-mapping">Status Detail Mapping</h3>
+
+<p>Statuses can only have some of the given details. The allowed combinations are listed in the following table:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Status</th>
+      <th>Status Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>UNINITIALIZED</td>
+      <td>NONE<br />HANDLER_MISSING_ERROR<br />HANDLER_INITIALIZING_ERROR</td>
+    </tr>
+    <tr>
+      <td>INITIALIZING</td>
+      <td>NONE</td>
+    </tr>
+    <tr>
+      <td>ONLINE</td>
+      <td>NONE<br />CONFIGURATION_PENDING</td>
+    </tr>
+    <tr>
+      <td>OFFLINE</td>
+      <td>NONE<br />COMMUNICATION_ERROR<br />CONFIGURATION_ERROR<br />BRIDGE_OFFLINE<br />FIRMWARE_UPDATING<br />DUTY_CYCLE</td>
+    </tr>
+    <tr>
+      <td>REMOVING</td>
+      <td>NONE</td>
+    </tr>
+    <tr>
+      <td>REMOVED</td>
+      <td>NONE</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="status-description">Status Description</h2>
+
+<p>To provide additional information about the current status a description is used. The status description is be specified by the binding. This description can be used for debugging purposes and should not be presented to the user, as it might contain unreadable technical information (e.g. an HTTP status code, or any other protocol specific information, which helps to identify the current problem).</p>
+
+<h2 id="thing-status-api">Thing Status API</h2>
+
+<p>The Thing interface defines a method <code>getStatusInfo()</code> to retrieve the current status of the thing. The following code shows how to print the status of each thing into the console:</p>
+
+<pre><code class="language-java">Collection&lt;Thing&gt; things = thingRegistry.getAll();
+for (Thing thing : things) {
+    ThingStatusInfo statusInfo = thing.getStatusInfo();
+    switch (statusInfo.getStatus()) {
+        case ONLINE:
+            System.out.println("Thing is online");
+            break;
+        case OFFLINE:
+            System.out.println("Thing is offline");
+            break;
+        default:
+            System.out.println("Thing is in state " + statusInfo.getStatus());
+            break;
+    }
+    System.out.println("Thing status detail: " + statusInfo.getStatusDetail());
+    System.out.println("Thing status description: " + statusInfo.getDescription());
+}
+</code></pre>
+
+            </div>
+        </div>
+    </section>
+    
+	    
+
+
+
+	     
+    <footer class="page-footer">
+		<div class="container">
+			<div class="row">
+				<div class="col l6 s12">
+					<p class="white-text">Eclipse SmartHome is an <a href="http://iot.eclipse.org">Eclipse IoT</a>
+						project</p>
+					<p>
+						<a href="http://iot.eclipse.org"><img src="//www.eclipse.org/smarthome/img/iot-logo.png"></a>
+					</p>
+				</div>
+				<div class="col l6 s12" data-twttr-id="twttr-sandbox-0">
+					<p class="white-text">Connect with Eclipse SmartHome</p>
+					<iframe
+						src="https://ghbtns.com/github-btn.html?user=eclipse&repo=smarthome&type=star&count=true&size=large"
+						frameborder="0" scrolling="0" width="160px" height="30px"></iframe>
+					<br /> <a class="twitter-follow-button" data-size="large"
+						href="https://twitter.com/smarthome"> Follow @smarthome</a><br />
+				</div>
+			</div>
+		</div>
+		<div class="footer-copyright">
+			<div class="container center">
+				<a href="https://www.eclipse.org/legal/copyright.php">Copyright
+					Agent</a> · <a href="https://www.eclipse.org/legal/privacy.php">Privacy</a>
+				· <a href="https://www.eclipse.org/legal/termsofuse.php">Terms</a> ·
+				<a href="https://www.eclipse.org/legal/">Legal</a>
+
+			</div>
+		</div>
+	</footer>
+    
+	<script src="//www.eclipse.org/smarthome/js/jquery.min.js"></script>
+	<script src="//www.eclipse.org/smarthome/js/jquery.scrollme.min.js"></script>
+    <script src="//www.eclipse.org/smarthome/js/jquery.sticky.js"></script>
+	<script src="//www.eclipse.org/smarthome/js/materialize.js"></script>
+    <script src="//www.eclipse.org/smarthome/js/highlight.pack.js"></script>
+	<script src="../../js/init.js"></script>
+	<script>
+        window.twttr = (function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0], t = window.twttr || {};
+            if (d.getElementById(id))
+                return t;
+            js = d.createElement(s);
+            js.id = id;
+            js.src = "https://platform.twitter.com/widgets.js";
+            fjs.parentNode.insertBefore(js, fjs);
+
+            t._e = [];
+            t.ready = function(f) {
+                t._e.push(f);
+            };
+
+            return t;
+        }(document, "script", "twitter-wjs"));
+    </script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55850963-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

@@ -1,0 +1,419 @@
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+ 
+
+
+
+<link rel="shortcut icon" href="//www.eclipse.org/smarthome/img/favicon.png"></link>
+<title>Eclipse SmartHome - A Flexible Framework for the Smart
+	Home</title>
+ 
+<!-- CSS -->
+<link href="http://www.eclipse.org/smarthome/css/materialize.css" type="text/css" rel="stylesheet"
+	media="screen,projection" />
+<link href="http://www.eclipse.org/smarthome/css/highlight.github.css" type="text/css" rel="stylesheet"
+    	media="screen,projection" />
+<link href="../../css/styles.css" rel="stylesheet" />
+
+<!-- Font -->
+<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700'
+	rel='stylesheet' type='text/css' />
+    
+</head>
+<body class="documentation">
+	<div id="header" class="navbar-fixed">
+		<nav role="navigation">
+			<div class="container">
+				<div class="nav-wrapper">
+					<a href="../../index.html"><img id="logo" src="//www.eclipse.org/smarthome/img/eclipse_logo.png" /></a>
+					<a href="#" data-activates="nav-mobile" class="button-collapse"><i
+						class="mdi-navigation-menu"></i></a>
+					<ul class="right hide-on-med-and-down">
+						<li><a href="../../getting-started.html">Getting Started</a></li>
+						<li><a href="../../documentation/index.html">Documentation</a></li>
+						<li><a href="http://github.com/eclipse/smarthome">GitHub</a></li>
+					</ul>
+					<ul id="nav-mobile" class="side-nav">
+                        <li><a href="../../index.html">Home</a></li>
+						<li><a href="../../getting-started.html">Getting Started</a></li>
+						<li><a href="../../documentation/index.html">Documentation</a></li>
+						<li><a href="http://github.com/eclipse/smarthome">GitHub</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</div>
+    
+    <section id="documentation" class="text content-wrapper">
+        <div class="container">
+            <div class="side-nav-wrapper">
+                
+
+
+
+
+
+<ul class="nav">
+    <li>
+        <a href="../../documentation/index.html">Overview</a>
+    </li>
+    <li>
+        <a href="../../documentation/concepts/index.html">Concepts</a>
+        <ul>
+            <li>
+                 <a href="../../documentation/concepts/index.html">Overview</a>
+            </li>
+            <li>
+                 <a href="../../documentation/concepts/extensions.html">Extensions</a>
+            </li>
+            <li>
+                 <a href="../../documentation/concepts/internationalization.html">Internationalization</a>
+            </li>
+            <li>
+                 <a href="../../documentation/concepts/thing-status.html">Thing Status</a>
+            </li>
+    	</ul>
+    </li>
+	<li>
+        <a href="../../documentation/binding-development/how-to.html">Binding Development</a>
+        <ul>
+        	<li>
+                 <a href="../../documentation/binding-development/how-to.html">How To</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/thing-definition.html">Thing Definition</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/thing-handler.html">Thing Handler</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/discovery.html">Discovery</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/xml-reference.html">XML Reference Guide</a>
+            </li>
+			<li>
+                 <a href="../../documentation/binding-development/dependencies.html">Dependencies</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/docs.html">Documentation</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/faq.html">FAQ</a>
+            </li>
+        </ul>    
+    </li>
+	<li>
+        <a href="../../documentation/remote/events.html">Remote Access</a>
+        <ul>
+        	<li>
+                 <a href="../../documentation/remote/events.html">Events (SSE)</a>
+            </li>
+        </ul>    
+    </li>
+    <li>
+        <a href="../../documentation/configuration/things.html">Configuration</a>
+        <ul>
+            <li>
+                 <a href="../../documentation/configuration/things.html">Thing DSL</a>
+            </li>
+        </ul>    
+    </li>
+    <li>
+        <a href="../../documentation/contribute/contributing.html">Contribute</a>
+        <ul>
+            <li>
+                 <a href="../../documentation/contribute/contributing.html">Contributing</a>
+            </li>
+            <li>
+                 <a href="../../documentation/contribute/ide.html">IDE</a>
+            </li>
+            <li>
+                 <a href="../../documentation/contribute/guidelines.html">Guidelines</a>
+            </li>
+			<li>
+                 <a href="../../documentation/contribute/testing.html">Testing</a>
+            </li>
+        </ul>    
+    </li>
+</ul>
+            </div>    
+            <div class="content">  
+	            
+<h1 id="implementing-a-binding">Implementing a binding</h1>
+
+<p>A binding is an extension to the Eclipse SmartHome runtime that integrates an external system like a service, a protocol or a single device. Therefore the main purpose of a binding is to translate events from the Eclipse SmartHome event bus to the external system and vice versa. The external system is represented as a set of <em>Things</em>. For each <em>Thing</em> the binding must provide a proper <code>ThingHandler</code> implementation that is able to handle the communication.</p>
+
+<p>In this tutorial you will learn how to implement a simple binding and you will get familiar with important concepts and APIs of Eclipse SmartHome. The <a href="https://github.com/eclipse/smarthome/tree/master/extensions/binding/org.eclipse.smarthome.binding.yahooweather">Yahoo Weather Binding</a> is taken as example.</p>
+
+<h2 id="structure-of-a-binding">Structure of a binding</h2>
+
+<p>The structure of a binding follows the structure of a typical OSGi bundle project. Therefore there exists a <code>MANIFEST.MF</code> file inside the <code>META-INF</code> folder and other OSGi artefacts like the <code>build.properties</code> file. In the <code>ESH-INF</code> folder XML configuration files for Eclipse SmartHome are located. The Java source code is under <code>src/main/java</code>.</p>
+
+<p>The structure of the Yahoo Weather Binding:</p>
+
+<pre><code>|- ESH-INF
+|---- binding
+|------- binding.xml
+|---- thing
+|------- thing-types.xml
+|- META-INF
+|---- MANIFEST.MF
+|- OSGI-INF
+|---- YahooWeatherHandlerFactory.xml
+|- src
+|---- main
+|------- java
+|---------- [...]
+|- build.properties
+|- pom.xml
+</code></pre>
+
+<h2 id="binding-definition">Binding definition</h2>
+
+<p>Every binding needs to define a <code>binding.xml</code> file, which is located in the folder <code>/ESH-INF/binding/</code>. In this file meta information for a binding like the author and a description, that are accessible at runtime, can be defined. The binding ID is a unique identifier for the binding. The following <code>binding.xml</code> shows the binding definition of the Yahoo Weather Binding:</p>
+
+<pre><code class="language-xml">&lt;binding:binding id="yahooweather"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:binding="http://eclipse.org/smarthome/schemas/binding/v1.0.0"
+        xsi:schemaLocation="http://eclipse.org/smarthome/schemas/binding/v1.0.0 http://eclipse.org/smarthome/schemas/binding-1.0.0.xsd"&gt;
+
+    &lt;name&gt;YahooWeather Binding&lt;/name&gt;
+    &lt;description&gt;The Yahoo Weather Binding requests the Yahoo Weather Service
+		to show the current temperature, humidity and pressure.&lt;/description&gt;
+    &lt;author&gt;Kai Kreuzer&lt;/author&gt;
+
+&lt;/binding:binding&gt;
+</code></pre>
+
+<h2 id="describing-things">Describing Things</h2>
+
+<p>External systems are represented as <em>Things</em> in the Eclipse SmartHome runtime. When starting the implementation of an Eclipse SmartHome binding, you should think about the abstraction of your external system. Different services or devices should be represented as individual <em>Things</em> described by a <em>ThingType</em>. Each functionality of the <em>Thing</em> should be modelled as a <code>Channel</code>. A binding should define all <em>ThingTypes</em> that are supported by that binding.</p>
+
+<p>Eclipse SmartHome allows you to define your <em>ThingTypes</em> in a declarative way through XML files. The XML files must be located at <code>/ESH-INF/thing/</code>. A <em>ThingType</em> definition must contain the UID and optionally a description and a manufacturer. Moreover, supported channels must be specified. For channels it is important to specify which type of <em>Item</em> can be linked the <em>Channel</em>. Below an excerpt of the Yahoo Weather service <em>ThingType</em> definition is shown:</p>
+
+<pre><code class="language-xml">&lt;thing-type id="weather"&gt;
+    &lt;label&gt;Weather Information&lt;/label&gt;
+    &lt;description&gt;Provides various weather data from the Yahoo service&lt;/description&gt;
+    &lt;channels&gt;
+        &lt;channel id="temperature" typeId="temperature" /&gt;
+    &lt;/channels&gt;
+    &lt;config-description&gt;
+        &lt;parameter name="location" type="text" required="true"&gt;
+            &lt;label&gt;Location&lt;/label&gt;
+            &lt;description&gt;Location for the weather information.
+                Syntax is WOEID, see https://en.wikipedia.org/wiki/WOEID.
+            &lt;/description&gt;
+        &lt;/parameter&gt;
+        &lt;parameter name="refresh" type="integer"&gt;
+            &lt;label&gt;Refresh interval&lt;/label&gt;
+            &lt;description&gt;Specifies the refresh interval in seconds.&lt;/description&gt;
+            &lt;default&gt;60&lt;/default&gt;
+        &lt;/parameter&gt;
+    &lt;/config-description&gt;
+&lt;/thing-type&gt;
+
+&lt;channel-type id="temperature"&gt;
+    &lt;item-type&gt;Number&lt;/item-type&gt;
+    &lt;label&gt;Temperature&lt;/label&gt;
+    &lt;description&gt;Current temperature in degrees celsius&lt;/description&gt;
+    &lt;category&gt;Temperature&lt;/category&gt;
+    &lt;state readOnly="true" /&gt;
+&lt;/channel-type&gt;
+</code></pre>
+
+<p>The channel type definition allows one to specify a category and additional meta information for the state of the linked item. Together with the definition of the <code>readOnly</code> attribute, user interfaces get an idea how to render an item for this channel. For example, a channel with the category <code>Temperature</code> which is readable only, indicates that this is a sensor for temperature. In that case the user inteface can render an appropriate icon and label for the current value. If the <code>readOnly</code> flag is set to <code>false</code> (which is the default value), the user interface could render a slider to change the temperature, since this means it is temperature actuator. Restrictions of the state such as the minimum or maximum value can also be specified.</p>
+
+<p>In order to give user interfaces a chance to render good default UIs for things, the binding should specify as much meta data as possible. For a complete list of possible configuration options and categories please see the <a href="../architecture/thing-definition.md#channels">Thing Definition</a> section.</p>
+
+<h2 id="the-thinghandlerfactory">The ThingHandlerFactory</h2>
+
+<p>The <code>ThingHandlerFactory</code> is responsible for creating <code>ThingHandler</code> instances. Every binding must implement a <code>ThingHandlerFactory</code> and register it as OSGi service so that the runtime knows which class needs to be called for creating and handling things. From the generated archetype there already exists a <code>ThingHandlerFactory</code>, which can be extended with further <em>ThingTypes</em>.</p>
+
+<p>When a new <em>Thing</em> is added, the Eclipse SmartHome runtime queries every <code>ThingHandlerFactory</code> for support of the <em>ThingType</em> by calling the <code>supportsThingType</code> method. When the method returns <code>true</code>, the runtime calls <code>createHandler</code>, which should then return a proper <code>ThingHandler</code> implementation. This handler will automatically be registered as OSGi service through the base class implementation.</p>
+
+<p>The <code>YahooWeatherHandlerFactory</code> supports only one <em>ThingType</em> and instantiates a new <code>YahooWeatherHandler</code> for a given thing:</p>
+
+<pre><code class="language-java">public class YahooWeatherHandlerFactory extends BaseThingHandlerFactory {
+    
+    private final static Collection&lt;ThingTypeUID&gt; SUPPORTED_THING_TYPES_UIDS = Lists.newArrayList(YahooWeatherBindingConstants.THING_TYPE_WEATHER);
+    
+    @Override
+    public boolean supportsThingType(ThingTypeUID thingTypeUID) {
+        return SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
+    }
+
+    @Override
+    protected ThingHandler createHandler(Thing thing) {
+
+        ThingTypeUID thingTypeUID = thing.getThingTypeUID();
+
+        if (thingTypeUID.equals(YahooWeatherBindingConstants.THING_TYPE_WEATHER)) {
+            return new YahooWeatherHandler(thing);
+        }
+
+        return null;
+    }
+}
+</code></pre>
+
+<p>Constants like the <code>THING_TYPE_WEATHER</code> UID and also <em>Channel</em> UIDs are typically defined inside a public <code>BindingConstants</code> class.</p>
+
+<p>Depending on your implementation, each <em>ThingType</em> may use its own handler. It is also possible to use the same handler for different <em>Things</em>, or use different handlers for the same <em>ThingType</em>, depending on the configuration.</p>
+
+<h2 id="the-thinghandler">The ThingHandler</h2>
+
+<p>The core part of a binding is the <code>ThingHandler</code> implementation. The handler is responsible for translating Eclipse SmartHome commands and states to the external system and vice versa.</p>
+
+<h3 id="handling-commands-and-updating-the-state">Handling commands and updating the state</h3>
+
+<p>For handling commands the <code>ThingHandler</code> interface defines the <code>handleCommand</code> method. This method is called when a command is sent to an item linked to a channel on a <em>Thing</em>. Inside the <code>handleCommand</code> method binding specific logic can be executed. The following code snippet shows the handle command method of the Yahoo Weather Binding:</p>
+
+<pre><code class="language-java">@Override
+public void handleCommand(ChannelUID channelUID, Command command) {
+    if (command instanceof RefreshType) {
+        
+        updateWeatherData();
+        
+        switch (channelUID.getId()) {
+            case CHANNEL_TEMPERATURE:
+                updateState(channelUID, getTemperature());
+                break;
+            case CHANNEL_HUMIDITY:
+                [...]
+        }
+    }
+}
+</code></pre>
+
+<p>When a <code>RefreshType</code> command is sent to the <code>ThingHandler</code> it updates the weather data by executing an HTTP call in the <code>updateWeatherData</code> method and sends a state update via the <code>updateState</code> method. This will update the state of the Item, which is linked to the channel for the given channel UID.</p>
+
+<h3 id="lifecycle">Lifecycle</h3>
+
+<p>The <code>ThingHandler</code> has two important lifecycle methods: <code>initialize</code> and <code>dispose</code>. The <code>initialize</code> method is called when the handler is started and <code>dispose</code> just before the handler is stopped. Therefore these methods can used to allocate and deallocate resources. For an example, the Yahoo Weather binding starts and stops a scheduled job within these methods.</p>
+
+<h3 id="configuration">Configuration</h3>
+
+<p><em>Things</em> can be configured with parameters. To retrieve the configuration of a <em>Thing</em> one can call <code>getThing().getConfiguration()</code> inside the <code>ThingHandler</code>. The configuration class has the equivalent methods as the <code>Map</code> interface, thus the method <code>get(String key)</code> can be used to retrieve a value for a given key.</p>
+
+<p>Moreover the configuration class has a utility method <code>as(Class&lt;T&gt; configurationClass)</code> that transforms the configuration into a Java object of the given type. All configuration values will be mapped to properties of the class. The type of the property must match the type of the configuration. Only the following types are supported for configuration values: <code>Boolean</code>, <code>String</code> and <code>BigDecimal</code>.</p>
+
+<p>For example, the Yahoo Weather binding allows configuration of the location and the refresh frequency.</p>
+
+<h3 id="properties">Properties</h3>
+
+<p><em>Things</em> can have properties. If you would like to add meta data to your thing, e.g. the vendor of the thing, then you can define your own thing properties by simply adding them to the thing type definition. The properties section <a href="../architecture/thing-definition.md#Properties">here</a> explains how to specify such properties.</p>
+
+<p>To retrieve the properties one can call the operation <code>getProperties</code> of the corresponding <code>org.eclipse.smarthome.core.thing.type.ThingType</code> instance. If a thing will be created for this thing type then its properties will be automatically copied into the new thing instance. Therefore the <code>org.eclipse.smarthome.core.thing.Thing</code> interface provides also the <code>getProperties</code> operation to retrieve the defined properties. In contrast to the <code>getProperties</code> operation of the thing type instance the result of the thing´s <code>getProperties</code> operation will also contain the properties updated during runtime (cp. the thing handler <a href="../architecture/thing-handler.md">documentation</a>).</p>
+
+<h2 id="bridges">Bridges</h2>
+
+<p>In the domain of an IoT system there are often hierarchical structures of devices and services. For example, one device acts as a gateway that enables communication with other devices that use the same protocol. In Eclipse SmartHome this kind of device or service is called <em>Bridge</em>. Philips Hue is one example of a system that requires a bridge. The Hue gateway is an IP device with an HTTP API, which communicates over the ZigBee protocol with the Hue bulbs. In the Eclipse SmartHome model the Hue gateway is represented as a <em>Bridge</em> with connected <em>Things</em>, that represent the hue bulbs. <em>Bridge</em> inherits from <em>Thing</em>, so that it also has <em>Channels</em> and all other features of a thing, with the addition that it also holds a list of things.</p>
+
+<p>When implementing a binding with <em>Bridges</em>, the logic to communicate with the external system is often shared between the different <code>ThingHandler</code> implementations. In that case it makes sense to implement a handler for the <em>Bridge</em> and delegate the actual command execution from the <em>ThingHandler</em> to the <em>BridgeHandler</em>. To access the <em>BridgeHandler</em> from the <em>ThingHandler</em>, call <code>getBridge().getHandler()</code></p>
+
+<p>The following excerpt shows how the <code>HueLightHandler</code> delegates the command for changing the light state to the <code>HueBridgeHandler</code>:</p>
+
+<pre><code class="language-java">@Override
+public void handleCommand(ChannelUID channelUID, Command command) {
+
+    HueBridgeHandler hueBridgeHandler = (HueBridgeHandler) getBridge().getHandler();
+
+    switch (channelUID.getId()) {
+        case CHANNEL_ID_COLOR_TEMPERATURE:
+            StateUpdate lightState = lightStateConverter.toColorLightState(command);    
+            hueBridgeHandler.updateLightState(getLight(), lightState);
+            break;    
+        case CHANNEL_ID_COLOR: 
+            // ...
+    }
+}
+</code></pre>
+
+<p>Inside the <code>BridgeHandler</code> the list of <em>Things</em> can be retrieved via the <code>getThings()</code> call.</p>
+
+<h2 id="documentation">Documentation</h2>
+
+<p>When you have finished the implementation of the binding, you should spend a minute to also document it. Please find some <a href="../development/extensions/bindings/docs.md">details here</a>.</p>
+
+            </div>
+        </div>
+    </section>
+    
+	    
+
+
+
+	     
+    <footer class="page-footer">
+		<div class="container">
+			<div class="row">
+				<div class="col l6 s12">
+					<p class="white-text">Eclipse SmartHome is an <a href="http://iot.eclipse.org">Eclipse IoT</a>
+						project</p>
+					<p>
+						<a href="http://iot.eclipse.org"><img src="//www.eclipse.org/smarthome/img/iot-logo.png"></a>
+					</p>
+				</div>
+				<div class="col l6 s12" data-twttr-id="twttr-sandbox-0">
+					<p class="white-text">Connect with Eclipse SmartHome</p>
+					<iframe
+						src="https://ghbtns.com/github-btn.html?user=eclipse&repo=smarthome&type=star&count=true&size=large"
+						frameborder="0" scrolling="0" width="160px" height="30px"></iframe>
+					<br /> <a class="twitter-follow-button" data-size="large"
+						href="https://twitter.com/smarthome"> Follow @smarthome</a><br />
+				</div>
+			</div>
+		</div>
+		<div class="footer-copyright">
+			<div class="container center">
+				<a href="https://www.eclipse.org/legal/copyright.php">Copyright
+					Agent</a> · <a href="https://www.eclipse.org/legal/privacy.php">Privacy</a>
+				· <a href="https://www.eclipse.org/legal/termsofuse.php">Terms</a> ·
+				<a href="https://www.eclipse.org/legal/">Legal</a>
+
+			</div>
+		</div>
+	</footer>
+    
+	<script src="//www.eclipse.org/smarthome/js/jquery.min.js"></script>
+	<script src="//www.eclipse.org/smarthome/js/jquery.scrollme.min.js"></script>
+    <script src="//www.eclipse.org/smarthome/js/jquery.sticky.js"></script>
+	<script src="//www.eclipse.org/smarthome/js/materialize.js"></script>
+    <script src="//www.eclipse.org/smarthome/js/highlight.pack.js"></script>
+	<script src="../../js/init.js"></script>
+	<script>
+        window.twttr = (function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0], t = window.twttr || {};
+            if (d.getElementById(id))
+                return t;
+            js = d.createElement(s);
+            js.id = id;
+            js.src = "https://platform.twitter.com/widgets.js";
+            fjs.parentNode.insertBefore(js, fjs);
+
+            t._e = [];
+            t.ready = function(f) {
+                t._e.push(f);
+            };
+
+            return t;
+        }(document, "script", "twitter-wjs"));
+    </script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55850963-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

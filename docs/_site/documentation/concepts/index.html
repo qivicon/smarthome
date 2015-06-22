@@ -1,0 +1,293 @@
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+ 
+
+
+
+<link rel="shortcut icon" href="//www.eclipse.org/smarthome/img/favicon.png"></link>
+<title>Eclipse SmartHome - A Flexible Framework for the Smart
+	Home</title>
+ 
+<!-- CSS -->
+<link href="http://www.eclipse.org/smarthome/css/materialize.css" type="text/css" rel="stylesheet"
+	media="screen,projection" />
+<link href="http://www.eclipse.org/smarthome/css/highlight.github.css" type="text/css" rel="stylesheet"
+    	media="screen,projection" />
+<link href="../../css/styles.css" rel="stylesheet" />
+
+<!-- Font -->
+<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700'
+	rel='stylesheet' type='text/css' />
+    
+</head>
+<body class="documentation">
+	<div id="header" class="navbar-fixed">
+		<nav role="navigation">
+			<div class="container">
+				<div class="nav-wrapper">
+					<a href="../../index.html"><img id="logo" src="//www.eclipse.org/smarthome/img/eclipse_logo.png" /></a>
+					<a href="#" data-activates="nav-mobile" class="button-collapse"><i
+						class="mdi-navigation-menu"></i></a>
+					<ul class="right hide-on-med-and-down">
+						<li><a href="../../getting-started.html">Getting Started</a></li>
+						<li><a href="../../documentation/index.html">Documentation</a></li>
+						<li><a href="http://github.com/eclipse/smarthome">GitHub</a></li>
+					</ul>
+					<ul id="nav-mobile" class="side-nav">
+                        <li><a href="../../index.html">Home</a></li>
+						<li><a href="../../getting-started.html">Getting Started</a></li>
+						<li><a href="../../documentation/index.html">Documentation</a></li>
+						<li><a href="http://github.com/eclipse/smarthome">GitHub</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</div>
+    
+    <section id="documentation" class="text content-wrapper">
+        <div class="container">
+            <div class="side-nav-wrapper">
+                
+
+
+
+
+
+<ul class="nav">
+    <li>
+        <a href="../../documentation/index.html">Overview</a>
+    </li>
+    <li>
+        <a href="../../documentation/concepts/index.html">Concepts</a>
+        <ul>
+            <li>
+                 <a href="../../documentation/concepts/index.html">Overview</a>
+            </li>
+            <li>
+                 <a href="../../documentation/concepts/extensions.html">Extensions</a>
+            </li>
+            <li>
+                 <a href="../../documentation/concepts/internationalization.html">Internationalization</a>
+            </li>
+            <li>
+                 <a href="../../documentation/concepts/thing-status.html">Thing Status</a>
+            </li>
+    	</ul>
+    </li>
+	<li>
+        <a href="../../documentation/binding-development/how-to.html">Binding Development</a>
+        <ul>
+        	<li>
+                 <a href="../../documentation/binding-development/how-to.html">How To</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/thing-definition.html">Thing Definition</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/thing-handler.html">Thing Handler</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/discovery.html">Discovery</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/xml-reference.html">XML Reference Guide</a>
+            </li>
+			<li>
+                 <a href="../../documentation/binding-development/dependencies.html">Dependencies</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/docs.html">Documentation</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/faq.html">FAQ</a>
+            </li>
+        </ul>    
+    </li>
+	<li>
+        <a href="../../documentation/remote/events.html">Remote Access</a>
+        <ul>
+        	<li>
+                 <a href="../../documentation/remote/events.html">Events (SSE)</a>
+            </li>
+        </ul>    
+    </li>
+    <li>
+        <a href="../../documentation/configuration/things.html">Configuration</a>
+        <ul>
+            <li>
+                 <a href="../../documentation/configuration/things.html">Thing DSL</a>
+            </li>
+        </ul>    
+    </li>
+    <li>
+        <a href="../../documentation/contribute/contributing.html">Contribute</a>
+        <ul>
+            <li>
+                 <a href="../../documentation/contribute/contributing.html">Contributing</a>
+            </li>
+            <li>
+                 <a href="../../documentation/contribute/ide.html">IDE</a>
+            </li>
+            <li>
+                 <a href="../../documentation/contribute/guidelines.html">Guidelines</a>
+            </li>
+			<li>
+                 <a href="../../documentation/contribute/testing.html">Testing</a>
+            </li>
+        </ul>    
+    </li>
+</ul>
+            </div>    
+            <div class="content">  
+	            <h1 id="overview">Overview</h1>
+
+<p>Eclipse SmartHome is a framework for building smart home solutions. As such, it consists of a rich set of OSGi bundles that serve different purposes. Not all solutions that build on top of Eclipse SmartHome will require all of those bundles - instead they can choose what parts are interesting for them.</p>
+
+<p>There are the following categories of bundles:</p>
+
+<ul>
+  <li><code>config</code>: everything that is concerned with general configuration of the system like config files, xml parsing, discovery, etc.</li>
+  <li><code>core</code>: the main bundles for the logical operation of the system - based on the abstract item and event concepts.</li>
+  <li><code>io</code>: all kinds of optional functionality that have to do with i/o like console commands, audio support or http/rest communication</li>
+  <li><code>model</code>: support for domain specific languages (DSLs)</li>
+  <li><code>designer</code>: Eclipse RCP support for DSLs and other configuration files</li>
+  <li><code>ui</code>: user interface related bundles that provide services that can be used by different UIs, such as charting or icons</li>
+</ul>
+
+<h1 id="general-concepts">General Concepts</h1>
+
+<h2 id="items-and-events">Items and Events</h2>
+
+<p>Eclipse SmartHome has a strict separation between the physical world (the “things”, see below) and the application, which is built around the notion of “items” (also called the virtual layer).</p>
+
+<p>Items represent functionality that is used by the application (mainly user interfaces or automation logic). Items have a state and are used through events.</p>
+
+<p>The event bus is THE base service of Eclipse SmartHome. All bundles that do not require stateful behaviour should use it to inform other bundles about events and to be updated by other bundles on external events.</p>
+
+<p>There are mainly two types of events:</p>
+
+<ul>
+  <li>Commands, which trigger an action or a state change of some item.</li>
+  <li>State updates, which inform about a state change of some item (often as a response to a command)</li>
+</ul>
+
+<p>The following item types are currently available (alphabetical order):</p>
+
+<table>
+  <tr><td><b>Itemname</b></td><td><b>Description</b></td><td><b>Command Types</b></td></tr>
+  <tr><td>Color</td><td>Color information (RGB)</td><td>OnOff, IncreaseDecrease, Percent, HSB</td></tr>
+  <tr><td>Contact</td><td>Item storing status of e.g. door/window contacts</td><td>OpenClose</td></tr>
+  <tr><td>DateTime</td><td>Stores date and time</td><td></td></tr>
+  <tr><td>Dimmer</td><td>Item carrying a percentage value for dimmers</td><td>OnOff, IncreaseDecrease, Percent</td></tr>
+  <tr><td>Group</td><td>Item to nest other items / collect them in groups</td><td>-</td></tr>
+  <tr><td>Number</td><td>Stores values in number format</td><td>Decimal</td></tr>
+  <tr><td>Player</td><td>Allows to control players (e.g. audio players)</td><td>PlayPause, NextPrevious, RewindFastforward</td></tr>
+  <tr><td>Rollershutter</td><td>Typically used for blinds</td><td>UpDown, StopMove, Percent</td></tr>
+  <tr><td>String</td><td>Stores texts</td><td>String</td></tr>
+  <tr><td>Switch</td><td>Typically used for lights (on/off)</td><td>OnOff</td></tr>
+</table>
+
+<p>Group Items can derive their own state depending on their member items.</p>
+
+<ul>
+  <li>AVG displays the average of the item states in the group.</li>
+  <li>OR displays an OR of the group, typically used to display whether any item in a group has been set.</li>
+  <li>other aggregations:  AND, SUM, MIN, MAX, NAND, NOR</li>
+</ul>
+
+<p>It is important to note that Eclipse SmartHome is not meant to reside on (or near) actual hardware devices which would then have to remotely communicate with many other distributed instances. Instead, solutions based on Eclipse SmartHome serve as an integration hub between such devices and as a mediator between different protocols that are spoken between these devices. In a typical installation there will therefore be usually just one instance of Eclipse SmartHome running on some central server. Nonetheless, the events can also be exported through appropriate protocols such as MQTT, so that it is possible to connect several distributed Eclipse SmartHome instances.</p>
+
+<h2 id="things">Things</h2>
+
+<p>Things are the entities that can physically be added to a system and which can potentially provide many functionalities in one. It is important to note that things do not have to be devices, but they can also represent a web service or any other manageable source of information and functionality.<br />
+From a user perspective, they are relevant for the setup and configuration process, but not for the operation.</p>
+
+<p>Things can have configuration properties, which can be optional or mandatory. Such properties can be basic information like an IP address, an access token for a web service or a device specific configuration that alters its behavior.</p>
+
+<p>Things provide “channels”, which represent the different functions they provide. Channels are linked to items, where such links are the glue between the virtual and the physical layer. Once such a link is established, a thing reacts on events sent for an item that is linked to one of its channels. Likewise, it actively sends out events for items linked to its channels.</p>
+
+<p>A special type of thing is a “bridge”. Bridges are things that need to be added to the system in order to gain access to other things. A typical example of a bridge is an IP gateway for some non-IP based home automation system.</p>
+
+<p>As many things can be automatically discovered, there are special mechanisms available that deal with the handling of <a href="discovery.md">automatically discovered things</a>.</p>
+
+            </div>
+        </div>
+    </section>
+    
+	    
+
+
+
+	     
+    <footer class="page-footer">
+		<div class="container">
+			<div class="row">
+				<div class="col l6 s12">
+					<p class="white-text">Eclipse SmartHome is an <a href="http://iot.eclipse.org">Eclipse IoT</a>
+						project</p>
+					<p>
+						<a href="http://iot.eclipse.org"><img src="//www.eclipse.org/smarthome/img/iot-logo.png"></a>
+					</p>
+				</div>
+				<div class="col l6 s12" data-twttr-id="twttr-sandbox-0">
+					<p class="white-text">Connect with Eclipse SmartHome</p>
+					<iframe
+						src="https://ghbtns.com/github-btn.html?user=eclipse&repo=smarthome&type=star&count=true&size=large"
+						frameborder="0" scrolling="0" width="160px" height="30px"></iframe>
+					<br /> <a class="twitter-follow-button" data-size="large"
+						href="https://twitter.com/smarthome"> Follow @smarthome</a><br />
+				</div>
+			</div>
+		</div>
+		<div class="footer-copyright">
+			<div class="container center">
+				<a href="https://www.eclipse.org/legal/copyright.php">Copyright
+					Agent</a> · <a href="https://www.eclipse.org/legal/privacy.php">Privacy</a>
+				· <a href="https://www.eclipse.org/legal/termsofuse.php">Terms</a> ·
+				<a href="https://www.eclipse.org/legal/">Legal</a>
+
+			</div>
+		</div>
+	</footer>
+    
+	<script src="//www.eclipse.org/smarthome/js/jquery.min.js"></script>
+	<script src="//www.eclipse.org/smarthome/js/jquery.scrollme.min.js"></script>
+    <script src="//www.eclipse.org/smarthome/js/jquery.sticky.js"></script>
+	<script src="//www.eclipse.org/smarthome/js/materialize.js"></script>
+    <script src="//www.eclipse.org/smarthome/js/highlight.pack.js"></script>
+	<script src="../../js/init.js"></script>
+	<script>
+        window.twttr = (function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0], t = window.twttr || {};
+            if (d.getElementById(id))
+                return t;
+            js = d.createElement(s);
+            js.id = id;
+            js.src = "https://platform.twitter.com/widgets.js";
+            fjs.parentNode.insertBefore(js, fjs);
+
+            t._e = [];
+            t.ready = function(f) {
+                t._e.push(f);
+            };
+
+            return t;
+        }(document, "script", "twitter-wjs"));
+    </script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55850963-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

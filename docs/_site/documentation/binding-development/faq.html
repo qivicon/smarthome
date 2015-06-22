@@ -1,0 +1,271 @@
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+ 
+
+
+
+<link rel="shortcut icon" href="//www.eclipse.org/smarthome/img/favicon.png"></link>
+<title>Eclipse SmartHome - A Flexible Framework for the Smart
+	Home</title>
+ 
+<!-- CSS -->
+<link href="http://www.eclipse.org/smarthome/css/materialize.css" type="text/css" rel="stylesheet"
+	media="screen,projection" />
+<link href="http://www.eclipse.org/smarthome/css/highlight.github.css" type="text/css" rel="stylesheet"
+    	media="screen,projection" />
+<link href="../../css/styles.css" rel="stylesheet" />
+
+<!-- Font -->
+<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700'
+	rel='stylesheet' type='text/css' />
+    
+</head>
+<body class="documentation">
+	<div id="header" class="navbar-fixed">
+		<nav role="navigation">
+			<div class="container">
+				<div class="nav-wrapper">
+					<a href="../../index.html"><img id="logo" src="//www.eclipse.org/smarthome/img/eclipse_logo.png" /></a>
+					<a href="#" data-activates="nav-mobile" class="button-collapse"><i
+						class="mdi-navigation-menu"></i></a>
+					<ul class="right hide-on-med-and-down">
+						<li><a href="../../getting-started.html">Getting Started</a></li>
+						<li><a href="../../documentation/index.html">Documentation</a></li>
+						<li><a href="http://github.com/eclipse/smarthome">GitHub</a></li>
+					</ul>
+					<ul id="nav-mobile" class="side-nav">
+                        <li><a href="../../index.html">Home</a></li>
+						<li><a href="../../getting-started.html">Getting Started</a></li>
+						<li><a href="../../documentation/index.html">Documentation</a></li>
+						<li><a href="http://github.com/eclipse/smarthome">GitHub</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</div>
+    
+    <section id="documentation" class="text content-wrapper">
+        <div class="container">
+            <div class="side-nav-wrapper">
+                
+
+
+
+
+
+<ul class="nav">
+    <li>
+        <a href="../../documentation/index.html">Overview</a>
+    </li>
+    <li>
+        <a href="../../documentation/concepts/index.html">Concepts</a>
+        <ul>
+            <li>
+                 <a href="../../documentation/concepts/index.html">Overview</a>
+            </li>
+            <li>
+                 <a href="../../documentation/concepts/extensions.html">Extensions</a>
+            </li>
+            <li>
+                 <a href="../../documentation/concepts/internationalization.html">Internationalization</a>
+            </li>
+            <li>
+                 <a href="../../documentation/concepts/thing-status.html">Thing Status</a>
+            </li>
+    	</ul>
+    </li>
+	<li>
+        <a href="../../documentation/binding-development/how-to.html">Binding Development</a>
+        <ul>
+        	<li>
+                 <a href="../../documentation/binding-development/how-to.html">How To</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/thing-definition.html">Thing Definition</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/thing-handler.html">Thing Handler</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/discovery.html">Discovery</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/xml-reference.html">XML Reference Guide</a>
+            </li>
+			<li>
+                 <a href="../../documentation/binding-development/dependencies.html">Dependencies</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/docs.html">Documentation</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/faq.html">FAQ</a>
+            </li>
+        </ul>    
+    </li>
+	<li>
+        <a href="../../documentation/remote/events.html">Remote Access</a>
+        <ul>
+        	<li>
+                 <a href="../../documentation/remote/events.html">Events (SSE)</a>
+            </li>
+        </ul>    
+    </li>
+    <li>
+        <a href="../../documentation/configuration/things.html">Configuration</a>
+        <ul>
+            <li>
+                 <a href="../../documentation/configuration/things.html">Thing DSL</a>
+            </li>
+        </ul>    
+    </li>
+    <li>
+        <a href="../../documentation/contribute/contributing.html">Contribute</a>
+        <ul>
+            <li>
+                 <a href="../../documentation/contribute/contributing.html">Contributing</a>
+            </li>
+            <li>
+                 <a href="../../documentation/contribute/ide.html">IDE</a>
+            </li>
+            <li>
+                 <a href="../../documentation/contribute/guidelines.html">Guidelines</a>
+            </li>
+			<li>
+                 <a href="../../documentation/contribute/testing.html">Testing</a>
+            </li>
+        </ul>    
+    </li>
+</ul>
+            </div>    
+            <div class="content">  
+	            
+<h1 id="frequently-asked-questions-faqs">Frequently Asked Questions (FAQs)</h1>
+
+<p>Here is a list of frequently asked question around the development of bindings. If you do not find an answer to your question, do not hesitate to ask it on the support forum.</p>
+
+<h3 id="structuring-things-and-thing-types">Structuring Things and Thing Types</h3>
+
+<ol>
+  <li><em>I am implementing a binding for system X. Shall I design this as one Thing or as a Bridge with multiple Things for the different functionalities?</em></li>
+</ol>
+
+<pre><code>In general, both options are valid:
+
+1. You have one Thing which has channels for all your actors, sensors and other functions
+2. You have one Bridge and an additional Thing for every actor and sensor and they would hold the channels
+
+The preferred architecture is the latter, if this is feasible. This means that the physical devices should be represented by a Thing each. This only makes sense if your system allows you to identify the different physical devices at all. Especially, such an architecture is useful if you can do a discovery of new devices that could then be presented to the user/admin.
+
+If your system does not provide you any possibility to get hold of such information, but rather only shows you a "logical" view of it, then 1) is also a valid option to pursue.
+</code></pre>
+
+<ol>
+  <li><em>Do I have to create XML files in <code>ESH-INF/thing</code> for all devices or is there any other option?</em></li>
+</ol>
+
+<pre><code>No, the XML files are only one way to describe your devices. Alternatively, you can implement your own [ThingTypeProvider](https://github.com/eclipse/smarthome/blob/master/bundles/core/org.eclipse.smarthome.core.thing/src/main/java/org/eclipse/smarthome/core/thing/binding/ThingTypeProvider.java), through which you can provide thing descriptions in a programmatic way. Nonetheless, the static XML descriptions of thing types can be picked up for documentation generation and other purposes. So whenever possible, static XML descriptions should be provided. 
+</code></pre>
+
+<ol>
+  <li><em>For my system XY, there are so many different variants of devices. Do I really need to define a thing type for every single one of them?</em></li>
+</ol>
+
+<pre><code>Thing types are important if you have no chance to request any structural information about the devices from your system and if you need users to manually chose a thing to add or configure (i.e. there is also no automatic discovery). The thing types that you provide will be the list the user can choose from. If your system supports auto-discovery discovery and you can also dynamically construct things (and their channels) from structural information that you can access during runtime, there is in theory no need to provide any thing type description at all. Nonetheless, static descriptions of thing types have the advantage that the user knows which kind of devices are supported, no matter if he has a device at home or not - so you should at least have static XML descriptions for the devices that are known to you at implementation time.
+</code></pre>
+
+<ol>
+  <li><em>I have a device that can have different firmware versions with slightly different functionality. Should I create one or two thing types for it?</em></li>
+</ol>
+
+<pre><code>If the firmware version makes a huge difference for the device (and can be seen as a different model of it), then it is ok to have different things defined. If the list of channels can be determined by knowing the firmware revision, this is good. If you can only determine the existing channels by querying the device itself, it might be the better option to have only one thing type and construct its channels upon first access.
+</code></pre>
+
+<ol>
+  <li><em>When creating a Thing through my ThingHanderFactory, does it exactly have to have the channels that are defined in the thing type description?</em></li>
+</ol>
+
+<pre><code>It must at least have the channels that are defined in its thing type (and they are already automatically added by the super() implementation). Nonetheless, you are free to add any number of additional channels to the thing.
+</code></pre>
+
+            </div>
+        </div>
+    </section>
+    
+	    
+
+
+
+	     
+    <footer class="page-footer">
+		<div class="container">
+			<div class="row">
+				<div class="col l6 s12">
+					<p class="white-text">Eclipse SmartHome is an <a href="http://iot.eclipse.org">Eclipse IoT</a>
+						project</p>
+					<p>
+						<a href="http://iot.eclipse.org"><img src="//www.eclipse.org/smarthome/img/iot-logo.png"></a>
+					</p>
+				</div>
+				<div class="col l6 s12" data-twttr-id="twttr-sandbox-0">
+					<p class="white-text">Connect with Eclipse SmartHome</p>
+					<iframe
+						src="https://ghbtns.com/github-btn.html?user=eclipse&repo=smarthome&type=star&count=true&size=large"
+						frameborder="0" scrolling="0" width="160px" height="30px"></iframe>
+					<br /> <a class="twitter-follow-button" data-size="large"
+						href="https://twitter.com/smarthome"> Follow @smarthome</a><br />
+				</div>
+			</div>
+		</div>
+		<div class="footer-copyright">
+			<div class="container center">
+				<a href="https://www.eclipse.org/legal/copyright.php">Copyright
+					Agent</a> · <a href="https://www.eclipse.org/legal/privacy.php">Privacy</a>
+				· <a href="https://www.eclipse.org/legal/termsofuse.php">Terms</a> ·
+				<a href="https://www.eclipse.org/legal/">Legal</a>
+
+			</div>
+		</div>
+	</footer>
+    
+	<script src="//www.eclipse.org/smarthome/js/jquery.min.js"></script>
+	<script src="//www.eclipse.org/smarthome/js/jquery.scrollme.min.js"></script>
+    <script src="//www.eclipse.org/smarthome/js/jquery.sticky.js"></script>
+	<script src="//www.eclipse.org/smarthome/js/materialize.js"></script>
+    <script src="//www.eclipse.org/smarthome/js/highlight.pack.js"></script>
+	<script src="../../js/init.js"></script>
+	<script>
+        window.twttr = (function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0], t = window.twttr || {};
+            if (d.getElementById(id))
+                return t;
+            js = d.createElement(s);
+            js.id = id;
+            js.src = "https://platform.twitter.com/widgets.js";
+            fjs.parentNode.insertBefore(js, fjs);
+
+            t._e = [];
+            t.ready = function(f) {
+                t._e.push(f);
+            };
+
+            return t;
+        }(document, "script", "twitter-wjs"));
+    </script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55850963-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

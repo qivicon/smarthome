@@ -1,0 +1,608 @@
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+ 
+
+
+
+<link rel="shortcut icon" href="//www.eclipse.org/smarthome/img/favicon.png"></link>
+<title>Eclipse SmartHome - A Flexible Framework for the Smart
+	Home</title>
+ 
+<!-- CSS -->
+<link href="http://www.eclipse.org/smarthome/css/materialize.css" type="text/css" rel="stylesheet"
+	media="screen,projection" />
+<link href="http://www.eclipse.org/smarthome/css/highlight.github.css" type="text/css" rel="stylesheet"
+    	media="screen,projection" />
+<link href="../../css/styles.css" rel="stylesheet" />
+
+<!-- Font -->
+<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700'
+	rel='stylesheet' type='text/css' />
+    
+</head>
+<body class="documentation">
+	<div id="header" class="navbar-fixed">
+		<nav role="navigation">
+			<div class="container">
+				<div class="nav-wrapper">
+					<a href="../../index.html"><img id="logo" src="//www.eclipse.org/smarthome/img/eclipse_logo.png" /></a>
+					<a href="#" data-activates="nav-mobile" class="button-collapse"><i
+						class="mdi-navigation-menu"></i></a>
+					<ul class="right hide-on-med-and-down">
+						<li><a href="../../getting-started.html">Getting Started</a></li>
+						<li><a href="../../documentation/index.html">Documentation</a></li>
+						<li><a href="http://github.com/eclipse/smarthome">GitHub</a></li>
+					</ul>
+					<ul id="nav-mobile" class="side-nav">
+                        <li><a href="../../index.html">Home</a></li>
+						<li><a href="../../getting-started.html">Getting Started</a></li>
+						<li><a href="../../documentation/index.html">Documentation</a></li>
+						<li><a href="http://github.com/eclipse/smarthome">GitHub</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</div>
+    
+    <section id="documentation" class="text content-wrapper">
+        <div class="container">
+            <div class="side-nav-wrapper">
+                
+
+
+
+
+
+<ul class="nav">
+    <li>
+        <a href="../../documentation/index.html">Overview</a>
+    </li>
+    <li>
+        <a href="../../documentation/concepts/index.html">Concepts</a>
+        <ul>
+            <li>
+                 <a href="../../documentation/concepts/index.html">Overview</a>
+            </li>
+            <li>
+                 <a href="../../documentation/concepts/extensions.html">Extensions</a>
+            </li>
+            <li>
+                 <a href="../../documentation/concepts/internationalization.html">Internationalization</a>
+            </li>
+            <li>
+                 <a href="../../documentation/concepts/thing-status.html">Thing Status</a>
+            </li>
+    	</ul>
+    </li>
+	<li>
+        <a href="../../documentation/binding-development/how-to.html">Binding Development</a>
+        <ul>
+        	<li>
+                 <a href="../../documentation/binding-development/how-to.html">How To</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/thing-definition.html">Thing Definition</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/thing-handler.html">Thing Handler</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/discovery.html">Discovery</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/xml-reference.html">XML Reference Guide</a>
+            </li>
+			<li>
+                 <a href="../../documentation/binding-development/dependencies.html">Dependencies</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/docs.html">Documentation</a>
+            </li>
+            <li>
+                 <a href="../../documentation/binding-development/faq.html">FAQ</a>
+            </li>
+        </ul>    
+    </li>
+	<li>
+        <a href="../../documentation/remote/events.html">Remote Access</a>
+        <ul>
+        	<li>
+                 <a href="../../documentation/remote/events.html">Events (SSE)</a>
+            </li>
+        </ul>    
+    </li>
+    <li>
+        <a href="../../documentation/configuration/things.html">Configuration</a>
+        <ul>
+            <li>
+                 <a href="../../documentation/configuration/things.html">Thing DSL</a>
+            </li>
+        </ul>    
+    </li>
+    <li>
+        <a href="../../documentation/contribute/contributing.html">Contribute</a>
+        <ul>
+            <li>
+                 <a href="../../documentation/contribute/contributing.html">Contributing</a>
+            </li>
+            <li>
+                 <a href="../../documentation/contribute/ide.html">IDE</a>
+            </li>
+            <li>
+                 <a href="../../documentation/contribute/guidelines.html">Guidelines</a>
+            </li>
+			<li>
+                 <a href="../../documentation/contribute/testing.html">Testing</a>
+            </li>
+        </ul>    
+    </li>
+</ul>
+            </div>    
+            <div class="content">  
+	            
+<h1 id="declaring-configurations-bindings-and-things">Declaring Configurations, Bindings and Things</h1>
+
+<p>Specific services and bindings have to provide meta information which are used for visualization, validation or internal service mapping. Meta information can be provided by registering specific services at the <em>OSGi</em> service registry or by specifying them in a declarative way, which is described in this chapter.</p>
+
+<p><b>Three kinds of descriptions/definitions exist:</b></p>
+
+<ul>
+  <li>Configuration descriptions: Used for visualization and validation of configuration properties (optional)</li>
+  <li>Binding definitions: Required to declare a binding (mandatory)</li>
+  <li>Bridge and <em>Thing</em> descriptions: Required to specify which bridges and <em>Thing</em>s are provided by the binding, which relations they have to each other and which channels they offer (mandatory)</li>
+</ul>
+
+<h2 id="configuration-descriptions">Configuration Descriptions</h2>
+
+<p>Specific services or bindings require usually a configuration to be operational in a meaningful way. To visualize or validate concrete configuration properties, configuration descriptions should be provided. All available configuration descriptions are accessible through the <code>org.eclipse.smarthome.config.core.ConfigDescriptionRegistry</code> service.</p>
+
+<p>Although configuration descriptions are usually specified in a declarative way (as described in this section), they can also be provided as <code>org.eclipse.smarthome.config.core.ConfigDescriptionProvider</code>.<br />
+Any <code>ConfigDescriptionProvider</code>s must be registered as service at the <em>OSGi</em> service registry. The full Java API for configuration descriptions can be found in the Java package <code>org.eclipse.smarthome.config.core</code>.</p>
+
+<p>Configuration descriptions must be placed as XML file(s) (with the ending <code>.xml</code>) in the bundle’s folder <code>/ESH-INF/config/</code>.</p>
+
+<h3 id="xml-structure-for-configuration-descriptions">XML Structure for Configuration Descriptions</h3>
+<pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;config-description:config-descriptions
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
+        http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd"&gt;
+
+  &lt;config-description uri="{binding|thing-type|bridge-type|channel-type|any_other}:bindingID:..."&gt;
+    &lt;parameter-group name="String"&gt;
+      &lt;label&gt;String&lt;/label&gt;
+      &lt;description&gt;String&lt;/description&gt;
+      &lt;context&gt;String&lt;/context&gt;
+      &lt;advanced&gt;{true|false}&lt;/advanced&gt;
+    &lt;/parameter-group&gt;
+
+    &lt;parameter name="String" type="{text|integer|decimal|boolean}" min="Decimal" max="Decimal" step="Decimal" pattern="String" required="{true|false}" readOnly="{true|false}" multiple="{true|false}" groupName="String"&gt;
+      &lt;context&gt;{network-address|password|password-create|color|date|datetime|email|month|week|time|tel|url|item|thing|group|tag|service}&lt;/context&gt;
+      &lt;required&gt;{true|false}&lt;/required&gt;
+      &lt;default&gt;String&lt;/default&gt;
+      &lt;label&gt;String&lt;/label&gt;
+      &lt;description&gt;String&lt;/description&gt;
+      &lt;options&gt;
+        &lt;option value="String"&gt;String&lt;/option&gt;
+      &lt;/options&gt;
+      &lt;filter&gt;
+        &lt;criteria name="String"&gt;String&lt;/criteria&gt;
+      &lt;/filter&gt;
+    &lt;/parameter&gt;
+  &lt;/config-description&gt;
+
+  &lt;config-description uri="{binding|thing-type|bridge-type|channel-type|any_other}:bindingID:..."&gt;
+    ...
+  &lt;/config-description&gt;
+...
+&lt;/config-description:config-descriptions&gt;
+</code></pre>
+
+<table>
+  <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
+  <tr><td>config-description.uri</td><td>The URI of this description within the ConfigDescriptionRegistry (mandatory).</td></tr>
+  <tr><td>parameter</td><td>The description of a concrete configuration parameter (optional).</td></tr>
+  <tr><td>parameter.name</td><td>The name of the configuration parameter (mandatory).</td></tr>
+  <tr><td>parameter.type</td><td>The data type of the configuration parameter (mandatory).</td></tr>
+  <tr><td>parameter.min</td><td>The minimal value for numeric types, or the minimal length of strings, or the minimal number of selected options (optional).</td></tr>
+  <tr><td>parameter.max</td><td>The maximum value for numeric types, or the maximum length of strings, or the maximum number of selected options (optional).</td></tr>
+  <tr><td>parameter.step</td><td>The value granularity for a numeric value (optional).</td></tr>
+  <tr><td>parameter.pattern</td><td>The regular expression for a text type (optional).</td></tr>
+  <tr><td>parameter.required</td><td>Specifies whether the value is required (optional).</td></tr>
+  <tr><td>parameter.readOnly</td><td>Specifies whether the value is read-only (optional).</td></tr>
+  <tr><td>parameter.multiple</td><td>Specifies whether multiple selections of options are allowed (optional).</td></tr>
+(optional).
+  <tr><td>parameter.groupName</td><td>Sets a group name for this parameter (optional).</td></tr>
+  <tr><td>advanced</td><td>Specifies that this is an advanced parameter. Advanced parameters may be hidden by a UI (optional).</td></tr>
+(optional).
+  <tr><td>context</td><td>The context of the configuration parameter (optional).</td></tr>
+  <tr><td>required</td><td>The flag indicating if the configuration parameter has to be set or not (deprecated, optional, default: false).</td></tr>
+  <tr><td>default</td><td>The default value of the configuration parameter (optional).</td></tr>
+  <tr><td>label</td><td>A human readable label for the configuration parameter (optional).</td></tr>
+  <tr><td>description</td><td>A human readable description for the configuration parameter (optional).</td></tr>
+  <tr><td>option</td><td>The element definition of a static selection list (optional).</td></tr>
+  <tr><td>option.value</td><td>The value of the selection list element.</td></tr>
+  <tr><td>multipleLimit</td><td>If multiple is true, sets the maximum number of options that can be selected (optional).</td></tr>
+  <tr><td>limitToOptions</td><td>If true (default) will only allow the user to select items in the options list. If false, will allow the user to enter other text (optional).</td></tr>
+  <tr><td>criteria</td><td>The filter criteria for values of a dynamic selection list (optional).</td></tr>  
+  <tr><td>criteria.name</td><td>The name of the context related filter.</td></tr>  
+</table>
+
+<p>Groups allow parameters to be grouped together into logical blocks so that the user can find the parameters they are looking for. A parameter can be placed into a group so that the UI knows how to display the information.</p>
+<table>
+  <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
+  <tr><td>group.name</td><td>The group name - this is used to link the parameters into the group, along with the groupName option in the parameter (mandatory).</td></tr>
+  <tr><td>label</td><td>The human readable label of the group. (mandatory).</td></tr>
+  <tr><td>description</td><td>The description of the group. (optional).</td></tr>
+  <tr><td>context</td><td>Sets a context tag for the group. The context may be used in the UI to provide some feedback on the type of parameters in this group (optional).</td></tr>
+  <tr><td>advanced</td><td>Specifies that this is an advanced group. The UI may hide this group from the user (optional)</td></tr>
+</table>
+
+<p>The full XML schema for configuration descriptions is specified in the <a href="http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">ESH config description XSD</a> file.</p>
+
+<p><b>Hints:</b></p>
+
+<ul>
+  <li>Although the attribute <code>uri</code> is optional, it <em>must</em> be specified in configuration description files. Only for embedded configuration descriptions in documents for binding definitions and <code>Thing</code> type descriptions, the attribute is optional.</li>
+</ul>
+
+<h3 id="example">Example</h3>
+
+<p>The following code gives an example for one configuration description.</p>
+
+<pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;config-description:config-description uri="bridge-type:my-great-binding:my-bridge-name"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
+        http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd"&gt;
+
+  &lt;parameter name="ipAddress" type="text" required="true"&gt;
+    &lt;context&gt;network-address&lt;/context&gt;
+    &lt;label&gt;Network Address&lt;/label&gt;
+    &lt;description&gt;Network address of the device.&lt;/description&gt;
+  &lt;/parameter&gt;
+
+  &lt;parameter name="userName" type="text" required="true"&gt;
+    &lt;label&gt;User Name&lt;/label&gt;
+  &lt;/parameter&gt;
+
+  &lt;parameter name="password" type="text" required="false"&gt;
+    &lt;context&gt;password&lt;/context&gt;
+  &lt;/parameter&gt;
+
+&lt;/config-description:config-description&gt;
+</code></pre>
+
+<h2 id="binding-definitions">Binding Definitions</h2>
+
+<p>Every binding has to provide meta information such as author or description. The meta information of all bindings is accessible through the <code>org.eclipse.smarthome.core.binding.BindingInfoRegistry</code> service.</p>
+
+<p>Although binding definitions are usually specified in a declarative way (as described in this section), they can also be provided as <code>org.eclipse.smarthome.core.binding.BindingInfo</code>.<br />
+Any <code>BindingInfo</code> must be registered as service at the <em>OSGi</em> service registry. The full Java API for binding definitions can be found in the Java package <code>org.eclipse.smarthome.core.binding</code>.</p>
+
+<p>Binding definitions must be placed as XML file(s) (with the ending <code>.xml</code>) in the bundle’s folder <code>/ESH-INF/binding/</code>.</p>
+
+<h3 id="xml-structure-for-binding-definitions">XML Structure for Binding Definitions</h3>
+
+<pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;binding:binding id="bindingID"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:binding="http://eclipse.org/smarthome/schemas/binding/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/binding/v1.0.0
+        http://eclipse.org/smarthome/schemas/binding-1.0.0.xsd"&gt;
+
+  &lt;name&gt;String&lt;/name&gt;
+  &lt;description&gt;String&lt;/description&gt;
+  &lt;author&gt;String&lt;/author&gt;
+
+  &lt;config-description&gt;
+    ...
+  &lt;/config-description&gt;
+  OR
+  &lt;config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}:bindingID:..." /&gt;
+
+&lt;/binding:binding&gt;
+</code></pre>
+
+<table>
+  <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
+  <tr><td>binding.id</td><td>An identifier for the binding (mandatory).</td></tr>
+  <tr><td>name</td><td>A human readable name for the binding (mandatory).</td></tr>
+  <tr><td>description</td><td>A human readable description for the binding (optional).</td></tr>
+  <tr><td>author</td><td>The author of the binding (mandatory).</td></tr>
+  <tr><td>config-description</td><td>The configuration description for the binding within the ConfigDescriptionRegistry (optional).</td></tr>
+  <tr><td>config-description-ref</td><td>The reference to a configuration description for the binding within the ConfigDescriptionRegistry (optional).</td></tr>
+  <tr><td>config-description-ref.uri</td><td>The URI of the configuration description for the binding within the ConfigDescriptionRegistry (mandatory).</td></tr>
+</table>
+
+<p>The full XML schema for binding definitions is specified in the <a href="http://eclipse.org/smarthome/schemas/binding-1.0.0.xsd">ESH binding XSD</a> file.</p>
+
+<p><b>Hints:</b></p>
+
+<ul>
+  <li>The attribute <code>uri</code> in the section <code>config-description</code> is optional, it <em>should not</em> be specified in binding definition files because it’s an embedded configuration. If the <code>uri</code> is <em>not</em> specified, the configuration description is registered as <code>binding:bindingID</code>, otherwise the given <code>uri</code> is used.</li>
+  <li>If a configuration description is already specified somewhere else and the binding wants to (re-)use it, a <code>config-description-ref</code> should be used instead.</li>
+</ul>
+
+<h3 id="example-1">Example</h3>
+
+<p>The following code gives an example for a binding definition.</p>
+
+<pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;binding:binding id="hue"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:binding="http://eclipse.org/smarthome/schemas/binding/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/binding/v1.0.0
+        http://eclipse.org/smarthome/schemas/binding-1.0.0.xsd"&gt;
+
+  &lt;name&gt;hue Binding&lt;/name&gt;
+  &lt;description&gt;The hue Binding integrates the Philips hue system. It allows to control hue bulbs.&lt;/description&gt;
+  &lt;author&gt;ACME&lt;/author&gt;
+
+&lt;/binding:binding&gt;
+</code></pre>
+
+<h2 id="bridges-and-thing-descriptions">Bridges and Thing Descriptions</h2>
+
+<p>Every binding has to provide meta information about which bridges and/or <em>Thing</em>s it provides and how their relations to each other are. In that way a binding could describe that it requires specific bridges to be operational or define which channels (e.g. temperature, color, etc.) it provides.</p>
+
+<p>Every bridge or <em>Thing</em> has to provide meta information such as label or description. The meta information of all bridges and <em>Thing</em>s is accessible through the <code>org.eclipse.smarthome.core.thing.binding.ThingTypeProvider</code> service.</p>
+
+<p>Bridge and <em>Thing</em> descriptions must be placed as XML file(s) (with the ending <code>.xml</code>) in the bundle’s folder <code>/ESH-INF/thing/</code>. The full Java API for bridge and <em>Thing</em> descriptions can be found in the Java package <code>org.eclipse.smarthome.core.thing.type</code>.</p>
+
+<h3 id="xml-structure-for-thing-descriptions">XML Structure for Thing Descriptions</h3>
+
+<pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;thing:thing-descriptions bindingId="bindingID"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0
+        http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd"&gt;
+
+  &lt;bridge-type id="bridgeTypeID"&gt;
+    &lt;supported-bridge-type-refs&gt;
+      &lt;bridge-type-ref id="bridgeTypeID" /&gt;
+      ...
+    &lt;/supported-bridge-type-refs&gt;
+
+    &lt;label&gt;String&lt;/label&gt;
+    &lt;description&gt;String&lt;/description&gt;
+
+    &lt;channels&gt;
+      &lt;channel id="channelID" typeId="channelTypeID" /&gt;
+      ...
+    &lt;/channels&gt;
+    OR
+    &lt;channel-groups&gt;
+      &lt;channel-group id="channelGroupID" typeId="channelGroupTypeID" /&gt;
+      ...
+    &lt;/channel-groups&gt;
+
+    &lt;config-description&gt;
+      ...
+    &lt;/config-description&gt;
+    OR
+    &lt;config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}:bindingID:..." /&gt;
+  &lt;/bridge-type&gt;
+
+  &lt;thing-type id="thingTypeID"&gt;
+    &lt;supported-bridge-type-refs&gt;
+      &lt;bridge-type-ref id="bridgeTypeID" /&gt;
+      ...
+    &lt;/supported-bridge-type-refs&gt;
+
+    &lt;label&gt;String&lt;/label&gt;
+    &lt;description&gt;String&lt;/description&gt;
+
+    &lt;channels&gt;
+      &lt;channel id="channelID" typeId="channelTypeID" /&gt;
+      ...
+    &lt;/channels&gt;
+    OR
+    &lt;channel-groups&gt;
+      &lt;channel-group id="channelGroupID" typeId="channelGroupTypeID" /&gt;
+      ...
+    &lt;/channel-groups&gt;
+
+    &lt;config-description&gt;
+      ...
+    &lt;/config-description&gt;
+    OR
+    &lt;config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}:bindingID:..." /&gt;
+  &lt;/thing-type&gt;
+
+  &lt;channel-type id="channelTypeID" advanced="{true|false}"&gt;
+    &lt;item-type&gt;Dimmer&lt;/item-type&gt;
+    &lt;label&gt;String&lt;/label&gt;
+    &lt;description&gt;String&lt;/description&gt;
+    &lt;category&gt;String&lt;/category&gt;
+
+    &lt;tags&gt;
+      &lt;tag&gt;String&lt;/tag&gt;
+      ...
+    &lt;/tags&gt;
+
+    &lt;state min="decimal" max="decimal" step="decimal" pattern="String" readOnly="{true|false}"&gt;
+      &lt;options&gt;
+        &lt;option value="String" /&gt;
+        OR
+        &lt;option value="String"&gt;String&lt;/option&gt;
+        ...
+      &lt;/options&gt;
+    &lt;/state&gt;
+
+    &lt;config-description&gt;
+      ...
+    &lt;/config-description&gt;
+    OR
+    &lt;config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}:bindingID:..." /&gt;
+  &lt;/channel-type&gt;   
+
+  &lt;channel-group-type id="channelGroupTypeID" advanced="{true|false}"&gt;
+    &lt;label&gt;String&lt;/label&gt;
+    &lt;description&gt;String&lt;/description&gt;
+
+    &lt;channels&gt;
+      &lt;channel id="channelID" typeId="channelTypeID" /&gt;
+      ...
+    &lt;/channels&gt;
+  &lt;/channel-group-type&gt;   
+
+  ...
+
+&lt;/thing:thing-descriptions&gt;
+</code></pre>
+
+<table>
+  <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
+  <tr><td>thing-descriptions.bindingId</td><td>The identifier of the binding this types belong to (mandatory).</td></tr>
+</table>
+<p>
+<b>Bridges and Things:</b>
+<table>
+  <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
+  <tr><td>bridge-type.id | thing-type.id</td><td>An identifier for the bridge/<i>Thing</i> type (mandatory).</td></tr>
+  <tr><td>supported-bridge-type-refs</td><td>The identifiers of the bridges this bridge/<i>Thing</i> can connect to (optional).</td></tr>
+  <tr><td>bridge-type-ref.id</td><td>The identifier of a bridge this bridge/<i>Thing</i> can connect to (mandatory).</td></tr>
+  <tr><td>label</td><td>A human readable label for the bridge/<i>Thing</i> (mandatory).</td></tr>
+  <tr><td>description</td><td>A human readable description for the bridge/<i>Thing</i> (optional).</td></tr>
+  <tr><td>channels</td><td>The channels the bridge/<i>Thing</i> provides (optional).</td></tr>
+  <tr><td>channel.id</td><td>An identifier of the channel the bridge/<i>Thing</i> provides (mandatory).</td></tr>
+  <tr><td>channel.typeId</td><td>An identifier of the channel type definition the bridge/<i>Thing</i> provides (mandatory).</td></tr>
+  <tr><td>channel-groups</td><td>The channel groups defining the channels the bridge/<i>Thing</i> provides (optional).</td></tr>
+  <tr><td>channel-group.id</td><td>An identifier of the channel group the bridge/<i>Thing</i> provides (mandatory).</td></tr>
+  <tr><td>channel-group.typeId</td><td>An identifier of the channel group type definition the bridge/<i>Thing</i> provides (mandatory).</td></tr>
+  <tr><td>config-description</td><td>The configuration description for the bridge/<i>Thing</i> within the ConfigDescriptionRegistry (optional).</td></tr>
+  <tr><td>config-description-ref</td><td>The reference to a configuration description for the bridge/<i>Thing</i> within the ConfigDescriptionRegistry (optional).</td></tr>
+  <tr><td>config-description-ref.uri</td><td>The URI of the configuration description for the bridge/<i>Thing</i> within the ConfigDescriptionRegistry (mandatory).</td></tr>
+</table>
+<p>
+<b>Channels:</b>
+<table>
+  <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
+  <tr><td>channel-type.id</td><td>An identifier for the channel type (mandatory).</td></tr>
+  <tr><td>channel-type.advanced</td><td>The flag indicating if this channel contains advanced functionalities which should be typically not shown in the basic view of user interfaces (optional, default: false).</td></tr>
+  <tr><td>item-type</td><td>An item type of the channel (mandatory). All item types are specified in <code>ItemFactory</code> instances. The following items belong to the core: <code>Switch, Rollershutter, Contact, String, Number, Dimmer, DateTime, Color, Image</code>.</td></tr>
+  <tr><td>label</td><td>A human readable label for the channel (mandatory).</td></tr>
+  <tr><td>description</td><td>A human readable description for the channel (optional).</td></tr>
+  <tr><td>category</td><td>The category for the channel, e.g. <code>TEMPERATURE</code> (optional).</td></tr>
+  <tr><td>tags</td><td>A list of default tags to be assigned to bound items (optional).</td></tr>
+  <tr><td>tag</td><td>A tag semantically describes the feature (typical usage) of the channel e.g. <code>AlarmSystem</code>. There are no pre-default tags, they are custom-specific (mandatory).</td></tr>
+  <tr><td>state</td><td>The restrictions of an item state which gives information how to interpret it (optional).</td></tr>
+  <tr><td>state.min</td><td>The minimum decimal value of the range for the state (optional).</td></tr>
+  <tr><td>state.max</td><td>The maximum decimal value of the range for the state (optional).</td></tr>
+  <tr><td>state.step</td><td>The increasing/decreasing decimal step size within the defined range, specified by the minimum/maximum values (optional).</td></tr>
+  <tr><td>state.pattern</td><td>The pattern following the <code>printf</code> syntax to render the state (optional).</td></tr>
+  <tr><td>state.readOnly</td><td>The flag indicating if the state is read-only or can be modified (optional, default: false).</td></tr>
+  <tr><td>options</td><td>A list restricting all possible values (optional).</td></tr>
+  <tr><td>option</td><td>The description for the option (optional).</td></tr>
+  <tr><td>option.value</td><td>The value for the option (mandatory).</td></tr>
+  <tr><td>config-description</td><td>The configuration description for the channel within the ConfigDescriptionRegistry (optional).</td></tr>
+  <tr><td>config-description-ref</td><td>The reference to a configuration description for the channel within the ConfigDescriptionRegistry (optional).</td></tr>
+  <tr><td>config-description-ref.uri</td><td>The URI of the configuration description for the channel within the ConfigDescriptionRegistry (mandatory).</td></tr>
+</table>
+<p>
+<b>Channel Groups:</b>
+<table>
+  <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
+  <tr><td>channel-group-type.id</td><td>An identifier for the channel group type (mandatory).</td></tr>
+  <tr><td>channel-group-type.advanced</td><td>The flag indicating if this channel group contains advanced functionalities which should be typically not shown in the basic view of user interfaces (optional, default: false).</td></tr>
+  <tr><td>label</td><td>A human readable label for the channel group (mandatory).</td></tr>
+  <tr><td>description</td><td>A human readable description for the channel group (optional).</td></tr>
+  <tr><td>channels</td><td>The channels the bridge/<i>Thing</i> provides (mandatory).</td></tr>
+  <tr><td>channel.id</td><td>An identifier of the channel the bridge/<i>Thing</i> provides (mandatory).</td></tr>
+  <tr><td>channel.typeId</td><td>An identifier of the channel type definition the bridge/<i>Thing</i> provides (mandatory).</td></tr>
+</table>
+
+The full XML schema for *Thing* type descriptions is specified in the <a href="http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">ESH thing description XSD</a> file.
+
+<b>Hints:</b>
+
+- Any identifiers of the types are automatically mapped to unique identifiers: `bindingID:id`.
+- The attribute `uri` in the section `config-description` is optional, it *should not* be specified in bridge/*Thing*/channel type definition files because it's an embedded configuration. If the `uri` is *not* specified, the configuration description is registered as `bridge-type:bindingID:id`, `thing-type:bindingID:id` or `channel-type:bindingID:id` otherwise the given `uri` is used.
+- If a configuration description is already specified somewhere else and the bridge/*Thing*/channel type wants to (re-)use it, a `config-description-ref` should be used instead.
+</p></p></p>
+
+            </div>
+        </div>
+    </section>
+    
+	    
+
+
+
+	     
+    <footer class="page-footer">
+		<div class="container">
+			<div class="row">
+				<div class="col l6 s12">
+					<p class="white-text">Eclipse SmartHome is an <a href="http://iot.eclipse.org">Eclipse IoT</a>
+						project</p>
+					<p>
+						<a href="http://iot.eclipse.org"><img src="//www.eclipse.org/smarthome/img/iot-logo.png"></a>
+					</p>
+				</div>
+				<div class="col l6 s12" data-twttr-id="twttr-sandbox-0">
+					<p class="white-text">Connect with Eclipse SmartHome</p>
+					<iframe
+						src="https://ghbtns.com/github-btn.html?user=eclipse&repo=smarthome&type=star&count=true&size=large"
+						frameborder="0" scrolling="0" width="160px" height="30px"></iframe>
+					<br /> <a class="twitter-follow-button" data-size="large"
+						href="https://twitter.com/smarthome"> Follow @smarthome</a><br />
+				</div>
+			</div>
+		</div>
+		<div class="footer-copyright">
+			<div class="container center">
+				<a href="https://www.eclipse.org/legal/copyright.php">Copyright
+					Agent</a> · <a href="https://www.eclipse.org/legal/privacy.php">Privacy</a>
+				· <a href="https://www.eclipse.org/legal/termsofuse.php">Terms</a> ·
+				<a href="https://www.eclipse.org/legal/">Legal</a>
+
+			</div>
+		</div>
+	</footer>
+    
+	<script src="//www.eclipse.org/smarthome/js/jquery.min.js"></script>
+	<script src="//www.eclipse.org/smarthome/js/jquery.scrollme.min.js"></script>
+    <script src="//www.eclipse.org/smarthome/js/jquery.sticky.js"></script>
+	<script src="//www.eclipse.org/smarthome/js/materialize.js"></script>
+    <script src="//www.eclipse.org/smarthome/js/highlight.pack.js"></script>
+	<script src="../../js/init.js"></script>
+	<script>
+        window.twttr = (function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0], t = window.twttr || {};
+            if (d.getElementById(id))
+                return t;
+            js = d.createElement(s);
+            js.id = id;
+            js.src = "https://platform.twitter.com/widgets.js";
+            fjs.parentNode.insertBefore(js, fjs);
+
+            t._e = [];
+            t.ready = function(f) {
+                t._e.push(f);
+            };
+
+            return t;
+        }(document, "script", "twitter-wjs"));
+    </script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55850963-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

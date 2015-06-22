@@ -1,0 +1,87 @@
+{% include base.html %}
+{% assign docu = base | append: '/documentation' %}
+
+<ul class="nav">
+    <li>
+        <a href="{{docu}}/index.html">Overview</a>
+    </li>
+    <li>
+        <a href="{{docu}}/concepts/index.html">Concepts</a>
+        <ul>
+            <li>
+                 <a href="{{docu}}/concepts/index.html">Overview</a>
+            </li>
+            <li>
+                 <a href="{{docu}}/concepts/extensions.html">Extensions</a>
+            </li>
+            <li>
+                 <a href="{{docu}}/concepts/internationalization.html">Internationalization</a>
+            </li>
+            <li>
+                 <a href="{{docu}}/concepts/thing-status.html">Thing Status</a>
+            </li>
+    	</ul>
+    </li>
+	<li>
+        <a href="{{docu}}/binding-development/how-to.html">Binding Development</a>
+        <ul>
+        	<li>
+                 <a href="{{docu}}/binding-development/how-to.html">How To</a>
+            </li>
+            <li>
+                 <a href="{{docu}}/binding-development/thing-definition.html">Thing Definition</a>
+            </li>
+            <li>
+                 <a href="{{docu}}/binding-development/thing-handler.html">Thing Handler</a>
+            </li>
+            <li>
+                 <a href="{{docu}}/binding-development/discovery.html">Discovery</a>
+            </li>
+            <li>
+                 <a href="{{docu}}/binding-development/xml-reference.html">XML Reference Guide</a>
+            </li>
+			<li>
+                 <a href="{{docu}}/binding-development/dependencies.html">Dependencies</a>
+            </li>
+            <li>
+                 <a href="{{docu}}/binding-development/docs.html">Documentation</a>
+            </li>
+            <li>
+                 <a href="{{docu}}/binding-development/faq.html">FAQ</a>
+            </li>
+        </ul>    
+    </li>
+	<li>
+        <a href="{{docu}}/remote/events.html">Remote Access</a>
+        <ul>
+        	<li>
+                 <a href="{{docu}}/remote/events.html">Events (SSE)</a>
+            </li>
+        </ul>    
+    </li>
+    <li>
+        <a href="{{docu}}/configuration/things.html">Configuration</a>
+        <ul>
+            <li>
+                 <a href="{{docu}}/configuration/things.html">Thing DSL</a>
+            </li>
+        </ul>    
+    </li>
+    <li>
+        <a href="{{docu}}/contribute/contributing.html">Contribute</a>
+        <ul>
+            <li>
+                 <a href="{{docu}}/contribute/contributing.html">Contributing</a>
+            </li>
+            <li>
+                 <a href="{{docu}}/contribute/ide.html">IDE</a>
+            </li>
+            <li>
+                 <a href="{{docu}}/contribute/guidelines.html">Guidelines</a>
+            </li>
+			<li>
+                 <a href="{{docu}}/contribute/testing.html">Testing</a>
+            </li>
+        </ul>    
+    </li>
+</ul>
