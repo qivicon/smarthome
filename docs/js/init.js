@@ -57,7 +57,7 @@ function initSideNav() {
         if($(element).attr('href').indexOf(linkUrl) != -1) {
             $(element).closest('li').addClass('active');
             $(element).closest('li').parents('li').addClass('active open');
-            $(element).closest('ul').slideDown();
+            $(element).parents('ul').slideDown();
         }
         if($(element).closest('li').children('ul').length > 0) {
             $(element).addClass('has-submenu');

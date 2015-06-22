@@ -91,6 +91,11 @@ body {
 }
 
 /* Layout: Footer */
+footer {
+	position: relative;
+	z-index: 10;	
+}
+
 footer.page-footer .footer-copyright {
 	background-color: rgba(0, 0, 0, 0.08);
 }
@@ -583,7 +588,7 @@ section.text ul.nav > li > a:hover {
 }
 
 /* First Level Menu Links */
-section.text ul.nav li > a:after {
+section.text ul.nav li a:after {
     font-family: "Material-Design-Icons";
     speak: none;
     font-style: normal;
@@ -597,7 +602,8 @@ section.text ul.nav li > a:after {
     right: 10px;
 }
 
-section.text ul.nav li > a.has-submenu:after {
+/* First level menu with sub nav */
+section.text ul.nav li a.has-submenu:after {
     content: "\e89e";
 }
 
@@ -607,11 +613,12 @@ section.text ul.nav li.active > a {
     background: #EEE;
 }
 
-section.text ul.nav li.active > a:after {
+section.text ul.nav li.active a:after {
     
 }
 
-section.text ul.nav li.active.open > a:after {
+/* First level menu with sub nav opened */
+section.text ul.nav li.active.open a:after {
     content: "\e89d";
 }
 
@@ -624,9 +631,21 @@ section.text ul.nav li.active ul li a:hover {
 	background: none;
 }
 
-section.text ul.nav li.active ul li a:after {
-    display: none;
+
+section.text ul.nav li.active.open ul li a:after {
     content: none;
+    display: none;
+}
+
+/* Second level menu with sub nav */
+section.text ul.nav li.active.open ul li a.has-submenu:after {
+    content: "\e89e";
+    display: inline;
+}
+
+/* Second level menu with sub nav opened */
+section.text ul.nav li.active.open ul li.open a.has-submenu:after {
+    content: "\e89d";
 }
 
 /* Active second level menu link */

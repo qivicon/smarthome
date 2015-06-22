@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="MACROMAN"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.eclipse.smarthome</groupId>
+        <artifactId>smarthome</artifactId>
+        <version>0.8.0-SNAPSHOT</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.eclipse.smarthome</groupId>
+    <artifactId>docs</artifactId>
+
+    <name>Eclipse SmartHome Website and Documentation</name>
+
+    <packaging>pom</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${basedir}/documentation/bindings/</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-binding-docs</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/documentation/bindings/</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/../extensions/binding</directory>
+                                    <includes>
+                                        <include>**/README.md</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.groovy.maven</groupId>
+                <artifactId>gmaven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>rename-binding-files</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>
+                                def bindings = new File(project.basedir, 'documentation/bindings')
+
+                                bindings.eachFile
+                                {
+                                def name = it.name
+                                if(name.contains('binding')) {
+                                def bindingId = it.name.replace('org.eclipse.smarthome.binding.', '')
+                                def readme = new File(it.path, 'README.md')
+                                if(readme.exists()) {
+                                println readme
+                                readme.renameTo(new File(bindings.path, bindingId + '.md'))
+                                }
+                                it.deleteDir()
+                                }
+                                }
+                            </source>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
