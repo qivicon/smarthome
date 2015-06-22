@@ -693,3 +693,7 @@ body.documentation .content-wrapper {
         margin-left: 240px;
     }
 }
+
+body.documentation section#documentation .content > h1:first-child {
+	margin-top: 0px;
+}
