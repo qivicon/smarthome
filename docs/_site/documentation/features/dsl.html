@@ -150,43 +150,67 @@
             </div>    
             <div class="content">  
 	            
-<h1 id="about-eclipse-smarthome">About Eclipse SmartHome</h1>
+<h1 id="textual-configuration">Textual Configuration</h1>
 
-<h2 id="background">Background</h2>
-<p>Since the emergence of broadband internet connections, smartphones and tablets the smart home market shows a remarkable upsurge. This has led to a very fragmented market, which makes it difficult for customers to “bet on the right horse”. In fact, there is not one system, protocol or standard that could possibly fulfill all potential requirements. There is hence a need for platforms that allow the integration of different systems, protocols or standards and that provide a uniform way of user interaction and higher level services.</p>
+<p>Eclipse SmartHome provides the possibility to do fully text-based system setups. This is done using domain specific languages (DSLs) for the different kind of artifacts.</p>
 
-<h2 id="how-does-eclipse-smarthome-help">How does Eclipse SmartHome help?</h2>
+<h2 id="thing-configuration-dsl">Thing Configuration DSL</h2>
 
-<p>The goals of the Eclipse SmartHome project can be summarized as:</p>
+<p>Things can be configured with a Domain specific Language (DSL). It is recommended to use the Eclipse SmartHome Designer for editing the DSL files, because it supports validation and auto-completion.</p>
 
-<ul>
-  <li>Provide a flexible framework for smart home and ambient assisted living (AAL) solutions. This framework focuses on the use cases of this domain, e.g. on easy automation and visualization aspects.</li>
-  <li>Specify extension points for integration possibilities and higher-level services. Extending and thus customizing the solution must be as simple as possible and this requires concise and dedicated interfaces.</li>
-  <li>Provide implementations of extensions for relevant systems, protocols or standards. Many of them can be useful to many smart home solutions, so this project will provide a set of extensions that can be included if desired. They can also be in the shape of a general Java library or an OSGi bundle, so that these implementations can be used independently of the rest of the project as well.</li>
-  <li>Provide a development environment and tools to foster implementations of extensions. The right tooling can support the emergence of further extensions and thus stimulates future contributions to the project.</li>
-  <li>Create a packaging and demo setups. Although the focus is on the framework, it needs to be shown how to package a real solution from it, which can be used as a starting point and for demo purposes.<br />
-Description</li>
-  <li>The Eclipse SmartHome project is a framework that allows building smart home solutions that have a strong focus on heterogeneous environments, i.e. solutions that deal with the integration of different protocols or standards. Its purpose is to provide a uniform access to devices and information and to facilitate different kinds of interactions with them. This framework consists out of a set of OSGi bundles that can be deployed on an OSGi runtime and which defines OSGi services as extension points.</li>
-</ul>
+<p>Thing configuration files must be placed under the <code>things</code> folder inside the Eclipse SmartHome <code>conf</code> folder and must end with the suffix <code>.things</code>.</p>
 
-<p>The stack is meant to be usable on any kind of system that can run an OSGi stack - be it a multi-core server, a residential gateway or a Raspberry Pi.</p>
+<h2 id="defining-things">Defining Things</h2>
 
-<p>The project focuses on services and APIs for the following topics:</p>
+<p>Things can be defined as followed:</p>
 
-<ol>
-  <li><em>Data Handling</em>: This includes a basic but extensible type system for smart home data and commands that provides a common ground for an abstracted data and device access as well as event mechanisms to send this information around. It is the most important topic for integrating with other systems, which is done through so called bindings, which are a special type of <a href="architecture/extensions.md">extension</a>.</li>
-  <li><em>Rule Engines</em>: A flexible rule engine that allows changing rules during runtime and which defines extension types that allow breaking down rules into smaller pieces like triggers, actions, logic modules and templates.</li>
-  <li><em>Declarative User Interfaces</em>: A framework with extensions for describing user interface content in a declarative way. This includes widgets, icons, charts etc.</li>
-  <li><em>Persistence Management</em>: Infrastructure that allows automatic data processing based on a simple and unified configuration. Persistence services are pluggable extensions, which can be anything from a log writer to an IoT cloud service.</li>
-</ol>
+<pre><code>Thing yahooweather:weather:berlin [ location="638242" ]
+Thing yahooweather:weather:losangeles [ location="2442047", unit="us", refresh=120 ]
+</code></pre>
 
-<p>Besides the runtime framework and implementation, the Eclipse SmartHome projects also provides different kinds of tools and samples:</p>
+<p>The first keyword defines whether the entry is a bridge or a thing. The next statement defines the UID of the thing which contains of the following three segments: binding id, thing type id, thing id. So the first two segments must match to thing type supported by a binding (e.g. <code>yahooweather:weatheryahooweather</code>), whereas the thing id can be freely defined. Inside the squared brackets configuration parameter of the thing are defined.</p>
 
-<ul>
-  <li>Eclipse editors for editing configuration models and rules. These provide full IDE support, such as content assist and syntax validation.</li>
-  <li>Maven archetypes to easily create skeletons for extensions</li>
-  <li>Demo packaging with other Eclipse IoT projects</li>
-</ul>
+<p>The type of the configuration parameter is determined by the binding and must be specified accordingly in the DSL. If the binding requires a text the configuration parameter must be specified as a string: <code>location="2442047"</code>. Other types are decimal values (<code>refresh=12</code>) and boolean values (<code>refreshEnabled=true</code>).</p>
+
+<p>For each thing entry in the DSL the framework will create a thing by calling the ThingFactory of the according binding.</p>
+
+<h3 id="shortcut">Shortcut</h3>
+
+<p>It is possible to skip the <code>Thing</code> keyword: <code>yahooweather:weather:berlin [ location="638242" ]</code></p>
+
+<h2 id="defining-bridges">Defining Bridges</h2>
+
+<p>The DSL also supports the definition of bridges and contained things. The following configuration shows the definition of a hue bridge with two hue lamps:</p>
+
+<pre><code>Bridge hue:bridge:mybridge [ ipAddress="192.168.3.123" ] {
+	Thing LCT001 bulb1 [ lightId="1" ]
+	Thing LCT001 bulb2 [ lightId="2" ]
+}
+</code></pre>
+
+<p>Within the curly brackets things can be defined, that should be members of the bridge. For the contained thing only the thing type ID and thing ID must be defined (e.g. <code>LCT001 bulb1</code>). So the syntax is <code>Thing &lt;thingTypeId&gt; &lt;thingId&gt; []</code>. The resulting UID of the thing is <code>hue:LCT001:bridge:bulb1</code>.</p>
+
+<p>Bridges that are defined somewhere else can also be referenced in the DSL:</p>
+
+<pre><code>Thing hue:LCT001:mybridge:bulb (hue:bridge:mybridge) [lightId="3"]
+</code></pre>
+
+<p>The referenced bridge is specified in the parentheses. Please notice that the UID of the thing also contains the bridge ID as third segment. For the contained notation of things the UID will be inherited and the bridge ID is automatically taken as part of the resulting thing UID.</p>
+
+<h2 id="defining-channels">Defining Channels</h2>
+
+<p>It is also possible to manually define channels in the DSL. Usually this is not needed, as channels will be automatically created by the binding based on the thing type description. But there might be some bindings, that require the manual definition of channels.</p>
+
+<pre><code>Thing yahooweather:weather:losangeles [ location="2442047", unit="us", refresh=120 ] {
+	Channels:
+		String : customChannel1 [
+			configParameter="Value"
+		]
+		Number : customChannel2 []
+}
+</code></pre>
+
+<p>Each channel definition must be placed inside the curly braces and begin with the accepted item type (e.g. String). After this the channel ID follows with the configuration of a channel. The framework will merge the list of channels coming from the binding and the user defined list in the DSL.</p>
 
             </div>
         </div>

@@ -150,43 +150,170 @@
             </div>    
             <div class="content">  
 	            
-<h1 id="about-eclipse-smarthome">About Eclipse SmartHome</h1>
+<h1 id="how-to-contribute">How To Contribute</h1>
 
-<h2 id="background">Background</h2>
-<p>Since the emergence of broadband internet connections, smartphones and tablets the smart home market shows a remarkable upsurge. This has led to a very fragmented market, which makes it difficult for customers to “bet on the right horse”. In fact, there is not one system, protocol or standard that could possibly fulfill all potential requirements. There is hence a need for platforms that allow the integration of different systems, protocols or standards and that provide a uniform way of user interaction and higher level services.</p>
+<h2 id="getting-involved">Getting Involved</h2>
 
-<h2 id="how-does-eclipse-smarthome-help">How does Eclipse SmartHome help?</h2>
+<p>There are several ways of how to get in contact with the community in order to ask questions or discuss ideas:</p>
 
-<p>The goals of the Eclipse SmartHome project can be summarized as:</p>
+<h2 id="discussion-forum">Discussion Forum</h2>
+
+<p>The forum is used to discuss ideas and to answer general questions. It is organized per topic, so you can easily decide what is of interest for you.</p>
 
 <ul>
-  <li>Provide a flexible framework for smart home and ambient assisted living (AAL) solutions. This framework focuses on the use cases of this domain, e.g. on easy automation and visualization aspects.</li>
-  <li>Specify extension points for integration possibilities and higher-level services. Extending and thus customizing the solution must be as simple as possible and this requires concise and dedicated interfaces.</li>
-  <li>Provide implementations of extensions for relevant systems, protocols or standards. Many of them can be useful to many smart home solutions, so this project will provide a set of extensions that can be included if desired. They can also be in the shape of a general Java library or an OSGi bundle, so that these implementations can be used independently of the rest of the project as well.</li>
-  <li>Provide a development environment and tools to foster implementations of extensions. The right tooling can support the emergence of further extensions and thus stimulates future contributions to the project.</li>
-  <li>Create a packaging and demo setups. Although the focus is on the framework, it needs to be shown how to package a real solution from it, which can be used as a starting point and for demo purposes.<br />
-Description</li>
-  <li>The Eclipse SmartHome project is a framework that allows building smart home solutions that have a strong focus on heterogeneous environments, i.e. solutions that deal with the integration of different protocols or standards. Its purpose is to provide a uniform access to devices and information and to facilitate different kinds of interactions with them. This framework consists out of a set of OSGi bundles that can be deployed on an OSGi runtime and which defines OSGi services as extension points.</li>
+  <li><a href="http://eclipse.org/forums/eclipse.smarthome">Discussion Forum</a></li>
 </ul>
 
-<p>The stack is meant to be usable on any kind of system that can run an OSGi stack - be it a multi-core server, a residential gateway or a Raspberry Pi.</p>
+<h2 id="bugtracker">Bugtracker</h2>
 
-<p>The project focuses on services and APIs for the following topics:</p>
+<p>Like all Eclipse projects, we use Eclipse Bugzilla as an issue tracking system.</p>
+
+<ul>
+  <li><a href="https://bugs.eclipse.org/bugs/buglist.cgi?list_id=11615800&amp;product=SmartHome">Eclipse SmartHome Issues</a></li>
+</ul>
+
+<p>If you have found a bug or if you would like to propose a new feature, please feel free to enter an issue. But before creating a new bug, please first check if the bug not already exists.</p>
+
+<h3 id="issue-tracker-links">Issue Tracker Links</h3>
+
+<ul>
+  <li><a href="https://bugs.eclipse.org/bugs/enter_bug.cgi?product=SmartHome">Create a new Bug</a></li>
+  <li><a href="https://bugs.eclipse.org/bugs/buglist.cgi?list_id=11615800&amp;product=SmartHome">All Issues</a></li>
+  <li><a href="https://bugs.eclipse.org/bugs/buglist.cgi?bug_severity=blocker&amp;bug_severity=critical&amp;bug_severity=major&amp;bug_severity=normal&amp;bug_severity=minor&amp;bug_severity=trivial&amp;classification=IoT&amp;list_id=11613387&amp;product=SmartHome&amp;query_format=advanced&amp;resolution=---">Open Bugs</a></li>
+  <li><a href="https://bugs.eclipse.org/bugs/buglist.cgi?bug_severity=enhancement&amp;classification=IoT&amp;list_id=11613436&amp;product=SmartHome&amp;query_format=advanced&amp;resolution=---">Open Features</a></li>
+  <li><a href="https://bugs.eclipse.org/bugs/buglist.cgi?bug_status=UNCONFIRMED&amp;classification=IoT&amp;list_id=11615992&amp;product=SmartHome&amp;query_format=advanced">New/Unconfirmed Issues</a></li>
+</ul>
+
+<h3 id="issue-fields">Issue Fields</h3>
+
+<p>For each issue you need to provide the following fields:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Summary</td>
+      <td>Summary of the bug/feature</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Detailed description of the bug/feature</td>
+    </tr>
+    <tr>
+      <td>Component</td>
+      <td>Affected component</td>
+    </tr>
+    <tr>
+      <td>Version</td>
+      <td>For bugs choose affected version, for features use <strong>unspecified</strong></td>
+    </tr>
+    <tr>
+      <td>Severity</td>
+      <td>Use the severity <strong>enhancement</strong> for feature requests and any other severity for bugs</td>
+    </tr>
+    <tr>
+      <td>Hardware/OS</td>
+      <td>Usually not relevant. Should be set to All/All.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="bug-vs-feature">Bug vs. Feature</h3>
+
+<p>Yes, we know that it is a fundamental question, if something is considered as bug or feature. But you need to decide it when you create a bug. We consider something as a bug, if an already existing functionality is not working as expected.</p>
+
+<p>Please use the severity <strong>enhancement</strong> for feature requests and any other severity for bugs.</p>
+
+<h3 id="components">Components</h3>
+
+<p>When creating a new bug, please choose the affected component. The following components are defined:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Component</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Automation</td>
+      <td>Bugs and Features related to Automation and Rule Engine</td>
+    </tr>
+    <tr>
+      <td>Binding</td>
+      <td>Bugs and features related to Bindings</td>
+    </tr>
+    <tr>
+      <td>Core</td>
+      <td>Bugs and Features related to the Core (Item API, Thing API, Config API)</td>
+    </tr>
+    <tr>
+      <td>Designer</td>
+      <td>Bugs and Features related to the Designer</td>
+    </tr>
+    <tr>
+      <td>DSL</td>
+      <td>Bugs and Features related to the Domain Specific Languages (Items, Things, Sitemaps, Rules)</td>
+    </tr>
+    <tr>
+      <td>Infrastructure</td>
+      <td>Bugs and Features related to the Infrastructure (Build server, Maven, Tooling)</td>
+    </tr>
+    <tr>
+      <td>REST/SSE</td>
+      <td>Bugs and Features related to the REST interface and SSE event mechanism</td>
+    </tr>
+    <tr>
+      <td>UI</td>
+      <td>Bugs and Features related to the User Interface (Classic UI, Charting, Servlets)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h1 id="code-contributions">Code Contributions</h1>
+
+<p>If you want to become a contributor to the project, please check our guidelines first:</p>
+
+<h2 id="pull-requests-are-always-welcome">Pull requests are always welcome</h2>
+
+<p>We are always thrilled to receive pull requests, and do our best to process them as fast as possible. Not sure if that typo is worth a pull request? Do it! We will appreciate it.</p>
+
+<p>If your pull request is not accepted on the first try, don’t be discouraged! If there’s a problem with the implementation, hopefully you received feedback on what to improve.</p>
+
+<p>We’re trying very hard to keep Eclipse SmartHome lean and focused. We don’t want it to do everything for everybody. This means that we might decide against incorporating a new feature. However, there might be a way to implement that feature on top of Eclipse SmartHome.</p>
+
+<h2 id="discuss-your-design-in-the-discussion-forum">Discuss your design in the discussion forum</h2>
+
+<p>We recommend discussing your plans in the <a href="http://eclipse.org/forums/eclipse.smarthome">Discussion Forum</a> before starting to code - especially for more ambitious contributions. This gives other contributors a chance to point you in the right direction, give feedback on your design, and maybe point out if someone else is working on the same thing.</p>
+
+<h2 id="conventions-for-pull-requests">Conventions for pull requests</h2>
+
+<ul>
+  <li>Submit unit tests for your changes. Eclipse SmartHome has a great test framework built in; use it! Take a look at existing tests for inspiration. Run the full test suite on your branch before submitting a pull request.</li>
+  <li>Update the documentation when creating or modifying features. Test your documentation changes for clarity, concision, and correctness, as well as a clean documentation build.</li>
+  <li>Write clean code. Universally formatted code promotes ease of writing, reading, and maintenance. Check our <a href="guidelines.md">Coding Guidelines</a>.</li>
+  <li>Pull requests descriptions should be as clear as possible and include a reference to all the issues that they address.</li>
+  <li>Pull requests must not contain commits from other users or branches.</li>
+</ul>
+
+<p>The process to create a pull request is then the following:</p>
 
 <ol>
-  <li><em>Data Handling</em>: This includes a basic but extensible type system for smart home data and commands that provides a common ground for an abstracted data and device access as well as event mechanisms to send this information around. It is the most important topic for integrating with other systems, which is done through so called bindings, which are a special type of <a href="architecture/extensions.md">extension</a>.</li>
-  <li><em>Rule Engines</em>: A flexible rule engine that allows changing rules during runtime and which defines extension types that allow breaking down rules into smaller pieces like triggers, actions, logic modules and templates.</li>
-  <li><em>Declarative User Interfaces</em>: A framework with extensions for describing user interface content in a declarative way. This includes widgets, icons, charts etc.</li>
-  <li><em>Persistence Management</em>: Infrastructure that allows automatic data processing based on a simple and unified configuration. Persistence services are pluggable extensions, which can be anything from a log writer to an IoT cloud service.</li>
+  <li>Create an account at Eclipse if you do not have one yet.</li>
+  <li>Sign the Contributor License Agreement (CLA).</li>
+  <li>Fork the sources of Eclipse SmartHome on GitHub.</li>
+  <li>Do the coding!</li>
+  <li>Make sure your code applies to the <a href="guidelines.md">Coding Guidelines</a></li>
+  <li>Make sure there is a <a href="https://bugs.eclipse.org/bugs/buglist.cgi?list_id=11615800&amp;product=SmartHome">Bugzilla issue</a> for your contribution. If it does not exist yet, <a href="https://bugs.eclipse.org/bugs/enter_bug.cgi?product=SmartHome">create one</a>.</li>
+  <li>Add a “Signed-off-by” line and a <a href="https://bugs.eclipse.org/bugs/buglist.cgi?list_id=11615800&amp;product=SmartHome">“Bug”</a> line to every commit you do - see the <a href="https://wiki.eclipse.org/Development_Resources/Contributing_via_Git">Eclipse wiki</a> for details.</li>
+  <li>Create a pull request, referencing the Bugzilla issue number</li>
 </ol>
-
-<p>Besides the runtime framework and implementation, the Eclipse SmartHome projects also provides different kinds of tools and samples:</p>
-
-<ul>
-  <li>Eclipse editors for editing configuration models and rules. These provide full IDE support, such as content assist and syntax validation.</li>
-  <li>Maven archetypes to easily create skeletons for extensions</li>
-  <li>Demo packaging with other Eclipse IoT projects</li>
-</ul>
 
             </div>
         </div>

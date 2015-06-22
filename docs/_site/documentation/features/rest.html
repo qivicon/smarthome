@@ -150,43 +150,86 @@
             </div>    
             <div class="content">  
 	            
-<h1 id="about-eclipse-smarthome">About Eclipse SmartHome</h1>
+<h1 id="rest-api">REST API</h1>
 
-<h2 id="background">Background</h2>
-<p>Since the emergence of broadband internet connections, smartphones and tablets the smart home market shows a remarkable upsurge. This has led to a very fragmented market, which makes it difficult for customers to “bet on the right horse”. In fact, there is not one system, protocol or standard that could possibly fulfill all potential requirements. There is hence a need for platforms that allow the integration of different systems, protocols or standards and that provide a uniform way of user interaction and higher level services.</p>
+<h2 id="introduction">Introduction</h2>
 
-<h2 id="how-does-eclipse-smarthome-help">How does Eclipse SmartHome help?</h2>
+<p>The REST API of Eclipse SmartHome serves different purposes. It can be used to integrate with other system as it allows read access to items and item states as well as status updates or the sending of commands for items. Furthermore, it gives access to things, links, sitemaps, etc., so that it is the main interface to be used by remote UIs (e.g. fat clients or HTML5 web applications).</p>
 
-<p>The goals of the Eclipse SmartHome project can be summarized as:</p>
+<p>The REST API is complemented by support for server sent events (SSE), so you can subscribe  on change notification for certain resources.</p>
 
-<ul>
-  <li>Provide a flexible framework for smart home and ambient assisted living (AAL) solutions. This framework focuses on the use cases of this domain, e.g. on easy automation and visualization aspects.</li>
-  <li>Specify extension points for integration possibilities and higher-level services. Extending and thus customizing the solution must be as simple as possible and this requires concise and dedicated interfaces.</li>
-  <li>Provide implementations of extensions for relevant systems, protocols or standards. Many of them can be useful to many smart home solutions, so this project will provide a set of extensions that can be included if desired. They can also be in the shape of a general Java library or an OSGi bundle, so that these implementations can be used independently of the rest of the project as well.</li>
-  <li>Provide a development environment and tools to foster implementations of extensions. The right tooling can support the emergence of further extensions and thus stimulates future contributions to the project.</li>
-  <li>Create a packaging and demo setups. Although the focus is on the framework, it needs to be shown how to package a real solution from it, which can be used as a starting point and for demo purposes.<br />
-Description</li>
-  <li>The Eclipse SmartHome project is a framework that allows building smart home solutions that have a strong focus on heterogeneous environments, i.e. solutions that deal with the integration of different protocols or standards. Its purpose is to provide a uniform access to devices and information and to facilitate different kinds of interactions with them. This framework consists out of a set of OSGi bundles that can be deployed on an OSGi runtime and which defines OSGi services as extension points.</li>
-</ul>
+<h2 id="configuration-options">Configuration Options</h2>
 
-<p>The stack is meant to be usable on any kind of system that can run an OSGi stack - be it a multi-core server, a residential gateway or a Raspberry Pi.</p>
+<p>By default, the REST API is registered on the HTTP service under <code>rest</code>. This configuration can be changed through configuring the property <code>root</code> of the service pid <code>com.eclipsesource.jaxrs.connector</code> through the Configuration Admin service.</p>
 
-<p>The project focuses on services and APIs for the following topics:</p>
+<h2 id="rest-endpoints">REST Endpoints</h2>
 
-<ol>
-  <li><em>Data Handling</em>: This includes a basic but extensible type system for smart home data and commands that provides a common ground for an abstracted data and device access as well as event mechanisms to send this information around. It is the most important topic for integrating with other systems, which is done through so called bindings, which are a special type of <a href="architecture/extensions.md">extension</a>.</li>
-  <li><em>Rule Engines</em>: A flexible rule engine that allows changing rules during runtime and which defines extension types that allow breaking down rules into smaller pieces like triggers, actions, logic modules and templates.</li>
-  <li><em>Declarative User Interfaces</em>: A framework with extensions for describing user interface content in a declarative way. This includes widgets, icons, charts etc.</li>
-  <li><em>Persistence Management</em>: Infrastructure that allows automatic data processing based on a simple and unified configuration. Persistence services are pluggable extensions, which can be anything from a log writer to an IoT cloud service.</li>
-</ol>
+<p>The documentation of available REST endpoints will follow soon, stay tuned.</p>
 
-<p>Besides the runtime framework and implementation, the Eclipse SmartHome projects also provides different kinds of tools and samples:</p>
+<h2 id="server-sent-events-sse">Server Sent Events (SSE)</h2>
+
+<p>In order for developers to receive notice of important events in Eclipse SmartHome they are exposed using the Server Sent Events(SSE) standard.<br />
+To subscribe to events a developer can listen to <strong>/services/events</strong> (or <strong>/rest/events</strong> by default. The base context path can be changed using OSGi configuration admin for the service.pid com.eclipsesource.jaxrs.connector and the property root).<br />
+In general any SSE Consumer API can be used (for example <a href="https://jersey.java.net/documentation/latest/sse.html#d0e10392">Jersey’s</a> or HTML5 EventSource Object) to read from the event stream.</p>
+
+<h3 id="events">Events</h3>
+<p>Currently the following events are available:</p>
 
 <ul>
-  <li>Eclipse editors for editing configuration models and rules. These provide full IDE support, such as content assist and syntax validation.</li>
-  <li>Maven archetypes to easily create skeletons for extensions</li>
-  <li>Demo packaging with other Eclipse IoT projects</li>
+  <li>smarthome/items/added - an item was added to the item registry;</li>
+  <li>smarthome/items/removed - an item was removed from the item registry;</li>
+  <li>smarthome/items/updated - an item was updated in the item registry;</li>
+  <li>smarthome/things/added - a thing was added to the thing registry;</li>
+  <li>smarthome/things/removed - a thing was removed from the thing registry;</li>
+  <li>smarthome/things/updated - a thing was updated in the thing registry;</li>
+  <li>smarthome/inbox/added - a discovery result was added to the inbox;</li>
+  <li>smarthome/inbox/removed - a discovery result was removed from the inbox;</li>
+  <li>smarthome/inbox/updated - a discovery result was updated in the inbox;</li>
+  <li>smarthome/update - an item update event was sent;</li>
+  <li>smarthome/command - an item command event was sent.</li>
 </ul>
+
+<p>All events are represented as JSON objects on the stream with the following format:<br />
+<code>json
+	{
+		"eventType": "smarthome/inbox/added/12811438",
+		"eventObject": [{
+			"flag": "NEW",
+			"label": "Yahoo weather Sevlievo, Bulgaria",
+			"properties": {
+				"location": "12811438"
+			},
+			"thingUID": "yahooweather:weather:12811438"
+		}]
+	}
+</code></p>
+
+<p>where <br />
+- eventType - contains both the event and an identifier of the object the event is about(if any).<br />
+- eventObject - array of objects that are relevant to the event. For example the <em>smarthome/items/added</em> event will include the new item that was added and the <em>smarthome/items/updated</em> event will include both old and new items.</p>
+
+<h3 id="filtering">Filtering</h3>
+
+<p>By default when listening to <strong>/services/events</strong> a developer will receive all events that are currently broadcasted. In order to listen for specific events the <strong>topics</strong> query parameter can be used.</p>
+
+<p>For example while listening to <strong>/services/events?topics=smarthome/items/added</strong> a developer would receive notifications only about items that were added to the item registry.</p>
+
+<p>The <strong>topics</strong> query parameter allows for multiple filters to be specified using a comma(,) for a separator - <strong>?topics=smarthome/items/added, smarthome/things/added</strong>.</p>
+
+<p>In addition to that every filter may contain a wildcard character(*) replacing one(or all) of the filter components - **?topics=smarthome/items/*, smarthome/things/* **</p>
+
+<h3 id="example">Example</h3>
+
+<p>An example of listing events using the HTML5 EventSource object is provided below:</p>
+
+<pre><code class="language-js">	eventSrc = new EventSource("/services/events?topics=smarthome/*/added,smarthome/inbox/removed");	
+
+	eventSrc.addEventListener('message', function (event) {
+		console.log(event.type);
+		console.log(event.data);		
+	});
+</code></pre>
+
 
             </div>
         </div>

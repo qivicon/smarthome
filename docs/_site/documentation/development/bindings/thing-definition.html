@@ -1,0 +1,452 @@
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+ 
+
+
+<link rel="shortcut icon" href="//www.eclipse.org/smarthome/img/favicon.png"></link>
+<title>Eclipse SmartHome - A Flexible Framework for the Smart
+	Home</title>
+ 
+<!-- CSS -->
+<link href="http://www.eclipse.org/smarthome/css/materialize.css" type="text/css" rel="stylesheet"
+	media="screen,projection" />
+<link href="http://www.eclipse.org/smarthome/css/highlight.github.css" type="text/css" rel="stylesheet"
+    	media="screen,projection" />
+<link href="../../../css/styles.css" rel="stylesheet" />
+
+<!-- Font -->
+<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700'
+	rel='stylesheet' type='text/css' />
+    
+</head>
+<body class="documentation">
+	<div id="header" class="navbar-fixed">
+		<nav role="navigation">
+			<div class="container">
+				<div class="nav-wrapper">
+					<a href="../../../index.html"><img id="logo" src="//www.eclipse.org/smarthome/img/eclipse_logo.png" /></a>
+					<a href="#" data-activates="nav-mobile" class="button-collapse"><i
+						class="mdi-navigation-menu"></i></a>
+					<ul class="right hide-on-med-and-down">
+						<li><a href="../../../getting-started.html">Getting Started</a></li>
+						<li><a href="../../../documentation/index.html">Documentation</a></li>
+						<li><a href="http://github.com/eclipse/smarthome">GitHub</a></li>
+					</ul>
+					<ul id="nav-mobile" class="side-nav">
+                        <li><a href="../../../index.html">Home</a></li>
+						<li><a href="../../../getting-started.html">Getting Started</a></li>
+						<li><a href="../../../documentation/index.html">Documentation</a></li>
+						<li><a href="http://github.com/eclipse/smarthome">GitHub</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</div>
+    
+    <section id="documentation" class="text content-wrapper">
+        <div class="container">
+            <div class="side-nav-wrapper">
+                
+
+
+
+
+<ul class="nav">
+    <li>
+        <a href="../../../documentation/concepts/index.html">Concepts</a>
+        <ul>
+		    <li>
+        		<a href="../../../documentation/concepts/index.html">Overview</a>
+		    </li>
+            <li>
+                 <a href="../../../documentation/concepts/items.html">Items</a>
+            </li>
+            <li>
+                 <a href="../../../documentation/concepts/things.html">Things</a>
+            </li>
+            <li>
+                 <a href="../../../documentation/concepts/discovery.html">Inbox & Discovery</a>
+            </li>
+            <li>
+                 <a href="../../../documentation/concepts/events.html">Events</a>
+            </li>
+		</ul>
+	</li>
+    <li>
+        <a href="../../../documentation/features/index.html">Features</a>
+        <ul>
+            <li>
+                 <a href="../../../documentation/features/index.html">Overview</a>
+            </li>
+            <li>
+                 <a href="../../../documentation/features/rest.html">REST API</a>
+            </li>
+            <li>
+                 <a href="../../../documentation/features/dsl.html">Textual Configuration</a>
+            </li>
+            <li>
+                 <a href="../../../documentation/features/internationalization.html">Internationalization</a>
+            </li>
+			<!-- TBD: This could be a sub-menu "extensions", linking to the generated documentation from the /extensions folder
+            <li>
+                 <a href="../../../documentation/features/extensions/bindings.html">Bindings</a>
+            </li>
+            <li>
+                 <a href="../../../documentation/features/extensions/uis.html">User Interfaces</a>
+            </li>-->
+    	</ul>
+    </li>
+	<li>
+        <a href="../../../documentation/development/bindings/how-to.html">Development</a>
+        <ul>
+        	<!-- TODO: Once we have 3 menu levels, this could be moved to a "Bindings" sub-menu -->
+        	<li>
+                 <a href="../../../documentation/development/bindings/how-to.html">Binding Tutorial</a>
+            </li>
+            <li>
+                 <a href="../../../documentation/development/bindings/thing-definition.html">Thing Definition</a>
+            </li>
+            <li>
+                 <a href="../../../documentation/development/bindings/thing-handler.html">Thing Handler</a>
+            </li>
+            <li>
+                 <a href="../../../documentation/development/bindings/xml-reference.html">XML Reference Guide</a>
+            </li>
+			<li>
+                 <a href="../../../documentation/development/bindings/dependencies.html">Dependencies</a>
+            </li>
+			<li>
+                 <a href="../../../documentation/development/bindings/testing.html">Testing</a>
+            </li>
+            <li>
+                 <a href="../../../documentation/development/bindings/docs.html">Documentation</a>
+            </li>
+            <li>
+                 <a href="../../../documentation/development/bindings/faq.html">FAQ</a>
+            </li>
+        </ul>    
+    </li>
+    <li>
+        <a href="../../../documentation/community/guidelines.html">Community</a>
+        <ul>
+            <li>
+                 <a href="../../../documentation/community/guidelines.html">Guidelines</a>
+            </li>
+            <li>
+                 <a href="../../../documentation/community/ide.html">IDE</a>
+            </li>
+            <li>
+                 <a href="../../../documentation/community/contributing.html">Contributing</a>
+            </li>
+        </ul>    
+    </li>
+</ul>
+            </div>    
+            <div class="content">  
+	            
+<h1 id="thing-type-definitions">Thing Type Definitions</h1>
+
+<p>In order to work with things, some meta information about them is needed. This is provided through ‘ThingType’ definitions, which describe details about their functionality and configuration options.</p>
+
+<p>Technically, the thing types are provided by <a href="https://github.com/eclipse/smarthome/blob/master/bundles/core/org.eclipse.smarthome.core.thing/src/main/java/org/eclipse/smarthome/core/thing/binding/ThingTypeProvider.java">ThingTypeProvider</a>s. Eclipse SmartHome comes with an implementation of such a provider that reads XML files from the folder <code>ESH-INF/thing</code> of bundles. Although we refer to this XML syntax in the following, you also have the option to provide directly object model instances through your own provider implementation.</p>
+
+<h2 id="things">Things</h2>
+
+<p>Things represent devices or services that can be individually added to, configured or removed from the system. They either contain a set of channels or a set of channel groups. A bridge is a specific type of thing as it can additionally provide access to other Things as well. Which Things can be associated through which bridge type is defined within the description of a thing:</p>
+
+<pre><code class="language-xml">    &lt;thing-type id="thingTypeID"&gt;
+        &lt;supported-bridge-type-refs&gt;
+            &lt;bridge-type-ref id="bridgeTypeID" /&gt;
+        &lt;/supported-bridge-type-refs&gt;
+		...
+    &lt;/thing-type&gt;
+</code></pre>
+
+<h2 id="channels">Channels</h2>
+
+<p>A channel describes a specific functionality of a thing and can be linked to an item. So the basic information is, which command types the channel can handle and which state it sends to the linked item. This can be specified by the accepted item type. Inside the thing type description XML file a list of channels can be referenced. The channel type definition is specified on the same level as the thing type definition. That way channels can be reused in different things.</p>
+
+<p>The following XML snippet shows a thing type definition with 2 channels and one referenced channel types:</p>
+
+<pre><code class="language-xml">&lt;thing-type id="thingTypeID"&gt;
+    &lt;label&gt;Sample Thing&lt;/label&gt;
+    &lt;description&gt;Some sample description&lt;/description&gt;
+    &lt;channels&gt;
+      &lt;channel id="switch" typeId="switch" /&gt;
+      &lt;channel id="targetTemperature" typeId="temperatureActuator" /&gt;
+    &lt;/channels&gt;
+&lt;/thing-type&gt;
+&lt;channel-type id="temperatureActuator" advanced="true"&gt;
+    &lt;item-type&gt;Number&lt;/item-type&gt;
+    &lt;label&gt;Temperature&lt;/label&gt;
+    &lt;category&gt;Temperature&lt;/category&gt;
+    &lt;tags&gt;
+      &lt;tag&gt;weather&lt;/tag&gt;
+    &lt;/tags&gt;
+    &lt;state min="12" max="30" step="0.5" pattern="%d °C" readOnly="false"&gt;
+    &lt;/state&gt;
+&lt;/channel-type&gt;
+</code></pre>
+
+<p>In order to reuse identical channels in different bindings a channeltype can be systemwide. A channel-type can be declared as systemwide by setting its <code>system</code> property to true and can then be referenced using a <code>system.</code> prefix in a <code>channel</code> <code>typeId</code> attribute in any binding.</p>
+
+<p>The following XML snippet shows a system channel-type definition and thing-type definition that references it:</p>
+
+<pre><code class="language-xml">&lt;thing-type id="thingTypeID"&gt;
+    &lt;label&gt;Sample Thing&lt;/label&gt;
+    &lt;description&gt;Some sample description&lt;/description&gt;
+    &lt;channels&gt;
+      &lt;channel id="s" typeId="system.system-channel" /&gt;
+    &lt;/channels&gt;
+&lt;/thing-type&gt;
+&lt;channel-type id="system-channel" system="true"&gt;
+    &lt;item-type&gt;Number&lt;/item-type&gt;
+    &lt;label&gt;System Channel&lt;/label&gt;
+    &lt;category&gt;QualityOfService&lt;/category&gt;
+&lt;/channel-type&gt;
+</code></pre>
+
+<p>There exist systemwide channels that are available by default:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Channel Type ID</th>
+      <th>Reference typeId</th>
+      <th>Item Type</th>
+      <th>Category</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>signal-strength</td>
+      <td>system.signal-strength</td>
+      <td>Number</td>
+      <td>QualityOfService</td>
+      <td>Represents signal strength of a device as a Number with values 0, 1, 2, 3 or 4; 0 being worst strength and 4 being best strength.</td>
+    </tr>
+    <tr>
+      <td>low-battery</td>
+      <td>system.low-battery</td>
+      <td>Switch</td>
+      <td>Battery</td>
+      <td>Represents a low battery warning with possible values on/off</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The <code>advanced</code> property indicates whether this channel is a basic or a more specific functionality of the thing. If <code>advanced</code> is set to <code>true</code> a user interface may hide this channel by default. The default value is <code>false</code> and thus will be taken if the <code>advanced</code> attribute is not specified. Especially for complex devices with a lot of channels, only a small set of channels - the most important ones - should be shown to the user to reduce complexity. Whether a channel should be declared as <code>advanced</code> depends on the device and can be decided by the binding developer. If a functionality is rarely used it should be better marked as <code>advanced</code>.</p>
+
+<p>In the following sections the declaration and semantics of tags, state descriptions and channel categories will be explained in more detail. For a complete sample of the thing types XML file and a full list of possible configuration options please see the <a href="configuration.md">XML Configuration Guide</a>.</p>
+
+<h3 id="default-tags">Default Tags</h3>
+
+<p>The XML definition of a ThingType allows to assign default tags to channels. All items bound to this channel will automatically be tagged with these default tags. The following snippet shows an weather tag definition:</p>
+
+<pre><code class="language-xml">&lt;tags&gt;
+    &lt;tag&gt;weather&lt;/tag&gt;
+&lt;/tags&gt;
+</code></pre>
+
+<h3 id="state-description">State Description</h3>
+
+<p>The state description allows to specify restrictions and additional information for the state of an item, that is linked to the channel. Some configuration options are only valid for specific item types. The following XML snippet shows the definition for a temperature actuator channel:</p>
+
+<pre><code class="language-xml">&lt;state min="12" max="30" step="0.5" pattern="%d °C" readOnly="false"&gt;&lt;/state&gt;
+</code></pre>
+
+<p>The attributes <code>min</code> and <code>max</code> can only be declared for channel with the item type <code>Number</code>. It defines the range of the numeric value. The Java data type is a BigDecimal. For example user interfaces can create sliders with an appropriate scale based on this information. The <code>step</code> attribute can be declared for <code>Number</code> and <code>Dimmer</code> items and defines what is the minimal step size that can be used. The <code>readonly</code> attribute can be used for all item types and defines if the state of an item can be changed. For all sensors the <code>readonly</code> attribute should be set to <code>true</code>. The <code>pattern</code> attribute can be used for <code>Number</code> and  <code>String</code> items. It gives user interface a hint how to render the item. The format of the pattern must be compliant to the <a href="http://docs.oracle.com/javase/tutorial/java/data/numberformat.html">Java Number Format</a>. The pattern can be localized (see also <a href="internationalization.md">Internationalization</a>)</p>
+
+<p>Some channels might have only a limited and countable set of states. These states can be specified as options. A <code>String</code> item must be used as item type. The following XML snippet defines a list of predefined state options:</p>
+
+<pre><code class="language-xml">&lt;state readOnly="true"&gt;
+    &lt;options&gt;
+        &lt;option value="HIGH"&gt;High Pressure&lt;/option&gt;
+        &lt;option value="MEDIUM"&gt;Medium Pressure&lt;/option&gt;
+        &lt;option value="LOW"&gt;Low Pressure&lt;/option&gt;
+    &lt;/options&gt;
+&lt;/state&gt;
+</code></pre>
+
+<p>The user interface can use these values to render labels for values or to provide a selection of states, when the channel is writable. The option labels can also be localized.</p>
+
+<h3 id="channel-categories">Channel Categories</h3>
+
+<p>The channel type definition allows to specify a category. Together with the definition of the <code>readOnly</code> attribute in the state description, user interfaces get an idea how to render an item for this channel. A binding should classify each channel into one of the existing categories. This is a list of all predefined categories with their usual accessible mode and the according item type:</p>
+
+<p>| Category      | Accessible Mode | Item Type              |<br />
+|—————|—————–|————————|<br />
+| Alarm         | R, RW           | Switch                 |<br />
+| Battery       | R               | Switch, Number         |<br />
+| Blinds        | RW              | Rollershutter          |<br />
+| ColorLight    | RW              | Color                  |<br />
+| Contact       | R               | Contact                |<br />
+| DimmableLight | RW              | Dimmer                 |<br />
+| CarbonDioxide | R               | Switch, Number         |<br />
+| Door          | R, RW           | Switch                 |<br />
+| Energy        | R               | Number                 |<br />
+| Fan           | RW              | Switch, Number, String |<br />
+| Fire          | R               | Switch                 |<br />
+| Flow          | R               | Number                 |<br />
+| GarageDoor    | RW              | String                 |<br />
+| Gas           | R               | Switch, Number         |<br />
+| Humidity      | R               | Number                 |<br />
+| Light         | R, RW           | Switch, Number         |<br />
+| Motion        | R               | Switch                 |<br />
+| MoveControl   | RW              | String                 |<br />
+| Player        | RW              | Player                 |<br />
+| PowerOutlet   | RW              | Switch                 |<br />
+| Pressure      | R               | Number                 |<br />
+| QualityOfService      | R       | Number                 |<br />
+| Rain          | R               | Switch, Number         |<br />
+| Recorder      | RW              | String                 |<br />
+| Smoke         | R               | Switch                 |<br />
+| SoundVolume   | R, RW           | Number                 |<br />
+| Switch        | RW              | Switch                 |<br />
+| Temperature   | R, RW           | Number                 |<br />
+| Water         | R               | Switch, Number         |<br />
+| Wind          | R               | Number                 |<br />
+| Window        | R, RW           | String, Switch         |<br />
+| Zoom          | RW              | String                 |<br />
+R=Read, RW=Read/Write</p>
+
+<p>The accessible mode indicates whether a category could have <code>read only</code> flag configured to true or not. For example the <code>Motion</code> category can be used for sensors only, so <code>read only</code> can not be false. Temperature can be either measured or adjusted, so the accessible mode is R and RW, which means the read only flag can be <code>true</code> or <code>false</code>. In addition categories are related to specific item types. For example the ‘Energy’ category can only be used for <code>Number</code> items. But <code>Rain</code> could be either expressed as Switch item, where it only indicates if it rains or not, or as <code>Number</code>, which gives information about the rain intensity.</p>
+
+<p>The list of categories may not be complete and not every device will fit into one of these categories. It is possible to define own categories. If the category is widely used, the list of predefined categories can be extended. Moreover not all user interfaces will support all categories. It is more important to specify the <code>read only</code> information and state information, so that default controls can be rendered, even if the category is not supported.</p>
+
+<h3 id="channel-groups">Channel Groups</h3>
+
+<p>Some devices might have a lot of channels. There are also complex devices like a multi-channel actuator, which is installed inside the switchboard, but controls switches in other rooms. Therefore channel groups can be used to group a set of channels together into one logical block. A thing can only have direct channels or channel groups, but not both.</p>
+
+<p>Inside the thing types XML file channel groups can be defined like this:</p>
+
+<pre><code class="language-xml">&lt;thing-type id="multiChannelSwitchActor"&gt;
+    &lt;!-- ... --&gt;
+    &lt;channel-groups&gt;
+        &lt;channel-group id="switchActor1" typeId="switchActor" /&gt;
+        &lt;channel-group id="switchActor2" typeId="switchActor" /&gt;
+    &lt;/channel-groups&gt;
+    &lt;!-- ... --&gt;
+&lt;/thing-type&gt;    
+</code></pre>
+
+<p>The channel group type is defined on the same level as the thing types and channel types. The group type must have a label and an optional description. More over the list of contained channels must be specified:</p>
+
+<pre><code class="language-xml">&lt;channel-group-type id="switchActor"&gt;
+    &lt;label&gt;Switch Actor&lt;/label&gt;
+    &lt;description&gt;This is a single switch actor with a switch channel&lt;/description&gt;
+    &lt;channels&gt;
+        &lt;channel id="switch" typeId="switch" /&gt;
+    &lt;/channels&gt;
+&lt;/channel-group-type&gt; 
+</code></pre>
+
+<p>When a thing will be created for a thing type with channel groups, the channel UID will contain the group ID in the last segment divided by a hash (#). If an Item should be linked to channel within a group, the channel UID would be <code>binding:multiChannelSwitchActor:myDevice:switchActor1#switch</code> for the XML example before.</p>
+
+<h2 id="properties">Properties</h2>
+<p>Solutions based on Eclipse SmartHome might require meta data from a device. These meta data could include</p>
+
+<ul>
+  <li>general device information, e.g. the device vendor, the device series or the model ID, …</li>
+  <li>device characteristics, e.g. if it is battery based, which home automation protocol is used, what is the current firmware version or the serial number, …</li>
+  <li>physical descriptions, e.g. what is the size, the weight or the color of the device, …</li>
+  <li>any other meta data that should be made available for the solution by the binding</li>
+</ul>
+
+<p>Depending on the solution the provided meta data can be used for different purposes. Among others the one solution could use the data during a device pairing process whereas another solution might use the data to group the devices/things by the vendors or by the home automation protocols on an user interface. To define such thing meta data the thing type definition provides the possibility to specify so-called <code>properties</code>:</p>
+
+<pre><code class="language-xml">    &lt;thing-type id="thingTypeId"&gt;
+        ...
+        &lt;properties&gt;
+             &lt;property name="vendor"&gt;MyThingVendor&lt;/property&gt;
+             &lt;property name="modelId"&gt;thingTypeId&lt;/property&gt;
+             &lt;property name="protocol"&gt;ZigBee&lt;/property&gt;
+             ...
+        &lt;/properties&gt;
+		...
+    &lt;/thing-type&gt;
+</code></pre>
+
+<p>In general each <code>property</code> must have a name attribute which should be written in camel case syntax. The actual property value is defined as plain text and is placed as child node of the property element. It is recommended that at least the vendor and the model id properties are specified here since they should be definable for the most of the devices. In contrast to the properties defined in the ‘ThingType’ definitions the thing handler <a href="../architecture/thing-handler.md">documentation</a> explains how properties can be set during runtime.</p>
+
+            </div>
+        </div>
+    </section>
+    
+	    
+
+
+	     
+    <footer class="page-footer">
+		<div class="container">
+			<div class="row">
+				<div class="col l6 s12">
+					<p class="white-text">Eclipse SmartHome is an <a href="http://iot.eclipse.org">Eclipse IoT</a>
+						project</p>
+					<p>
+						<a href="http://iot.eclipse.org"><img src="//www.eclipse.org/smarthome/img/iot-logo.png"></a>
+					</p>
+				</div>
+				<div class="col l6 s12" data-twttr-id="twttr-sandbox-0">
+					<p class="white-text">Connect with Eclipse SmartHome</p>
+					<iframe
+						src="https://ghbtns.com/github-btn.html?user=eclipse&repo=smarthome&type=star&count=true&size=large"
+						frameborder="0" scrolling="0" width="160px" height="30px"></iframe>
+					<br /> <a class="twitter-follow-button" data-size="large"
+						href="https://twitter.com/smarthome"> Follow @smarthome</a><br />
+				</div>
+			</div>
+		</div>
+		<div class="footer-copyright">
+			<div class="container center">
+				<a href="https://www.eclipse.org/legal/copyright.php">Copyright
+					Agent</a> · <a href="https://www.eclipse.org/legal/privacy.php">Privacy</a>
+				· <a href="https://www.eclipse.org/legal/termsofuse.php">Terms</a> ·
+				<a href="https://www.eclipse.org/legal/">Legal</a>
+
+			</div>
+		</div>
+	</footer>
+    
+	<script src="//www.eclipse.org/smarthome/js/jquery.min.js"></script>
+	<script src="//www.eclipse.org/smarthome/js/jquery.scrollme.min.js"></script>
+    <script src="//www.eclipse.org/smarthome/js/jquery.sticky.js"></script>
+	<script src="//www.eclipse.org/smarthome/js/materialize.js"></script>
+    <script src="//www.eclipse.org/smarthome/js/highlight.pack.js"></script>
+	<script src="../../../js/init.js"></script>
+	<script>
+        window.twttr = (function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0], t = window.twttr || {};
+            if (d.getElementById(id))
+                return t;
+            js = d.createElement(s);
+            js.id = id;
+            js.src = "https://platform.twitter.com/widgets.js";
+            fjs.parentNode.insertBefore(js, fjs);
+
+            t._e = [];
+            t.ready = function(f) {
+                t._e.push(f);
+            };
+
+            return t;
+        }(document, "script", "twitter-wjs"));
+    </script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55850963-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

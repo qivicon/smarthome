@@ -149,44 +149,32 @@
 </ul>
             </div>    
             <div class="content">  
-	            
-<h1 id="about-eclipse-smarthome">About Eclipse SmartHome</h1>
+	            <h1 id="overview">Overview</h1>
 
-<h2 id="background">Background</h2>
-<p>Since the emergence of broadband internet connections, smartphones and tablets the smart home market shows a remarkable upsurge. This has led to a very fragmented market, which makes it difficult for customers to “bet on the right horse”. In fact, there is not one system, protocol or standard that could possibly fulfill all potential requirements. There is hence a need for platforms that allow the integration of different systems, protocols or standards and that provide a uniform way of user interaction and higher level services.</p>
+<p>Eclipse SmartHome is a framework for building smart home solutions. As such, it consists of a rich set of OSGi bundles that serve different purposes. Not all solutions that build on top of Eclipse SmartHome will require all of those bundles - instead they can choose what parts are interesting for them.</p>
 
-<h2 id="how-does-eclipse-smarthome-help">How does Eclipse SmartHome help?</h2>
-
-<p>The goals of the Eclipse SmartHome project can be summarized as:</p>
+<p>There are the following categories of bundles:</p>
 
 <ul>
-  <li>Provide a flexible framework for smart home and ambient assisted living (AAL) solutions. This framework focuses on the use cases of this domain, e.g. on easy automation and visualization aspects.</li>
-  <li>Specify extension points for integration possibilities and higher-level services. Extending and thus customizing the solution must be as simple as possible and this requires concise and dedicated interfaces.</li>
-  <li>Provide implementations of extensions for relevant systems, protocols or standards. Many of them can be useful to many smart home solutions, so this project will provide a set of extensions that can be included if desired. They can also be in the shape of a general Java library or an OSGi bundle, so that these implementations can be used independently of the rest of the project as well.</li>
-  <li>Provide a development environment and tools to foster implementations of extensions. The right tooling can support the emergence of further extensions and thus stimulates future contributions to the project.</li>
-  <li>Create a packaging and demo setups. Although the focus is on the framework, it needs to be shown how to package a real solution from it, which can be used as a starting point and for demo purposes.<br />
-Description</li>
-  <li>The Eclipse SmartHome project is a framework that allows building smart home solutions that have a strong focus on heterogeneous environments, i.e. solutions that deal with the integration of different protocols or standards. Its purpose is to provide a uniform access to devices and information and to facilitate different kinds of interactions with them. This framework consists out of a set of OSGi bundles that can be deployed on an OSGi runtime and which defines OSGi services as extension points.</li>
+  <li><code>config</code>: everything that is concerned with general configuration of the system like config files, xml parsing, discovery, etc.</li>
+  <li><code>core</code>: the main bundles for the logical operation of the system - based on the abstract item and event concepts.</li>
+  <li><code>io</code>: all kinds of optional functionality that have to do with i/o like console commands, audio support or http/rest communication</li>
+  <li><code>model</code>: support for domain specific languages (DSLs)</li>
+  <li><code>designer</code>: Eclipse RCP support for DSLs and other configuration files</li>
+  <li><code>ui</code>: user interface related bundles that provide services that can be used by different UIs, such as charting or icons</li>
 </ul>
 
-<p>The stack is meant to be usable on any kind of system that can run an OSGi stack - be it a multi-core server, a residential gateway or a Raspberry Pi.</p>
+<h1 id="extensions">Extensions</h1>
 
-<p>The project focuses on services and APIs for the following topics:</p>
+<p>Being a framework, Eclipse SmartHome defines many extension types that allows building modular solutions with pluggable components (extensions).</p>
 
-<ol>
-  <li><em>Data Handling</em>: This includes a basic but extensible type system for smart home data and commands that provides a common ground for an abstracted data and device access as well as event mechanisms to send this information around. It is the most important topic for integrating with other systems, which is done through so called bindings, which are a special type of <a href="architecture/extensions.md">extension</a>.</li>
-  <li><em>Rule Engines</em>: A flexible rule engine that allows changing rules during runtime and which defines extension types that allow breaking down rules into smaller pieces like triggers, actions, logic modules and templates.</li>
-  <li><em>Declarative User Interfaces</em>: A framework with extensions for describing user interface content in a declarative way. This includes widgets, icons, charts etc.</li>
-  <li><em>Persistence Management</em>: Infrastructure that allows automatic data processing based on a simple and unified configuration. Persistence services are pluggable extensions, which can be anything from a log writer to an IoT cloud service.</li>
-</ol>
+<p>The list of extension types will grow over time and you are invited to discuss useful extension types in <a href="http://eclipse.org/forums/eclipse.smarthome">our forum</a>.</p>
 
-<p>Besides the runtime framework and implementation, the Eclipse SmartHome projects also provides different kinds of tools and samples:</p>
+<h2 id="bindings">Bindings</h2>
 
-<ul>
-  <li>Eclipse editors for editing configuration models and rules. These provide full IDE support, such as content assist and syntax validation.</li>
-  <li>Maven archetypes to easily create skeletons for extensions</li>
-  <li>Demo packaging with other Eclipse IoT projects</li>
-</ul>
+<p>A binding is an extension to the Eclipse SmartHome runtime that integrates an external system like a service, a protocol or a single device. Therefore the main purpose of a binding is to translate events from the Eclipse SmartHome event bus to the external system and vice versa. Learn about the internals of a binding in our <a href="../howtos/bindings.md">binding tutorial</a>.</p>
+
+<p>Bindings can optionally include <a href="concepts/discovery.md">discovery services</a>, which allow the system to automatically find accessible devices and services.</p>
 
             </div>
         </div>

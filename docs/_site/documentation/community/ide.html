@@ -150,43 +150,33 @@
             </div>    
             <div class="content">  
 	            
-<h1 id="about-eclipse-smarthome">About Eclipse SmartHome</h1>
+<h1 id="setting-up-a-development-environment">Setting up a development environment</h1>
 
-<h2 id="background">Background</h2>
-<p>Since the emergence of broadband internet connections, smartphones and tablets the smart home market shows a remarkable upsurge. This has led to a very fragmented market, which makes it difficult for customers to “bet on the right horse”. In fact, there is not one system, protocol or standard that could possibly fulfill all potential requirements. There is hence a need for platforms that allow the integration of different systems, protocols or standards and that provide a uniform way of user interaction and higher level services.</p>
+<p><em>Note:</em> We currently provide a <a href="https://github.com/eclipse/smarthome/blob/master/targetplatform/Eclipse%20SmartHome.yoxos">Yoxos profile</a> to get you started with an appropriate Eclipse IDE. Unfortunately, it will require you to also manually install <a href="http://groovy.codehaus.org/Eclipse+Plugin">Groovy Eclipse</a>.</p>
 
-<h2 id="how-does-eclipse-smarthome-help">How does Eclipse SmartHome help?</h2>
+<p>For the future, we plan to integrate Eclipse SmartHome in <a href="http://wiki.eclipse.org/Eclipse_Oomph_Installer">Project Oomph</a>, which should provide an even easier setup.</p>
 
-<p>The goals of the Eclipse SmartHome project can be summarized as:</p>
-
-<ul>
-  <li>Provide a flexible framework for smart home and ambient assisted living (AAL) solutions. This framework focuses on the use cases of this domain, e.g. on easy automation and visualization aspects.</li>
-  <li>Specify extension points for integration possibilities and higher-level services. Extending and thus customizing the solution must be as simple as possible and this requires concise and dedicated interfaces.</li>
-  <li>Provide implementations of extensions for relevant systems, protocols or standards. Many of them can be useful to many smart home solutions, so this project will provide a set of extensions that can be included if desired. They can also be in the shape of a general Java library or an OSGi bundle, so that these implementations can be used independently of the rest of the project as well.</li>
-  <li>Provide a development environment and tools to foster implementations of extensions. The right tooling can support the emergence of further extensions and thus stimulates future contributions to the project.</li>
-  <li>Create a packaging and demo setups. Although the focus is on the framework, it needs to be shown how to package a real solution from it, which can be used as a starting point and for demo purposes.<br />
-Description</li>
-  <li>The Eclipse SmartHome project is a framework that allows building smart home solutions that have a strong focus on heterogeneous environments, i.e. solutions that deal with the integration of different protocols or standards. Its purpose is to provide a uniform access to devices and information and to facilitate different kinds of interactions with them. This framework consists out of a set of OSGi bundles that can be deployed on an OSGi runtime and which defines OSGi services as extension points.</li>
-</ul>
-
-<p>The stack is meant to be usable on any kind of system that can run an OSGi stack - be it a multi-core server, a residential gateway or a Raspberry Pi.</p>
-
-<p>The project focuses on services and APIs for the following topics:</p>
+<p>Ensure you have installed the following prerequisites:</p>
 
 <ol>
-  <li><em>Data Handling</em>: This includes a basic but extensible type system for smart home data and commands that provides a common ground for an abstracted data and device access as well as event mechanisms to send this information around. It is the most important topic for integrating with other systems, which is done through so called bindings, which are a special type of <a href="architecture/extensions.md">extension</a>.</li>
-  <li><em>Rule Engines</em>: A flexible rule engine that allows changing rules during runtime and which defines extension types that allow breaking down rules into smaller pieces like triggers, actions, logic modules and templates.</li>
-  <li><em>Declarative User Interfaces</em>: A framework with extensions for describing user interface content in a declarative way. This includes widgets, icons, charts etc.</li>
-  <li><em>Persistence Management</em>: Infrastructure that allows automatic data processing based on a simple and unified configuration. Persistence services are pluggable extensions, which can be anything from a log writer to an IoT cloud service.</li>
+  <li>Git</li>
+  <li>Maven 3.x</li>
+  <li>Oracle JDK 7</li>
+  <li><a href="https://yoxos.eclipsesource.com/downloadlauncher.html">Yoxos Installer</a></li>
 </ol>
 
-<p>Besides the runtime framework and implementation, the Eclipse SmartHome projects also provides different kinds of tools and samples:</p>
+<p>Here are the steps to follow for a successful setup:</p>
 
-<ul>
-  <li>Eclipse editors for editing configuration models and rules. These provide full IDE support, such as content assist and syntax validation.</li>
-  <li>Maven archetypes to easily create skeletons for extensions</li>
-  <li>Demo packaging with other Eclipse IoT projects</li>
-</ul>
+<ol>
+  <li>Create a local clone of the repository by running “git clone https://github.com/eclipse/smarthome.git” in a suitable folder.</li>
+  <li>Download and execute the file <a href="https://github.com/eclipse/smarthome/blob/master/targetplatform/Eclipse%20SmartHome.yoxos">Eclipse SmartHome.yoxos</a>. Alternatively, you can install the required plugins on top of an existing Eclipse 4.4 installation using this <a href="http://yoxos.eclipsesource.com/userdata/profile/09528bbc51589d837ad95c819fdac25b">update site</a>.</li>
+  <li>Install <a href="http://groovy.codehaus.org/Eclipse+Plugin">Groovy Eclipse</a> in your Eclipse IDE.</li>
+  <li>Create a new workspace.</li>
+  <li>Choose File-&gt;Import-&gt;General-&gt;Existing Projects into Workspace, enter your clone repository directory as the root directory and press “Finish”.</li>
+  <li>After the import is done, you have to select the target platform by selecting Window-&gt;Preferences-&gt;Plug-in Development-&gt;Target Platform-&gt;smarthome from the main menu. Ignore compilation problems at this step.</li>
+  <li>Now you need to run code generation for a few parts of Eclipse SmartHome. To do so, go to the project org.eclipse.smarthome.model.codegen and run the prepared launch files. For each .launch file, select “Run As-&gt;x Generate abc Model” from the context menu. Please follow the order given by the numbers. On the very first code generation, you are asked in the console to download an ANTLR file, answer with “y” and press enter on the console.</li>
+  <li>All your project in the workspace should now correctly compile without errors. If you still see error markers, try a “clean” on the concerned projects. If there are still errors, it could be that you use JDK 1.6 instead of JDK 1.7.</li>
+</ol>
 
             </div>
         </div>

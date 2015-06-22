@@ -150,43 +150,63 @@
             </div>    
             <div class="content">  
 	            
-<h1 id="about-eclipse-smarthome">About Eclipse SmartHome</h1>
+<h1 id="coding-guidelines">Coding Guidelines</h1>
 
-<h2 id="background">Background</h2>
-<p>Since the emergence of broadband internet connections, smartphones and tablets the smart home market shows a remarkable upsurge. This has led to a very fragmented market, which makes it difficult for customers to “bet on the right horse”. In fact, there is not one system, protocol or standard that could possibly fulfill all potential requirements. There is hence a need for platforms that allow the integration of different systems, protocols or standards and that provide a uniform way of user interaction and higher level services.</p>
+<p>The following guidelines apply to all code of the Eclipse SmartHome project. They must be followed to ensure a consistent code base for easy readability and maintainability.<br />
+Exceptions can certainly be made, but they should be discussed and approved by a project committer upfront.</p>
 
-<h2 id="how-does-eclipse-smarthome-help">How does Eclipse SmartHome help?</h2>
+<p>Note that this list also serves as a checklist for code reviews on pull requests. To speed up the contribution process, we therefore advice to go through this checklist yourself before creating a pull request.</p>
 
-<p>The goals of the Eclipse SmartHome project can be summarized as:</p>
-
-<ul>
-  <li>Provide a flexible framework for smart home and ambient assisted living (AAL) solutions. This framework focuses on the use cases of this domain, e.g. on easy automation and visualization aspects.</li>
-  <li>Specify extension points for integration possibilities and higher-level services. Extending and thus customizing the solution must be as simple as possible and this requires concise and dedicated interfaces.</li>
-  <li>Provide implementations of extensions for relevant systems, protocols or standards. Many of them can be useful to many smart home solutions, so this project will provide a set of extensions that can be included if desired. They can also be in the shape of a general Java library or an OSGi bundle, so that these implementations can be used independently of the rest of the project as well.</li>
-  <li>Provide a development environment and tools to foster implementations of extensions. The right tooling can support the emergence of further extensions and thus stimulates future contributions to the project.</li>
-  <li>Create a packaging and demo setups. Although the focus is on the framework, it needs to be shown how to package a real solution from it, which can be used as a starting point and for demo purposes.<br />
-Description</li>
-  <li>The Eclipse SmartHome project is a framework that allows building smart home solutions that have a strong focus on heterogeneous environments, i.e. solutions that deal with the integration of different protocols or standards. Its purpose is to provide a uniform access to devices and information and to facilitate different kinds of interactions with them. This framework consists out of a set of OSGi bundles that can be deployed on an OSGi runtime and which defines OSGi services as extension points.</li>
-</ul>
-
-<p>The stack is meant to be usable on any kind of system that can run an OSGi stack - be it a multi-core server, a residential gateway or a Raspberry Pi.</p>
-
-<p>The project focuses on services and APIs for the following topics:</p>
+<h2 id="a-code-style">A. Code Style</h2>
 
 <ol>
-  <li><em>Data Handling</em>: This includes a basic but extensible type system for smart home data and commands that provides a common ground for an abstracted data and device access as well as event mechanisms to send this information around. It is the most important topic for integrating with other systems, which is done through so called bindings, which are a special type of <a href="architecture/extensions.md">extension</a>.</li>
-  <li><em>Rule Engines</em>: A flexible rule engine that allows changing rules during runtime and which defines extension types that allow breaking down rules into smaller pieces like triggers, actions, logic modules and templates.</li>
-  <li><em>Declarative User Interfaces</em>: A framework with extensions for describing user interface content in a declarative way. This includes widgets, icons, charts etc.</li>
-  <li><em>Persistence Management</em>: Infrastructure that allows automatic data processing based on a simple and unified configuration. Persistence services are pluggable extensions, which can be anything from a log writer to an IoT cloud service.</li>
+  <li>The <a href="http://java.about.com/od/javasyntax/a/nameconventions.htm">Java naming conventions</a> should be used.</li>
+  <li>Every Java file must have a license header. You can run <code>mvn license:format</code> on the root of the repo to automatically add missing headers.</li>
+  <li>Every class, interface and enumeration should have JavaDoc describing its purpose and usage.</li>
+  <li>Every class, interface and enumeration must have an @author tag in its JavaDoc for every author that wrote a substantial part of the file.</li>
+  <li>Every constant, field and method with default, protected or public visibility should have JavaDoc (optional, but encouraged for private visibility as well)</li>
+  <li>Code must be formatted using the provided <a href="https://github.com/eclipse/smarthome/blob/master/targetplatform/esh-formatter.xml">code formatter</a> and <a href="https://github.com/eclipse/smarthome/blob/master/targetplatform/esh-clean-up.xml">clean up</a> settings (import them into your IDE).</li>
+  <li>Generics must be used where applicable.</li>
+  <li>Code should not show any warnings. Warnings that cannot be circumvented should be suppressed by using the @SuppressWarnings annotation.</li>
+  <li>For dependency injection, OSGi Declarative Services should be used.</li>
+  <li>Packages that contain classes that are not meant to be used by other bundles should have “internal” in their package name.</li>
 </ol>
 
-<p>Besides the runtime framework and implementation, the Eclipse SmartHome projects also provides different kinds of tools and samples:</p>
+<h2 id="b-osgi-bundles">B. OSGi Bundles</h2>
 
-<ul>
-  <li>Eclipse editors for editing configuration models and rules. These provide full IDE support, such as content assist and syntax validation.</li>
-  <li>Maven archetypes to easily create skeletons for extensions</li>
-  <li>Demo packaging with other Eclipse IoT projects</li>
-</ul>
+<ol>
+  <li>Every bundle must contain a Maven pom.xml with a version and artifact name that is in sync with the manifest entry. The pom.xml must reference the correct parent pom (which is usually in the parent folder).</li>
+  <li>Every bundle must contain an <a href="https://eclipse.org/legal/epl/about.php">about.html</a> file, providing license information.</li>
+  <li>Every bundle must contain a build.properties file, which lists all resources that should end up in the binary under <code>bin.includes</code>.</li>
+  <li>The manifest must not contain any “Require-Bundle” entries. Instead, “Import-Package” must be used.</li>
+  <li>The manifest must not export any internal package</li>
+  <li>The manifest must not have any version constraint on package imports, unless this is thoughtfully added. Note that Eclipse automatically adds these constraints based on the version in the target platform, which might be too high in many cases.</li>
+  <li>The manifest must include all services in the Service-Component entry. A good approach is to put OSGI-INF/*.xml in there.</li>
+</ol>
+
+<h2 id="c-language-levels-and-libraries">C. Language Levels and Libraries</h2>
+
+<ol>
+  <li>Eclipse SmartHome requires at least JavaSE 7. Hence no features of Java 8 must be used within the code. To allow optimized JavaSE 8 runtimes, the set of Java packages to be used is furthermore restricted to <a href="http://www.oracle.com/technetwork/java/embedded/resources/tech/compact-profiles-overview-2157132.html">Compact Profile 2</a>.</li>
+  <li>The minimum OSGi framework version supported is <a href="http://www.osgi.org/Download/Release4V42">OSGi R4.2</a>, no newer features must be used.</li>
+  <li>For logging, slf4j (v1.7.2) is used with <a href="http://slf4j.org/faq.html#declared_static">non-static loggers</a>.</li>
+  <li>A few common utility libraries are available that every Eclipse SmartHome based solution has to provide and which can be used throughout the code (and which are made available in the target platform):
+    <ul>
+      <li>Apache Commons IO (v2.2)</li>
+      <li>Apache Commons Lang (v2.6)</li>
+      <li>Google Guava (v10.0.1)</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="d-runtime-behavior">D. Runtime Behavior</h2>
+
+<ol>
+  <li>Overridden methods from abstract classes or interfaces are expected to return fast unless otherwise stated in their JavaDoc. Expensive operations should therefore rather be scheduled as a job.</li>
+  <li>Creation of threads must be avoided. Instead, resort into using existing schedulers which use pre-configured thread pools. If there is no suitable scheduler available, start a discussion in the forum about it rather than creating a thread by yourself.</li>
+  <li>Bundles need to cleanly start and stop without throwing exceptions or malfunctioning. This can be tested by manually starting and stopping the bundle from the console (<code>stop &lt;bundle-id&gt;</code> resp. <code>start &lt;bundle-id&gt;</code>).</li>
+  <li>Bundles must not require any substantial CPU time. Test this e.g. using “top” or VisualVM and compare CPU utilization with your bundle stopped vs. started.</li>
+</ol>
 
             </div>
         </div>

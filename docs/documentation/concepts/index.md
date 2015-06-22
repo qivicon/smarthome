@@ -2,68 +2,36 @@
 layout: documentation
 ---
 
-# Overview
+{% include base.html %}
 
-Eclipse SmartHome is a framework for building smart home solutions. As such, it consists of a rich set of OSGi bundles that serve different purposes. Not all solutions that build on top of Eclipse SmartHome will require all of those bundles - instead they can choose what parts are interesting for them.
+# About Eclipse SmartHome
 
-There are the following categories of bundles:
+## Background
+Since the emergence of broadband internet connections, smartphones and tablets the smart home market shows a remarkable upsurge. This has led to a very fragmented market, which makes it difficult for customers to "bet on the right horse". In fact, there is not one system, protocol or standard that could possibly fulfill all potential requirements. There is hence a need for platforms that allow the integration of different systems, protocols or standards and that provide a uniform way of user interaction and higher level services.
 
- - `config`: everything that is concerned with general configuration of the system like config files, xml parsing, discovery, etc.	
- - `core`: the main bundles for the logical operation of the system - based on the abstract item and event concepts.
- - `io`: all kinds of optional functionality that have to do with i/o like console commands, audio support or http/rest communication
- - `model`: support for domain specific languages (DSLs) 
- - `designer`: Eclipse RCP support for DSLs and other configuration files
- - `ui`: user interface related bundles that provide services that can be used by different UIs, such as charting or icons
-  
-# General Concepts
- 
-## Items and Events
+## How does Eclipse SmartHome help?
 
-Eclipse SmartHome has a strict separation between the physical world (the "things", see below) and the application, which is built around the notion of "items" (also called the virtual layer).
+The goals of the Eclipse SmartHome project can be summarized as:
 
-Items represent functionality that is used by the application (mainly user interfaces or automation logic). Items have a state and are used through events.
-  
-The event bus is THE base service of Eclipse SmartHome. All bundles that do not require stateful behaviour should use it to inform other bundles about events and to be updated by other bundles on external events.
+* Provide a flexible framework for smart home and ambient assisted living (AAL) solutions. This framework focuses on the use cases of this domain, e.g. on easy automation and visualization aspects.
+* Specify extension points for integration possibilities and higher-level services. Extending and thus customizing the solution must be as simple as possible and this requires concise and dedicated interfaces.
+* Provide implementations of extensions for relevant systems, protocols or standards. Many of them can be useful to many smart home solutions, so this project will provide a set of extensions that can be included if desired. They can also be in the shape of a general Java library or an OSGi bundle, so that these implementations can be used independently of the rest of the project as well.
+* Provide a development environment and tools to foster implementations of extensions. The right tooling can support the emergence of further extensions and thus stimulates future contributions to the project.
+* Create a packaging and demo setups. Although the focus is on the framework, it needs to be shown how to package a real solution from it, which can be used as a starting point and for demo purposes.
+Description
+* The Eclipse SmartHome project is a framework that allows building smart home solutions that have a strong focus on heterogeneous environments, i.e. solutions that deal with the integration of different protocols or standards. Its purpose is to provide a uniform access to devices and information and to facilitate different kinds of interactions with them. This framework consists out of a set of OSGi bundles that can be deployed on an OSGi runtime and which defines OSGi services as extension points.
 
-There are mainly two types of events:
+The stack is meant to be usable on any kind of system that can run an OSGi stack - be it a multi-core server, a residential gateway or a Raspberry Pi.
 
- - Commands, which trigger an action or a state change of some item.
- - State updates, which inform about a state change of some item (often as a response to a command)
+The project focuses on services and APIs for the following topics:
 
-The following item types are currently available (alphabetical order):
+1. _Data Handling_: This includes a basic but extensible type system for smart home data and commands that provides a common ground for an abstracted data and device access as well as event mechanisms to send this information around. It is the most important topic for integrating with other systems, which is done through so called bindings, which are a special type of [extension](architecture/extensions.md).
+1. _Rule Engines_: A flexible rule engine that allows changing rules during runtime and which defines extension types that allow breaking down rules into smaller pieces like triggers, actions, logic modules and templates.
+1. _Declarative User Interfaces_: A framework with extensions for describing user interface content in a declarative way. This includes widgets, icons, charts etc.
+1. _Persistence Management_: Infrastructure that allows automatic data processing based on a simple and unified configuration. Persistence services are pluggable extensions, which can be anything from a log writer to an IoT cloud service.
 
-<table>
-  <tr><td><b>Itemname</b></td><td><b>Description</b></td><td><b>Command Types</b></td></tr>
-  <tr><td>Color</td><td>Color information (RGB)</td><td>OnOff, IncreaseDecrease, Percent, HSB</td></tr>
-  <tr><td>Contact</td><td>Item storing status of e.g. door/window contacts</td><td>OpenClose</td></tr>
-  <tr><td>DateTime</td><td>Stores date and time</td><td></td></tr>
-  <tr><td>Dimmer</td><td>Item carrying a percentage value for dimmers</td><td>OnOff, IncreaseDecrease, Percent</td></tr>
-  <tr><td>Group</td><td>Item to nest other items / collect them in groups</td><td>-</td></tr>
-  <tr><td>Number</td><td>Stores values in number format</td><td>Decimal</td></tr>
-  <tr><td>Player</td><td>Allows to control players (e.g. audio players)</td><td>PlayPause, NextPrevious, RewindFastforward</td></tr>
-  <tr><td>Rollershutter</td><td>Typically used for blinds</td><td>UpDown, StopMove, Percent</td></tr>
-  <tr><td>String</td><td>Stores texts</td><td>String</td></tr>
-  <tr><td>Switch</td><td>Typically used for lights (on/off)</td><td>OnOff</td></tr>
-</table>
+Besides the runtime framework and implementation, the Eclipse SmartHome projects also provides different kinds of tools and samples:
 
-Group Items can derive their own state depending on their member items.
-
-  - AVG displays the average of the item states in the group.
-  - OR displays an OR of the group, typically used to display whether any item in a group has been set.
-  - other aggregations:  AND, SUM, MIN, MAX, NAND, NOR
- 
-It is important to note that Eclipse SmartHome is not meant to reside on (or near) actual hardware devices which would then have to remotely communicate with many other distributed instances. Instead, solutions based on Eclipse SmartHome serve as an integration hub between such devices and as a mediator between different protocols that are spoken between these devices. In a typical installation there will therefore be usually just one instance of Eclipse SmartHome running on some central server. Nonetheless, the events can also be exported through appropriate protocols such as MQTT, so that it is possible to connect several distributed Eclipse SmartHome instances.
-
-
-## Things
-
-Things are the entities that can physically be added to a system and which can potentially provide many functionalities in one. It is important to note that things do not have to be devices, but they can also represent a web service or any other manageable source of information and functionality.
-From a user perspective, they are relevant for the setup and configuration process, but not for the operation.
-
-Things can have configuration properties, which can be optional or mandatory. Such properties can be basic information like an IP address, an access token for a web service or a device specific configuration that alters its behavior.
-
-Things provide "channels", which represent the different functions they provide. Channels are linked to items, where such links are the glue between the virtual and the physical layer. Once such a link is established, a thing reacts on events sent for an item that is linked to one of its channels. Likewise, it actively sends out events for items linked to its channels.
-
-A special type of thing is a "bridge". Bridges are things that need to be added to the system in order to gain access to other things. A typical example of a bridge is an IP gateway for some non-IP based home automation system. 
-
-As many things can be automatically discovered, there are special mechanisms available that deal with the handling of [automatically discovered things](discovery.md).
+* Eclipse editors for editing configuration models and rules. These provide full IDE support, such as content assist and syntax validation.
+* Maven archetypes to easily create skeletons for extensions
+* Demo packaging with other Eclipse IoT projects
