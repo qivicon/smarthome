@@ -697,3 +697,30 @@ body.documentation .content-wrapper {
 body.documentation section#documentation .content > h1:first-child {
 	margin-top: 0px;
 }
+body.documentation section#documentation h2:before { 
+	display: block; 
+ 	content: " "; 
+  	height: 100px; 
+    margin-top: -100px;  	
+    visibility: hidden; 
+}
+
+body.documentation section#documentation h2:after {
+	font-family: "Material-Design-Icons";
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	vertical-align: middle;
+	content: "\e70d";
+	margin-left: 10px;
+	visibility: hidden;
+	cursor: pointer;
+}
+
+body.documentation section#documentation h2:hover:after  {
+	visibility: visible;
+}
