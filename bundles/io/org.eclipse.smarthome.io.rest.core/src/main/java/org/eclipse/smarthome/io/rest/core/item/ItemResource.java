@@ -7,6 +7,12 @@
  */
 package org.eclipse.smarthome.io.rest.core.item;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -72,6 +78,7 @@ import org.slf4j.LoggerFactory;
  * @author Chris Jackson - Added method to write complete item bean
  */
 @Path(ItemResource.PATH_ITEMS)
+@Api
 public class ItemResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ItemResource.class);
@@ -121,8 +128,12 @@ public class ItemResource implements RESTResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getItems(@QueryParam("type") String type, @QueryParam("tags") String tags,
-            @DefaultValue("false") @QueryParam("recursive") boolean recursive) {
+    @ApiOperation(value = "Get all available items.", response = ItemBean.class, responseContainer = "List")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    public Response getItems(
+            @QueryParam("type") @ApiParam(value = "item type filter", required = false) String type,
+            @QueryParam("tags") @ApiParam(value = "item tag filter", required = false) String tags,
+            @DefaultValue("false") @QueryParam("recursive") @ApiParam(value = "get member items recursivly", required = false) boolean recursive) {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
         Object responseObject = getItemBeans(type, tags, recursive);
@@ -132,7 +143,11 @@ public class ItemResource implements RESTResource {
     @GET
     @Path("/{itemname: [a-zA-Z_0-9]*}/state")
     @Produces({ MediaType.TEXT_PLAIN })
-    public Response getPlainItemState(@PathParam("itemname") String itemname) {
+    @ApiOperation(value = "Gets the state of an item.", response = String.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Item not found") })
+    public Response getPlainItemState(
+            @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
         Item item = getItem(itemname);
         if (item != null) {
             logger.debug("Received HTTP GET request at '{}'.", uriInfo.getPath());
@@ -146,7 +161,10 @@ public class ItemResource implements RESTResource {
     @GET
     @Path("/{itemname: [a-zA-Z_0-9]*}")
     @Produces({ MediaType.WILDCARD })
-    public Response getItemData(@PathParam("itemname") String itemname) {
+    @ApiOperation(value = "Gets a a single item.", response = ItemBean.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Item not found") })
+    public Response getItemData(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
         final Object responseObject = getItemDataBean(itemname);
@@ -156,7 +174,11 @@ public class ItemResource implements RESTResource {
     @PUT
     @Path("/{itemname: [a-zA-Z_0-9]*}/state")
     @Consumes(MediaType.TEXT_PLAIN)
-    public Response putItemState(@PathParam("itemname") String itemname, String value) {
+    @ApiOperation(value = "Updates the state of an item.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Item not found"), @ApiResponse(code = 400, message = "Item state null") })
+    public Response putItemState(
+            @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname, String value) {
         Item item = getItem(itemname);
         if (item != null) {
             State state = TypeParser.parseState(item.getAcceptedDataTypes(), value);
@@ -181,7 +203,12 @@ public class ItemResource implements RESTResource {
     @POST
     @Path("/{itemname: [a-zA-Z_0-9]*}")
     @Consumes(MediaType.TEXT_PLAIN)
-    public Response postItemCommand(@PathParam("itemname") String itemname, String value) {
+    @ApiOperation(value = "Sends a command to an item.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Item not found"),
+            @ApiResponse(code = 400, message = "Item command null") })
+    public Response postItemCommand(
+            @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname, String value) {
         Item item = getItem(itemname);
         Command command = null;
         if (item != null) {
@@ -214,7 +241,12 @@ public class ItemResource implements RESTResource {
 
     @PUT
     @Path("/{itemName: [a-zA-Z_0-9]*}/members/{memberItemName: [a-zA-Z_0-9]*}")
-    public Response addMember(@PathParam("itemName") String itemName, @PathParam("memberItemName") String memberItemName) {
+    @ApiOperation(value = "Adds a new member to a group item.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Item or member item not found or item is not of type group item."),
+            @ApiResponse(code = 405, message = "Member item is not editable.") })
+    public Response addMember(@PathParam("itemName") @ApiParam(value = "item name", required = true) String itemName,
+            @PathParam("memberItemName") @ApiParam(value = "member item name", required = true) String memberItemName) {
         try {
             Item item = itemRegistry.getItem(itemName);
 
@@ -246,8 +278,13 @@ public class ItemResource implements RESTResource {
 
     @DELETE
     @Path("/{itemName: [a-zA-Z_0-9]*}/members/{memberItemName: [a-zA-Z_0-9]*}")
-    public Response removeMember(@PathParam("itemName") String itemName,
-            @PathParam("memberItemName") String memberItemName) {
+    @ApiOperation(value = "Removes an existing member from a group item.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Item or member item not found or item is not of type group item."),
+            @ApiResponse(code = 405, message = "Member item is not editable.") })
+    public Response removeMember(
+            @PathParam("itemName") @ApiParam(value = "item name", required = true) String itemName,
+            @PathParam("memberItemName") @ApiParam(value = "member item name", required = true) String memberItemName) {
         try {
             Item item = itemRegistry.getItem(itemName);
 
@@ -279,7 +316,10 @@ public class ItemResource implements RESTResource {
 
     @DELETE
     @Path("/{itemname: [a-zA-Z_0-9]*}")
-    public Response removeItem(@PathParam("itemname") String itemname) {
+    @ApiOperation(value = "Removes an item from the registry.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Item not found or item is not editable.") })
+    public Response removeItem(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
 
         if (managedItemProvider.remove(itemname) == null) {
             logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
@@ -291,7 +331,12 @@ public class ItemResource implements RESTResource {
 
     @PUT
     @Path("/{itemname: [a-zA-Z_0-9]*}/tags/{tag: [a-zA-Z_0-9]*}")
-    public Response addTag(@PathParam("itemname") String itemname, @PathParam("tag") String tag) {
+    @ApiOperation(value = "Adds a tag to an item.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Item not found."),
+            @ApiResponse(code = 405, message = "Item not editable.") })
+    public Response addTag(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
+            @PathParam("tag") @ApiParam(value = "tag", required = true) String tag) {
 
         Item item = getItem(itemname);
 
@@ -312,7 +357,12 @@ public class ItemResource implements RESTResource {
 
     @DELETE
     @Path("/{itemname: [a-zA-Z_0-9]*}/tags/{tag: [a-zA-Z_0-9]*}")
-    public Response removeTag(@PathParam("itemname") String itemname, @PathParam("tag") String tag) {
+    @ApiOperation(value = "Removes a tag from an item.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Item not found."),
+            @ApiResponse(code = 405, message = "Item not editable.") })
+    public Response removeTag(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
+            @PathParam("tag") @ApiParam(value = "tag", required = true) String tag) {
 
         Item item = getItem(itemname);
 
@@ -333,6 +383,7 @@ public class ItemResource implements RESTResource {
 
     /**
      * Create or Update an item by supplying an item bean.
+     * 
      * @param itemname
      * @param item the item bean.
      * @return
@@ -340,19 +391,24 @@ public class ItemResource implements RESTResource {
     @PUT
     @Path("/{itemname: [a-zA-Z_0-9]*}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createOrUpdateItem(@PathParam("itemname") String itemname, ItemBean item) {
+    @ApiOperation(value = "Adds a new item to the registry or updates the existing item.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 400, message = "Item null."),
+            @ApiResponse(code = 404, message = "Item not found."),
+            @ApiResponse(code = 405, message = "Item not editable.") })
+    public Response createOrUpdateItem(
+            @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname, ItemBean item) {
 
-    	// If we didn't get an item bean, then return!
-    	if (item == null) {
+        // If we didn't get an item bean, then return!
+        if (item == null) {
             return Response.status(Status.BAD_REQUEST).build();
-    	}
+        }
 
         GenericItem newItem = null;
 
         if (item.type != null && item.type.equals("GroupItem")) {
             newItem = new GroupItem(itemname);
         } else {
-        	String itemType = item.type.substring(0, item.type.length() - 4);
+            String itemType = item.type.substring(0, item.type.length() - 4);
             for (ItemFactory itemFactory : itemFactories) {
                 newItem = itemFactory.createItem(itemType, itemname);
                 if (newItem != null) {
@@ -363,7 +419,7 @@ public class ItemResource implements RESTResource {
 
         if (newItem == null) {
             logger.warn("Received HTTP PUT request at '{}' with an invalid item type '{}'.", uriInfo.getPath(),
-            		item.type);
+                    item.type);
             return Response.status(Status.BAD_REQUEST).build();
         }
 
@@ -371,10 +427,10 @@ public class ItemResource implements RESTResource {
         Item existingItem = getItem(itemname);
 
         // Update the label
-       	newItem.setLabel(item.label);
-       	newItem.setCategory(item.category);
-       	newItem.addGroupNames(item.groupNames);
-       	newItem.addTags(item.tags);
+        newItem.setLabel(item.label);
+        newItem.setCategory(item.category);
+        newItem.addGroupNames(item.groupNames);
+        newItem.addTags(item.tags);
 
         // Save the item
         if (existingItem == null) {
