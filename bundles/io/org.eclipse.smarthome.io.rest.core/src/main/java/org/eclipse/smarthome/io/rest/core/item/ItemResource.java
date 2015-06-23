@@ -178,7 +178,8 @@ public class ItemResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Item not found"), @ApiResponse(code = 400, message = "Item state null") })
     public Response putItemState(
-            @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname, String value) {
+            @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
+            @ApiParam(value = "valid item state (e.g. ON, OFF)", required = true) String value) {
         Item item = getItem(itemname);
         if (item != null) {
             State state = TypeParser.parseState(item.getAcceptedDataTypes(), value);
@@ -208,7 +209,8 @@ public class ItemResource implements RESTResource {
             @ApiResponse(code = 404, message = "Item not found"),
             @ApiResponse(code = 400, message = "Item command null") })
     public Response postItemCommand(
-            @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname, String value) {
+            @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
+            @ApiParam(value = "valid item command (e.g. ON, OFF, UP, DOWN, REFRESH)", required = true) String value) {
         Item item = getItem(itemname);
         Command command = null;
         if (item != null) {
@@ -396,7 +398,8 @@ public class ItemResource implements RESTResource {
             @ApiResponse(code = 404, message = "Item not found."),
             @ApiResponse(code = 405, message = "Item not editable.") })
     public Response createOrUpdateItem(
-            @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname, ItemBean item) {
+            @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
+            @ApiParam(value = "item data", required = true) ItemBean item) {
 
         // If we didn't get an item bean, then return!
         if (item == null) {
