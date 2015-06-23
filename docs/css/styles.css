@@ -21,6 +21,26 @@ body {
 	}
 }
 
+/* deactivate scroll effects for low resolutions */ 
+@media only screen and (max-width: 992px) {
+	.parallax img {
+		-webkit-transform: initial !important;
+		-o-transform: initial !important;
+		-ms-transform: initial !important;
+		-moz-transform: initial !important;
+		transform: initial !important;
+		left: -50%;
+	}
+	.scrollme.animateme {
+		-webkit-transform: initial !important;
+		-o-transform: initial !important;
+		-ms-transform: initial !important;
+		-moz-transform: initial !important;
+		transform: initial !important;
+		opacity: 1 !important;
+	}
+}
+
 /* Layout: Header */
 
 #header {
@@ -44,6 +64,12 @@ body {
 
 #header nav .button-collapse i {
 	font-size: 1.5rem;
+}
+
+@media only screen and (max-width: 600px) {
+	#header, #header.sticky, .navbar-fixed nav {
+		position: absolute;
+	}
 }
 
 @media only screen and (max-width: 992px) {
@@ -319,13 +345,15 @@ body.landing section#references .reference .info p {
     color: white;
 }
 
-body.landing section#references .reference:hover .info {
-    opacity: 1;
-    -webkit-transform: scale(1);
-    -moz-transform: scale(1);
-    -o-transform: scale(1);
-    -ms-transform: scale(1);
-    transform: scale(1);
+@media only screen and (min-width: 601px) {
+	body.landing section#references .reference:hover .info {
+	    opacity: 1;
+	    -webkit-transform: scale(1);
+	    -moz-transform: scale(1);
+	    -o-transform: scale(1);
+	    -ms-transform: scale(1);
+	    transform: scale(1);
+	}
 }
 
 
@@ -574,9 +602,7 @@ section.text ul.nav a {
 	line-height: 2rem;
 	display: block;
     padding: 5px 10px;
-}
-
-section.text ul.nav a {
+    font-size: 1rem;
 	line-height: 2rem;
 	display: block;
     color: #01324D;
@@ -625,6 +651,7 @@ section.text ul.nav li.active.open a:after {
 /* All second level menu links */
 section.text ul.nav li.active ul li a {
 	font-weight: 300;
+	line-height: 1.5rem;
 }
 
 section.text ul.nav li.active ul li a:hover {
@@ -705,7 +732,7 @@ body.documentation section#documentation h2:before {
     visibility: hidden; 
 }
 
-body.documentation section#documentation h2:after {
+body.documentation section#documentation h2:after, body.documentation section#documentation h3:after {
 	font-family: "Material-Design-Icons";
 	speak: none;
 	font-style: normal;
@@ -721,6 +748,6 @@ body.documentation section#documentation h2:after {
 	cursor: pointer;
 }
 
-body.documentation section#documentation h2:hover:after  {
+body.documentation section#documentation h2:hover:after, body.documentation section#documentation h3:hover:after  {
 	visibility: visible;
 }

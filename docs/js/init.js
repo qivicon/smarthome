@@ -1,7 +1,7 @@
 var LANDING_PAGE_HERO_HEIGHT = 550 - 64;
 
 $(function() {
-
+	window.isSmall = $(window).width() <= 600;
     window.pathArray = window.location.pathname.split( '/' );
     window.onLandingPage = ($.inArray('index.html', window.pathArray) >= 0 
     		&& $.inArray('documentation', window.pathArray) < 0) 
@@ -19,9 +19,12 @@ function initEffects() {
    		var scrolledY = $(window).scrollTop();
 		$('#hero .img-wrapper').css('bottom','-'+((scrolledY*0.1))+'px');
    	}
-    $(window).bind('scroll',function(e){
-        parallaxScroll();
-    });
+   	
+   	if(!window.isSmall) {
+	    $(window).bind('scroll',function(e){
+	        parallaxScroll();
+	    });
+   	}
     
     // Slide In Top Level Menu
     $(".button-collapse").sideNav();
