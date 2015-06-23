@@ -4,7 +4,7 @@ layout: documentation
 
 {% include base.html %}
 
-# How To Contribute
+# How To Become Part of the Community
 
 ## Getting Involved
 
