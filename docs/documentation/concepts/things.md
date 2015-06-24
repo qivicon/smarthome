@@ -13,7 +13,7 @@ Things provide "channels", which represent the different functions they provide.
 
 A special type of thing is a "bridge". Bridges are things that need to be added to the system in order to gain access to other things. A typical example of a bridge is an IP gateway for some non-IP based home automation system. 
 
-As many things can be automatically discovered, there are special mechanisms available that deal with the handling of [automatically discovered things](discovery.md).
+As many things can be automatically discovered, there are special mechanisms available that deal with the handling of [automatically discovered things](discovery.html).
 
 
 ## Thing Status

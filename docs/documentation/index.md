@@ -4,12 +4,24 @@ layout: documentation
 
 {% include base.html %}
 
-# About Eclipse SmartHome
+# Documentation Overview
 
-## Background
+As Eclipse SmartHome is not an end user product, but  a framework to build end user solutions on top, you will only find technical documentation here. If you are an end user, please rather check out any of the [offers that use Eclipse SmartHome](https://www.eclipse.org/smarthome/index.html#references).
+
+The technical documentation is split into the following sections:
+
+ - [Concepts](concepts/items.html): Here you will find information about the fundamental concepts of Eclipse SmartHome and the used vocabulary.
+ - [Features](features/index.html): This section explains what features Eclipse SmartHome offers and how they are configured and used.
+ - [Development](development/ide.html): Everything you need to know when you want to develop code - be it for the core platform or for your own extensions.
+ - [Community](community/contributing.html): Learn how to get in touch with the community and how you can contribute back to the project.
+  
+## Background 
+
+### Why Eclipse SmartHome?
+
 Since the emergence of broadband internet connections, smartphones and tablets the smart home market shows a remarkable upsurge. This has led to a very fragmented market, which makes it difficult for customers to "bet on the right horse". In fact, there is not one system, protocol or standard that could possibly fulfill all potential requirements. There is hence a need for platforms that allow the integration of different systems, protocols or standards and that provide a uniform way of user interaction and higher level services.
 
-## How does Eclipse SmartHome help?
+### How does Eclipse SmartHome help?
 
 The goals of the Eclipse SmartHome project can be summarized as:
 
@@ -25,7 +37,7 @@ The stack is meant to be usable on any kind of system that can run an OSGi stack
 
 The project focuses on services and APIs for the following topics:
 
-1. _Data Handling_: This includes a basic but extensible type system for smart home data and commands that provides a common ground for an abstracted data and device access as well as event mechanisms to send this information around. It is the most important topic for integrating with other systems, which is done through so called bindings, which are a special type of [extension](architecture/extensions.md).
+1. _Data Handling_: This includes a basic but extensible type system for smart home data and commands that provides a common ground for an abstracted data and device access as well as event mechanisms to send this information around. It is the most important topic for integrating with other systems, which is done through so called bindings, which are a special type of extension.
 1. _Rule Engines_: A flexible rule engine that allows changing rules during runtime and which defines extension types that allow breaking down rules into smaller pieces like triggers, actions, logic modules and templates.
 1. _Declarative User Interfaces_: A framework with extensions for describing user interface content in a declarative way. This includes widgets, icons, charts etc.
 1. _Persistence Management_: Infrastructure that allows automatic data processing based on a simple and unified configuration. Persistence services are pluggable extensions, which can be anything from a log writer to an IoT cloud service.

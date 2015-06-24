@@ -91,7 +91,7 @@ Eclipse SmartHome allows you to define your *ThingTypes* in a declarative way th
 
 The channel type definition allows one to specify a category and additional meta information for the state of the linked item. Together with the definition of the `readOnly` attribute, user interfaces get an idea how to render an item for this channel. For example, a channel with the category `Temperature` which is readable only, indicates that this is a sensor for temperature. In that case the user inteface can render an appropriate icon and label for the current value. If the `readOnly` flag is set to `false` (which is the default value), the user interface could render a slider to change the temperature, since this means it is temperature actuator. Restrictions of the state such as the minimum or maximum value can also be specified.
 
-In order to give user interfaces a chance to render good default UIs for things, the binding should specify as much meta data as possible. For a complete list of possible configuration options and categories please see the [Thing Definition](../architecture/thing-definition.md#channels) section.
+In order to give user interfaces a chance to render good default UIs for things, the binding should specify as much meta data as possible. For a complete list of possible configuration options and categories please see the [Thing Definition](thing-definition.html#channels) section.
 
 ## The ThingHandlerFactory
 
@@ -171,9 +171,9 @@ For example, the Yahoo Weather binding allows configuration of the location and 
 
 ### Properties
 
-*Things* can have properties. If you would like to add meta data to your thing, e.g. the vendor of the thing, then you can define your own thing properties by simply adding them to the thing type definition. The properties section [here](../architecture/thing-definition.md#Properties) explains how to specify such properties.
+*Things* can have properties. If you would like to add meta data to your thing, e.g. the vendor of the thing, then you can define your own thing properties by simply adding them to the thing type definition. The properties section [here](thing-definition.html#Properties) explains how to specify such properties.
 
-To retrieve the properties one can call the operation `getProperties` of the corresponding `org.eclipse.smarthome.core.thing.type.ThingType` instance. If a thing will be created for this thing type then its properties will be automatically copied into the new thing instance. Therefore the `org.eclipse.smarthome.core.thing.Thing` interface provides also the `getProperties` operation to retrieve the defined properties. In contrast to the `getProperties` operation of the thing type instance the result of the thing´s `getProperties` operation will also contain the properties updated during runtime (cp. the thing handler [documentation](../architecture/thing-handler.md)).
+To retrieve the properties one can call the operation `getProperties` of the corresponding `org.eclipse.smarthome.core.thing.type.ThingType` instance. If a thing will be created for this thing type then its properties will be automatically copied into the new thing instance. Therefore the `org.eclipse.smarthome.core.thing.Thing` interface provides also the `getProperties` operation to retrieve the defined properties. In contrast to the `getProperties` operation of the thing type instance the result of the thing´s `getProperties` operation will also contain the properties updated during runtime (cp. the thing handler [documentation](thing-handler.html)).
 
 ## Bridges
 
@@ -204,4 +204,4 @@ Inside the `BridgeHandler` the list of *Things* can be retrieved via the `getThi
 
 ## Documentation
 
-When you have finished the implementation of the binding, you should spend a minute to also document it. Please find some [details here](../development/extensions/bindings/docs.md).
+When you have finished the implementation of the binding, you should spend a minute to also document it. Please find some [details here](docs.html).

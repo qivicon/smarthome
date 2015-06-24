@@ -386,7 +386,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <tr><td>channel.typeId</td><td>An identifier of the channel type definition the bridge/<i>Thing</i> provides (mandatory).</td></tr>
 </table>
 
-The full XML schema for *Thing* type descriptions is specified in the <a href="http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">ESH thing description XSD</a> file.
+The full XML schema for *Thing* type descriptions is specified in the <a href="https://www.eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">ESH thing description XSD</a> file.
 
 <b>Hints:</b>
 

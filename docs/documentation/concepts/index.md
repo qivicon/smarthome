@@ -25,7 +25,7 @@ The stack is meant to be usable on any kind of system that can run an OSGi stack
 
 The project focuses on services and APIs for the following topics:
 
-1. _Data Handling_: This includes a basic but extensible type system for smart home data and commands that provides a common ground for an abstracted data and device access as well as event mechanisms to send this information around. It is the most important topic for integrating with other systems, which is done through so called bindings, which are a special type of [extension](architecture/extensions.md).
+1. _Data Handling_: This includes a basic but extensible type system for smart home data and commands that provides a common ground for an abstracted data and device access as well as event mechanisms to send this information around. It is the most important topic for integrating with other systems, which is done through so called bindings, which are a special type of extension.
 1. _Rule Engines_: A flexible rule engine that allows changing rules during runtime and which defines extension types that allow breaking down rules into smaller pieces like triggers, actions, logic modules and templates.
 1. _Declarative User Interfaces_: A framework with extensions for describing user interface content in a declarative way. This includes widgets, icons, charts etc.
 1. _Persistence Management_: Infrastructure that allows automatic data processing based on a simple and unified configuration. Persistence services are pluggable extensions, which can be anything from a log writer to an IoT cloud service.

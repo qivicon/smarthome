@@ -8,7 +8,7 @@ layout: documentation
 
 ## Eclipse SmartHome Packages
 
-When implementing a binding, you should make sure that you do not introduce too many dependencies on different parts of Eclipse SmartHome. The following list of Java packages should suffice (if you use [create binding scripts](https://github.com/eclipse/smarthome/tree/master/addons/binding) to create a binding these packages will be automatically added as imports in the manifest):  
+When implementing a binding, you should make sure that you do not introduce too many dependencies on different parts of Eclipse SmartHome. The following list of Java packages should suffice (if you use [create binding scripts](https://github.com/eclipse/smarthome/tree/master/extensions/binding) to create a binding these packages will be automatically added as imports in the manifest):  
 
  - org.eclipse.smarthome.config.core  
  - org.eclipse.smarthome.core.library.types  

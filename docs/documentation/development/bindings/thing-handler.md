@@ -106,13 +106,13 @@ Even if the state did not change since the last update, the binding should infor
 
 ## Updating the Thing Status
 
-The *ThingHandler* must also manage the thing status (see also: [Thing Status Concept](thing-status.md)). If the device or service is not working correctly, the binding should change the status to *OFFLINE* and back to *ONLINE*, if it is working again. The status can be updated via an inherited method from the BaseThingHandler class by calling:
+The *ThingHandler* must also manage the thing status (see also: [Thing Status Concept](../../concepts/things.html#thing-status)). If the device or service is not working correctly, the binding should change the status to *OFFLINE* and back to *ONLINE*, if it is working again. The status can be updated via an inherited method from the BaseThingHandler class by calling:
 
 ```java
 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR);
 ```    
 
-The second argument of the method takes a `ThingStatusDetail` enumeration value, which further specifies the current status situation. A complete list of all thing statuses and thing status details is listed in the [Thing Status](thing-status.md) chapter.
+The second argument of the method takes a `ThingStatusDetail` enumeration value, which further specifies the current status situation. A complete list of all thing statuses and thing status details is listed in the [Thing Status](../../concepts/things.html#thing-status) chapter.
 
 For debugging purposes the binding can also provide an additional status description. This description might contain technical information (e.g. an HTTP status code, or any other protocol specific information, which helps to identify the current problem):
 
