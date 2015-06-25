@@ -23,7 +23,7 @@
                 <configuration>
                     <filesets>
                         <fileset>
-                            <directory>${basedir}/documentation/bindings/</directory>
+                            <directory>${basedir}/documentation/features/bindings/</directory>
                         </fileset>
                     </filesets>
                 </configuration>
@@ -38,7 +38,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/documentation/bindings/</outputDirectory>
+                            <outputDirectory>${basedir}/documentation/features/bindings/</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${basedir}/../extensions/binding</directory>
@@ -65,16 +65,19 @@
                         </goals>
                         <configuration>
                             <source>
-                                def bindings = new File(project.basedir, 'documentation/bindings')
+                                def bindings = new File(project.basedir, 'documentation/features/bindings')
 
                                 bindings.eachFile
                                 {
                                 def name = it.name
                                 if(name.contains('binding')) {
-                                def bindingId = it.name.replace('org.eclipse.smarthome.binding.', '')
-                                def simpleBindingNameDir = new File(bindings.path, bindingId)
+                                def bindingId =
+                                it.name.replace('org.eclipse.smarthome.binding.', '')
+                                def simpleBindingNameDir = new
+                                File(bindings.path, bindingId)
                                 it.renameTo(simpleBindingNameDir)
-                                def readme = new File(simpleBindingNameDir.path, 'README.md')
+                                def readme = new
+                                File(simpleBindingNameDir.path, 'README.md')
                                 if(readme.exists()) {
                                 println readme
                                 readme.renameTo(new File(simpleBindingNameDir.path, 'readme.md'))
@@ -82,6 +85,25 @@
                                 }
                                 }
                             </source>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>jekyll</executable>
+                            <arguments>
+                                <argument>build</argument>
+                            </arguments>
+                            <workingDirectory>${project.basedir}</workingDirectory>
                         </configuration>
                     </execution>
                 </executions>
