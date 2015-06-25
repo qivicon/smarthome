@@ -9,8 +9,10 @@ package org.eclipse.smarthome.core.internal.items;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
@@ -23,7 +25,6 @@ import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.core.items.ItemsChangeListener;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
@@ -49,44 +50,77 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
      */
     protected EventPublisher eventPublisher;
 
-    protected StateDescriptionProvider stateDescriptionProvider;
+    protected List<StateDescriptionProvider> stateDescriptionProviders = new CopyOnWriteArrayList<>();
 
     @Override
     public void allItemsChanged(ItemProvider provider, Collection<String> oldItemNames) {
+
+        Map<String, Item> oldItemsMap = new HashMap<>();
+        Collection<Item> oldItems = elementMap.get(provider);
+
         // if the provider did not provide any old item names, we check if we
         // know them and pass them further on to our listeners
         if (oldItemNames == null || oldItemNames.isEmpty()) {
             oldItemNames = new HashSet<String>();
-            Collection<Item> oldItems;
-            oldItems = elementMap.get(provider);
             if (oldItems != null && oldItems.size() > 0) {
                 for (Item oldItem : oldItems) {
-                    oldItemNames.add(oldItem.getName());
+                    oldItemsMap.put(oldItem.getName(), oldItem);
+                }
+            }
+        } else {
+            for (Item item : oldItems) {
+                if (oldItemNames.contains(item.getName())) {
+                    oldItemsMap.put(item.getName(), item);
                 }
             }
         }
 
-        Collection<Item> items = new CopyOnWriteArrayList<Item>();
+        Collection<Item> providedItems = provider.getAll();
+        List<Item> items = new CopyOnWriteArrayList<Item>();
         elementMap.put(provider, items);
-        for (Item item : provider.getAll()) {
-            try {
-                onAddElement(item);
-                items.add(item);
-            } catch (IllegalArgumentException ex) {
-                logger.warn("Could not add item: " + ex.getMessage(), ex);
+        for (Item item : providedItems) {
+            Item oldItem = oldItemsMap.get(item.getName());
+            if (oldItem == null) {
+                // it is a new item
+                try {
+                    onAddElement(item);
+                    items.add(item);
+                    for (RegistryChangeListener<Item> listener : listeners) {
+                        listener.added(item);
+                    }
+                } catch (IllegalArgumentException ex) {
+                    logger.warn("Could not add item: " + ex.getMessage(), ex);
+                }
+            } else if (!oldItem.equals(item)) {
+                // it is a modified item
+                try {
+                    onAddElement(item);
+                    items.add(item);
+                    for (RegistryChangeListener<Item> listener : listeners) {
+                        listener.updated(oldItem, item);
+                    }
+                } catch (IllegalArgumentException ex) {
+                    logger.warn("Could not add item: " + ex.getMessage(), ex);
+                }
+            } else {
+                // it has not been modified, so keep the old instance
+                items.add(oldItem);
+            }
+            oldItemsMap.remove(item.getName());
+        }
+
+        // send a remove notification for all remaining old items
+        for (Item removedItem : oldItemsMap.values()) {
+            for (RegistryChangeListener<Item> listener : listeners) {
+                listener.removed(removedItem);
             }
         }
 
-        for (RegistryChangeListener<Item> listener : listeners) {
-            if (listener instanceof ItemRegistryChangeListener) {
-                ((ItemRegistryChangeListener) listener).allItemsChanged(oldItemNames);
-            }
-        }
     }
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * org.eclipse.smarthome.core.internal.items.ItemRegistry#getItem(java.lang
      * .String)
@@ -114,7 +148,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * org.eclipse.smarthome.core.internal.items.ItemRegistry#getItemByPattern
      * (java.lang.String)
@@ -137,7 +171,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.eclipse.smarthome.core.internal.items.ItemRegistry#getItems()
      */
     @Override
@@ -160,7 +194,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * org.eclipse.smarthome.core.internal.items.ItemRegistry#getItems(java.
      * lang.String)
@@ -211,7 +245,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
             if (item instanceof GenericItem) {
                 GenericItem genericItem = (GenericItem) item;
                 genericItem.setEventPublisher(eventPublisher);
-                genericItem.setStateDescriptionProvider(stateDescriptionProvider);
+                genericItem.setStateDescriptionProviders(stateDescriptionProviders);
                 genericItem.initialize();
             }
 
@@ -282,17 +316,17 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
         }
     }
 
-    protected void setStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
-        this.stateDescriptionProvider = stateDescriptionProvider;
+    protected void addStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
+        this.stateDescriptionProviders.add(stateDescriptionProvider);
         for (Item item : getItems()) {
-            ((GenericItem) item).setStateDescriptionProvider(stateDescriptionProvider);
+            ((GenericItem) item).setStateDescriptionProviders(stateDescriptionProviders);
         }
     }
 
-    protected void unsetStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
-        this.stateDescriptionProvider = null;
+    protected void removeStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
+        this.stateDescriptionProviders.remove(stateDescriptionProvider);
         for (Item item : getItems()) {
-            ((GenericItem) item).setStateDescriptionProvider(null);
+            ((GenericItem) item).setStateDescriptionProviders(stateDescriptionProviders);
         }
     }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <thing:thing-descriptions bindingId="hue"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
-	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 org.eclipse.smarthome.thing-description.xsd">
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 org.eclipse.smarthome.thing-description-1.0.0.xsd">
 
 	<!-- HUE Bridge -->
 	<bridge-type id="bridge">
@@ -9,18 +9,31 @@
 		<description>The hue Bridge represents the Philips hue bridge.</description>
 
 		<config-description>
-			<parameter name="ip" type="text">
+			<parameter-group name="group1">
+				<label>Group Label 1</label>
+				<description>Group description 1</description>
+				<context>Group1-context</context>
+				<advanced>false</advanced>
+			</parameter-group>
+			<parameter-group name="group2">
+				<label>Group Label 2</label>
+				<description>Group description 2</description>
+				<context>Group2-context</context>
+				<advanced>true</advanced>
+			</parameter-group>
+			<parameter name="ip" type="text" groupName="group1">
 				<context>network-address</context>
 				<label>Network Address</label>
 				<description>Network address of the hue bridge.</description>
 				<required>true</required>
 			</parameter>
-			<parameter name="username" type="text">
+			<parameter name="username" type="text" groupName="group1">
 				<context>password</context>
 				<label>Username</label>
 				<description>Name of a registered hue bridge user, that allows to
 					access the API.
 				</description>
+				<advanced>true</advanced>
 			</parameter>
 		</config-description>
 	</bridge-type>

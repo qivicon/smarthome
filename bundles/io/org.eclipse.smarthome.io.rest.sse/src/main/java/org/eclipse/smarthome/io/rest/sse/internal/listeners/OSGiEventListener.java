@@ -32,6 +32,10 @@ public class OSGiEventListener extends AbstractEventSubscriber {
         this.eventBroadcaster = null;
     }
 
+	protected void activate() {
+		getSourceFilterList().clear();
+	}
+
     @Override
     public void receiveCommand(String itemName, Command command) {
         eventBroadcaster.broadcastEvent(itemName, CoreEventType.COMMAND, command.toString());

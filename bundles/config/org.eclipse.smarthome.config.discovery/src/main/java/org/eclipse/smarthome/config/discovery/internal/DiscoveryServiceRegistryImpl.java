@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -25,6 +26,8 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.HashMultimap;
+
 /**
  * The {@link DiscoveryServiceRegistryImpl} is a concrete implementation of the {@link DiscoveryServiceRegistry}.
  * <p>
@@ -36,11 +39,14 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Grammling - Initial Contribution
  * @author Kai Kreuzer - Refactored API
+ * @author Andre Fuechsel - Added removeOlderResults
  *
  * @see DiscoveryServiceRegistry
  * @see DiscoveryListener
  */
 public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegistry, DiscoveryListener {
+    
+    private HashMultimap<DiscoveryService, DiscoveryResult> cachedResults = HashMultimap.create();
 
     private final class AggregatingScanListener implements ScanListener {
 
@@ -128,6 +134,12 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     @Override
     public void addDiscoveryListener(DiscoveryListener listener) throws IllegalStateException {
+        synchronized (cachedResults) {
+            Set<Entry<DiscoveryService, DiscoveryResult>> entries = cachedResults.entries();
+            for (Entry<DiscoveryService, DiscoveryResult> entry : entries) {
+                listener.thingDiscovered(entry.getKey(), entry.getValue());
+            }
+        }
         if (listener != null) {
             this.listeners.add(listener);
         }
@@ -199,6 +211,9 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     @Override
     public synchronized void thingDiscovered(DiscoveryService source, DiscoveryResult result) {
+        synchronized (cachedResults) {
+            cachedResults.put(source, result);
+        }
         for (DiscoveryListener listener : this.listeners) {
             try {
                 listener.thingDiscovered(source, result);
@@ -211,6 +226,9 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     @Override
     public synchronized void thingRemoved(DiscoveryService source, ThingUID thingUID) {
+        synchronized (cachedResults) {
+            cachedResults.remove(source, thingUID);
+        }
         for (DiscoveryListener listener : this.listeners) {
             try {
                 listener.thingRemoved(source, thingUID);
@@ -219,6 +237,25 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                         + "' on Thing removed event!", ex);
             }
         }
+    }
+
+    @Override
+    public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
+            Collection<ThingTypeUID> thingTypeUIDs) {
+        HashSet<ThingUID> removedResults = new HashSet<>();
+        for (DiscoveryListener listener : this.listeners) {
+            try {
+                Collection<ThingUID> olderResults = listener.removeOlderResults(source, timestamp, thingTypeUIDs);
+                if (olderResults != null) {
+                    removedResults.addAll(olderResults);
+                }
+            } catch (Exception ex) {
+                logger.error("Cannot notify the DiscoveryListener '" + listener.getClass().getName()
+                        + "' on all things removed event!", ex);
+            }
+        }
+        
+        return removedResults; 
     }
 
     private boolean abortScans(Set<DiscoveryService> discoveryServices) {
@@ -326,11 +363,15 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     protected void removeDiscoveryService(DiscoveryService discoveryService) {
         this.discoveryServices.remove(discoveryService);
         discoveryService.removeDiscoveryListener(this);
+        synchronized (cachedResults) {
+            this.cachedResults.removeAll(discoveryService);
+        }
     }
 
     protected void deactivate() {
         this.discoveryServices.clear();
         this.listeners.clear();
+        this.cachedResults.clear();
     }
 
 }

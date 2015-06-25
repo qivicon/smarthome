@@ -86,6 +86,11 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 	}
 
 	def private void createThing(ModelThing modelThing, Bridge parentBridge, Collection<Thing> thingList) {
+		createThing(modelThing, parentBridge, thingList, null)
+	}
+
+	def private void createThing(ModelThing modelThing, Bridge parentBridge, Collection<Thing> thingList,
+		ThingHandlerFactory thingHandlerFactory) {
 		var ThingTypeUID thingTypeUID = null
 		var ThingUID thingUID = null
 		var ThingUID bridgeUID = null
@@ -99,8 +104,17 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 		} else {
 			thingUID = new ThingUID(modelThing.id)
 			thingTypeUID = new ThingTypeUID(thingUID.bindingId, thingUID.thingTypeId)
+			if(modelThing.bridgeUID != null && !modelThing.bridgeUID.empty) {
+				bridgeUID = new ThingUID(modelThing.bridgeUID)
+			}
 		}
-		logger.debug("Creating thing for type '{}' with UID '{}.", thingTypeUID, thingUID);
+
+		if (!isSupportedByThingHandlerFactory(thingTypeUID, thingHandlerFactory)) {
+			// return silently, we were not asked to do anything
+			return
+		}
+
+		logger.trace("Creating thing for type '{}' with UID '{}.", thingTypeUID, thingUID);
 		val configuration = modelThing.createConfiguration
 		val uid = thingUID
 		if (thingList.exists[UID.equals(uid)]) {
@@ -108,12 +122,10 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 			logger.debug("Thing already exists {}", uid.toString)
 			return
 		}
-		if (!isSupportedByThingHandlerFactroy(thingTypeUID)) {
-			logger.debug("For Thing with uid: {} is no ThingHandlerFactory registered", uid)
-			return
-		}
-		val thingFromHandler = getThingFromThingHandlerFactories(thingTypeUID, configuration, thingUID, bridgeUID)
-		
+
+		val thingFromHandler = getThingFromThingHandlerFactories(thingTypeUID, configuration, thingUID, bridgeUID,
+			thingHandlerFactory)
+
 		val thingBuilder = if (modelThing instanceof ModelBridge) {
 				BridgeBuilder.create(thingUID)
 			} else {
@@ -121,9 +133,8 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 			}
 
 		thingBuilder.withConfiguration(configuration)
-		if (parentBridge != null) {
-			thingBuilder.withBridge(parentBridge.UID)
-		}
+		thingBuilder.withBridge(bridgeUID)
+		
 
 		val thingType = thingTypeUID.thingType
 
@@ -134,6 +145,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 
 		//ask the ThingHandlerFactories for a thing
 		if (thingFromHandler != null) {
+
 			//If a thingHandlerFactory could create a thing, merge the content of the modelThing to it
 			thingFromHandler.merge(thing)
 		}
@@ -143,24 +155,31 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 		if (modelThing instanceof ModelBridge) {
 			val bridge = (thingFromHandler ?: thing) as Bridge
 			modelThing.things.forEach [
-				createThing(bridge as Bridge, thingList)
+				createThing(bridge as Bridge, thingList, thingHandlerFactory)
 			]
 		}
 	}
-	
-	def private boolean isSupportedByThingHandlerFactroy(ThingTypeUID thingTypeUID) {
-		for(ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
+
+	def private boolean isSupportedByThingHandlerFactory(ThingTypeUID thingTypeUID, ThingHandlerFactory specific) {
+		if (specific !== null) {
+			return specific.supportsThingType(thingTypeUID)
+		}
+		for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
 			if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	def private Thing getThingFromThingHandlerFactories(ThingTypeUID thingTypeUID, Configuration configuration,
-		ThingUID thingUID, ThingUID bridgeUID) {
+		ThingUID thingUID, ThingUID bridgeUID, ThingHandlerFactory specific) {
+		if (specific != null && specific.supportsThingType(thingTypeUID)) {
+			logger.trace("Creating thing from specific ThingHandlerFactory {} for thingType {}", specific, thingTypeUID)
+			return specific.createThing(thingTypeUID, configuration, thingUID, bridgeUID)
+		}
 		for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
-			logger.debug("searching thingHandlerFactory for thingType: {}" , thingTypeUID)
+			logger.trace("Searching thingHandlerFactory for thingType: {}", thingTypeUID)
 			if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
 				return thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
 			}
@@ -169,11 +188,10 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 	}
 
 	def dispatch void merge(Thing targetThing, Thing sourceThing) {
-		targetThing.bridgeUID=sourceThing.bridgeUID
+		targetThing.bridgeUID = sourceThing.bridgeUID
 		targetThing.configuration.merge(sourceThing.configuration)
 		targetThing.merge(sourceThing.channels)
-		
-		
+
 	}
 
 	def dispatch void merge(Configuration target, Configuration source) {
@@ -186,13 +204,14 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 		val List<Channel> channelsToAdd = newArrayList()
 		source.forEach [ sourceChannel |
 			val targetChannels = targetThing.channels.filter[it.UID.equals(sourceChannel.UID)]
-			targetChannels.forEach[
+			targetChannels.forEach [
 				merge(sourceChannel)
 			]
-			if (targetChannels.empty){
+			if (targetChannels.empty) {
 				channelsToAdd.add(sourceChannel)
 			}
 		]
+
 		//add the channels only defined in source list to the target list
 		ThingHelper.addChannelsToThing(targetThing, channelsToAdd)
 	}
@@ -202,10 +221,10 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 	}
 
 	def private getParentPath(Bridge bridge) {
-      var bridgeIds = bridge.UID.bridgeIds
-      bridgeIds.add(bridge.UID.id)
-      return bridgeIds
-   }
+		var bridgeIds = bridge.UID.bridgeIds
+		bridgeIds.add(bridge.UID.id)
+		return bridgeIds
+	}
 
 	def private List<Channel> createChannels(ThingUID thingUID, List<ModelChannel> modelChannels,
 		List<ChannelDefinition> channelDefinitions) {
@@ -213,7 +232,9 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 		val List<Channel> channels = newArrayList
 		modelChannels.forEach [
 			if (addedChannelIds.add(id)) {
-				channels += ChannelBuilder.create(new ChannelUID(thingUID, id), type).withConfiguration(createConfiguration).build
+				channels +=
+					ChannelBuilder.create(new ChannelUID(thingUID, id), type).withConfiguration(createConfiguration).
+						build
 			}
 		]
 		channelDefinitions.forEach [
@@ -272,15 +293,14 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 					addedThings.forEach [
 						notifyListenersAboutAddedElement
 					]
-					
-					currentThings.forEach[ newThing |
-						oldThings.forEach [ oldThing |
-							if (newThing.UID == oldThing.UID) {
-								if (!ThingHelper.equals(oldThing, newThing)) {
-									notifyListenersAboutUpdatedElement(oldThing, newThing)
-								}
+
+					currentThings.forEach [ newThing |
+						val oldThing = oldThings.findFirst[it.UID == newThing.UID]
+						if(oldThing != null) {
+							if (!ThingHelper.equals(oldThing, newThing)) {
+								notifyListenersAboutUpdatedElement(oldThing, newThing)
 							}
-						]
+						}
 					]
 				}
 				case org.eclipse.smarthome.model.core.EventType.REMOVED: {
@@ -304,27 +324,45 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 	def protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
 		logger.debug("ThingHandlerFactory added {}", thingHandlerFactory)
 		this.thingHandlerFactories.add(thingHandlerFactory);
-		thingHandlerFactoryAdded()
+		thingHandlerFactoryAdded(thingHandlerFactory)
 	}
-	
 
 	def protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
 		this.thingHandlerFactories.remove(thingHandlerFactory);
 		thingHandlerFactoryRemoved()
 	}
-	
-	def thingHandlerFactoryRemoved() {
-		updateThings()
+
+	def private thingHandlerFactoryRemoved() {
+		//Don't do anything, Things should not be deleted
 	}
-	
-	def thingHandlerFactoryAdded() {
-		updateThings()
-	}
-	
-	def updateThings(){
-		thingsMap.keySet.forEach[
-			modelChanged(it, org.eclipse.smarthome.model.core.EventType.MODIFIED)
+
+	def private thingHandlerFactoryAdded(ThingHandlerFactory thingHandlerFactory) {
+		thingsMap.keySet.forEach [
+			//create things for this specific thingHandlerFactory from the model.
+			createThingsFromModelForThingHandlerFactory(it, thingHandlerFactory)
 		]
 	}
-	
+
+	def private createThingsFromModelForThingHandlerFactory(String modelName, ThingHandlerFactory factory) {
+		val oldThings = thingsMap.get(modelName).clone
+		val newThings = newArrayList()
+		if (modelRepository != null) {
+			val model = modelRepository.getModel(modelName) as ThingModel
+			if (model != null) {
+				model.things.forEach [
+					createThing(null, newThings, factory)
+				]
+			}
+		}
+		newThings.forEach [ newThing |
+			val oldThing = oldThings.findFirst[it.UID == newThing.UID]
+			if (oldThing != null) {
+				// this thing already existed, so let's ignore it
+			} else {
+				logger.debug("Adding thing '{}' from model '{}.", newThing.UID, modelName);
+				thingsMap.get(modelName).add(newThing)
+				newThing.notifyListenersAboutAddedElement
+			}
+		]
+	}
 }

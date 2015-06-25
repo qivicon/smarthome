@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.thing.binding;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
@@ -18,6 +19,7 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
@@ -39,8 +41,23 @@ import com.google.common.collect.Lists;
  * @author Dennis Nobel - Initial contribution, added support for channel groups
  * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering default
  *         values
+ * @author Thomas Höfer - added thing and thing type properties
+ * @author Chris Jackson - Added properties
  */
 public class ThingFactory {
+
+    /**
+     * Generates a random Thing UID for the given thingType
+     *
+     * @param thingTypeUID
+     *            thing type (must not be null)
+     * @return random Thing UID
+     */
+    public static ThingUID generateRandomThingUID(ThingTypeUID thingTypeUID) {
+        String uuid = UUID.randomUUID().toString();
+        String thingId = uuid.substring(uuid.length() - 12, uuid.length());
+        return new ThingUID(thingTypeUID, thingId);
+    }
 
     /**
      * Creates a thing based on a given thing type.
@@ -106,8 +123,7 @@ public class ThingFactory {
         List<Channel> channels = createChannels(thingType, thingUID, configDescriptionRegistry);
 
         return createThingBuilder(thingType, thingUID).withConfiguration(configuration).withChannels(channels)
-                .withBridge(bridgeUID).build();
-
+                .withProperties(thingType.getProperties()).withBridge(bridgeUID).build();
     }
 
     /**
@@ -123,16 +139,14 @@ public class ThingFactory {
      * @return thing
      */
     public static Thing createThing(ThingType thingType, ThingUID thingUID, Configuration configuration) {
-
         return createThing(thingType, thingUID, configuration, null);
     }
 
     private static GenericThingBuilder<?> createThingBuilder(ThingType thingType, ThingUID thingUID) {
         if (thingType instanceof BridgeType) {
             return BridgeBuilder.create(thingUID);
-        } else {
-            return ThingBuilder.create(thingUID);
         }
+        return ThingBuilder.create(thingUID);
     }
 
     private static List<Channel> createChannels(ThingType thingType, ThingUID thingUID,
@@ -179,6 +193,8 @@ public class ThingFactory {
                 channelBuilder = channelBuilder.withConfiguration(config);
             }
         }
+
+        channelBuilder = channelBuilder.withProperties(channelDefinition.getProperties());
 
         Channel channel = channelBuilder.build();
         return channel;
