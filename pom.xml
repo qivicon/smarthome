@@ -57,7 +57,7 @@
 
   <modules>
     <module>bundles</module>
-    <module>addons</module>
+    <module>extensions</module>
     <module>features</module>
     <module>products</module>
     <module>tools</module>
@@ -160,6 +160,9 @@
       <plugin>
         <groupId>org.eclipse.xtend</groupId>
         <artifactId>xtend-maven-plugin</artifactId>
+        <configuration>
+        	<javaSourceVersion>1.7</javaSourceVersion>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>

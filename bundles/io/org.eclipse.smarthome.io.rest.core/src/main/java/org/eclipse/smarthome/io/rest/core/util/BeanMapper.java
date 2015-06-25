@@ -65,7 +65,8 @@ public class BeanMapper {
         for (Item item : channel.getLinkedItems()) {
             linkedItemNames.add(item.getName());
         }
-        return new ChannelBean(channel.getUID().getId(), channel.getAcceptedItemType().toString(), linkedItemNames);
+        return new ChannelBean(channel.getUID().getId(), channel.getAcceptedItemType().toString(), linkedItemNames,
+                channel.getProperties());
     }
 
     public static DiscoveryResultBean mapDiscoveryResultToBean(DiscoveryResult discoveryResult) {
@@ -100,20 +101,29 @@ public class BeanMapper {
         bean.groupNames = item.getGroupNames();
     }
 
-	private static StateDescription considerTransformation(StateDescription desc) {
-		if(desc == null || desc.getPattern() == null) {
-			return desc;
-		} else {
-			return TransformationHelper.isTransform(desc.getPattern()) ? 
-				new StateDescription(desc.getMinimum(), desc.getMaximum(), desc.getStep(), "", desc.isReadOnly(), desc.getOptions()) : desc;
-		}
-	}
+    private static StateDescription considerTransformation(StateDescription desc) {
+        try {
+            if (desc == null || desc.getPattern() == null) {
+                return desc;
+            } else {
+                return TransformationHelper.isTransform(desc.getPattern()) ? new StateDescription(desc.getMinimum(),
+                        desc.getMaximum(), desc.getStep(), "", desc.isReadOnly(), desc.getOptions()) : desc;
+            }
+        } catch (NoClassDefFoundError e) {
+            return desc;
+        }
+    }
 
-	private static String considerTransformation(String state, StateDescription stateDescription) {
-		if(stateDescription != null && stateDescription.getPattern() != null) {
-			return TransformationHelper.transform(RESTCoreActivator.getBundleContext(), stateDescription.getPattern(), state.toString());
-		} else {
-			return state;
-		}
-	}
+    private static String considerTransformation(String state, StateDescription stateDescription) {
+        try {
+            if (stateDescription != null && stateDescription.getPattern() != null) {
+                return TransformationHelper.transform(RESTCoreActivator.getBundleContext(),
+                        stateDescription.getPattern(), state.toString());
+            } else {
+                return state;
+            }
+        } catch (NoClassDefFoundError e) {
+            return state;
+        }
+    }
 }
