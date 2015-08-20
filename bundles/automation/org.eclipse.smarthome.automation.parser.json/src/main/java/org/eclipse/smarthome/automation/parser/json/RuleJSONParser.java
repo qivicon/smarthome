@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -19,10 +18,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.dto.ActionDTO;
+import org.eclipse.smarthome.automation.dto.ConditionDTO;
+import org.eclipse.smarthome.automation.dto.RuleDTO;
+import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
@@ -39,9 +41,11 @@ import org.slf4j.LoggerFactory;
  * @author Ana Dimova - Initial Contribution
  *
  */
-public class RuleJSONParser implements Parser {
+public class RuleJSONParser implements Parser<Rule> {
 
-    private AutomationFactory automationFactory;
+    /**
+     * This field is used for logging
+     */
     private Logger log;
 
     /**
@@ -49,8 +53,7 @@ public class RuleJSONParser implements Parser {
      *
      * @param automationFactory the AutomationFactory
      */
-    public RuleJSONParser(AutomationFactory automationFactory) {
-        this.automationFactory = automationFactory;
+    public RuleJSONParser() {
         this.log = LoggerFactory.getLogger(RuleJSONParser.class);
     }
 
@@ -78,7 +81,7 @@ public class RuleJSONParser implements Parser {
     }
 
     @Override
-    public void exportData(Set<?> dataObjects, OutputStreamWriter writer) throws IOException {
+    public void exportData(Set<Rule> dataObjects, OutputStreamWriter writer) throws IOException {
         try {
             writeRules(dataObjects, writer);
         } catch (JSONException e) {
@@ -105,37 +108,40 @@ public class RuleJSONParser implements Parser {
             }
         }
         Map<String, Object> configurations = null;
-        Rule rule = null;
+        RuleDTO rule = new RuleDTO();
+        String uid = JSONUtility.getString(JSONStructureConstants.VISIBILITY, true, jsonRule, status);
         String ruleTemplateUID = JSONUtility.getString(JSONStructureConstants.TEMPLATE_UID, true, jsonRule, status);
         if (ruleTemplateUID != null) {
             JSONObject jsonConfig = JSONUtility.getJSONObject(JSONStructureConstants.CONFIG, true, jsonRule, status);
             configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig);
             try {
-                rule = automationFactory.createRule(ruleTemplateUID, configurations);
+                if (uid != null)
+                    rule.uid = uid;
+                rule.ruleTemplateUID = ruleTemplateUID;
+                rule.configurations = configurations;
             } catch (Exception e) {
                 status.error("Failed to instantiate rule: " + e.getMessage(), e);
                 return status;
             }
         } else {
-            List<Trigger> triggers = new ArrayList<Trigger>();
-            List<Condition> conditions = new ArrayList<Condition>();
-            List<Action> actions = new ArrayList<Action>();
+            List<TriggerDTO> triggers = new ArrayList<TriggerDTO>();
+            List<ConditionDTO> conditions = new ArrayList<ConditionDTO>();
+            List<ActionDTO> actions = new ArrayList<ActionDTO>();
             Set<ConfigDescriptionParameter> configDescriptions = null;
             JSONArray sectionTrigers = JSONUtility.getJSONArray(JSONStructureConstants.ON, false, jsonRule, status);
             if (sectionTrigers == null)
                 return status;
-            if (!ModuleJSONParser.createTrigerModules(status, automationFactory, null, triggers, sectionTrigers))
+            if (!ModuleJSONParser.createTrigerModules(status, triggers, sectionTrigers))
                 return status;
             JSONArray sectionConditions = JSONUtility.getJSONArray(JSONStructureConstants.IF, true, jsonRule, status);
             if (sectionConditions != null) {
-                if (!ModuleJSONParser.createConditionModules(status, automationFactory, null, conditions,
-                        sectionConditions))
+                if (!ModuleJSONParser.createConditionModules(status, conditions, sectionConditions))
                     return status;
             }
             JSONArray sectionActions = JSONUtility.getJSONArray(JSONStructureConstants.THEN, false, jsonRule, status);
             if (sectionActions == null)
                 return status;
-            if (!ModuleJSONParser.createActionModules(status, automationFactory, null, actions, sectionActions))
+            if (!ModuleJSONParser.createActionModules(status, actions, sectionActions))
                 return status;
             configDescriptions = new LinkedHashSet<ConfigDescriptionParameter>();
             JSONObject jsonConfig = JSONUtility.getJSONObject(JSONStructureConstants.CONFIG, true, jsonRule, status);
@@ -146,7 +152,12 @@ public class RuleJSONParser implements Parser {
                 }
             }
             try {
-                rule = automationFactory.createRule(triggers, conditions, actions, configDescriptions, configurations);
+                if (uid != null)
+                    rule.uid = uid;
+                rule.configurations = configurations;
+                rule.actions = actions;
+                rule.conditions = conditions;
+                rule.triggers = triggers;
             } catch (Exception e) {
                 status.error("Failed to validate connections of Rule! " + e.getMessage(), e);
                 return status;
@@ -154,7 +165,7 @@ public class RuleJSONParser implements Parser {
         }
         String ruleName = JSONUtility.getString(JSONStructureConstants.NAME, true, jsonRule, status);
         if (ruleName != null)
-            rule.setName(ruleName);
+            rule.name = ruleName;
         else
             return status;
         JSONArray jsonTags = JSONUtility.getJSONArray(JSONStructureConstants.TAGS, true, jsonRule, status);
@@ -165,24 +176,26 @@ public class RuleJSONParser implements Parser {
                 if (tag != null)
                     tags.add(tag);
             }
-            rule.setTags(tags);
+            rule.tags = tags;
         }
         status.success(rule);
-        status.init(Status.RULE, rule.getUID());
+        status.init(Status.RULE, rule.uid);
         return status;
     }
 
     /**
-     * @throws IOException
-     * @throws JSONException
+     * This method is used to export the set of {@link Rule}s reverting them to JSON format..
+     *
+     * @throws IOException is thrown when the I/O operations are failed or interrupted.
+     * @throws JSONException is thrown by the JSON.org classes when things are amiss.
      * @see org.eclipse.smarthome.automation.parser.RuleParser#writeRules(org.eclipse.smarthome.automation.Rule,
      *      java.io.OutputStreamWriter)
      */
-    private void writeRules(Collection<?> rules, OutputStreamWriter writer) throws IOException, JSONException {
+    private void writeRules(Set<Rule> rules, OutputStreamWriter writer) throws IOException, JSONException {
         writer.write("[\n");
-        Iterator<?> i = rules.iterator();
+        Iterator<Rule> i = rules.iterator();
         while (i.hasNext()) {
-            Rule rule = (Rule) i.next();
+            Rule rule = i.next();
             ruleToJSON(rule, writer);
             if (i.hasNext()) {
                 writer.write(",\n");
@@ -197,8 +210,8 @@ public class RuleJSONParser implements Parser {
      * @param rule is a {@link Rule} object to revert.
      * @param writer
      * @return JSONObject is an object representing the {@link Rule} in json format.
-     * @throws IOException
-     * @throws JSONException
+     * @throws IOException is thrown when the I/O operations are failed or interrupted.
+     * @throws JSONException is thrown by the JSON.org classes when things are amiss.
      */
     private void ruleToJSON(Rule rule, OutputStreamWriter writer) throws IOException, JSONException {
         writer.write("  {\n");
@@ -245,12 +258,13 @@ public class RuleJSONParser implements Parser {
     }
 
     /**
+     * This method is used for reverting the {@link Rule}'s configuration description to JSON format.
      *
-     * @param configDescriptions
-     * @param configValues
-     * @param writer
-     * @throws IOException
-     * @throws JSONException
+     * @param configDescriptions is the {@link Rule}'s configuration description to convert.
+     * @param configValues is the {@link Rule}'s configuration values.
+     * @param writer is the {@link OutputStreamWriter} used for exporting the rule.
+     * @throws IOException is thrown when the I/O operations are failed or interrupted.
+     * @throws JSONException is thrown by the JSON.org classes when things are amiss.
      */
     private void ruleConfigurationToJSON(Set<ConfigDescriptionParameter> configDescriptions,
             Map<String, Object> configValues, OutputStreamWriter writer) throws IOException, JSONException {

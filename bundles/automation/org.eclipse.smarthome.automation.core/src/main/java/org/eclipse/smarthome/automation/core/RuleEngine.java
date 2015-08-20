@@ -22,8 +22,9 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
-import org.eclipse.smarthome.automation.RuleError;
 import org.eclipse.smarthome.automation.RuleStatus;
+import org.eclipse.smarthome.automation.RuleStatusDetail;
+import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.RuleEngineCallbackImpl.TriggerData;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
@@ -73,12 +74,12 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * {@link Map} of rule's id to corresponding {@link RuleEngineCallback}s. For each {@link Rule} there is one and
      * only one rule callback.
      */
-    private static Map<String, RuleEngineCallbackImpl> reCallbacks = new HashMap<String, RuleEngineCallbackImpl>();
+    private Map<String, RuleEngineCallbackImpl> reCallbacks = new HashMap<String, RuleEngineCallbackImpl>();
 
     /**
      * {@link Map} of system module type (handler's module types) to rules where this module types are used in.
      */
-    private static Map<String, Set<String>> mapHandlerTypeToRule = new HashMap<String, Set<String>>();
+    private Map<String, Set<String>> mapHandlerTypeToRule = new HashMap<String, Set<String>>();
 
     /**
      * {@link Map} of created rules. It contains all rules added to rule engine independent if they are initialized or
@@ -107,9 +108,11 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     /**
      * {@link Map} of {@link Rule}'s id to current {@link RuleStatus} object.
      */
-    private static Map<String, RuleStatus> statusMap = new HashMap<String, RuleStatus>();
+    private Map<String, RuleStatusInfo> statusMap = new HashMap<String, RuleStatusInfo>();
 
-    private static Logger log;
+    private Logger logger;
+
+    public static final String ID_PREFIX = "rule_"; //$NON-NLS-1$
 
     /**
      * Constructor of {@link RuleEngine}. It initializes rules and handler factories maps and starts
@@ -120,7 +123,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     @SuppressWarnings("unchecked")
     public RuleEngine(BundleContext bc) {
         this.bc = bc;
-        RuleEngine.log = LoggerFactory.getLogger(getClass());
+        logger = LoggerFactory.getLogger(getClass());
         if (rules == null) {
             rules = new HashMap<String, RuleImpl>(20);
         }
@@ -129,6 +132,46 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 ModuleHandlerFactory.class.getName(), this);
         mhfTracker.open();
 
+    }
+
+    public synchronized void addRule(Rule rule) {
+        addRule0(rule, getScopeIdentifier());
+    }
+
+    public synchronized void addRule(Rule rule, String identity) {
+        // TODO check permissions
+        addRule0(rule, identity);
+    }
+
+    /**
+     * @param rule
+     * @param identity
+     * @throws IllegalArgumentException when the rule is already added or tring to add illegal instance of rule.
+     */
+    protected RuleImpl addRule0(Rule rule, String identity) {
+        if (!(rule instanceof RuleImpl)) {
+            throw new IllegalArgumentException("Illegal instance of Rule: " + rule);
+        }
+        RuleImpl r = (RuleImpl) rule;
+        String rUID = r.getUID();
+        if (rUID != null) {
+            if (getRule(rUID) != null) {
+                throw new IllegalArgumentException("The rule: " + rUID + " is already added.");
+            }
+        } else {
+            rUID = getUniqueId();
+            r.setUID(rUID);
+        }
+        RuleImpl r1 = new RuleImpl(r);
+        r1.setScopeIdentifier(identity);
+        r1.setUID(rUID);
+        setRule(r1);
+        return r1;
+    }
+
+    public synchronized void updateRule(Rule rule) {
+        RuleImpl r1 = assertRule(rule);
+        setRule(r1);
     }
 
     /**
@@ -146,15 +189,15 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             return;
         }
 
-        RuleStatus ruleStatus = statusMap.get(r.getUID());
-        if (ruleStatus != null && RuleStatus.Status.NOT_ENABLED == ruleStatus.getStatus()) {
+        RuleStatusInfo ruleStatus = statusMap.get(r.getUID());
+        if (ruleStatus != null && RuleStatus.DISABLED == ruleStatus.getStatus()) {
             return;
         }
 
         System.out.println("RuleEngine setRule " + r.getUID());
         String rUID = r.getUID();
 
-        setRuleStatus(rUID, RuleStatus.Status.NOT_INITIALIZED, null);
+        setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED));
 
         // List<RuleError> errList = null;
         String errMsgs = null;
@@ -180,28 +223,32 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
         if (errMessage == null) {
             register(r);
+
+            // change state to IDLE
+            setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.IDLE));
+
+            logger.debug(LOG_HEADER, "Rule started: " + r.getUID());
         } else {
-            unregister(r, new RuleErrorImpl(RuleError.Code.ERROR_CODE_MISSING_HANDLER, errMsgs));
+            unregister(r);
+
+            // change state to NOTINITIALIZED
+            setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
+                    RuleStatusDetail.HANDLER_INITIALIZING_ERROR, errMessage));
+
+            logger.debug(LOG_HEADER, "Rule stopped: " + r.getUID());
+
         }
     }
 
     /**
-     * This method changes {@link RuleStatus} of the Rule.
+     * This method changes {@link RuleStatusInfo} of the Rule.
      *
      * @param rUID rule's id
-     * @param status new rule status
+     * @param status new rule status info
      */
-    private static void setRuleStatus(String rUID, RuleStatus.Status status, RuleError err) {
-        RuleStatusImpl ruleStatus = (RuleStatusImpl) statusMap.get(rUID);
-        if (ruleStatus != null) {
-            ruleStatus.setStatus(status);
-            ruleStatus.setError(null);
-        } else {
-            ruleStatus = new RuleStatusImpl(status, err);
-        }
-
-        System.out.println("[Status] " + rUID + " -> " + status + (err != null ? " : " + err : ""));
-        statusMap.put(rUID, ruleStatus);
+    private void setRuleStatusInfo(String rUID, RuleStatusInfo status) {
+        logger.debug("[Rule Status] " + rUID + " -> " + status);
+        statusMap.put(rUID, status);
         // TODO fire status change event
     }
 
@@ -233,7 +280,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                     }
                     String message = "Missing handler: " + t.getTypeUID() + ", for module: " + t.getId();
                     sb.append(message).append("\n");
-                    log.warn(message);
+                    logger.warn(message);
                 }
             }
         }
@@ -246,10 +293,10 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @param rule rule object for which the callback is looking for.
      * @return a {@link RuleEngineCallback} corresponding to the passed {@link Rule} object.
      */
-    private static RuleEngineCallbackImpl getRuleEngineCallback(RuleImpl rule) {
+    private RuleEngineCallbackImpl getRuleEngineCallback(RuleImpl rule) {
         RuleEngineCallbackImpl result = reCallbacks.get(rule.getUID());
         if (result == null) {
-            result = new RuleEngineCallbackImpl(rule);
+            result = new RuleEngineCallbackImpl(this, rule);
             reCallbacks.put(rule.getUID(), result);
         }
         return result;
@@ -261,6 +308,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      *
      * @param modules list of module which are disconnected.
      */
+    @SuppressWarnings("unchecked")
     private <T extends Module> void removeHandlers(List<T> modules) {
         if (modules != null) {
             for (Iterator<T> it = modules.iterator(); it.hasNext();) {
@@ -289,11 +337,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             TriggerHandler triggerHandler = t.getModuleHandler();
             triggerHandler.setRuleEngineCallback(reCallback);
         }
-
-        // change state NOT INITIALIZED -> IDLE
-        setRuleStatus(r.getUID(), RuleStatus.Status.IDLE, null);
-
-        log.debug(LOG_HEADER, "Rule started: " + r.getUID());
     }
 
     /**
@@ -302,9 +345,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * rule stays available but its state is moved to not initialized.
      *
      * @param r the unregistered rule
-     * @param errList list errors when they are available
      */
-    private void unregister(RuleImpl r, RuleError err) {
+    private void unregister(RuleImpl r) {
         RuleEngineCallbackImpl reCallback = reCallbacks.remove(r.getUID());
         if (reCallback != null) {
             reCallback.dispose();
@@ -312,12 +354,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         removeHandlers(r.triggers);
         removeHandlers(r.actions);
         removeHandlers(r.conditions);
-
-        // change state IDLE -> NOTINITIALIZED
-        setRuleStatus(r.getUID(), RuleStatus.Status.NOT_INITIALIZED, err);
-
-        log.debug(LOG_HEADER, "Rule stopped: " + r.getUID());
-
     }
 
     /**
@@ -358,12 +394,15 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * This method removes Rule from rule engine. It is called by the {@link RuleManager}
      *
      * @param id id of removed {@link Rule}
-     * @return removed {@link Rule} object.
+     * @return true when a rule is deleted, false when there is no rule with such id.
      */
-    protected synchronized RuleImpl removeRule(String id) {
+    public synchronized boolean removeRule(String id) {
         RuleImpl r = rules.remove(id);
-        removeRuleEntry(r);
-        return r;
+        if (r != null) {
+            removeRuleEntry(r);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -373,7 +412,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @return removed rule
      */
     private RuleImpl removeRuleEntry(RuleImpl r) {
-        unregister(r, null);
+        unregister(r);
         statusMap.remove(r.getUID());
 
         for (Iterator<Map.Entry<String, Set<String>>> it = mapHandlerTypeToRule.entrySet().iterator(); it.hasNext();) {
@@ -396,24 +435,32 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @param rId rule id
      * @return {@link Rule} object or null when rule with such id is not added to the {@link RuleManager}.
      */
-    protected RuleImpl getRule(String rId) {
-        return rules.get(rId);
+    public synchronized RuleImpl getRule(String rId) {
+        RuleImpl oldR = rules.get(rId);
+        if (oldR != null) {
+            // return copy of the rule
+            return new RuleImpl(oldR);
+        }
+        return null;
     }
 
-    protected void setRuleEnable(String rUID, boolean isEnabled) {
+    public synchronized Collection<Rule> getRules() {
+        return getRulesByTag((String) null);
+    }
+
+    public synchronized void setRuleEnabled(String rUID, boolean isEnabled) {
         RuleStatus status = getRuleStatus(rUID);
         if (status != null) {
             if (isEnabled) {
-                if (status.getStatus() == RuleStatus.Status.NOT_ENABLED) {
+                if (status == RuleStatus.DISABLED) {
                     setRule(getRule(rUID));
                 } else {
-                    log.info("The rule rId = " + rUID + " is already enabled");
+                    logger.info("The rule rId = " + rUID + " is already enabled");
                 }
             } else {
-                // change state IDLE -> NOT INITIALIZED
-                unregister(getRule(rUID), null);
-                // change state NOT INITIALIZED -> NOT ENABLED
-                setRuleStatus(rUID, RuleStatus.Status.NOT_ENABLED, null);
+                unregister(getRule(rUID));
+                // change state to DISABLED
+                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.DISABLED));
             }
         } else {
             throw new IllegalStateException("The rule rId = " + rUID + " is not available");
@@ -490,23 +537,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     }
 
     /**
-     * Gets rules filtered by scope id.
-     *
-     * @return return rules belonging to specified scope.
-     */
-    protected Collection<String> getScopeIds() {
-        Set<String> result = new HashSet<String>(10);
-        for (Iterator<RuleImpl> it = rules.values().iterator(); it.hasNext();) {
-            RuleImpl r = it.next();
-            String id = r.getScopeIdentifier();
-            if (id != null) {
-                result.add(id);
-            }
-        }
-        return result;
-    }
-
-    /**
      * This method tracks for {@link ModuleHandlerFactory}s. When a new factory is appeared it is added to the
      * {@link #moduleHandlerFactories} map and rules depending from the system module type handled by this factory are
      * tried to be initialized.
@@ -515,6 +545,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      */
     @Override
     public synchronized ModuleHandlerFactory addingService(ServiceReference/* <ModuleHandlerFactory> */ reference) {
+        @SuppressWarnings("unchecked")
         ModuleHandlerFactory mhf = (ModuleHandlerFactory) bc.getService(reference);
         Collection<String> moduleTypes = mhf.getTypes();
         Set<String> notInitailizedRules = null;
@@ -525,7 +556,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             if (rules != null) {
                 for (String rUID : rules) {
                     RuleStatus ruleStatus = getRuleStatus(rUID);
-                    if (ruleStatus.getStatus() == RuleStatus.Status.NOT_INITIALIZED) {
+                    if (ruleStatus == RuleStatus.NOT_INITIALIZED) {
                         notInitailizedRules = notInitailizedRules != null ? notInitailizedRules
                                 : new HashSet<String>(20);
                         notInitailizedRules.add(rUID);
@@ -574,7 +605,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             if (rules != null) {
                 for (String rUID : rules) {
                     RuleStatus ruleStatus = getRuleStatus(rUID);
-                    switch (ruleStatus.getStatus()) {
+                    switch (ruleStatus) {
                         case RUNNING:
                         case IDLE:
                             mapMissingHandlers = mapMissingHandlers != null ? mapMissingHandlers
@@ -602,7 +633,9 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 for (String typeUID : missingTypes) {
                     sb.append("Missing handler: ").append(typeUID).append("\n");
                 }
-                unregister(getRule(rUID), new RuleErrorImpl(RuleError.Code.ERROR_CODE_MISSING_HANDLER, sb.toString()));
+                unregister(getRule(rUID));
+                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
+                        RuleStatusDetail.HANDLER_MISSING_ERROR, sb.toString()));
             }
         }
     }
@@ -614,29 +647,27 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @param rule the {@link Rule} which has to evaluated passed {@link TriggerData}.
      * @param td {@link TriggerData} object containing new values for {@link Trigger}'s {@link Output}s
      */
-    protected static void runRule(RuleImpl rule, RuleEngineCallbackImpl.TriggerData td) {
+    protected void runRule(RuleImpl rule, RuleEngineCallbackImpl.TriggerData td) {
         RuleStatus ruleStatus = getRuleStatus(rule.getUID());
-        if (ruleStatus.getStatus() == RuleStatus.Status.IDLE) {
+        if (ruleStatus == RuleStatus.IDLE) {
             try {
 
-                // change state IDLE -> RUNNING
-                setRuleStatus(rule.getUID(), RuleStatus.Status.RUNNING, null);
+                // change state to RUNNING
+                setRuleStatusInfo(rule.getUID(), new RuleStatusInfo(RuleStatus.RUNNING));
                 setTriggerOutputs(td);
                 boolean isSatisfied = calculateConditions(rule);
                 if (isSatisfied) {
                     executeActions(rule);
-                    log.debug("The rule: " + rule.getUID() + " is executed.");
+                    logger.debug("The rule: " + rule.getUID() + " is executed.");
                 }
             } catch (Throwable t) {
-                log.error("Fail to execute rule: " + rule.getUID(), t);
+                logger.error("Fail to execute rule: " + rule.getUID(), t);
             }
 
-            // change state RUNNING -> IDLE
-            setRuleStatus(rule.getUID(), RuleStatus.Status.IDLE, null);
-
+            // change state to IDLE
+            setRuleStatusInfo(rule.getUID(), new RuleStatusInfo(RuleStatus.IDLE));
         } else {
-            log.error("Try to execute NOT IDLE rule rID = " + rule.getUID() + " status = "
-                    + ruleStatus.getStatus().getValue());
+            logger.error("Try to execute NOT IDLE rule rID = " + rule.getUID() + " status = " + ruleStatus.getValue());
         }
 
     }
@@ -646,7 +677,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      *
      * @param td new Triggered data.
      */
-    private static void setTriggerOutputs(TriggerData td) {
+    private void setTriggerOutputs(TriggerData td) {
         Trigger t = td.getTrigger();
         if (!(t instanceof SourceModule)) {
             throw new IllegalArgumentException("Invalid Trigger implementation: " + t);
@@ -662,7 +693,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @param rule the checked rule
      * @return true when all conditions of the rule are satisfied, false otherwise.
      */
-    private static boolean calculateConditions(Rule rule) {
+    private boolean calculateConditions(Rule rule) {
         List<Condition> conditions = ((RuleImpl) rule).conditions;
         if (conditions == null || conditions.size() == 0) {
             return true;
@@ -688,7 +719,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @param connectionOutputs {@link Map} of input's names and associated Outputs to them.
      * @return
      */
-    private static Map<String, ?> getInputValues(Map<String, OutputRef> connectionOutputs) {
+    private Map<String, ?> getInputValues(Map<String, OutputRef> connectionOutputs) {
         Map<String, Object> inputs = new HashMap<String, Object>(11);
         for (Iterator<Map.Entry<String, OutputRef>> it = connectionOutputs.entrySet().iterator(); it.hasNext();) {
             Map.Entry<String, OutputRef> e = it.next();
@@ -705,7 +736,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @param r rule where the {@link ConnectedModule} belongs to.
      * @return {@link Map} of inputs and associated to them {@link OutputRef}s
      */
-    private static Map<String, OutputRef> initConnections(ConnectedModule cm, Rule r) {
+    private Map<String, OutputRef> initConnections(ConnectedModule cm, Rule r) {
         Set<Connection> connections = cm.getConnections();
         Map<String, OutputRef> connectedOutputs = new HashMap<String, OutputRef>(11);
         if (connections != null) {
@@ -717,7 +748,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                     OutputRef outputRef = new OutputRef(conn.getOutputName(), (SourceModule) m);
                     connectedOutputs.put(conn.getInputName(), outputRef);
                 } else {
-                    log.warn("Condition " + cm + "can not be connected to module: " + uid
+                    logger.warn("Condition " + cm + "can not be connected to module: " + uid
                             + ". The module is not available or not a data source!");
                 }
             }
@@ -731,7 +762,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      *
      * @param rule executed rule.
      */
-    private static void executeActions(Rule rule) {
+    private void executeActions(Rule rule) {
         List<Action> actions = ((RuleImpl) rule).actions;
         if (actions == null || actions.size() == 0) {
             return;
@@ -771,15 +802,81 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         }
     }
 
+    private RuleImpl assertRule(Rule rule) {
+        if (rule instanceof RuleImpl) {
+            throw new IllegalArgumentException("Illegal instance of Rule: " + rule);
+        }
+        RuleImpl r = (RuleImpl) rule;
+        String rUID = r.getUID();
+        if ((rUID == null) || (getRule(rUID) == null)) {
+            throw new IllegalArgumentException("The rule: " + rule + " is not added!");
+        }
+        RuleImpl oldR = getRule(rUID);
+        if (oldR == null) {
+            throw new IllegalArgumentException(
+                    "The rule: " + rUID + " is not added. Please add the rule before update it.");
+        }
+        RuleImpl r1 = new RuleImpl(r);
+        return r1;
+    }
+
     /**
      * This method gets rule's status object.
      *
      * @param rUID rule uid
      * @return status of the rule or null when such rule does not exists.
      */
-    protected static RuleStatus getRuleStatus(String rUID) {
-        RuleStatus status = statusMap.get(rUID);
+    public synchronized RuleStatus getRuleStatus(String rUID) {
+        RuleStatusInfo info = statusMap.get(rUID);
+        RuleStatus status = null;
+        if (info != null)
+            status = info.getStatus();
         return status;
     }
 
+    protected String getScopeIdentifier() {
+        // TODO get the caller scope id.
+        return null;
+    }
+
+    public synchronized Collection<String> getScopeIdentifiers() {
+        // TODO check permissions
+        Set<String> result = new HashSet<String>(10);
+        for (Iterator<RuleImpl> it = rules.values().iterator(); it.hasNext();) {
+            RuleImpl r = it.next();
+            String id = r.getScopeIdentifier();
+            if (id != null) {
+                result.add(id);
+            }
+        }
+        return result;
+    }
+
+    protected String getUniqueId() {
+        return ID_PREFIX + getMaxId();
+    }
+
+    protected int getMaxId() {
+        int result = 0;
+        if (rules == null) {
+            return result;
+        }
+        Set<String> col = rules.keySet();
+        if (col != null) {
+            for (Iterator<String> it = col.iterator(); it.hasNext();) {
+                String rUID = it.next();
+                if (rUID.startsWith(ID_PREFIX)) {
+                    String sNum = rUID.substring(ID_PREFIX.length());
+                    int i;
+                    try {
+                        i = Integer.parseInt(sNum);
+                        result = i > result ? i : result; // find bigger key
+                    } catch (NumberFormatException e) {
+                        // skip this key
+                    }
+                }
+            }
+        }
+        return result;
+    }
 }
