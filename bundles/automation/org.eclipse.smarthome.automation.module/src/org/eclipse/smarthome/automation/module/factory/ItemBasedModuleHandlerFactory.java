@@ -19,6 +19,7 @@ import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
+import org.eclipse.smarthome.automation.module.handler.GenericEventTriggerHandler;
 import org.eclipse.smarthome.automation.module.handler.ItemPostCommandActionHandler;
 import org.eclipse.smarthome.automation.module.handler.ItemStateChangeTriggerHandler;
 import org.eclipse.smarthome.automation.module.handler.ItemStateConditionHandler;
@@ -27,7 +28,6 @@ import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
@@ -46,7 +46,7 @@ public class ItemBasedModuleHandlerFactory extends BaseModuleHandlerFactory {
 
 	private static final Collection<String> types = Arrays.asList(new String[] {
 			ItemStateChangeTriggerHandler.ITEM_STATE_CHANGE_TRIGGER, ItemStateConditionHandler.ITEM_STATE_CONDITION,
-			ItemPostCommandActionHandler.ITEM_POST_COMMAND_ACTION });
+			ItemPostCommandActionHandler.ITEM_POST_COMMAND_ACTION, GenericEventTriggerHandler.MODULE_TYPE_ID });
 
 	private ServiceTracker itemRegistryTracker;
 	private ServiceTracker eventPublisherTracker;
@@ -54,7 +54,7 @@ public class ItemBasedModuleHandlerFactory extends BaseModuleHandlerFactory {
 	private ItemRegistry itemRegistry;
 	private EventPublisher eventPublisher;
 
-	private Map<String, ItemStateChangeTriggerHandler> itemStateChangeTriggerHandlers = new HashMap<String, ItemStateChangeTriggerHandler>();
+	private Map<String, GenericEventTriggerHandler> genericEventTriggerHandlers = new HashMap<String, GenericEventTriggerHandler>();
 	private Map<String, ItemStateConditionHandler> itemStateConditionHandlers = new HashMap<String, ItemStateConditionHandler>();
 	private Map<String, ItemPostCommandActionHandler> itemPostCommandActionHandlers = new HashMap<String, ItemPostCommandActionHandler>();
 
@@ -175,13 +175,13 @@ public class ItemBasedModuleHandlerFactory extends BaseModuleHandlerFactory {
 		logger.debug("create " + module.getId() + "->" + module.getTypeUID());
 		String moduleTypeUID = module.getTypeUID();
 		if (systemModuleTypeUID != null) {
-			if (ItemStateChangeTriggerHandler.ITEM_STATE_CHANGE_TRIGGER.equals(systemModuleTypeUID)
+			if (GenericEventTriggerHandler.MODULE_TYPE_ID.equals(systemModuleTypeUID)
 					&& module instanceof Trigger) {
-				ItemStateChangeTriggerHandler triggerHandler = itemStateChangeTriggerHandlers.get(module.getId());
+				GenericEventTriggerHandler triggerHandler = genericEventTriggerHandlers.get(module.getId());
 				if (triggerHandler == null) {
-					triggerHandler = new ItemStateChangeTriggerHandler((Trigger) module, moduleTypes,
+					triggerHandler = new GenericEventTriggerHandler((Trigger) module, moduleTypes,
 							this.bundleContext);
-					itemStateChangeTriggerHandlers.put(module.getId(), triggerHandler);
+					genericEventTriggerHandlers.put(module.getId(), triggerHandler);
 				}
 				return triggerHandler;
 			} else if (ItemStateConditionHandler.ITEM_STATE_CONDITION.equals(systemModuleTypeUID)
