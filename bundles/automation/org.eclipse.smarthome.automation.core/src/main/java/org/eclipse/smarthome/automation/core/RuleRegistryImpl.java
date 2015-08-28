@@ -16,6 +16,8 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.events.RuleEventFactory;
+import org.eclipse.smarthome.automation.RuleStatusInfo;
+import org.eclipse.smarthome.automation.StatusInfoCallback;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.events.EventPublisher;
@@ -29,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  * @author Benedikt Niehues - added events for rules
  */
-public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements RuleRegistry {
+public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements RuleRegistry, StatusInfoCallback {
 
     private RuleEngine ruleEngine;
     private Set<String> disabledRuledSet = new HashSet(0);
@@ -38,9 +40,10 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     
     private static final String SOURCE = RuleRegistryImpl.class.getSimpleName();
 
-    public RuleRegistryImpl(RuleEngine ruleManager) {
+    public RuleRegistryImpl(RuleEngine ruleEngine) {
         logger = LoggerFactory.getLogger(getClass());
-        this.ruleEngine = ruleManager;
+        this.ruleEngine = ruleEngine;
+        ruleEngine.setStatusInfoCallback(this);
 
     }
 
@@ -150,6 +153,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
                 }
             }
         }
+
         ruleEngine.dispose();
     }
 
@@ -178,4 +182,10 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
         super.unsetEventPublisher(eventPublisher);
     }
 
+
+    @Override
+    public void statusInfoChanged(RuleStatusInfo statusInfo) {
+        // TODO Auto-generated method stub
+
+    }
 }

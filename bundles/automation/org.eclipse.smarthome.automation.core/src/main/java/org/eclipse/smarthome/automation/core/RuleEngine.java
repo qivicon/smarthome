@@ -25,6 +25,7 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.RuleStatusDetail;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
+import org.eclipse.smarthome.automation.StatusInfoCallback;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.RuleEngineCallbackImpl.TriggerData;
 import org.eclipse.smarthome.automation.events.RuleEventFactory;
@@ -125,6 +126,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
     private EventPublisher eventPublisher;
 
+    private StatusInfoCallback statusInfoCallback;
+
     public static final String ID_PREFIX = "rule_"; //$NON-NLS-1$
 
     /**
@@ -171,7 +174,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         r1.setUID(rUID);
 
         rules.put(rUID, r1);
-        logger.debug(LOG_HEADER, "Rule is added " + rUID);
+        logger.debug(LOG_HEADER + "Rule is added " + rUID);
 
         return rUID;
     }
@@ -193,7 +196,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         RuleImpl r1 = new RuleImpl(rule);
 
         rules.put(rUID, r1);
-        logger.debug(LOG_HEADER, "The rule:" + rUID + " is updated");
+        logger.debug(LOG_HEADER + "The rule:" + rUID + " is updated");
 
         setRule(rUID);
     }
@@ -234,8 +237,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 }
                 rules.add(notInitializedRule.getUID());
                 mapTemplateToRules.put(templateUID, rules);
-                logger.error(LOG_HEADER, "[setRule] The rule: " + rUID + " is not created! The template: " + templateUID
-                        + " is not available!");
+                logger.error(LOG_HEADER + "[setRule] The rule: " + rUID + " is not created! The template: "
+                        + templateUID + " is not available!");
                 setRuleStatusInfo(rUID,
                         new RuleStatusInfo(RuleStatus.NOT_INITIALIZED, RuleStatusDetail.TEMPLATE_MISSING_ERROR,
                                 "The template: " + templateUID + " is not available!"));
@@ -270,7 +273,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             // change state to IDLE
             setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.IDLE));
 
-            logger.debug(LOG_HEADER, "Rule started: " + r.getUID());
+            logger.debug(LOG_HEADER + "Rule started: " + r.getUID());
         } else {
             unregister(r);
 
@@ -278,7 +281,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
                     RuleStatusDetail.HANDLER_INITIALIZING_ERROR, errMessage));
 
-            logger.debug(LOG_HEADER, "Rule stopped: " + r.getUID());
+            logger.debug(LOG_HEADER + "Rule stopped: " + r.getUID());
 
         }
     }
@@ -287,7 +290,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         String ruleTemplateUID = rule.getTemplateUID();
         RuleTemplate template = (RuleTemplate) Activator.templateRegistry.get(ruleTemplateUID);
         if (template == null) {
-            logger.debug(RuleEngine.LOG_HEADER, "Rule template '" + ruleTemplateUID + "' does not exist.");
+            logger.debug(RuleEngine.LOG_HEADER + "Rule template '" + ruleTemplateUID + "' does not exist.");
             return null;
         } else {
             RuleImpl r1 = new RuleImpl(template, rule.getConfiguration());
@@ -303,12 +306,15 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @param status new rule status info
      */
     private void setRuleStatusInfo(String rUID, RuleStatusInfo status) {
-        logger.debug("[Rule Status] " + rUID + " -> " + status);
+        logger.debug(LOG_HEADER + "[Rule Status] " + rUID + " -> " + status);
         statusMap.put(rUID, status);
         if (this.eventPublisher!=null){
             eventPublisher.post(RuleEventFactory.createRuleStatusInfoEvent(status,rUID, "RuleEngine"));
         }
         
+        if (statusInfoCallback != null) {
+            statusInfoCallback.statusInfoChanged(status);
+        }
     }
 
     /**
@@ -895,6 +901,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 it.remove();
             }
         }
+        statusInfoCallback = null;
     }
 
     private void assertRule(Rule rule) {
@@ -1023,14 +1030,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
     }
 
-    public void setEventPublisher(EventPublisher ep) {
-        this.eventPublisher = ep;
-        
-    }
-
-    public void unsetEventPublisher(EventPublisher service) {
-       this.eventPublisher= null;
-        
+    protected void setStatusInfoCallback(StatusInfoCallback statusInfoCallback) {
+        this.statusInfoCallback = statusInfoCallback;
     }
 
 }
