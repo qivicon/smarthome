@@ -8,12 +8,18 @@
 package org.eclipse.smarthome.automation.core;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
+import org.eclipse.smarthome.core.common.registry.Provider;
+import org.eclipse.smarthome.core.storage.Storage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Yordan Mihaylov - Initial Contribution
@@ -23,34 +29,60 @@ import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements RuleRegistry {
 
     private RuleEngine ruleEngine;
+    private Set<String> disabledRuledSet = new HashSet(0);
+    private Logger logger;
+    private Storage<Boolean> disabledRulesStorage;
 
-    public RuleRegistryImpl(RuleEngine ruleManager, ManagedRuleProvider rp) {
+    public RuleRegistryImpl(RuleEngine ruleManager) {
+        logger = LoggerFactory.getLogger(getClass());
         this.ruleEngine = ruleManager;
-        if (rp != null) {
-            addProvider(rp);
-        }
     }
 
     @Override
-    public void add(Rule element) {
-        RuleImpl ruleWithId;
-        if (element.getUID() == null) {
-            ruleWithId = ruleEngine.addRule0(element, ruleEngine.getScopeIdentifier());
-        } else {
-            ruleWithId = (RuleImpl) element;
+    protected void addProvider(Provider<Rule> provider) {
+        Collection<Rule> rules = provider.getAll();
+        for (Iterator<Rule> it = rules.iterator(); it.hasNext();) {
+            Rule rule = it.next();
+            try {
+                addIntoRuleEngine(rule);
+            } catch (Exception e) {
+                logger.error("Can't add rule: " + rule.getUID() + " into rule engine.", e);
+            }
+
         }
-        super.add(ruleWithId);
+        super.addProvider(provider);
     }
 
     @Override
-    public Rule remove(String key) {
+    public synchronized void add(Rule element) {
+        super.add(element);
+        addIntoRuleEngine(element);
+    }
+
+    private String addIntoRuleEngine(Rule element) {
+        String rUID = ruleEngine.addRule(element);
+        if (disabledRuledSet.contains(rUID)) {
+            ruleEngine.setRuleEnabled(rUID, false);
+        }
+
+        ruleEngine.setRule(rUID);
+        return rUID;
+    }
+
+    @Override
+    public synchronized Rule remove(String key) {
         ruleEngine.removeRule(key);
+        setEnabled(key, true);
         return super.remove(key);
     }
 
     @Override
-    public Rule update(Rule element) {
+    public synchronized Rule update(Rule element) {
         if (element != null) {
+            String rUID = element.getUID();
+            if (disabledRuledSet.contains(rUID)) {
+                ruleEngine.setRuleEnabled(rUID, false);
+            }
             ruleEngine.updateRule(element);// update memory map
             element = super.update(element);// update storage with new rule and return old rule
         }
@@ -73,7 +105,22 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     }
 
     @Override
-    public void setEnabled(String uid, boolean isEnabled) {
+    public synchronized void setEnabled(String uid, boolean isEnabled) {
+        if (isEnabled) {
+            if (disabledRuledSet.remove(uid)) {
+                if (disabledRulesStorage != null) {
+                    disabledRulesStorage.remove(uid);
+                }
+            }
+        } else {
+            if (!disabledRuledSet.contains(uid)) {
+                disabledRuledSet.add(uid);
+                if (disabledRulesStorage != null) {
+                    disabledRulesStorage.put(uid, Boolean.TRUE);
+                }
+            }
+        }
+
         ruleEngine.setRuleEnabled(uid, isEnabled);
     }
 
@@ -82,8 +129,33 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
         return ruleEngine.getRuleStatus(ruleUID);
     }
 
-    public void dispose() {
+    protected synchronized void dispose() {
+        for (Iterator<String> it = disabledRuledSet.iterator(); it.hasNext();) {
+            String rUID = it.next();
+            if (!ruleEngine.hasRule(rUID)) {
+                it.remove();
+                if (disabledRulesStorage != null) {
+                    disabledRulesStorage.remove(rUID);
+                }
+            }
+        }
         ruleEngine.dispose();
     }
 
+    private synchronized Set<String> loadDisabledRuleMap() {
+        Set<String> result = disabledRuledSet == null ? new HashSet<String>() : disabledRuledSet;
+        if (disabledRulesStorage != null) {
+            for (Iterator<String> it = disabledRulesStorage.getKeys().iterator(); it.hasNext();) {
+                String key = it.next();
+                result.add(key);
+            }
+        }
+        return result;
+    }
+
+    protected void setDisabledRuleStorage(Storage disabledRulesStorage) {
+        this.disabledRulesStorage = disabledRulesStorage;
+        disabledRuledSet = loadDisabledRuleMap();
+        // TODO disabled active rules
+    }
 }

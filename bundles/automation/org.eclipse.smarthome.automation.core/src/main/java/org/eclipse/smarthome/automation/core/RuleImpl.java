@@ -28,64 +28,27 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
-public class RuleImpl implements Rule {
+public class RuleImpl extends Rule {
     /**
      * Module configuration properties can have reference to Rule configuration properties.
      * This symbol is put as prefix to the name of the Rule configuration property.
      */
     private static final char REFERENCE_SYMBOL = '$';
-    private String uid;
-    private String name;
-    private Set<String> tags;
-    private String description;
-    protected List<Trigger> triggers;
-    protected List<Condition> conditions;
-    protected List<Action> actions;
-    protected Set<ConfigDescriptionParameter> configDescriptions;
-    private Map<String, ?> configurations;
-    private String scopeId;
+
     private Map<String, Module> moduleMap;
-
-    public RuleImpl(List<Trigger> triggers, //
-            List<Condition> conditions, //
-            List<Action> actions, Set<ConfigDescriptionParameter> configDescriptions, //
-            Map<String, ?> configurations) {
-
-        // TODO: I am not sure if this is the right way. This validation requires the module types to exist, which is ok
-        // to ask for during execution, but not
-        // during construction.
-        //
-        // the rule must not be created if connections are incorrect
-        // ConnectionValidator.validateConnections(Activator.moduleTypeRegistry, triggers, conditions, actions);
-
-        this.triggers = triggers;
-        this.conditions = conditions;
-        this.actions = actions;
-        this.configDescriptions = configDescriptions;
-        this.configurations = configurations;
-
-        handleModuleConfigReferences(triggers, conditions, actions, configurations);
-    }
 
     /**
      * @param ruleTemplateUID
      * @param configurations
      * @throws Exception
      */
-    public RuleImpl(String ruleTemplateUID, Map<String, Object> configurations) {
-        RuleTemplate template = (RuleTemplate) Activator.templateRegistry.get(ruleTemplateUID);
-        if (template == null) {
-            throw new IllegalArgumentException("Rule template '" + ruleTemplateUID + "' does not exist.");
-        }
-        this.triggers = template.getModules(Trigger.class);
-        this.conditions = template.getModules(Condition.class);
-        this.actions = template.getModules(Action.class);
-        configDescriptions = template.getConfigurationDescription();
+    public RuleImpl(String ruleTemplateUID, Map<String, ?> configurations) {
+        super(ruleTemplateUID, configurations);
+    }
 
-        // the rule must not be created if configuration is incorrect
-        validateConfiguration(configDescriptions, new HashMap(configurations));
-        this.configurations = configurations;
-        handleModuleConfigReferences(triggers, conditions, actions, configurations);
+    public RuleImpl(RuleTemplate template, Map<String, ?> configuration) {
+        super(createTrieggers(template.getTriggers()), createConditions(template.getConditions()),
+                createActions(template.getActions()), template.getConfigurationDescription(), configuration);
     }
 
     /**
@@ -94,167 +57,53 @@ public class RuleImpl implements Rule {
      * @param rule a rule which has to be copied or null when an empty instance of rule
      *            has to be created.
      */
-    protected RuleImpl(RuleImpl rule) {
-        if (rule != null) {
-            this.triggers = rule.getModules(Trigger.class);
-            this.conditions = rule.getModules(Condition.class);
-            this.actions = rule.getModules(Action.class);
-            this.configDescriptions = rule.getConfigurationDescriptions();
-            this.configurations = rule.getConfiguration();
-            uid = rule.getUID();
-            setName(rule.getName());
-            setTags(rule.getTags());
-            setDescription(rule.getDescription());
-            // setEnabled(rule.isEnabled());
-        }
+    protected RuleImpl(Rule rule) {
+        super(rule.getUID(), createTrieggers(rule.getTriggers()), createConditions(rule.getConditions()),
+                createActions(rule.getActions()), rule.getConfigurationDescriptions(), rule.getConfiguration());
+        setName(rule.getName());
+        setTags(rule.getTags());
+        setDescription(rule.getDescription());
+        this.ruleTemplateUID = rule.getTemplateUID();
     }
 
     @Override
-    public String getUID() {
-        return uid;
-    }
-
-    protected void setUID(String uid) {
-        this.uid = uid;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String ruleName) throws IllegalStateException {
-        this.name = ruleName;
-
-    }
-
-    @Override
-    public Set<String> getTags() {
-        return tags;
-    }
-
-    @Override
-    public void setTags(Set<String> ruleTags) throws IllegalStateException {
-        this.tags = ruleTags;
-    }
-
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    @Override
-    public void setDescription(String ruleDescription) {
-        this.description = ruleDescription;
-
-    }
-
-    @Override
-    public Set<ConfigDescriptionParameter> getConfigurationDescriptions() {
-        return configDescriptions;
-    }
-
-    @Override
-    public Map<String, Object> getConfiguration() {
-        return configurations != null ? new HashMap<String, Object>(configurations) : null;
+    public Map<String, ?> getConfiguration() {
+        return configurations;
     }
 
     @Override
     public void setConfiguration(Map<String, ?> ruleConfiguration) {
-        this.configurations = ruleConfiguration != null ? new HashMap<String, Object>(ruleConfiguration) : null;
+        this.configurations = ruleConfiguration != null ? new HashMap<String, Object>(ruleConfiguration)
+                : new HashMap<String, Object>(11);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <T extends Module> T getModule(String moduleId) {
-        Module m = getModule0(moduleId);
-        return (T) m;
-    }
-
-    protected Module getModule0(String moduleId) {
+    public Module getModule(String moduleId) {
         if (moduleMap == null) {
             moduleMap = initModuleMap();
         }
         return moduleMap.get(moduleId);
     }
 
-    /**
-     *
-     */
     private Map<String, Module> initModuleMap() {
         moduleMap = new HashMap<String, Module>(20);
-        if (triggers != null) {
-            for (Iterator<Trigger> it = triggers.iterator(); it.hasNext();) {
-                Trigger m = it.next();
-                moduleMap.put(m.getId(), m);
-
-            }
+        for (Module m : triggers) {
+            moduleMap.put(m.getId(), m);
         }
-        if (conditions != null) {
-            for (Iterator<Condition> it = conditions.iterator(); it.hasNext();) {
-                Condition m = it.next();
-                moduleMap.put(m.getId(), m);
+        for (Module m : conditions) {
+            moduleMap.put(m.getId(), m);
 
-            }
         }
-        if (actions != null) {
-            for (Iterator<Action> it = actions.iterator(); it.hasNext();) {
-                Action m = it.next();
-                moduleMap.put(m.getId(), m);
-            }
+        for (Module m : actions) {
+            moduleMap.put(m.getId(), m);
         }
         return moduleMap;
-    }
-
-    @Override
-    public <T extends Module> List<T> getModules(Class<T> moduleClazz) {
-        List<T> result = null;
-        if (moduleClazz == null || Trigger.class == moduleClazz) {
-            List<Trigger> l = triggers;
-            if (moduleClazz != null) {// only triggers
-                return (List<T>) l;
-            }
-            result = getList(result);
-            result.addAll((List<T>) l);
-        }
-        if (moduleClazz == null || Condition.class == moduleClazz) {
-            List<Condition> l = conditions;
-            if (moduleClazz != null) {// only conditions
-                return (List<T>) l;
-            }
-            result = getList(result);
-            result.addAll((List<T>) l);
-        }
-        if (moduleClazz == null || Action.class == moduleClazz) {
-            List<Action> l = actions;
-            if (moduleClazz != null) {// only actions
-                return (List<T>) l;
-            }
-            result = getList(result);
-            result.addAll((List<T>) l);
-        }
-        return result;
-    }
-
-    private <T extends Module> List<T> getList(List<T> t) {
-        if (t != null) {
-            return t;
-        }
-        return new ArrayList<T>();
-    }
-
-    @Override
-    public String getScopeIdentifier() {
-        return scopeId;
     }
 
     protected void setScopeIdentifier(String scopeId) {
         this.scopeId = scopeId;
     }
-
-    // protected boolean isInitialEnabled() {
-    // return initialEnabled;
-    // }
 
     /**
      * @see java.lang.Object#equals(java.lang.Object)
@@ -281,12 +130,10 @@ public class RuleImpl implements Rule {
     }
 
     /**
-     * @param configDescriptions
+     *
      * @param configurations
-     * @throws Exception
      */
-    private void validateConfiguration(Set<ConfigDescriptionParameter> configDescriptions,
-            Map<String, Object> configurations) {
+    private void validateConfiguration(Map<String, Object> configurations) {
         if (configurations == null || configurations.isEmpty()) {
             if (isOptionalConfig(configDescriptions)) {
                 return;
@@ -348,6 +195,7 @@ public class RuleImpl implements Rule {
      * @param configParameter
      * @throws Exception
      */
+    @SuppressWarnings("rawtypes")
     private void checkType(Object configValue, ConfigDescriptionParameter configParameter) {
         Type type = configParameter.getType();
         if (configParameter.isMultiple()) {
@@ -398,21 +246,23 @@ public class RuleImpl implements Rule {
         }
     }
 
-    private void handleModuleConfigReferences(List<? extends Module> triggers, List<? extends Module> conditions,
-            List<? extends Module> actions, Map<String, ?> ruleConfiguration) {
+    void handleModuleConfigReferences() {
+        Map<String, ?> ruleConfiguration = getConfiguration();
         if (ruleConfiguration != null) {
-            handleModuleConfigReferences0(triggers, ruleConfiguration);
-            handleModuleConfigReferences0(conditions, ruleConfiguration);
-            handleModuleConfigReferences0(actions, ruleConfiguration);
+            validateConfiguration(new HashMap<String, Object>(ruleConfiguration));
+            handleModuleConfigReferences0(getTriggers(), ruleConfiguration);
+            handleModuleConfigReferences0(getConditions(), ruleConfiguration);
+            handleModuleConfigReferences0(getActions(), ruleConfiguration);
         }
     }
 
     private void handleModuleConfigReferences0(List<? extends Module> modules, Map<String, ?> ruleConfiguration) {
         if (modules != null) {
             for (Module module : modules) {
+                @SuppressWarnings("unchecked")
                 Map<String, Object> moduleConfiguration = module.getConfiguration();
                 if (moduleConfiguration != null) {
-                    for (Map.Entry<String, Object> entry : moduleConfiguration.entrySet()) {
+                    for (Map.Entry<String, ?> entry : moduleConfiguration.entrySet()) {
                         String configName = entry.getKey();
                         Object configValue = entry.getValue();
                         if (configValue instanceof String) {
@@ -427,6 +277,40 @@ public class RuleImpl implements Rule {
                 }
             }
         }
+    }
+
+    protected void setUID(String rUID) {
+        uid = rUID;
+    }
+
+    private static List<Action> createActions(List<Action> actions) {
+        List<Action> res = new ArrayList<Action>();
+        if (actions != null) {
+            for (Action action : actions) {
+                res.add(new ActionImpl(action));
+            }
+        }
+        return res;
+    }
+
+    private static List<Condition> createConditions(List<Condition> conditions) {
+        List<Condition> res = new ArrayList<Condition>(11);
+        if (conditions != null) {
+            for (Condition condition : conditions) {
+                res.add(new ConditionImpl(condition));
+            }
+        }
+        return res;
+    }
+
+    private static List<Trigger> createTrieggers(List<Trigger> triggers) {
+        List<Trigger> res = new ArrayList<Trigger>(11);
+        if (triggers != null) {
+            for (Trigger trigger : triggers) {
+                res.add(new TriggerImpl(trigger));
+            }
+        }
+        return res;
     }
 
 }

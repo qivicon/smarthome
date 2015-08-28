@@ -20,9 +20,6 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.dto.ActionDTO;
-import org.eclipse.smarthome.automation.dto.ConditionDTO;
-import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -44,36 +41,32 @@ public class ModuleJSONParser {
      *            json format.
      * @return
      */
-    static boolean createTrigerModules(Status status, List<TriggerDTO> triggerModules, JSONArray onSection) {
-        boolean res = true;
+    static boolean createTrigerModules(Status status, List<Trigger> triggerModules, JSONArray onSection) {
         if (onSection == null) {
             return false;
         }
         for (int index = 0; index < onSection.length(); index++) {
             JSONObject jsonTrigger = JSONUtility.getJSONObject(JSONStructureConstants.ON, index, onSection, status);
             if (jsonTrigger == null) {
-                res = false;
                 continue;
             }
             String uid = JSONUtility.getString(JSONStructureConstants.TYPE, false, jsonTrigger, status);
-            if (uid == null) {
-                res = false;
-                continue;
-            }
             String triggerId = JSONUtility.getString(JSONStructureConstants.ID, false, jsonTrigger, status);
-            if (triggerId == null) {
-                res = false;
-                continue;
-            }
             JSONObject jsonConfig = JSONUtility.getJSONObject(JSONStructureConstants.CONFIG, true, jsonTrigger, status);
-            Map<String, Object> configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig);
-            TriggerDTO trigger = new TriggerDTO();
-            trigger.id = triggerId;
-            trigger.typeUID = uid;
-            trigger.configurations = configurations;
+            Map<String, Object> configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig, status);
+            Trigger trigger = new Trigger(triggerId, uid, configurations);
+            String label = JSONUtility.getString(JSONStructureConstants.LABEL, true, jsonTrigger, status);
+            if (label != null)
+                trigger.setLabel(label);
+            String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonTrigger, status);
+            if (description != null)
+                trigger.setDescription(description);
             triggerModules.add(trigger);
         }
-        return res;
+        if (status.hasErrors()) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -85,40 +78,31 @@ public class ModuleJSONParser {
      *            json format.
      * @return
      */
-    static boolean createConditionModules(Status status, List<ConditionDTO> conditions, JSONArray ifSection) {
-        boolean res = true;
+    static boolean createConditionModules(Status status, List<Condition> conditions, JSONArray ifSection) {
         for (int index = 0; index < ifSection.length(); index++) {
             JSONObject jsonCondition = JSONUtility.getJSONObject(JSONStructureConstants.IF, index, ifSection, status);
             if (jsonCondition == null) {
-                res = false;
                 continue;
             }
             String uid = JSONUtility.getString(JSONStructureConstants.TYPE, false, jsonCondition, status);
-            if (uid == null) {
-                res = false;
-                continue;
-            }
             String conditionId = JSONUtility.getString(JSONStructureConstants.ID, false, jsonCondition, status);
-            if (conditionId == null) {
-                res = false;
-                continue;
-            }
             JSONObject jsonConfig = JSONUtility.getJSONObject(JSONStructureConstants.CONFIG, true, jsonCondition,
                     status);
-            Map<String, Object> configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig);
+            Map<String, Object> configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig, status);
             Set<Connection> connections = ModuleJSONParser.collectConnections(jsonCondition, status);
-            if (connections == null) {
-                res = false;
-                continue;
-            }
-            ConditionDTO condition = new ConditionDTO();
-            condition.id = conditionId;
-            condition.typeUID = uid;
-            condition.configurations = configurations;
-            condition.connections = connections;
+            Condition condition = new Condition(conditionId, uid, configurations, connections);
+            String label = JSONUtility.getString(JSONStructureConstants.LABEL, true, jsonCondition, status);
+            if (label != null)
+                condition.setLabel(label);
+            String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonCondition, status);
+            if (description != null)
+                condition.setDescription(description);
             conditions.add(condition);
         }
-        return res;
+        if (status.hasErrors()) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -130,42 +114,33 @@ public class ModuleJSONParser {
      *            json format.
      * @return
      */
-    static boolean createActionModules(Status status, List<ActionDTO> actions, JSONArray thenSection) {
-        boolean res = true;
+    static boolean createActionModules(Status status, List<Action> actions, JSONArray thenSection) {
         if (thenSection == null) {
             return false;
         }
         for (int index = 0; index < thenSection.length(); index++) {
             JSONObject jsonAction = JSONUtility.getJSONObject(JSONStructureConstants.THEN, index, thenSection, status);
             if (jsonAction == null) {
-                res = false;
                 continue;
             }
             String uid = JSONUtility.getString(JSONStructureConstants.TYPE, false, jsonAction, status);
-            if (uid == null) {
-                res = false;
-                continue;
-            }
             String actionId = JSONUtility.getString(JSONStructureConstants.ID, false, jsonAction, status);
-            if (actionId == null) {
-                res = false;
-                continue;
-            }
             JSONObject jsonConfig = JSONUtility.getJSONObject(JSONStructureConstants.CONFIG, true, jsonAction, status);
-            Map<String, Object> configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig);
+            Map<String, Object> configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig, status);
             Set<Connection> connections = ModuleJSONParser.collectConnections(jsonAction, status);
-            if (connections == null) {
-                res = false;
-                continue;
-            }
-            ActionDTO action = new ActionDTO();
-            action.id = actionId;
-            action.typeUID = uid;
-            action.configurations = configurations;
-            action.connections = connections;
+            Action action = new Action(actionId, uid, configurations, connections);
+            String label = JSONUtility.getString(JSONStructureConstants.LABEL, true, jsonAction, status);
+            if (label != null)
+                action.setLabel(label);
+            String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonAction, status);
+            if (description != null)
+                action.setDescription(description);
             actions.add(action);
         }
-        return res;
+        if (status.hasErrors()) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -179,7 +154,7 @@ public class ModuleJSONParser {
         moduleToJSON(action, writer);
         Set<Connection> connections = action.getConnections();
         if (connections != null && !connections.isEmpty()) {
-            Map<String, Object> configValues = action.getConfiguration();
+            Map<String, ?> configValues = action.getConfiguration();
             if (configValues != null && !configValues.isEmpty())
                 writer.write(",\n");
             writer.write("        \"" + JSONStructureConstants.INPUT + "\":{\n");
@@ -209,7 +184,7 @@ public class ModuleJSONParser {
         moduleToJSON(condition, writer);
         Set<Connection> connections = condition.getConnections();
         if (connections != null && !connections.isEmpty()) {
-            Map<String, Object> configValues = condition.getConfiguration();
+            Map<String, ?> configValues = condition.getConfiguration();
             if (configValues != null && !configValues.isEmpty())
                 writer.write(",\n");
             writer.write("        \"" + JSONStructureConstants.INPUT + "\":{\n");
@@ -255,7 +230,7 @@ public class ModuleJSONParser {
         if (description != null) {
             writer.write(",\n        \"" + JSONStructureConstants.DESCRIPTION + "\":\"" + description);
         }
-        Map<String, Object> configValues = module.getConfiguration();
+        Map<String, ?> configValues = module.getConfiguration();
         if (configValues != null && !configValues.isEmpty()) {
             writer.write(",\n        \"" + JSONStructureConstants.CONFIG + "\":{\n");
             Iterator<String> i = configValues.keySet().iterator();

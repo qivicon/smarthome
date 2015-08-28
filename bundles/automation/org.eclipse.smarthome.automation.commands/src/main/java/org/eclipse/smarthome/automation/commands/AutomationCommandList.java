@@ -53,6 +53,11 @@ public class AutomationCommandList extends AutomationCommand {
                                                  // of the command.
 
     /**
+     * Distance of status column form previous column.
+     */
+    private static final int STATUS_COLUMN_DISTANCE = 83;
+
+    /**
      * @see AutomationCommand#AutomationCommand(String, String[], int, AutomationCommandsPluggable)
      */
     public AutomationCommandList(String command, String[] params, int adminType,
@@ -173,15 +178,23 @@ public class AutomationCommandList extends AutomationCommand {
      * Concatenates the rule status plus separator to the rule UID.
      */
     private void collectRuleStatuses(Hashtable<String, String> listRules) {
+        Hashtable<String, String> newList = new Hashtable<String, String>();
         for (String uid : listRules.values()) {
             StringBuilder res = new StringBuilder();
             res.append(uid);
-            int count = 80 - uid.length();
+            int count = STATUS_COLUMN_DISTANCE - uid.length();
             RuleStatus status = autoCommands.getRuleStatus(uid);
             if (status != null) {
                 Printer.printChars(res, ' ', count, false);
                 res.append(status.toString());
-                listRules.put(uid, res.toString());
+                newList.put(uid, res.toString());
+            }
+        }
+        for (String id : listRules.keySet()) {
+            String uid = listRules.get(id);
+            String ruleDisp = newList.get(uid);
+            if (ruleDisp != null) {
+                listRules.put(id, ruleDisp);
             }
         }
     }
