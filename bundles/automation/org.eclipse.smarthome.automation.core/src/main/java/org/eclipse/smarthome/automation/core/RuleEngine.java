@@ -124,8 +124,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
     private Logger logger;
 
-    private EventPublisher eventPublisher;
-
     private StatusInfoCallback statusInfoCallback;
 
     public static final String ID_PREFIX = "rule_"; //$NON-NLS-1$
@@ -308,12 +306,9 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     private void setRuleStatusInfo(String rUID, RuleStatusInfo status) {
         logger.debug(LOG_HEADER + "[Rule Status] " + rUID + " -> " + status);
         statusMap.put(rUID, status);
-        if (this.eventPublisher!=null){
-            eventPublisher.post(RuleEventFactory.createRuleStatusInfoEvent(status,rUID, "RuleEngine"));
-        }
-        
+
         if (statusInfoCallback != null) {
-            statusInfoCallback.statusInfoChanged(status);
+            statusInfoCallback.statusInfoChanged(rUID, status);
         }
     }
 
