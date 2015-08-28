@@ -27,6 +27,7 @@ import org.eclipse.smarthome.automation.RuleStatusDetail;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.RuleEngineCallbackImpl.TriggerData;
+import org.eclipse.smarthome.automation.events.RuleEventFactory;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
@@ -38,6 +39,7 @@ import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.Output;
+import org.eclipse.smarthome.core.events.EventPublisher;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -57,6 +59,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
+ * @author Benedikt Niehues - added events for rules
  *
  */
 @SuppressWarnings("rawtypes")
@@ -119,6 +122,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     private Map<String, RuleStatusInfo> statusMap = new HashMap<String, RuleStatusInfo>();
 
     private Logger logger;
+
+    private EventPublisher eventPublisher;
 
     public static final String ID_PREFIX = "rule_"; //$NON-NLS-1$
 
@@ -300,7 +305,10 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     private void setRuleStatusInfo(String rUID, RuleStatusInfo status) {
         logger.debug("[Rule Status] " + rUID + " -> " + status);
         statusMap.put(rUID, status);
-        // TODO fire status change event
+        if (this.eventPublisher!=null){
+            eventPublisher.post(RuleEventFactory.createRuleStatusInfoEvent(status,rUID, "RuleEngine"));
+        }
+        
     }
 
     /**
@@ -1013,6 +1021,16 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             }
         }
 
+    }
+
+    public void setEventPublisher(EventPublisher ep) {
+        this.eventPublisher = ep;
+        
+    }
+
+    public void unsetEventPublisher(EventPublisher service) {
+       this.eventPublisher= null;
+        
     }
 
 }
