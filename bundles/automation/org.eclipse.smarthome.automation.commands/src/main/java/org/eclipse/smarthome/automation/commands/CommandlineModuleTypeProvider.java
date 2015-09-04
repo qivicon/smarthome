@@ -15,30 +15,21 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.dto.ActionDTO;
-import org.eclipse.smarthome.automation.dto.ConditionDTO;
-import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
-import org.eclipse.smarthome.automation.type.CompositeActionType;
-import org.eclipse.smarthome.automation.type.CompositeConditionType;
-import org.eclipse.smarthome.automation.type.CompositeTriggerType;
+import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
-import org.eclipse.smarthome.automation.type.dto.CompositeActionTypeDTO;
-import org.eclipse.smarthome.automation.type.dto.CompositeConditionTypeDTO;
-import org.eclipse.smarthome.automation.type.dto.CompositeTriggerTypeDTO;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * This class is implementation of {@link ModuleTypeProvider}. It extends functionality of
@@ -59,6 +50,12 @@ import org.osgi.framework.ServiceReference;
  *
  */
 public class CommandlineModuleTypeProvider extends AbstractCommandProvider<ModuleType>implements ModuleTypeProvider {
+
+    /**
+     * This field holds a reference to the {@link TemplateProvider} service registration.
+     */
+    @SuppressWarnings("rawtypes")
+    protected ServiceRegistration mtpReg;
 
     /**
      * This constructor creates instances of this particular implementation of {@link ModuleTypeProvider}. It does not
@@ -127,15 +124,9 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
     @SuppressWarnings("unchecked")
     @Override
     public ModuleType getModuleType(String UID, Locale locale) {
-        Localizer l = null;
         synchronized (providedObjectsHolder) {
-            l = providedObjectsHolder.get(UID);
+            return providedObjectsHolder.get(UID);
         }
-        if (l != null) {
-            ModuleType mt = (ModuleType) l.getPerLocale(locale);
-            return mt;
-        }
-        return null;
     }
 
     /**
@@ -143,24 +134,24 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
      */
     @Override
     public Collection<ModuleType> getModuleTypes(Locale locale) {
-        List<ModuleType> moduleTypesList = new ArrayList<ModuleType>();
         synchronized (providedObjectsHolder) {
-            Iterator<Localizer> i = providedObjectsHolder.values().iterator();
-            while (i.hasNext()) {
-                Localizer l = i.next();
-                if (l != null) {
-                    ModuleType mt = (ModuleType) l.getPerLocale(locale);
-                    if (mt != null)
-                        moduleTypesList.add(mt);
-                }
-            }
+            return providedObjectsHolder.values();
         }
-        return moduleTypesList;
+    }
+
+    @Override
+    public void close() {
+        if (mtpReg != null) {
+            mtpReg.unregister();
+            mtpReg = null;
+        }
+        super.close();
     }
 
     /**
      * @see AbstractCommandProvider#importData(URL, Parser, InputStreamReader)
      */
+    @SuppressWarnings("unchecked")
     @Override
     protected Set<Status> importData(URL url, Parser<ModuleType> parser, InputStreamReader inputStreamReader) {
         Set<Status> providedObjects = parser.importData(inputStreamReader);
@@ -173,16 +164,22 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
             for (Status s : providedObjects) {
                 if (s.hasErrors())
                     continue;
-                ModuleType providedObject = convertToModuleType(s);
+                ModuleType providedObject = (ModuleType) s.getResult();
                 uid = providedObject.getUID();
                 if (checkExistence(uid, s))
                     continue;
                 portfolio.add(uid);
-                Localizer lProvidedObject = new Localizer(providedObject);
                 synchronized (providedObjectsHolder) {
-                    providedObjectsHolder.put(uid, lProvidedObject);
+                    providedObjectsHolder.put(uid, providedObject);
                 }
             }
+        }
+        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        properties.put(REG_PROPERTY_MODULE_TYPES, providedObjectsHolder.keySet());
+        if (mtpReg == null)
+            mtpReg = bc.registerService(ModuleTypeProvider.class.getName(), this, properties);
+        else {
+            mtpReg.setProperties(properties);
         }
         return providedObjects;
     }
@@ -212,36 +209,6 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
             return true;
         }
         return false;
-    }
-
-    private ModuleType convertToModuleType(Status status) {
-        Object moduleType = status.getResult();
-        if (moduleType instanceof CompositeActionTypeDTO) {
-            CompositeActionTypeDTO at = (CompositeActionTypeDTO) moduleType;
-            List<Action> modules = new ArrayList<Action>(at.modules.size());
-            for (ActionDTO action : at.modules) {
-                modules.add(action.createAction(factory));
-            }
-            return new CompositeActionType(at.getUID(), at.getConfigurationDescription(), at.getInputs(),
-                    at.getOutputs(), modules);
-        }
-        if (moduleType instanceof CompositeConditionTypeDTO) {
-            CompositeConditionTypeDTO ct = (CompositeConditionTypeDTO) moduleType;
-            List<Condition> modules = new ArrayList<Condition>(ct.modules.size());
-            for (ConditionDTO condition : ct.modules) {
-                modules.add(condition.createCondition(factory));
-            }
-            return new CompositeConditionType(ct.getUID(), ct.getConfigurationDescription(), ct.getInputs(), modules);
-        }
-        if (moduleType instanceof CompositeTriggerTypeDTO) {
-            CompositeTriggerTypeDTO tt = (CompositeTriggerTypeDTO) moduleType;
-            List<Trigger> modules = new ArrayList<Trigger>(tt.modules.size());
-            for (TriggerDTO trigger : tt.modules) {
-                modules.add(trigger.createTrigger(factory));
-            }
-            return new CompositeTriggerType(tt.getUID(), tt.getConfigurationDescription(), tt.getOutputs(), modules);
-        }
-        return (ModuleType) moduleType;
     }
 
 }

@@ -10,32 +10,36 @@ package org.eclipse.smarthome.automation.core.provider;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.provider.i18n.ConfigDescriptionParameterI18nUtil;
+import org.eclipse.smarthome.automation.core.provider.i18n.ModuleI18nUtil;
+import org.eclipse.smarthome.automation.core.provider.i18n.RuleTemplateI18nUtil;
 import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
-import org.eclipse.smarthome.automation.dto.ActionDTO;
-import org.eclipse.smarthome.automation.dto.ConditionDTO;
-import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
-import org.eclipse.smarthome.automation.template.dto.RuleTemplateDTO;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
@@ -53,15 +57,22 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  *
  * @author Ana Dimova - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
- *
+ * @author Ana Dimova - provides localization
  */
-public class TemplateResourceBundleProvider extends AbstractResourceBundleProvider<RuleTemplate>
+public class TemplateResourceBundleProvider extends AbstractResourceBundleProvider<Template>
         implements TemplateProvider {
 
     protected TemplateRegistry templateRegistry;
     protected ModuleTypeRegistry moduleTypeRegistry;
+
     @SuppressWarnings("rawtypes")
     private ServiceTracker tracker;
+
+    @SuppressWarnings("rawtypes")
+    private ServiceRegistration /* <S> */ tpReg;
+
+    @SuppressWarnings("rawtypes")
+    private ServiceTracker localizationTracker;
 
     /**
      * This constructor is responsible for initializing the path to resources and tracking the managing service of the
@@ -75,7 +86,7 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
         path = PATH + "/templates/";
         try {
             Filter filter = bc.createFilter("(|(objectClass=" + TemplateRegistry.class.getName() + ")(objectClass="
-                    + ModuleTypeRegistry.class.getName() + ")(objectClass=" + AutomationFactory.class.getName() + "))");
+                    + ModuleTypeRegistry.class.getName() + "))");
             tracker = new ServiceTracker(bc, filter, new ServiceTrackerCustomizer() {
 
                 @Override
@@ -83,10 +94,8 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
                     Object service = bc.getService(reference);
                     if (service instanceof TemplateRegistry) {
                         templateRegistry = (TemplateRegistry) service;
-                    } else if (service instanceof ModuleTypeRegistry) {
-                        moduleTypeRegistry = (ModuleTypeRegistry) service;
                     } else {
-                        factory = (AutomationFactory) service;
+                        moduleTypeRegistry = (ModuleTypeRegistry) service;
                     }
                     queue.open();
                     return service;
@@ -100,14 +109,30 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
                 public void removedService(ServiceReference reference, Object service) {
                     if (service == templateRegistry)
                         templateRegistry = null;
-                    else if (service == factory)
-                        factory = null;
                     else
                         moduleTypeRegistry = null;
                 }
             });
         } catch (InvalidSyntaxException notPossible) {
         }
+        localizationTracker = new ServiceTracker(bc, I18nProvider.class.getName(), new ServiceTrackerCustomizer() {
+
+            @Override
+            public Object addingService(ServiceReference reference) {
+                i18nProvider = bc.getService(reference);
+                return i18nProvider;
+            }
+
+            @Override
+            public void modifiedService(ServiceReference reference, Object service) {
+            }
+
+            @Override
+            public void removedService(ServiceReference reference, Object service) {
+                i18nProvider = null;
+            }
+        });
+        localizationTracker.open();
     }
 
     @Override
@@ -124,11 +149,20 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
      */
     @Override
     public void close() {
+        if (localizationTracker != null) {
+            localizationTracker.close();
+            localizationTracker = null;
+            i18nProvider = null;
+        }
         if (tracker != null) {
             tracker.close();
             tracker = null;
             moduleTypeRegistry = null;
             templateRegistry = null;
+        }
+        if (tpReg != null) {
+            tpReg.unregister();
+            tpReg = null;
         }
         super.close();
     }
@@ -138,13 +172,13 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
      */
     @Override
     public <T extends Template> T getTemplate(String UID, Locale locale) {
-        Localizer l = null;
+        Template defTemplate = null;
         synchronized (providerPortfolio) {
-            l = providedObjectsHolder.get(UID);
+            defTemplate = providedObjectsHolder.get(UID);
         }
-        if (l != null) {
+        if (defTemplate != null) {
             @SuppressWarnings("unchecked")
-            T t = (T) l.getPerLocale(locale);
+            T t = (T) getPerLocale(defTemplate, locale);
             return t;
         }
         return null;
@@ -157,11 +191,11 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
     public Collection<Template> getTemplates(Locale locale) {
         ArrayList<Template> templatesList = new ArrayList<Template>();
         synchronized (providedObjectsHolder) {
-            Iterator<Localizer> i = providedObjectsHolder.values().iterator();
+            Iterator<Template> i = providedObjectsHolder.values().iterator();
             while (i.hasNext()) {
-                Localizer l = i.next();
-                if (l != null) {
-                    Template t = (Template) l.getPerLocale(locale);
+                Template defTemplate = i.next();
+                if (defTemplate != null) {
+                    Template t = getPerLocale(defTemplate, locale);
                     if (t != null)
                         templatesList.add(t);
                 }
@@ -183,11 +217,12 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
 
     @Override
     public boolean isReady() {
-        return moduleTypeRegistry != null && templateRegistry != null && factory != null && queue != null;
+        return moduleTypeRegistry != null && templateRegistry != null && queue != null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    protected Set<Status> importData(Vendor vendor, Parser<RuleTemplate> parser, InputStreamReader inputStreamReader) {
+    protected Set<Status> importData(Vendor vendor, Parser<Template> parser, InputStreamReader inputStreamReader) {
         List<String> portfolio = null;
         if (vendor != null) {
             synchronized (providerPortfolio) {
@@ -203,22 +238,8 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
             for (Status status : providedObjects) {
                 if (status.hasErrors())
                     continue;
-                RuleTemplateDTO ruleDTO = (RuleTemplateDTO) status.getResult();
-                String uid = ruleDTO.uid;
-                List<Trigger> triggers = new ArrayList<Trigger>(ruleDTO.triggers.size());
-                for (TriggerDTO trigger : ruleDTO.triggers) {
-                    triggers.add(trigger.createTrigger(factory));
-                }
-                List<Condition> conditions = new ArrayList<Condition>(ruleDTO.conditions.size());
-                for (ConditionDTO condition : ruleDTO.conditions) {
-                    conditions.add(condition.createCondition(factory));
-                }
-                List<Action> actions = new ArrayList<Action>(ruleDTO.actions.size());
-                for (ActionDTO action : ruleDTO.actions) {
-                    actions.add(action.createAction(factory));
-                }
-                RuleTemplate ruleT = new RuleTemplate(uid, ruleDTO.label, ruleDTO.description, ruleDTO.tags, triggers,
-                        conditions, actions, ruleDTO.configDescriptions, ruleDTO.visibility);
+                RuleTemplate ruleT = (RuleTemplate) status.getResult();
+                String uid = ruleT.getUID();
                 try {
                     ConnectionValidator.validateConnections(moduleTypeRegistry, ruleT.getModules(Trigger.class),
                             ruleT.getModules(Condition.class), ruleT.getModules(Action.class));
@@ -233,11 +254,17 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
                 if (portfolio != null) {
                     portfolio.add(uid);
                 }
-                Localizer lruleT = new Localizer(ruleT);
                 synchronized (providedObjectsHolder) {
-                    providedObjectsHolder.put(uid, lruleT);
+                    providedObjectsHolder.put(uid, ruleT);
                 }
             }
+        }
+        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        properties.put(REG_PROPERTY_RULE_TEMPLATES, providedObjectsHolder.keySet());
+        if (tpReg == null)
+            tpReg = bc.registerService(TemplateProvider.class.getName(), this, properties);
+        else {
+            tpReg.setProperties(properties);
         }
         return providedObjects;
     }
@@ -262,6 +289,41 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
             return true;
         }
         return false;
+    }
+
+    /**
+     * This method is used to localize the {@link Template}s.
+     *
+     * @param element is the {@link Template} that must be localized.
+     * @param locale represents a specific geographical, political, or cultural region.
+     * @return the localized {@link Template}.
+     */
+    private Template getPerLocale(Template defTemplate, Locale locale) {
+        if (locale == null)
+            return defTemplate;
+        String uid = defTemplate.getUID();
+        Bundle bundle = getBundle(uid);
+        if (defTemplate instanceof RuleTemplate) {
+            String llabel = RuleTemplateI18nUtil.getLocalizedRuleTemplateLabel(i18nProvider, bundle, uid,
+                    defTemplate.getLabel(), locale);
+            String ldescription = RuleTemplateI18nUtil.getLocalizedRuleTemplateDescription(i18nProvider, bundle, uid,
+                    defTemplate.getDescription(), locale);
+            Set<ConfigDescriptionParameter> lconfigDescriptions = ConfigDescriptionParameterI18nUtil
+                    .getLocalizedConfigurationDescription(i18nProvider,
+                            ((RuleTemplate) defTemplate).getConfigurationDescription(), bundle, uid,
+                            RuleTemplateI18nUtil.RULE_TEMPLATE, locale);
+            List<Action> lactions = ModuleI18nUtil.getLocalizedModules(i18nProvider,
+                    ((RuleTemplate) defTemplate).getActions(), bundle, uid, RuleTemplateI18nUtil.RULE_TEMPLATE, locale);
+            List<Condition> lconditions = ModuleI18nUtil.getLocalizedModules(i18nProvider,
+                    ((RuleTemplate) defTemplate).getConditions(), bundle, uid, RuleTemplateI18nUtil.RULE_TEMPLATE,
+                    locale);
+            List<Trigger> ltriggers = ModuleI18nUtil.getLocalizedModules(i18nProvider,
+                    ((RuleTemplate) defTemplate).getTriggers(), bundle, uid, RuleTemplateI18nUtil.RULE_TEMPLATE,
+                    locale);
+            return new RuleTemplate(uid, llabel, ldescription, ((RuleTemplate) defTemplate).getTags(), ltriggers,
+                    lconditions, lactions, lconfigDescriptions, ((RuleTemplate) defTemplate).getVisibility());
+        }
+        return null;
     }
 
 }

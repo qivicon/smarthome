@@ -14,7 +14,8 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -24,18 +25,16 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
-import org.eclipse.smarthome.automation.dto.ActionDTO;
-import org.eclipse.smarthome.automation.dto.ConditionDTO;
-import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
-import org.eclipse.smarthome.automation.template.dto.RuleTemplateDTO;
 import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * This class is implementation of {@link TemplateProvider}. It extends functionality of {@link AbstractCommandProvider}
@@ -52,6 +51,12 @@ import org.osgi.framework.ServiceReference;
  *
  */
 public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTemplate>implements TemplateProvider {
+
+    /**
+     * This field holds a reference to the {@link ModuleTypeProvider} service registration.
+     */
+    @SuppressWarnings("rawtypes")
+    protected ServiceRegistration tpReg;
 
     /**
      * This constructor creates instances of this particular implementation of {@link TemplateProvider}. It does not add
@@ -115,43 +120,38 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
     /**
      * @see org.eclipse.smarthome.automation.TemplateProvider#getTemplate(java.lang.String, java.util.Locale)
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public <T extends Template> T getTemplate(String UID, Locale locale) {
-        Localizer l = null;
+    public RuleTemplate getTemplate(String UID, Locale locale) {
         synchronized (providerPortfolio) {
-            l = providedObjectsHolder.get(UID);
+            return providedObjectsHolder.get(UID);
         }
-        if (l != null) {
-            @SuppressWarnings("unchecked")
-            T t = (T) l.getPerLocale(locale);
-            return t;
-        }
-        return null;
     }
 
     /**
      * @see org.eclipse.smarthome.automation.TemplateProvider#getTemplates(java.util.Locale)
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public Collection<Template> getTemplates(Locale locale) {
-        List<Template> templatesList = new ArrayList<Template>();
+    public Collection<RuleTemplate> getTemplates(Locale locale) {
         synchronized (providedObjectsHolder) {
-            Iterator<Localizer> i = providedObjectsHolder.values().iterator();
-            while (i.hasNext()) {
-                Localizer l = i.next();
-                if (l != null) {
-                    Template t = (Template) l.getPerLocale(locale);
-                    if (t != null)
-                        templatesList.add(t);
-                }
-            }
+            return providedObjectsHolder.values();
         }
-        return templatesList;
+    }
+
+    @Override
+    public void close() {
+        if (tpReg != null) {
+            tpReg.unregister();
+            tpReg = null;
+        }
+        super.close();
     }
 
     /**
      * @see AbstractCommandProvider#importData(URL, Parser, InputStreamReader)
      */
+    @SuppressWarnings("unchecked")
     @Override
     protected Set<Status> importData(URL url, Parser<RuleTemplate> parser, InputStreamReader inputStreamReader) {
         Set<Status> providedObjects = parser.importData(inputStreamReader);
@@ -163,22 +163,8 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
             for (Status status : providedObjects) {
                 if (status.hasErrors())
                     continue;
-                RuleTemplateDTO ruleDTO = (RuleTemplateDTO) status.getResult();
-                String uid = ruleDTO.uid;
-                List<Trigger> triggers = new ArrayList<Trigger>(ruleDTO.triggers.size());
-                for (TriggerDTO trigger : ruleDTO.triggers) {
-                    triggers.add(trigger.createTrigger(factory));
-                }
-                List<Condition> conditions = new ArrayList<Condition>(ruleDTO.conditions.size());
-                for (ConditionDTO condition : ruleDTO.conditions) {
-                    conditions.add(condition.createCondition(factory));
-                }
-                List<Action> actions = new ArrayList<Action>(ruleDTO.actions.size());
-                for (ActionDTO action : ruleDTO.actions) {
-                    actions.add(action.createAction(factory));
-                }
-                RuleTemplate ruleT = new RuleTemplate(uid, ruleDTO.label, ruleDTO.description, ruleDTO.tags, triggers,
-                        conditions, actions, ruleDTO.configDescriptions, ruleDTO.visibility);
+                RuleTemplate ruleT = (RuleTemplate) status.getResult();
+                String uid = ruleT.getUID();
                 try {
                     ConnectionValidator.validateConnections(AutomationCommandsPluggable.moduleTypeRegistry,
                             ruleT.getModules(Trigger.class), ruleT.getModules(Condition.class),
@@ -192,11 +178,17 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
                 if (checkExistence(uid, status))
                     continue;
                 portfolio.add(uid);
-                Localizer lruleT = new Localizer(ruleT);
                 synchronized (providedObjectsHolder) {
-                    providedObjectsHolder.put(uid, lruleT);
+                    providedObjectsHolder.put(uid, ruleT);
                 }
             }
+        }
+        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        properties.put(REG_PROPERTY_RULE_TEMPLATES, providedObjectsHolder.keySet());
+        if (tpReg == null)
+            tpReg = bc.registerService(TemplateProvider.class.getName(), this, properties);
+        else {
+            tpReg.setProperties(properties);
         }
         return providedObjects;
     }

@@ -17,10 +17,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.RuleRegistry;
-import org.eclipse.smarthome.automation.dto.RuleDTO;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.osgi.framework.Bundle;
@@ -52,6 +51,7 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
      * This field holds the reference to the Rule Registry.
      */
     protected RuleRegistry ruleRegistry;
+    private RuleProvider ruleProvider;
 
     /**
      * This field holds the reference to the tracker of Rule Registry.
@@ -69,9 +69,11 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
     public RuleResourceBundleImporter(BundleContext context) {
         super(context);
         path = PATH + "/rules/";
+
         try {
             Filter filter = bc.createFilter("(|(objectClass=" + RuleRegistry.class.getName() + ")(objectClass="
-                    + AutomationFactory.class.getName() + "))");
+                    + RuleProvider.class.getName() + "))");
+
             rulesTracker = new ServiceTracker(bc, filter, new ServiceTrackerCustomizer() {
 
                 @Override
@@ -79,10 +81,11 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
                     Object service = bc.getService(reference);
                     if (service instanceof RuleRegistry) {
                         ruleRegistry = (RuleRegistry) service;
-                    } else {
-                        factory = (AutomationFactory) service;
+                        queue.open();
+                    } else if (service instanceof RuleProvider) {
+                        ruleProvider = (RuleProvider) service;
+                        queue.open();
                     }
-                    queue.open();
                     return service;
                 }
 
@@ -92,14 +95,19 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
 
                 @Override
                 public void removedService(ServiceReference reference, Object service) {
-                    if (service == ruleRegistry)
+                    if (service instanceof RuleRegistry) {
                         ruleRegistry = null;
-                    if (service == factory)
-                        factory = null;
+                    } else if (service instanceof RuleProvider) {
+                        ruleProvider = null;
+                    }
+
                 }
             });
-        } catch (InvalidSyntaxException notPossible) {
+        } catch (InvalidSyntaxException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
+
     }
 
     /**
@@ -114,7 +122,7 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
             rulesTracker.close();
             rulesTracker = null;
             ruleRegistry = null;
-            factory = null;
+            ruleProvider = null;
         }
         super.close();
     }
@@ -139,7 +147,7 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
 
     @Override
     public boolean isReady() {
-        return ruleRegistry != null && factory != null && queue != null;
+        return ruleRegistry != null && ruleProvider != null && queue != null;
     }
 
     /**
@@ -193,14 +201,14 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
         if (providedRulesStatus != null && !providedRulesStatus.isEmpty()) {
             Iterator<Status> i = providedRulesStatus.iterator();
             while (i.hasNext()) {
-                RuleDTO rule = (RuleDTO) i.next().getResult();
+                Rule rule = (Rule) i.next().getResult();
                 if (rule != null) {
                     try {
-                        if (rule.uid == null)
-                            setUID(vendor, rule);
-                        ruleRegistry.add(factory.createRule(rule));
+                        if (rule.getUID() == null)
+                            rule = setUID(vendor, rule);
+                        ruleRegistry.add(rule);
                     } catch (IllegalArgumentException e) {
-                        logger.debug("Not importing rule '{}' since a rule with this id already exists", rule.uid);
+                        logger.debug("Not importing rule '{}' since a rule with this id already exists", rule.getUID());
                     }
                 }
             } // while
@@ -219,8 +227,14 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
      * @param vendor is the bundle providing the rules.
      * @param rule is the provided rule.
      */
-    private void setUID(Vendor vendor, RuleDTO rule) {
-        rule.uid = vendor.getVendorID() + vendor.count();
+    private Rule setUID(Vendor vendor, Rule rule) {
+        String uid = vendor.getVendorID() + vendor.count();
+        Rule r = new Rule(uid, rule.getTriggers(), rule.getConditions(), rule.getActions(),
+                rule.getConfigurationDescriptions(), rule.getConfiguration());
+        r.setName(rule.getName());
+        r.setDescription(rule.getDescription());
+        r.setTags(rule.getTags());
+        return r;
     }
 
 }

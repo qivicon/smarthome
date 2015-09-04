@@ -106,7 +106,7 @@ public class Printer {
             printChars(writer, ' ', 26, false);
             writer.append(makeString(tags) + "\n");
         }
-        Map<String, Object> config = rule.getConfiguration();
+        Map<String, ?> config = rule.getConfiguration();
         if (config != null && !config.isEmpty()) {
             writer.append("CONFIGURATION");
             printChars(writer, ' ', 17, false);
@@ -119,7 +119,7 @@ public class Printer {
             printChars(writer, ' ', 4, false);
             writer.append(printConfigurationDescription(cd) + "\n");
         }
-        List<Trigger> triggers = rule.getModules(Trigger.class);
+        List<Trigger> triggers = rule.getTriggers();
         if (triggers != null && !triggers.isEmpty()) {
             writer.append("TRIGGERS");
             printChars(writer, ' ', 22, false);
@@ -131,7 +131,7 @@ public class Printer {
                     printChars(writer, ' ', 30, false);
             }
         }
-        List<Condition> conditions = rule.getModules(Condition.class);
+        List<Condition> conditions = rule.getConditions();
         if (conditions != null && !conditions.isEmpty()) {
             writer.append("CONDITIONS");
             printChars(writer, ' ', 20, false);
@@ -143,7 +143,7 @@ public class Printer {
                     printChars(writer, ' ', 30, false);
             }
         }
-        List<Action> actions = rule.getModules(Action.class);
+        List<Action> actions = rule.getActions();
         if (actions != null && !actions.isEmpty()) {
             writer.append("ACTIONS");
             printChars(writer, ' ', 23, false);
@@ -179,7 +179,7 @@ public class Printer {
         if (label != null) {
             writer.append("LABEL");
             printChars(writer, ' ', 25, false);
-            writer.append(label + "n");
+            writer.append(label + "\n");
         }
         String description = template.getDescription();
         if (description != null) {
@@ -400,8 +400,8 @@ public class Printer {
         String description = module.getDescription();
         if (description != null) {
             printChars(writer, ' ', 30, false);
-            writer.append("DESCRIPTION" + "\n");
-            printChars(writer, ' ', 16, false);
+            writer.append("DESCRIPTION");
+            printChars(writer, ' ', 19, false);
             writer.append(description + "\n");
         }
         Map<String, Object> config = module.getConfiguration();
@@ -607,7 +607,7 @@ public class Printer {
      * @param config is the configuration map for printing.
      * @return a formated string, representing the configuration map.
      */
-    private static String makeString(String str, Map<String, Object> config) {
+    private static String makeString(String str, Map<String, ?> config) {
         int index = config.size();
         String res = "";
         for (String key : config.keySet()) {
