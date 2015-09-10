@@ -1,0 +1,61 @@
+{
+    "triggers": {
+		"GenericEventTrigger":{
+			"label": "Basic Event Trigger",
+			"description": "Triggers Rules on Events",
+			"config":{
+				"eventTopic":{
+		            "type": "TEXT",
+		            "label": "Topic",
+		            "description": "This is the topic, the trigger will listen to: >>smarthome/*<<",
+		            "required": true,
+		            "defaultValue": "smarthome/*"
+				},
+				"eventSource":{
+		            "type": "TEXT",
+		            "label": "Source",
+		            "description": "This is the source of the event (eg. item name)",
+		            "required": true,
+		            "defaultValue": ""
+				},
+				"eventTypes":{
+		            "type": "TEXT",
+		            "label": "Event Type",
+		            "description": "the event type, the trigger should listen to. Multiple types can be specified comma-separated",
+		            "required": true,
+		            "defaultValue": ""
+				}
+			},
+			"output":{
+	            "source": {
+	              "type": "java.lang.String",
+	              "label": "Source",
+	              "description": "The name of the events source.",
+	              "reference": "source",
+	            },
+	            "payload": {
+	              "type": "java.lang.String",
+	              "label": "Payload",
+	              "description": "The payload of the event",
+	              "reference": "payload",
+	            },
+	            "type": {
+	              "type": "java.lang.String",
+	              "label": "EventType",
+	              "description": "The type of the Event.",
+	              "reference": "type",
+	            },
+	            "topic": {
+	              "type": "java.lang.String",
+	              "label": "topic",
+	              "description": "The Topic of the event",
+	              "reference": "topic",
+	            }
+			}
+		}
+	}
+}
+
+
+
+  

@@ -16,7 +16,6 @@ import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
@@ -24,8 +23,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Common implementation for {@link ModuleHandlerFactory}s.
+ * Implementors must take care of registering the factory as service themselves.
  *
  * @author Vasil Ilchev - Initial Contribution
+ * @author Benedikt Niehues - Removed service registration of this
  *
  */
 @SuppressWarnings("rawtypes")
@@ -34,7 +35,6 @@ public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory, 
     protected BundleContext bundleContext;
     private ServiceTracker serviceTracker;
     private ServiceReference moduleTypeRegistryRef;
-    private ServiceRegistration serviceReg;
     private ModuleTypeRegistry moduleTypeRegistry;
     private Logger log;
     private List<ModuleHandler> createdHandlers;
@@ -50,8 +50,6 @@ public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory, 
         createdHandlers = new ArrayList();
         serviceTracker = new ServiceTracker(bundleContext, ModuleTypeRegistry.class.getName(), this);
         serviceTracker.open();
-        serviceReg = bundleContext.registerService(ModuleHandlerFactory.class.getName(), this, null);
-
     }
 
     protected void init() {
@@ -87,11 +85,12 @@ public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory, 
     }
 
     public void dispose() {
-        try {
-            bundleContext.ungetService(moduleTypeRegistryRef);
-        } catch (IllegalStateException e) {
+        if (moduleTypeRegistryRef != null) {
+            try {
+                bundleContext.ungetService(moduleTypeRegistryRef);
+            } catch (IllegalStateException e) {
+            }
         }
-        serviceReg.unregister();
         serviceTracker.close();
         for (ModuleHandler moduleHandler : createdHandlers) {
             moduleHandler.dispose();
