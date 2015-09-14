@@ -74,8 +74,8 @@ public class Activator implements BundleActivator {
         ruleRegistryReg = bc.registerService(RuleRegistry.class.getName(), ruleRegistry, null);
 
         Filter filter = bc.createFilter("(|(" + Constants.OBJECTCLASS + "=" + StorageService.class.getName() + ")("
-                + Constants.OBJECTCLASS + "=" + RuleProvider.class.getName() + ")("
-                + Constants.OBJECTCLASS + "=" + EventPublisher.class.getName() + "))");
+                + Constants.OBJECTCLASS + "=" + RuleProvider.class.getName() + ")(" + Constants.OBJECTCLASS + "="
+                + EventPublisher.class.getName() + "))");
 
         serviceTracker = new ServiceTracker(bc, filter, new ServiceTrackerCustomizer() {
 
@@ -99,8 +99,8 @@ public class Activator implements BundleActivator {
                     RuleProvider rp = (RuleProvider) service;
                     ruleRegistry.addProvider(rp);
                     return rp;
-                } else if (service instanceof EventPublisher){
-                    EventPublisher ep = (EventPublisher)service;
+                } else if (service instanceof EventPublisher) {
+                    EventPublisher ep = (EventPublisher) service;
                     ruleRegistry.setEventPublisher(ep);
                     return ep;
                 }
@@ -118,8 +118,8 @@ public class Activator implements BundleActivator {
                         managedRuleProviderReg.unregister();
                         managedRuleProviderReg = null;
                     }
-                } else if (service instanceof EventPublisher){
-                    ruleRegistry.unsetEventPublisher((EventPublisher)service);
+                } else if (service instanceof EventPublisher) {
+                    ruleRegistry.unsetEventPublisher((EventPublisher) service);
                 }
             }
         });
@@ -146,11 +146,11 @@ public class Activator implements BundleActivator {
             moduleTypeRegistry.dispose();
             moduleTypeRegistryReg = null;
         }
-        
-        if (ruleEventFactoryReg!=null){
+
+        if (ruleEventFactoryReg != null) {
             ruleEventFactoryReg.unregister();
-            ruleEventFactory=null;
-            ruleEventFactoryReg=null;
+            ruleEventFactory = null;
+            ruleEventFactoryReg = null;
         }
 
         serviceTracker.close();

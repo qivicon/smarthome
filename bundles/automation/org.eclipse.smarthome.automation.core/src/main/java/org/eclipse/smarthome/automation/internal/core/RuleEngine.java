@@ -219,7 +219,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     }
 
     /**
-     * This method is used to update existing rule. It creates an internal {@link RuntimeRule} object which is deep copy of
+     * This method is used to update existing rule. It creates an internal {@link RuntimeRule} object which is deep copy
+     * of
      * passed {@link Rule} object. If the rule exist in the rule engine it will be replaced by the new one.
      *
      * @param rule a rule which has to be updated.
