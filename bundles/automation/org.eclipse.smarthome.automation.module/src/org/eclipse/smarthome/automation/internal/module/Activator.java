@@ -23,44 +23,43 @@ import org.slf4j.LoggerFactory;
  */
 public class Activator implements BundleActivator {
 
-	private final Logger logger = LoggerFactory.getLogger(Activator.class);
-	private BundleContext context;
-	private BasicModuleHandlerFactory moduleHandlerFactory;
+    private final Logger logger = LoggerFactory.getLogger(Activator.class);
+    private BundleContext context;
+    private BasicModuleHandlerFactory moduleHandlerFactory;
     private ServiceRegistration factoryRegistration;
 
+    public BundleContext getContext() {
+        return context;
+    }
 
-	public BundleContext getContext() {
-		return context;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.
-	 * BundleContext)
-	 */
-	public void start(BundleContext bundleContext) throws Exception {
-		this.context = bundleContext;
-		this.moduleHandlerFactory = new BasicModuleHandlerFactory(context);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.
+     * BundleContext)
+     */
+    public void start(BundleContext bundleContext) throws Exception {
+        this.context = bundleContext;
+        this.moduleHandlerFactory = new BasicModuleHandlerFactory(context);
         this.factoryRegistration = bundleContext.registerService(ModuleHandlerFactory.class.getName(),
                 this.moduleHandlerFactory, null);
-		logger.debug("started bundle automation.module");
-	}
+        logger.debug("started bundle automation.module");
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-	 */
-	public void stop(BundleContext bundleContext) throws Exception {
-		this.context = null;
-		this.moduleHandlerFactory.dispose();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
+     */
+    public void stop(BundleContext bundleContext) throws Exception {
+        this.context = null;
+        this.moduleHandlerFactory.dispose();
         if (this.factoryRegistration != null) {
             this.factoryRegistration.unregister();
         }
         this.moduleHandlerFactory = null;
 
-	}
+    }
 
 }
