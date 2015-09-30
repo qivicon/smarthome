@@ -31,25 +31,25 @@
 	              "type": "java.lang.String",
 	              "label": "Source",
 	              "description": "The name of the events source.",
-	              "reference": "source",
+	              "reference": "source"
 	            },
 	            "payload": {
 	              "type": "java.lang.String",
 	              "label": "Payload",
 	              "description": "The payload of the event",
-	              "reference": "payload",
+	              "reference": "payload"
 	            },
 	            "type": {
 	              "type": "java.lang.String",
 	              "label": "EventType",
 	              "description": "The type of the Event.",
-	              "reference": "type",
+	              "reference": "type"
 	            },
 	            "topic": {
 	              "type": "java.lang.String",
 	              "label": "topic",
 	              "description": "The Topic of the event",
-	              "reference": "topic",
+	              "reference": "topic"
 	            }
 			}
 		}
