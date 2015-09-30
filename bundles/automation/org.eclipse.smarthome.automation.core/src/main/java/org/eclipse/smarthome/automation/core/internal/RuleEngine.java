@@ -312,7 +312,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         }
 
         try {
-            ConnectionValidator.validateConnections(Activator.getModuleTypeRegistry(), r);
+            ConnectionValidator.validateConnections(r);
         } catch (Exception e) {
             errMsgs = errMsgs + "\n Validation of rule" + r.getUID() + "is failed! " + e.getMessage();
         }
