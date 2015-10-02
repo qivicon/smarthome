@@ -823,7 +823,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
                 // change state to RUNNING
                 setRuleStatusInfo(rule.getUID(), new RuleStatusInfo(RuleStatus.RUNNING));
-                clearCacheOutputValues(rule);
+                clearCachedOutputValues(rule);
 
                 setTriggerOutputs(rule.getUID(), td);
                 boolean isSatisfied = calculateConditions(rule);
@@ -845,7 +845,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
     }
 
-    private void clearCacheOutputValues(RuntimeRule rule) {
+    private void clearCachedOutputValues(RuntimeRule rule) {
         List<Trigger> tiggers = rule.getTriggers();
         for (Trigger trigger : tiggers) {
             ((RuntimeTrigger) trigger).setOutputs(null);
