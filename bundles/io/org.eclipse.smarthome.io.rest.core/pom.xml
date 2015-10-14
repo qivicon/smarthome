@@ -11,6 +11,7 @@
     <bundle.symbolicName>org.eclipse.smarthome.io.rest.core</bundle.symbolicName>
     <bundle.namespace>org.eclipse.smarthome.io.rest.core</bundle.namespace>
     <swagger.document.name>rest-core</swagger.document.name>
+    <swagger.document.title>Core API</swagger.document.title>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>

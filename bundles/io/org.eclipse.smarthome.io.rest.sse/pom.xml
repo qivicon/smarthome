@@ -11,6 +11,7 @@
     <bundle.symbolicName>org.eclipse.smarthome.io.rest.sse</bundle.symbolicName>
     <bundle.namespace>org.eclipse.smarthome.io.rest.sse</bundle.namespace>
     <swagger.document.name>rest-sse</swagger.document.name>
+    <swagger.document.title>SSE API</swagger.document.title>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>

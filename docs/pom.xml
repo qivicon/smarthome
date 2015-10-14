@@ -16,7 +16,7 @@
 
   <properties>
     <binidngs.documentation.folder>/documentation/features/bindings</binidngs.documentation.folder>
-    <binidngs.documentation.folder>/documentation/features/bindings</binidngs.documentation.folder>
+    <iconset.documentation.folder>documentation/features/ui/iconset</iconset.documentation.folder>
     <rest.documentation.folder>/documentation/features/rest/</rest.documentation.folder>
   </properties>
 
@@ -28,6 +28,9 @@
           <filesets>
             <fileset>
               <directory>${basedir}${binidngs.documentation.folder}</directory>
+            </fileset>
+            <fileset>
+              <directory>${basedir}${iconset.documentation.folder}</directory>    
             </fileset>
             <!-- Cleanup Swagger generated documentation. -->
             <fileset>
@@ -59,6 +62,43 @@
               </resources>
             </configuration>
           </execution>
+          <execution>
+              <id>copy-iconset-docs</id>
+              <phase>process-resources</phase>
+              <goals>
+                  <goal>copy-resources</goal>
+              </goals>
+              <configuration>
+                  <outputDirectory>${basedir}/documentation/features/ui/iconset</outputDirectory>
+                  <resources>
+                      <resource>
+                          <directory>${basedir}/../extensions/ui/iconset</directory>
+                          <includes>
+                              <include>**/README.md</include>
+                              <include>**/icons/**</include>
+                          </includes>
+                      </resource>
+                  </resources>
+              </configuration>
+          </execution>
+          <execution>
+              <id>copy-javadoc</id>
+              <phase>process-resources</phase>
+              <goals>
+                  <goal>copy-resources</goal>
+              </goals>
+              <configuration>
+                  <outputDirectory>${basedir}/documentation/javadoc</outputDirectory>
+                  <resources>
+                      <resource>
+                          <directory>${basedir}/../target/apidocs</directory>
+                          <includes>
+                              <include>**</include>
+                          </includes>
+                      </resource>
+                  </resources>
+              </configuration>
+          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -82,7 +122,7 @@
               <goal>execute</goal>
             </goals>
             <configuration>
-              <source>${project.basedir}/src/main/scripts/RenameIconFiles.groovy</source>
+              <source>${project.basedir}/src/main/scripts/RenameIconSetFiles.groovy</source>
             </configuration>
           </execution>
           <!-- Copy Swagger generated .md files from all bundles in bundles/io. -->

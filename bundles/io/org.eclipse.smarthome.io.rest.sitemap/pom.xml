@@ -11,6 +11,7 @@
     <bundle.symbolicName>org.eclipse.smarthome.io.rest.sitemap</bundle.symbolicName>
     <bundle.namespace>org.eclipse.smarthome.io.rest.sitemap</bundle.namespace>
     <swagger.document.name>rest-sitemap</swagger.document.name>
+    <swagger.document.title>Sitemaps API</swagger.document.title>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>

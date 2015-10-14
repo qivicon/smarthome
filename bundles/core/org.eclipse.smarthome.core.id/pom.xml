@@ -9,6 +9,7 @@
 
   <properties>
     <swagger.document.name>rest-uuid</swagger.document.name>
+    <swagger.document.title>UUID API</swagger.document.title>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
