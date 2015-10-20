@@ -9,6 +9,7 @@ package org.eclipse.smarthome.automation.core.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -16,6 +17,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
@@ -50,6 +55,8 @@ import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
@@ -73,7 +80,8 @@ import org.slf4j.LoggerFactory;
  *
  */
 @SuppressWarnings("rawtypes")
-public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFactory, ModuleHandlerFactory> */ {
+public class RuleEngine
+        implements ServiceTrackerCustomizer/* <ModuleHandlerFactory, ModuleHandlerFactory> */, ManagedService {
 
     /**
      * Constant defining separator between parent and custom module types. For example: SampleTrigger:CustomTrigger is a
@@ -90,6 +98,21 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * Prefix of {@link Rule}'s UID created by the rule engine.
      */
     public static final String ID_PREFIX = "rule_"; //$NON-NLS-1$
+
+    /**
+     * Default value of delay between rule's re-initialization tries.
+     */
+    public static final long DEFAULT_REINITIALIZATION_DELAY = 500;
+
+    /**
+     * Delay between rule's re-initialization tries.
+     */
+    public static final String CONFIG_PROPERTY_REINITIALIZATION_DELAY = "rule.reinitialization.delay";
+
+    /**
+     * Delay between rule's re-initialization tries.
+     */
+    private long scheduleReinitializationDelay = DEFAULT_REINITIALIZATION_DELAY;
 
     /**
      * {@link Map} of rule's id to corresponding {@link RuleEngineCallback}s. For each {@link Rule} there is one and
@@ -152,6 +175,10 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     private CompositeModuleHandlerFactory compositeFactory;
 
     private int ruleMaxID = 0;
+
+    private Map<String, Future> scheduleTasks = new HashMap<>(31);
+
+    private ScheduledExecutorService executor;
 
     /**
      * Constructor of {@link RuleEngine}. It initializes the logger and starts
@@ -348,6 +375,21 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             register(r);
             // change state to IDLE
             setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.IDLE));
+
+            Future f = scheduleTasks.get(rUID);
+            if (f != null) {
+                if (!f.isDone()) {
+                    f.cancel(true);
+                }
+                scheduleTasks.remove(rUID);
+            }
+
+            if (scheduleTasks.isEmpty()) {
+                if (executor != null) {
+                    executor.shutdown();
+                    executor = null;
+                }
+            }
 
         } else {
             unregister(r);
@@ -748,11 +790,25 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             }
         }
         if (notInitailizedRules != null) {
-            for (String rUID : notInitailizedRules) {
-                setRule(rUID);
+            for (final String rUID : notInitailizedRules) {
+                scheduleRuleInitialization(rUID);
             }
         }
         return mhf;
+    }
+
+    private synchronized void scheduleRuleInitialization(final String rUID) {
+        Future f = scheduleTasks.get(rUID);
+        if (f == null) {
+            ScheduledExecutorService ex = getScheduledExecutor();
+            f = ex.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    setRule(rUID);
+                }
+            }, scheduleReinitializationDelay, TimeUnit.MILLISECONDS);
+            scheduleTasks.put(rUID, f);
+        }
     }
 
     /**
@@ -1000,6 +1056,18 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 compositeFactory = null;
             }
         }
+
+        for (Future f : scheduleTasks.values()) {
+            f.cancel(true);
+        }
+        if (scheduleTasks.isEmpty()) {
+            if (executor != null) {
+                executor.shutdown();
+                executor = null;
+            }
+        }
+        scheduleTasks = null;
+
         if (contextMap != null) {
             contextMap.clear();
             contextMap = null;
@@ -1096,7 +1164,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         }
         if (notInitailizedRules != null) {
             for (String rUID : notInitailizedRules) {
-                setRule(rUID);
+                scheduleRuleInitialization(rUID);
+                // setRule(rUID);
             }
         }
 
@@ -1121,7 +1190,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         }
         if (notInitailizedRules != null) {
             for (String rUID : notInitailizedRules) {
-                setRule(rUID);
+                scheduleRuleInitialization(rUID);
+                // setRule(rUID);
             }
         }
 
@@ -1186,6 +1256,31 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                     updateContext(ruleUID, module.getId(), result);
                 }
             }
+        }
+    }
+
+    private ScheduledExecutorService getScheduledExecutor() {
+        if (executor == null || executor.isShutdown()) {
+            executor = Executors.newSingleThreadScheduledExecutor();
+        }
+        return executor;
+    }
+
+    @Override
+    public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
+        if (properties != null) {
+            Object value = properties.get(CONFIG_PROPERTY_REINITIALIZATION_DELAY);
+            if (value != null) {
+                if (value instanceof Number) {
+                    scheduleReinitializationDelay = ((Number) value).longValue();
+                } else {
+                    logger.error("Invalid configuration value: " + value + "It MUST be Number.");
+                }
+            } else {
+                scheduleReinitializationDelay = DEFAULT_REINITIALIZATION_DELAY;
+            }
+        } else {
+            scheduleReinitializationDelay = DEFAULT_REINITIALIZATION_DELAY;
         }
     }
 
