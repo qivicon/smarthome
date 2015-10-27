@@ -413,7 +413,7 @@ public class RuleEngine
             logger.debug("Rule template '" + ruleTemplateUID + "' does not exist.");
             return null;
         } else {
-            RuntimeRule r1 = new RuntimeRule(template, rule.getConfiguration());
+            RuntimeRule r1 = new RuntimeRule(rule.getUID(), template, rule.getConfiguration());
             r1.handleModuleConfigReferences();
             return r1;
         }
@@ -1082,11 +1082,22 @@ public class RuleEngine
      * @return status of the rule or null when such rule does not exists.
      */
     public synchronized RuleStatus getRuleStatus(String rUID) {
-        RuleStatusInfo info = statusMap.get(rUID);
+        RuleStatusInfo info = getRuleStatusInfo(rUID);
         RuleStatus status = null;
         if (info != null)
             status = info.getStatus();
         return status;
+    }
+
+    /**
+     * This method gets rule's status info object.
+     *
+     * @param rUID rule uid
+     * @return status of the rule or null when such rule does not exists.
+     */
+    public synchronized RuleStatusInfo getRuleStatusInfo(String rUID) {
+        RuleStatusInfo info = statusMap.get(rUID);
+        return info;
     }
 
     protected String getScopeIdentifier() {
