@@ -187,7 +187,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
             assertThat ruleRegistry.getAll().isEmpty(), is(false)
             Rule rule = ruleRegistry.get("ItemSampleRule")
             assertThat rule, is(notNullValue())
-            assertThat ruleRegistry.getStatus(rule.UID), is (RuleStatus.IDLE)
+            assertThat ruleRegistry.getStatus(rule.UID).status, is (RuleStatus.IDLE)
             
         }, 3000, 200)
         SwitchItem myPresenceItem = itemRegistry.getItem("myPresenceItem")
