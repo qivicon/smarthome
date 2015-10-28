@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.automation;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,7 +45,7 @@ public class Action extends Module {
      */
     public Action(String UID, String typeUID, Map<String, ?> configuration, Map<String, String> inputs) {
         super(UID, typeUID, configuration);
-        setInputs(inputs != null ? inputs : new HashMap<String, String>(0));
+        setInputs(inputs);
     }
 
     /**
@@ -53,19 +53,21 @@ public class Action extends Module {
      * are links between {@link Input}s of the {@link Module} and {@link Output}s
      * of other {@link Module}s.
      *
-     * @return a {@link Set} of input {@link Connection}s.
+     * @return a {@link Set} of input {@link Input}s.
      */
     public Map<String, String> getInputs() {
-        return inputs;
+        return inputs != null ? inputs : Collections.<String, String> emptyMap();
     }
 
     /**
      * This method is used to connect {@link Input}s of the action to {@link Output}s of other {@link Module}s.
      *
-     * @param connections a {@link Set} of input {@link Connection}s.
+     * @param connections a {@link Set} of input {@link Input}s.
      */
     public void setInputs(Map<String, String> inputs) {
-        this.inputs = inputs;
+        if (inputs != null) {
+            this.inputs = inputs;
+        }
     }
 
 }
