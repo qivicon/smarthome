@@ -27,36 +27,36 @@ import org.slf4j.LoggerFactory;
 /**
  * This is an ModuleHandler implementation for Triggers which trigger the rule
  * based on a cron expression. The cron expression can be set with the
- * configuration.
+ * configuration. 
  *
  * @author Christoph Knauf - Initial Contribution
  *
  */
 public class TimerTriggerHandler extends BaseModuleHandler<Trigger>implements TriggerHandler {
 
-	private final Logger logger = LoggerFactory.getLogger(TimerTriggerHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(TimerTriggerHandler.class);
 
-	private RuleEngineCallback callback;
-	private JobDetail job;
-	private CronTrigger trigger;
-	private Scheduler scheduler;
+    private RuleEngineCallback callback;
+    private JobDetail job;
+    private CronTrigger trigger;
+    private Scheduler scheduler;
 
-	public static final String MODULE_TYPE_ID = "TimerTrigger";
-	public static final String CALLBACK_CONTEXT_NAME = "CALLBACK";
-	public static final String MODULE_CONTEXT_NAME = "MODULE";
+    public static final String MODULE_TYPE_ID = "TimerTrigger";
+    public static final String CALLBACK_CONTEXT_NAME = "CALLBACK";
+    public static final String MODULE_CONTEXT_NAME = "MODULE";
 
-	private static final String CFG_CRON_EXPRESSION = "cronExpression";
+    private static final String CFG_CRON_EXPRESSION = "cronExpression";
 
-	public TimerTriggerHandler(Trigger module) {
-		super(module);
-		String cronExpression = (String) module.getConfiguration().get(CFG_CRON_EXPRESSION);
+    public TimerTriggerHandler(Trigger module) {
+        super(module);
+        String cronExpression = (String) module.getConfiguration().get(CFG_CRON_EXPRESSION);
 		this.trigger = TriggerBuilder.newTrigger().withIdentity(MODULE_TYPE_ID + UUID.randomUUID().toString())
-				.withSchedule(CronScheduleBuilder.cronSchedule(cronExpression)).build();
-	}
+                .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression)).build();
+    }
 
-	@Override
-	public void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
-		this.callback = ruleCallback;
+    @Override
+    public void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
+        this.callback = ruleCallback;
 		this.job = JobBuilder.newJob(CallbackJob.class).withIdentity(MODULE_TYPE_ID + UUID.randomUUID().toString())
 				.build();
 		try {
@@ -84,5 +84,4 @@ public class TimerTriggerHandler extends BaseModuleHandler<Trigger>implements Tr
 		}
 
 	}
-
 }

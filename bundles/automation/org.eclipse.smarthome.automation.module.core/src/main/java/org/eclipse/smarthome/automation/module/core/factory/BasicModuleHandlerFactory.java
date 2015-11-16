@@ -237,7 +237,6 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
 			return compareConditionHandler;
 		} else if (TimerTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID) && module instanceof Trigger) {
 			try {
-
 				TimerTriggerHandler timerTriggerHandler = handler != null && handler instanceof TimerTriggerHandler
 						? (TimerTriggerHandler) handler : null;
 				if (timerTriggerHandler == null) {
@@ -254,5 +253,4 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
 		}
 		return null;
 	}
-
 }
