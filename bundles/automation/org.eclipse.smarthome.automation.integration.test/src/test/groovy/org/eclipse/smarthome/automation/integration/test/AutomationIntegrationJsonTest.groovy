@@ -130,9 +130,9 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         logger.info('@Before.finish');
     }
 
-    @After
+  @After
     void after() {
-        logger.info('@After');
+        unregisterMocks()    
     }
 
 
@@ -189,7 +189,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
             assertThat r, is(notNullValue())
             assertThat ruleRegistry.getStatus(r.UID).getStatus(), is(RuleStatus.IDLE)
             
-        }, 3000, 200)
+        }, 10000, 200)
         SwitchItem myPresenceItem = itemRegistry.getItem("myPresenceItem")
         eventPublisher.post(ItemEventFactory.createCommandEvent("myPresenceItem", OnOffType.ON))
         SwitchItem myLampItem = itemRegistry.getItem("myLampItem")

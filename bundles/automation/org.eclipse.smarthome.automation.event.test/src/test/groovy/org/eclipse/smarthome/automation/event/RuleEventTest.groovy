@@ -39,6 +39,7 @@ import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.TypeParser
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.storage.VolatileStorageService
+import org.junit.After;
 import org.junit.Before
 import org.junit.Test
 import org.slf4j.Logger
@@ -76,6 +77,11 @@ class RuleEventTest extends OSGiTest{
         registerService(itemProvider)
         registerVolatileStorageService()
         enableItemAutoUpdate()
+    }
+    
+    @After
+    void after() {
+        unregisterMocks()
     }
 
     @Test
@@ -131,9 +137,9 @@ class RuleEventTest extends OSGiTest{
 
         def EventPublisher eventPublisher = getService(EventPublisher)
         def ItemRegistry itemRegistry = getService(ItemRegistry)
-        SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem2")
-        Command commandObj = TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "ON")
-        eventPublisher.post(ItemEventFactory.createCommandEvent("myPresenceItem2", commandObj))
+        def SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem2") as SwitchItem
+        def SwitchItem myPresenceItem = itemRegistry.getItem("myPresenceItem2") as SwitchItem
+        myPresenceItem.send(OnOffType.ON)
         
         Event itemEvent = null
 
@@ -154,8 +160,7 @@ class RuleEventTest extends OSGiTest{
         ] as EventSubscriber
 
         registerService(itemEventHandler)
-        commandObj = TypeParser.parseCommand(itemRegistry.getItem("myMotionItem2").getAcceptedCommandTypes(),"ON")
-        eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem2", commandObj))
+        myMotionItem.send(OnOffType.ON)
         waitForAssert ({ assertThat itemEvent, is(notNullValue())} , 3000, 100)
         assertThat itemEvent.topic, is(equalTo("smarthome/items/myLampItem2/state"))
         assertThat (((ItemStateEvent)itemEvent).itemState, is(OnOffType.ON))

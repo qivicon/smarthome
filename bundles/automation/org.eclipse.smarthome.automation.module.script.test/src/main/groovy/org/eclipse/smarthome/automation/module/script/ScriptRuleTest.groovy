@@ -28,6 +28,7 @@ import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.storage.VolatileStorageService
+import org.junit.After;
 import org.junit.Before
 import org.junit.Test
 import org.slf4j.Logger
@@ -82,6 +83,10 @@ class ScriptRuleTest extends OSGiTest {
         assertThat ScriptScopeProvider, is(notNullValue())
     }
 
+    @After
+    void after() {
+        unregisterMocks()
+    }
 
     @Test
     public void testPredefinedRule() {

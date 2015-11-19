@@ -127,7 +127,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
     @After
     void after() {
-        logger.info('@After');
+        unregisterMocks()
     }
 
     @Test
@@ -397,10 +397,13 @@ class AutomationIntegrationTest extends OSGiTest{
         })
 
         def EventPublisher eventPublisher = getService(EventPublisher)
-        def ItemRegistry itemRegistry = getService(ItemRegistry)
+        def ItemRegistry itemRegistry = getService(ItemRegistry) as ItemRegistry
         SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem4")
-        Command commandObj = TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "ON")
-        eventPublisher.post(ItemEventFactory.createCommandEvent("myPresenceItem4", commandObj))
+        def myPresenceItem4 = itemRegistry.get("myPresenceItem4") as SwitchItem
+        assertThat myPresenceItem4, is(notNullValue())
+        myPresenceItem4.send(OnOffType.ON)
+//        Command commandObj = TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "ON")
+//        eventPublisher.post(ItemEventFactory.createCommandEvent("myPresenceItem4", commandObj))
 
         Event itemEvent = null
 
@@ -421,8 +424,10 @@ class AutomationIntegrationTest extends OSGiTest{
         ] as EventSubscriber
 
         registerService(itemEventHandler)
-        commandObj = TypeParser.parseCommand(itemRegistry.getItem("myMotionItem4").getAcceptedCommandTypes(),"ON")
-        eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem4", commandObj))
+//        commandObj = TypeParser.parseCommand(itemRegistry.getItem("myMotionItem4").getAcceptedCommandTypes(),"ON")
+//        eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem4", commandObj))
+        def myMotionItem4 = itemRegistry.get("myMotionItem4") as SwitchItem
+        myMotionItem4.send(OnOffType.ON)
         waitForAssert ({ assertThat itemEvent, is(notNullValue())} , 3000, 100)
         assertThat itemEvent.topic, is(equalTo("smarthome/items/myLampItem4/state"))
         assertThat (((ItemStateEvent)itemEvent).itemState, is(OnOffType.ON))

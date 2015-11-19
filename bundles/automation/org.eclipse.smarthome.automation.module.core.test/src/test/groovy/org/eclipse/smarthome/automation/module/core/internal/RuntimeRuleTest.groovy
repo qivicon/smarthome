@@ -40,6 +40,7 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.storage.VolatileStorageService
+import org.junit.After;
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
@@ -87,7 +88,11 @@ class RuntimeRuleTest extends OSGiTest{
         enableItemAutoUpdate()
     }
 
-
+    @After
+    void after() {
+     unregisterMocks()    
+    }
+    
     @Test
     @Ignore
     public void testPredefinedRule() {
