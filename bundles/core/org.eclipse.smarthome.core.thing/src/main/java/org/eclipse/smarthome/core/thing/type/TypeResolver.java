@@ -7,8 +7,11 @@
  */
 package org.eclipse.smarthome.core.thing.type;
 
+import java.net.URI;
 import java.util.Locale;
 
+import org.eclipse.smarthome.config.core.ConfigDescription;
+import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.internal.Activator;
 
@@ -88,12 +91,41 @@ public class TypeResolver {
         return thingTypeRegistry != null ? thingTypeRegistry.getThingType(thingTypeUID, locale) : null;
     }
 
+    /**
+     * Resolves a {@link ConfigDescription} for the given {@link URI}.
+     *
+     * @param configDescriptionURI the URI of the configuration description
+     * @return config description or null if no config description was found or config description registry is not
+     *         present
+     */
+    public static ConfigDescription resolve(URI configDescriptionURI) {
+        return resolve(configDescriptionURI, null);
+    }
+
+    /**
+     * Resolves a {@link ConfigDescription} for the given {@link URI} and {@link Locale}.
+     *
+     * @param configDescriptionURI the URI of the configuration description
+     * @param locale the locale
+     * @return config description or null if no config description was found or config description registry is not
+     *         present
+     */
+    public static ConfigDescription resolve(URI configDescriptionURI, Locale locale) {
+        ConfigDescriptionRegistry configDescriptionRegistry = getConfigDescriptionRegistry();
+        return configDescriptionRegistry != null
+                ? configDescriptionRegistry.getConfigDescription(configDescriptionURI, locale) : null;
+    }
+
     private static ChannelTypeRegistry getChannelTypeRegistry() {
         return Activator.getChannelTypeRegistry();
     }
 
     private static ThingTypeRegistry getThingTypeRegistry() {
         return Activator.getThingTypeRegistry();
+    }
+
+    private static ConfigDescriptionRegistry getConfigDescriptionRegistry() {
+        return Activator.getConfigDescriptionRegistry();
     }
 
 }

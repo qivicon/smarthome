@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
+import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Bind;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Unbind;
@@ -33,9 +34,18 @@ public class Activator implements BundleActivator {
         }
     }
 
+    public static class ConfigDescriptionRegistryBinder {
+        @Bind
+        @Unbind
+        public void bindConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
+            Activator.configDescriptionRegistry = configDescriptionRegistry;
+        }
+    }
+
     private static ChannelTypeRegistry channelTypeRegistry;
     private static BundleContext context;
     private static ThingTypeRegistry thingTypeRegistry;
+    private static ConfigDescriptionRegistry configDescriptionRegistry;
 
     /**
      * Returns the {@link ChannelTypeRegistry}
@@ -64,9 +74,20 @@ public class Activator implements BundleActivator {
         return Activator.thingTypeRegistry;
     }
 
+    /**
+     * Returns the {@link ConfigDescriptionRegistry}.
+     *
+     * @return {@link ConfigDescriptionRegistry} or null
+     */
+    public static ConfigDescriptionRegistry getConfigDescriptionRegistry() {
+        return Activator.configDescriptionRegistry;
+    }
+
     private ServiceBinder channelTypeServiceBinder;
 
     private ServiceBinder thingTypeServiceBinder;
+
+    private ServiceBinder configDescriptionServiceBinder;
 
     @Override
     public void start(BundleContext context) throws Exception {
@@ -75,14 +96,18 @@ public class Activator implements BundleActivator {
         thingTypeServiceBinder.open();
         channelTypeServiceBinder = new ServiceBinder(context, new ChannelTypeRegistryBinder());
         channelTypeServiceBinder.open();
+        configDescriptionServiceBinder = new ServiceBinder(context, new ConfigDescriptionRegistryBinder());
+        configDescriptionServiceBinder.open();
     }
 
     @Override
     public void stop(BundleContext context) throws Exception {
         channelTypeServiceBinder.close();
         thingTypeServiceBinder.close();
+        configDescriptionServiceBinder.close();
         channelTypeServiceBinder = null;
         thingTypeServiceBinder = null;
+        configDescriptionServiceBinder = null;
         Activator.context = null;
     }
 }
