@@ -177,7 +177,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
         def thingHandler = [
             thingUpdated: { thingUpdatedWasCalled = true },
-            setCallback: {callbackArg -> callback = callbackArg }
+            setCallback: {callbackArg -> callback = callbackArg },
+            initialize: {}
         ] as ThingHandler
 
         registerService(thingHandler,[
@@ -286,8 +287,8 @@ class ThingManagerOSGiTest extends OSGiTest {
     @Test
     void 'ThingManager handles thing status updates uninitialized and initializing correctly'() {
         def thingHandler = [
-            setCallback: {
-            }
+            setCallback: {},
+            initialize: {}
         ] as ThingHandler
 
         def thingHandlerFactory = [
@@ -460,7 +461,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         ThingStatusInfoEvent receivedEvent
 
         def thingHandler = [
-            setCallback: {callbackArg -> callback = callbackArg }
+            setCallback: {callbackArg -> callback = callbackArg },
+            initialize: {}
         ] as ThingHandler
 
         def thingHandlerFactory = [

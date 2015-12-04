@@ -267,13 +267,14 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
     @Test
     void 'assert bridgeInitialized is called by BaseThingHandler'() {
+        registerThingTypeProvider()
         def componentContext = [getBundleContext: {bundleContext}] as ComponentContext
         def thingHandlerFactory = new AnotherSimpleThingHandlerFactory()
         thingHandlerFactory.activate(componentContext)
         registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
 
-        def bridge = BridgeBuilder.create(new ThingUID("bindingId:type1:bridgeId")).build()
-        def thing = ThingBuilder.create(new ThingUID("bindingId:type2:thingId")).withBridge(bridge.getUID()).build()
+        def bridge = BridgeBuilder.create(new ThingUID("bindingId:type:bridgeId")).build()
+        def thing = ThingBuilder.create(new ThingUID("bindingId:type:thingId")).withBridge(bridge.getUID()).build()
 
         // add thing first
         managedThingProvider.add(thing)
@@ -409,6 +410,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
     @Test
     void 'assert thing can be updated from ThingHandler'() {
+        registerThingTypeProvider()
         def componentContext = [getBundleContext: {bundleContext}] as ComponentContext
         def thingHandlerFactory = new YetAnotherThingHandlerFactory()
         thingHandlerFactory.activate(componentContext)
@@ -441,6 +443,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
     @Test
     void 'assert properties can be updated from ThingHandler'() {
+        registerThingTypeProvider()
         def componentContext = [getBundleContext: {bundleContext}] as ComponentContext
         def thingHandlerFactory = new YetAnotherThingHandlerFactory()
         thingHandlerFactory.activate(componentContext)
@@ -546,5 +549,19 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         registerService([
             getConfigDescription: {uri, locale -> configDescription}
         ] as ConfigDescriptionProvider)
+    }
+    
+    private void registerThingTypeProvider() {
+        def THING_TYPES = [
+            new ThingType("bindingId", "type", "label")
+        ]
+
+        def THING_TYPE_PROVIDER = [
+            getThingTypes: { THING_TYPES },
+            getThingType: { ThingTypeUID thingTypeUID, Locale locale ->
+                THING_TYPES.find { it.UID == thingTypeUID }
+            }
+        ] as ThingTypeProvider
+        registerService(THING_TYPE_PROVIDER, ThingTypeProvider.class.name)
     }
 }
