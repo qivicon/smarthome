@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.thing.internal;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import org.eclipse.smarthome.config.core.ConfigDescription;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.SafeMethodCaller;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
@@ -43,6 +47,8 @@ import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry;
+import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.osgi.framework.BundleContext;
@@ -524,6 +530,35 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             logger.error("Exception occured while calling thing handler factory '" + thingHandlerFactory + "': "
                     + ex.getMessage(), ex);
         }
+    }
+
+    /**
+     * Determines if a thing is initializable: all 'required' {@link ConfigDescriptionParameter} must be available in
+     * the {@link Configuration} of the {@link Thing}.
+     *
+     * @return true if all required parameters are available in the configuration, false otherwise
+     */
+    private boolean isInitializable(Thing thing) {
+        ThingType thingType = TypeResolver.resolve(thing.getThingTypeUID());
+        if (thingType != null) {
+            ConfigDescription description = TypeResolver.resolve(thingType.getConfigDescriptionURI());
+            if (description != null) {
+                List<String> requiredParameters = getRequiredParameters(description);
+                Map<String, Object> properties = thing.getConfiguration().getProperties();
+                return properties.keySet().containsAll(requiredParameters);
+            }
+        }
+        return false;
+    }
+
+    private List<String> getRequiredParameters(ConfigDescription description) {
+        List<String> requiredParameters = new ArrayList<>();
+        for (ConfigDescriptionParameter param : description.getParameters()) {
+            if (param.isRequired()) {
+                requiredParameters.add(param.getName());
+            }
+        }
+        return requiredParameters;
     }
 
     private void unregisterHandler(final Thing thing, final ThingHandlerFactory thingHandlerFactory) {
