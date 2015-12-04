@@ -40,6 +40,7 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
@@ -265,6 +266,14 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         logger.debug("Assigning handler for thing '{}'.", thing.getUID());
         thingHandler.setCallback(this.thingHandlerCallback);
         thing.setHandler(thingHandler);
+        
+        if (isInitializable(thing)) {
+            thingHandler.initialize();
+            if (thingHandler instanceof BaseThingHandler) {
+                ((BaseThingHandler) thingHandler).postInitialize();
+            }
+        }
+
     }
 
     /**
@@ -282,6 +291,13 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 ThingStatusDetail.HANDLER_MISSING_ERROR);
         setThingStatus(thing, statusInfo);
         thingHandler.setCallback(null);
+        
+        if(thing.getStatus() == ThingStatus.ONLINE || thing.getStatus() == ThingStatus.OFFLINE) {
+            if (thingHandler instanceof BaseThingHandler) {
+                ((BaseThingHandler) thingHandler).preDispose();
+            }
+            thingHandler.dispose();
+        }
     }
 
     @Override
@@ -539,13 +555,18 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
      * @return true if all required parameters are available in the configuration, false otherwise
      */
     private boolean isInitializable(Thing thing) {
+        logger.debug("isInitializable() -> Determine if thing '{}' is initializable", thing.getUID().getAsString());
         ThingType thingType = TypeResolver.resolve(thing.getThingTypeUID());
+        logger.debug("isInitializable() -> thing type '{}'", thingType);        
         if (thingType != null) {
+            logger.debug("isInitializable() -> thing '{}', thingTypeURI '{}'", thing.getUID().getAsString(), thingType.getConfigDescriptionURI());
             ConfigDescription description = TypeResolver.resolve(thingType.getConfigDescriptionURI());
             if (description != null) {
                 List<String> requiredParameters = getRequiredParameters(description);
                 Map<String, Object> properties = thing.getConfiguration().getProperties();
                 return properties.keySet().containsAll(requiredParameters);
+            } else {
+                return true;
             }
         }
         return false;
