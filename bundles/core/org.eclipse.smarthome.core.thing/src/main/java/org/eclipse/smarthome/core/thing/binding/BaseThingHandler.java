@@ -160,10 +160,15 @@ public abstract class BaseThingHandler implements ThingHandler {
             configuration.put(configurationParmeter.getKey(), configurationParmeter.getValue());
         }
 
-        // reinitialize with new configuration and persist changes
-        dispose();
-        updateConfiguration(configuration);
-        initialize();
+        if (getThing().getStatus() == ThingStatus.ONLINE || getThing().getStatus() == ThingStatus.OFFLINE) {
+            // persist new configuration and reinitialize handler
+            dispose();
+            updateConfiguration(configuration);
+            initialize();
+        } else {
+            // persist new configuration only
+            updateConfiguration(configuration);
+        }
     }
 
     @Override
@@ -414,7 +419,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     /**
-     * Informs the framework, that the given configuration of the thing was updated.
+     * Updates the configuration of the thing and informs the framework about it.
      *
      * @param configuration
      *            configuration, that was updated and should be persisted
