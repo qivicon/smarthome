@@ -137,9 +137,11 @@ class ThingManagerOSGiTest extends OSGiTest {
 
     @Test
     void 'ThingManager does not delegate update events to its source'() {
-
+        registerThingTypeProvider()
+        
         def itemName = "name"
         def handleUpdateWasCalled = false
+        def callback
 
         managedThingProvider.add(THING)
         managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
@@ -147,8 +149,10 @@ class ThingManagerOSGiTest extends OSGiTest {
             handleUpdate: { ChannelUID channelUID, State newState ->
                 handleUpdateWasCalled = true
             },
-            setCallback: {
-            }
+            setCallback: {callbackArg ->
+                callback = callbackArg
+            },
+            initialize: {}
         ] as ThingHandler
 
         registerService(thingHandler,[
@@ -156,6 +160,8 @@ class ThingManagerOSGiTest extends OSGiTest {
             (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
         ] as Hashtable)
 
+        callback.statusUpdated(THING, ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build())
+        
         // event should be delivered
         eventPublisher.post(ItemEventFactory.createStateEvent(itemName, new DecimalType(10)))
         waitForAssert { assertThat handleUpdateWasCalled, is(true) }
@@ -170,6 +176,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
     @Test
     void 'ThingManager handles state updates correctly'() {
+        registerThingTypeProvider()
 
         def itemName = "name"
         def thingUpdatedWasCalled = false
@@ -187,6 +194,8 @@ class ThingManagerOSGiTest extends OSGiTest {
             (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
             (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
         ] as Hashtable)
+        
+        callback.statusUpdated(THING, ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build())
 
         Event receivedEvent = null
         def itemUpdateEventSubscriber = [

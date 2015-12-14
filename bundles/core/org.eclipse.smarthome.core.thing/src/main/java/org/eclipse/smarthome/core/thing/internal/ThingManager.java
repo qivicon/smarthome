@@ -316,21 +316,26 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 if (thing != null) {
                     final ThingHandler handler = thing.getHandler();
                     if (handler != null) {
-                        logger.debug("Delegating command '{}' for item '{}' to handler for channel '{}'", command,
-                                itemName, channelUID);
-                        try {
-                            SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-                                @Override
-                                public Void call() throws Exception {
-                                    handler.handleCommand(channelUID, command);
-                                    return null;
-                                }
-                            });
-                        } catch (TimeoutException ex) {
-                            logger.warn("Handler for thing '{}' takes more than {}ms for processing event",
-                                    handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
-                        } catch (Exception ex) {
-                            logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
+                        if (thing.getStatus() == ThingStatus.ONLINE || thing.getStatus() == ThingStatus.OFFLINE) {
+                            logger.debug("Delegating command '{}' for item '{}' to handler for channel '{}'", command,
+                                    itemName, channelUID);
+                            try {
+                                SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
+                                    @Override
+                                    public Void call() throws Exception {
+                                        handler.handleCommand(channelUID, command);
+                                        return null;
+                                    }
+                                });
+                            } catch (TimeoutException ex) {
+                                logger.warn("Handler for thing '{}' takes more than {}ms for processing event",
+                                        handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
+                            } catch (Exception ex) {
+                                logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
+                            }
+                        } else {
+                            logger.warn("Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
+                                    + "because thing must be in status ONLINE or OFFLINE.", command, itemName, channelUID);
                         }
                     } else {
                         logger.warn("Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
@@ -359,21 +364,26 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 if (thing != null) {
                     final ThingHandler handler = thing.getHandler();
                     if (handler != null) {
-                        logger.debug("Delegating update '{}' for item '{}' to handler for channel '{}'", newState,
-                                itemName, channelUID);
-                        try {
-                            SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-                                @Override
-                                public Void call() throws Exception {
-                                    handler.handleUpdate(channelUID, newState);
-                                    return null;
-                                }
-                            });
-                        } catch (TimeoutException ex) {
-                            logger.warn("Handler for thing {} takes more than {}ms for processing event",
-                                    handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
-                        } catch (Exception ex) {
-                            logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
+                        if (thing.getStatus() == ThingStatus.ONLINE || thing.getStatus() == ThingStatus.OFFLINE) {
+                            logger.debug("Delegating update '{}' for item '{}' to handler for channel '{}'", newState,
+                                    itemName, channelUID);
+                            try {
+                                SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
+                                    @Override
+                                    public Void call() throws Exception {
+                                        handler.handleUpdate(channelUID, newState);
+                                        return null;
+                                    }
+                                });
+                            } catch (TimeoutException ex) {
+                                logger.warn("Handler for thing {} takes more than {}ms for processing event",
+                                        handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
+                            } catch (Exception ex) {
+                                logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
+                            }
+                        } else {
+                            logger.warn("Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
+                                    + "because thing must be in status ONLINE or OFFLINE.", newState, itemName, channelUID);
                         }
                     } else {
                         logger.warn("Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
@@ -452,24 +462,29 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
         final ThingHandler thingHandler = thingHandlers.get(thingUID);
         if (thingHandler != null) {
-            try {
-                if (oldThing != thing) {
-                    thing.setHandler(thingHandler);
+            if (oldThing != thing) {
+                thing.setHandler(thingHandler);
+            }
+            if (thing.getStatus() == ThingStatus.ONLINE || thing.getStatus() == ThingStatus.OFFLINE) {
+                try {
+                    // prevent infinite loops by not informing handler about self-initiated update
+                    if (!thingUpdatedLock.contains(thingUID)) {
+                        SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
+                            
+                            @Override
+                            public Void call() throws Exception {
+                                thingHandler.thingUpdated(thing);
+                                return null;
+                            }
+                        });
+                    }
+                } catch (Exception ex) {
+                    logger.error("Exception occured while calling thing updated at ThingHandler '" + thingHandler + ": "
+                            + ex.getMessage(), ex);
                 }
-                // prevent infinite loops by not informing handler about self-initiated update
-                if (!thingUpdatedLock.contains(thingUID)) {
-                    SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-
-                        @Override
-                        public Void call() throws Exception {
-                            thingHandler.thingUpdated(thing);
-                            return null;
-                        }
-                    });
-                }
-            } catch (Exception ex) {
-                logger.error("Exception occured while calling thing updated at ThingHandler '" + thingHandler + ": "
-                        + ex.getMessage(), ex);
+            } else {
+                logger.warn("Cannot notify handler about updated thing {}, because thing must be in status ONLINE or OFFLINE.",
+                        thing.getThingTypeUID().getAsString());
             }
         } else {
             registerHandler(thing);
