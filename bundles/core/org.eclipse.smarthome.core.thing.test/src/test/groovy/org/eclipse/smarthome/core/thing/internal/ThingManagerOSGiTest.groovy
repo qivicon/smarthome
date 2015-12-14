@@ -35,6 +35,7 @@ import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
+import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
@@ -43,6 +44,7 @@ import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoEvent
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
+import org.eclipse.smarthome.core.thing.type.ThingType
 import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
@@ -286,6 +288,8 @@ class ThingManagerOSGiTest extends OSGiTest {
 
     @Test
     void 'ThingManager handles thing status updates uninitialized and initializing correctly'() {
+        registerThingTypeProvider()
+        
         def thingHandler = [
             setCallback: {},
             initialize: {}
@@ -457,6 +461,8 @@ class ThingManagerOSGiTest extends OSGiTest {
 
     @Test
     void 'ThingManager posts thing status events if the status of a thing is updated'() {
+        registerThingTypeProvider()
+        
         ThingHandlerCallback callback
         ThingStatusInfoEvent receivedEvent
 
@@ -531,6 +537,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         ThingHandlerCallback callback
         ThingStatusInfoChangedEvent receivedEvent
 
+        registerThingTypeProvider()
+
         def thingHandler = [
             setCallback: {callbackArg -> callback = callbackArg }
         ] as ThingHandler
@@ -580,5 +588,19 @@ class ThingManagerOSGiTest extends OSGiTest {
         // make sure no event has been sent
         Thread.sleep(100)
         assertThat receivedEvent, is(null)
+    }
+
+    private void registerThingTypeProvider() {
+        def THING_TYPES = [
+            new ThingType("binding", "type", "label")
+        ]
+
+        def THING_TYPE_PROVIDER = [
+            getThingTypes: { THING_TYPES },
+            getThingType: { ThingTypeUID thingTypeUID, Locale locale ->
+                THING_TYPES.find { it.UID == thingTypeUID }
+            }
+        ] as ThingTypeProvider
+        registerService(THING_TYPE_PROVIDER, ThingTypeProvider.class.name)
     }
 }

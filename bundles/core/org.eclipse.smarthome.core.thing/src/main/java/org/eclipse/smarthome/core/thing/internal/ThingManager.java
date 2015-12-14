@@ -272,6 +272,10 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             if (thingHandler instanceof BaseThingHandler) {
                 ((BaseThingHandler) thingHandler).postInitialize();
             }
+        } else {
+            ThingStatusInfo statusInfo = ThingStatusInfoBuilder
+                    .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_CONFIGURATION_PENDING).build();
+            setThingStatus(thing, statusInfo);
         }
 
     }
