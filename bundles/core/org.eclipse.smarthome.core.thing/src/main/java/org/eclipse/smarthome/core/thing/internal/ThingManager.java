@@ -296,7 +296,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         setThingStatus(thing, statusInfo);
         thingHandler.setCallback(null);
         
-        if(thing.getStatus() == ThingStatus.ONLINE || thing.getStatus() == ThingStatus.OFFLINE) {
+        if(isInitialized(thing)) {
             if (thingHandler instanceof BaseThingHandler) {
                 ((BaseThingHandler) thingHandler).preDispose();
             }
@@ -316,7 +316,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 if (thing != null) {
                     final ThingHandler handler = thing.getHandler();
                     if (handler != null) {
-                        if (thing.getStatus() == ThingStatus.ONLINE || thing.getStatus() == ThingStatus.OFFLINE) {
+                        if (isInitialized(thing)) {
                             logger.debug("Delegating command '{}' for item '{}' to handler for channel '{}'", command,
                                     itemName, channelUID);
                             try {
@@ -335,7 +335,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                             }
                         } else {
                             logger.warn("Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
-                                    + "because thing must be in status ONLINE or OFFLINE.", command, itemName, channelUID);
+                                    + "because thing is not initialized (must be in status ONLINE or OFFLINE).",
+                                    command, itemName, channelUID);
                         }
                     } else {
                         logger.warn("Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
@@ -364,7 +365,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 if (thing != null) {
                     final ThingHandler handler = thing.getHandler();
                     if (handler != null) {
-                        if (thing.getStatus() == ThingStatus.ONLINE || thing.getStatus() == ThingStatus.OFFLINE) {
+                        if (isInitialized(thing)) {
                             logger.debug("Delegating update '{}' for item '{}' to handler for channel '{}'", newState,
                                     itemName, channelUID);
                             try {
@@ -383,7 +384,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                             }
                         } else {
                             logger.warn("Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
-                                    + "because thing must be in status ONLINE or OFFLINE.", newState, itemName, channelUID);
+                                    + "because thing is not initialized (must be in status ONLINE or OFFLINE).",
+                                    newState, itemName, channelUID);
                         }
                     } else {
                         logger.warn("Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
@@ -465,7 +467,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             if (oldThing != thing) {
                 thing.setHandler(thingHandler);
             }
-            if (thing.getStatus() == ThingStatus.ONLINE || thing.getStatus() == ThingStatus.OFFLINE) {
+            if (isInitialized(thing)) {
                 try {
                     // prevent infinite loops by not informing handler about self-initiated update
                     if (!thingUpdatedLock.contains(thingUID)) {
@@ -483,8 +485,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                             + ex.getMessage(), ex);
                 }
             } else {
-                logger.warn("Cannot notify handler about updated thing {}, because thing must be in status ONLINE or OFFLINE.",
-                        thing.getThingTypeUID().getAsString());
+                logger.warn("Cannot notify handler about updated thing {}, because thing is not initialized "
+                        + "(must be in status ONLINE or OFFLINE).", thing.getThingTypeUID().getAsString());
             }
         } else {
             registerHandler(thing);
@@ -599,6 +601,10 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             }
         }
         return requiredParameters;
+    }
+    
+    private boolean isInitialized(Thing thing) {
+        return thing.getStatus() == ThingStatus.ONLINE || thing.getStatus() == ThingStatus.OFFLINE;
     }
 
     private void unregisterHandler(final Thing thing, final ThingHandlerFactory thingHandlerFactory) {
