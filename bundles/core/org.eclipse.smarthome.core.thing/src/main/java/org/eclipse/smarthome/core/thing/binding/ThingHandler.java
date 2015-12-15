@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -128,5 +129,29 @@ public interface ThingHandler {
      * @param channelUID UID of the unlinked channel
      */
     void channelUnlinked(ChannelUID channelUID);
+    
+    /**
+     * This method is called, when the according {@link ThingHandler} of the
+     * bridge was initialized. If the thing of this handler does not have a
+     * bridge, this method is never called.
+     *
+     * @param thingHandler
+     *            thing handler of the bridge
+     * @param bridge
+     *            bridge
+     */
+    void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge);
+    
+    /**
+     * This method is called, when the according {@link ThingHandler} of the
+     * bridge was disposed. If the thing of this handler does not have a
+     * bridge, this method is never called.
+     *
+     * @param thingHandler
+     *            thing handler of the bridge
+     * @param bridge
+     *            bridge
+     */
+    void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge);
 
 }

@@ -40,7 +40,6 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
@@ -266,18 +265,28 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         logger.debug("Assigning handler for thing '{}'.", thing.getUID());
         thingHandler.setCallback(this.thingHandlerCallback);
         thing.setHandler(thingHandler);
-        
+
         if (isInitializable(thing)) {
+            setThingStatus(thing, buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE));
             thingHandler.initialize();
-            if (thingHandler instanceof BaseThingHandler) {
-                ((BaseThingHandler) thingHandler).postInitialize();
+
+            if (thing instanceof Bridge) {
+                // thing is a bridge; notify all child-thing-handlers about bridge initialization
+                Bridge bridge = (Bridge) thing;
+                for (Thing child : bridge.getThings()) {
+                    child.getHandler().bridgeHandlerInitialized(bridge.getHandler(), bridge);
+                }
+            } else if (thing.getBridgeUID() != null) {
+                // thing has a bridge; determine if bridge has been initialized and notify thing handler about it
+                Thing bridge = thingRegistry.get(thing.getBridgeUID());
+                if (bridge instanceof Bridge) {
+                    thing.getHandler().bridgeHandlerInitialized(bridge.getHandler(), (Bridge) bridge);
+                }
             }
         } else {
-            ThingStatusInfo statusInfo = ThingStatusInfoBuilder
-                    .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_CONFIGURATION_PENDING).build();
-            setThingStatus(thing, statusInfo);
+            setThingStatus(thing,
+                    buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_CONFIGURATION_PENDING));
         }
-
     }
 
     /**
@@ -291,16 +300,18 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     public void handlerRemoved(Thing thing, ThingHandler thingHandler) {
         logger.debug("Unassigning handler for thing '{}' and setting status to UNINITIALIZED.", thing.getUID());
         thing.setHandler(null);
-        ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
-                ThingStatusDetail.HANDLER_MISSING_ERROR);
-        setThingStatus(thing, statusInfo);
-        thingHandler.setCallback(null);
+        setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED,
+                ThingStatusDetail.HANDLER_MISSING_ERROR));
         
-        if(isInitialized(thing)) {
-            if (thingHandler instanceof BaseThingHandler) {
-                ((BaseThingHandler) thingHandler).preDispose();
+        thingHandler.setCallback(null);
+        thingHandler.dispose();
+        
+        if (thing instanceof Bridge) {
+            // thing is a bridge; notify child-thing-handlers about bridge disposal
+            Bridge bridge = (Bridge) thing;
+            for (Thing child : bridge.getThings()) {
+                child.getHandler().bridgeHandlerDisposed(bridge.getHandler(), bridge);
             }
-            thingHandler.dispose();
         }
     }
 
@@ -536,8 +547,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     private void registerHandler(final Thing thing, final ThingHandlerFactory thingHandlerFactory) {
         logger.debug("Calling registerHandler handler for thing '{}' at '{}'.", thing.getUID(), thingHandlerFactory);
         try {
-            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE);
-            setThingStatus(thing, statusInfo);
+//            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE);
+//            setThingStatus(thing, statusInfo);
             SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
 
                 @Override

@@ -544,34 +544,14 @@ public abstract class BaseThingHandler implements ThingHandler {
         }
     }
 
-    /**
-     * This method is called, when the according {@link ThingHandler} of the
-     * bridge was initialized. If the thing of this handler does not have a
-     * bridge, this method is never called. This method can be overridden by
-     * subclasses.
-     *
-     * @param thingHandler
-     *            thing handler of the bridge
-     * @param bridge
-     *            bridge
-     */
-    protected void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
-        // can be overridden by subclasses
+    @Override
+    public void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
+        // do nothing by default, can be overridden by subclasses
     }
 
-    /**
-     * This method is called, when the according {@link ThingHandler} of the
-     * bridge was disposed. If the thing of this handler does not have a
-     * bridge, this method is never called. This method can be overridden by
-     * subclasses.
-     *
-     * @param thingHandler
-     *            thing handler of the bridge
-     * @param bridge
-     *            bridge
-     */
-    protected void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge) {
-        // can be overridden by subclasses
+    @Override
+    public void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge) {
+        // do nothing by default, can be overridden by subclasses
     }
 
 }

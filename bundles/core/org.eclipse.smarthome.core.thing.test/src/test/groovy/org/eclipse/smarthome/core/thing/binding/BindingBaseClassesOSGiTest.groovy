@@ -252,13 +252,13 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         }
 
         @Override
-        protected void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
+        public void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
             updateStatus(ThingStatus.ONLINE)
             bridgeInitCalled = true
         }
 
         @Override
-        protected void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge) {
+        public void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge) {
             updateStatus(ThingStatus.OFFLINE)
             bridgeDisposedCalled = true
         }
