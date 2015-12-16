@@ -61,8 +61,6 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     @SuppressWarnings("rawtypes")
     private ServiceTracker thingRegistryServiceTracker;
-    @SuppressWarnings("rawtypes")
-    private ServiceTracker thingHandlerServiceTracker;
 
     private ThingHandlerCallback callback;
 
@@ -96,51 +94,9 @@ public abstract class BaseThingHandler implements ThingHandler {
         thingRegistryServiceTracker.open();
     }
 
-    /**
-     * This method is called after {@link BaseThingHandler#initialize()} is called. If this method will be overridden,
-     * the super method must be
-     * called.
-     */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void postInitialize() {
-        thingHandlerServiceTracker = new ServiceTracker(this.bundleContext, ThingHandler.class.getName(), null) {
-            @Override
-            public Object addingService(final ServiceReference reference) {
-                Object thingId = reference.getProperty(SERVICE_PROPERTY_THING_ID);
-                if (thingId instanceof ThingUID && BaseThingHandler.this.thing != null) {
-                    ThingUID thingUID = (ThingUID) thingId;
-                    if (thingUID.equals(BaseThingHandler.this.thing.getBridgeUID())) {
-                        ThingHandler thingHandler = (ThingHandler) bundleContext.getService(reference);
-                        Thing thing = thingHandler.getThing();
-                        if (thing instanceof Bridge) {
-                            bridgeHandlerInitialized(thingHandler, (Bridge) thing);
-                            return thingHandler;
-                        }
-                    }
-                }
-                return null;
-            }
-
-            @Override
-            public void removedService(final ServiceReference reference, final Object service) {
-                ThingHandler thingHandler = (ThingHandler) service;
-                bridgeHandlerDisposed(thingHandler, (Bridge) thingHandler.getThing());
-            }
-        };
-        thingHandlerServiceTracker.open();
-    }
-
     public void unsetBundleContext(final BundleContext bundleContext) {
         thingRegistryServiceTracker.close();
         this.bundleContext = null;
-    }
-
-    /**
-     * This method is called before {@link BaseThingHandler#dispose()} is called. If this method will be overridden, the
-     * super method must be called.
-     */
-    public void preDispose() {
-        thingHandlerServiceTracker.close();
     }
 
     @Override
