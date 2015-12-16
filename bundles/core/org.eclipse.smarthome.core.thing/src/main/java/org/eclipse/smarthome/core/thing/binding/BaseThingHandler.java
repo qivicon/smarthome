@@ -168,6 +168,7 @@ public abstract class BaseThingHandler implements ThingHandler {
         } else {
             // persist new configuration only
             updateConfiguration(configuration);
+            callback.configurationUpdated(getThing());
         }
     }
 

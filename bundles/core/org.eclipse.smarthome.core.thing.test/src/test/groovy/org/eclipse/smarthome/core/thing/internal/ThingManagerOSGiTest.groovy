@@ -122,7 +122,9 @@ class ThingManagerOSGiTest extends OSGiTest {
                 ] as Hashtable)
             },
             unregisterHandler: {Thing thing -> unregisterHandlerCalled = true},
-            removeThing: { ThingUID thingUID -> removeThingCalled = true}
+            removeThing: { ThingUID thingUID -> removeThingCalled = true},
+            initialize: {},
+            dispose: {}
         ] as ThingHandlerFactory
 
         registerService(thingHandlerFactory)
@@ -152,7 +154,8 @@ class ThingManagerOSGiTest extends OSGiTest {
             setCallback: {callbackArg ->
                 callback = callbackArg
             },
-            initialize: {}
+            initialize: {},
+            dispose: {}
         ] as ThingHandler
 
         registerService(thingHandler,[
@@ -187,7 +190,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         def thingHandler = [
             thingUpdated: { thingUpdatedWasCalled = true },
             setCallback: {callbackArg -> callback = callbackArg },
-            initialize: {}
+            initialize: {},
+            dispose: {}
         ] as ThingHandler
 
         registerService(thingHandler,[
@@ -244,7 +248,9 @@ class ThingManagerOSGiTest extends OSGiTest {
         managedThingProvider.add(THING)
         managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
         def thingHandler = [
-            setCallback: {callbackArg -> callback = callbackArg }
+            setCallback: {callbackArg -> callback = callbackArg },
+            initialize: {},
+            dispose: {}
         ] as ThingHandler
 
         registerService(thingHandler,[
@@ -278,7 +284,9 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         managedThingProvider.add(THING)
         def thingHandler = [
-            setCallback: {callbackArg -> callback = callbackArg }
+            setCallback: {callbackArg -> callback = callbackArg },
+            initialize: {},
+            dispose: {}
         ] as ThingHandler
 
         registerService(thingHandler,[
@@ -301,7 +309,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         
         def thingHandler = [
             setCallback: {},
-            initialize: {}
+            initialize: {},
+            dispose: {},
         ] as ThingHandler
 
         def thingHandlerFactory = [
@@ -332,8 +341,9 @@ class ThingManagerOSGiTest extends OSGiTest {
         def exceptionMsg = "Some runtime exception occurred!"
 
         def thingHandler = [
-            setCallback: {
-            }
+            setCallback: {},
+            initialize: {},
+            dispose: {}
         ] as ThingHandler
 
         def thingHandlerFactory = [
@@ -445,8 +455,9 @@ class ThingManagerOSGiTest extends OSGiTest {
         managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
         def thingHandler = [
             setCallback: {callbackArg -> callback = callbackArg },
-            thingUpdated: {
-            }
+            thingUpdated: {},
+            initialize: {},
+            dispose: {}
         ] as ThingHandler
 
         registerService(thingHandler,[
@@ -477,7 +488,8 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         def thingHandler = [
             setCallback: {callbackArg -> callback = callbackArg },
-            initialize: {}
+            initialize: {},
+            dispose: {}
         ] as ThingHandler
 
         def thingHandlerFactory = [
@@ -549,7 +561,9 @@ class ThingManagerOSGiTest extends OSGiTest {
         registerThingTypeProvider()
 
         def thingHandler = [
-            setCallback: {callbackArg -> callback = callbackArg }
+            setCallback: {callbackArg -> callback = callbackArg },
+            initialize: {},
+            dispose: {}
         ] as ThingHandler
 
         def thingHandlerFactory = [

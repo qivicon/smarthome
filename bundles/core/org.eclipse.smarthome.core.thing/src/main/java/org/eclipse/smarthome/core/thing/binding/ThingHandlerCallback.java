@@ -54,4 +54,7 @@ public interface ThingHandlerCallback {
      */
     void thingUpdated(Thing thing);
 
+    
+    void configurationUpdated(Thing thing);
+
 }

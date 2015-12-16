@@ -17,7 +17,6 @@ import org.eclipse.smarthome.config.core.ConfigDescription
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider
-import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.config.core.status.ConfigStatusCallback
 import org.eclipse.smarthome.config.core.status.ConfigStatusInfo
@@ -280,14 +279,14 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         managedThingProvider.add(thing)
         managedThingProvider.add(bridge)
 
-        assertThat bridgeInitCalled, is(true)
-        assertThat bridgeDisposedCalled, is(false)
+        waitForAssert({assertThat bridgeInitCalled, is(true)})
+        waitForAssert({assertThat bridgeDisposedCalled, is(false)})
         assertThat thing.status, is(ThingStatus.ONLINE)
 
         // remove bridge
         managedThingProvider.remove(bridge.UID)
 
-        assertThat bridgeDisposedCalled, is(true)
+        waitForAssert({assertThat bridgeDisposedCalled, is(true)})
         assertThat thing.status, is(ThingStatus.OFFLINE)
 
         managedThingProvider.remove(thing.UID)
@@ -298,7 +297,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         managedThingProvider.add(bridge)
         managedThingProvider.add(thing)
 
-        assertThat bridgeInitCalled, is(true)
+        waitForAssert({assertThat bridgeInitCalled, is(true)})
     }
 
     class ConfigStatusProviderThingHandlerFactory extends BaseThingHandlerFactory {
