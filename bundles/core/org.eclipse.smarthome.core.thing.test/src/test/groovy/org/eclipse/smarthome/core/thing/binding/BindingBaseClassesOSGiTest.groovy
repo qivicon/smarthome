@@ -35,10 +35,12 @@ import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingStatus
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
+import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
 import org.eclipse.smarthome.core.thing.type.ThingType
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.types.Command
@@ -61,6 +63,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
     ManagedThingProvider managedThingProvider
     ThingHandlerFactory thingHandlerFactory
+    ThingRegistry thingRegistry
 
     final static String BINDING_ID = "testBinding"
     final static String THING_TYPE_ID = "testThingType"
@@ -73,6 +76,8 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         registerVolatileStorageService()
         managedThingProvider = getService ManagedThingProvider
         assertThat managedThingProvider, is(notNullValue())
+        thingRegistry = getService(ThingRegistry)
+        assertThat thingRegistry, is(notNullValue())
     }
 
     @After
@@ -204,8 +209,6 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
                 }
         registerService(eventSubscriber, EventSubscriber.class.getName())
 
-        ThingRegistry thingRegistry = getService(ThingRegistry)
-
         thingRegistry.updateConfiguration(thingUID, ["param":"invalid"])
 
         waitForAssert({
@@ -265,7 +268,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
 
     @Test
-    void 'assert bridgeInitialized is called by BaseThingHandler'() {
+    void 'assert bridgeInitialized is called by ThingManager'() {
         registerThingTypeProvider()
         def componentContext = [getBundleContext: {bundleContext}] as ComponentContext
         def thingHandlerFactory = new AnotherSimpleThingHandlerFactory()
@@ -298,6 +301,34 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         managedThingProvider.add(thing)
 
         waitForAssert({assertThat bridgeInitCalled, is(true)})
+    }
+    
+    @Test
+    void 'assert BaseThingHandler notifies configuration update'() {
+        // register ThingTypeProvider & ConfigurationDescription with 'required' parameter 
+        registerThingTypeAndConfigDescription()
+
+        // register thing handler factory
+        def thingHandlerFactory = new SimpleThingHandlerFactory()
+        thingHandlerFactory.activate([getBundleContext: {bundleContext}] as ComponentContext)
+        registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
+
+        def thingUID = new ThingUID("bindingId:type:thingId")
+        def thing = ThingBuilder.create(thingUID).build()
+
+        // add thing with empty configuration
+        managedThingProvider.add(thing)
+        
+        // ThingHandler.initialize() has not been called; thing with status UNINITIALIZED.HANDLER_CONFIGURATION_PENDING 
+        def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, 
+            ThingStatusDetail.HANDLER_CONFIGURATION_PENDING).build()
+        assertThat thing.getStatusInfo(), is(statusInfo)
+
+        thingRegistry.updateConfiguration(thingUID, [parameter: "value"] as Map)
+
+        // ThingHandler.initialize() has been called; thing with status ONLINE.NONE
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build()
+        assertThat thing.getStatusInfo(), is(statusInfo)
     }
 
     class ConfigStatusProviderThingHandlerFactory extends BaseThingHandlerFactory {
@@ -417,7 +448,6 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
         def thingUpdated = false
         Thing updatedThing = null
-        ThingRegistry thingRegistry = getService(ThingRegistry)
 
         def registryChangeListener = [
             added: {thing -> },
@@ -450,7 +480,6 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
         def thingUpdated = false
         Thing updatedThing = null
-        ThingRegistry thingRegistry = getService(ThingRegistry)
 
         def registryChangeListener = [
             added: {thing -> },
@@ -488,7 +517,6 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
         def thingUpdated = false
         Thing updatedThing = null
-        ThingRegistry thingRegistry = getService(ThingRegistry)
 
         def registryChangeListener = [
             added: {thing -> },
@@ -519,8 +547,6 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
 
         registerThingTypeAndConfigDescription()
-
-        ThingRegistry thingRegistry = getService(ThingRegistry)
 
         def thingUID = new ThingUID("bindingId:type:thingId")
         def thing = ThingBuilder.create(thingUID).build()
