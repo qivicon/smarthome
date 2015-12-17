@@ -230,14 +230,15 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
     @Test
     void 'assert BaseThingHandler notifies ThingManager about configuration updates'() {
         // register ThingTypeProvider & ConfigurationDescription with 'required' parameter 
-        registerThingTypeAndConfigDescription()
+        registerThingTypeProvider()
+        registerConfigDescriptionProvider(true)
 
         // register thing handler factory
         def thingHandlerFactory = new SimpleThingHandlerFactory()
         thingHandlerFactory.activate([getBundleContext: {bundleContext}] as ComponentContext)
         registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
 
-        def thingUID = new ThingUID("bindingId:type:thingId")
+        def thingUID = new ThingUID(THING_TYPE_UID, "thingId")
         def thing = ThingBuilder.create(thingUID).build()
 
         // add thing with empty configuration
@@ -470,7 +471,8 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         thingHandlerFactory.activate(componentContext)
         registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
 
-        registerThingTypeAndConfigDescription()
+        registerThingTypeProvider()
+        registerConfigDescriptionProvider(true)
 
         def thingUID = new ThingUID("bindingId:type:thingId")
         def thing = ThingBuilder.create(thingUID).build()
@@ -500,17 +502,28 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         ] as ConfigDescriptionProvider)
     }
     
+    
     private void registerThingTypeProvider() {
-        def THING_TYPES = [
-            new ThingType("bindingId", "type", "label")
-        ]
+        def URI configDescriptionUri = new URI("test:test");
+        def thingType = new ThingType(new ThingTypeUID(BINDING_ID, THING_TYPE_ID), null, "label", null, null, null, null, configDescriptionUri)
 
-        def THING_TYPE_PROVIDER = [
-            getThingTypes: { THING_TYPES },
-            getThingType: { ThingTypeUID thingTypeUID, Locale locale ->
-                THING_TYPES.find { it.UID == thingTypeUID }
-            }
-        ] as ThingTypeProvider
-        registerService(THING_TYPE_PROVIDER, ThingTypeProvider.class.name)
+        registerService([
+            getThingType: {thingTypeUID,locale -> thingType }
+        ] as ThingTypeProvider)
+
+        registerService([
+            getThingType:{thingTypeUID -> thingType}
+        ] as ThingTypeRegistry)
     }
+
+    private void registerConfigDescriptionProvider(boolean withRequiredParameter = false) {
+        def URI configDescriptionUri = new URI("test:test");
+        def configDescription = new ConfigDescription(configDescriptionUri, [
+            ConfigDescriptionParameterBuilder.create("parameter", ConfigDescriptionParameter.Type.TEXT).withRequired(withRequiredParameter).build()] as List);
+
+        registerService([
+            getConfigDescription: {uri, locale -> configDescription}
+        ] as ConfigDescriptionProvider)
+    }
+
 }
