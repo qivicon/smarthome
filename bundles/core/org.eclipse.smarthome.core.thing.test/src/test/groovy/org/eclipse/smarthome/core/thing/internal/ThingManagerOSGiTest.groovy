@@ -347,7 +347,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
     @Test
     void 'ThingManager handles thing status update uninitialized with an exception correctly'() {
-        def exceptionMsg = "Some runtime exception occurred!"
+        def exception = "Some runtime exception occurred!"
 
         def thingHandler = [
             setCallback: {},
@@ -358,14 +358,14 @@ class ThingManagerOSGiTest extends OSGiTest {
         def thingHandlerFactory = [
             supportsThingType: {ThingTypeUID thingTypeUID -> true},
             registerHandler: {thing, callback ->
-                throw new RuntimeException(exceptionMsg)
+                throw new RuntimeException(exception)
             }
         ] as ThingHandlerFactory
 
         registerService(thingHandlerFactory)
 
         def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED,
-                ThingStatusDetail.HANDLER_INITIALIZING_ERROR).withDescription(exceptionMsg).build()
+                ThingStatusDetail.HANDLER_REGISTERING_ERROR).withDescription(exception).build()
         managedThingProvider.add(THING)
         assertThat THING.statusInfo, is(statusInfo)
     }

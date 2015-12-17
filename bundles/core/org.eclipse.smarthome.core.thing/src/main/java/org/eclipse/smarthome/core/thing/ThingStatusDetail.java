@@ -15,6 +15,7 @@ package org.eclipse.smarthome.core.thing;
 public enum ThingStatusDetail {
     NONE(0),
     HANDLER_MISSING_ERROR(1),
+    HANDLER_REGISTERING_ERROR(10),
     HANDLER_INITIALIZING_ERROR(2),
     HANDLER_CONFIGURATION_PENDING(9),
     CONFIGURATION_PENDING(3),

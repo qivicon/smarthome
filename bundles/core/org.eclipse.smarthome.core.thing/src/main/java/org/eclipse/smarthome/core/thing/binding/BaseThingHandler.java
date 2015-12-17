@@ -122,7 +122,7 @@ public abstract class BaseThingHandler implements ThingHandler {
             updateConfiguration(configuration);
             initialize();
         } else {
-            // persist new configuration only
+            // persist new configuration and notify Thing Manager
             updateConfiguration(configuration);
             callback.configurationUpdated(getThing());
         }

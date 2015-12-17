@@ -192,7 +192,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             			}
             		}
             	}
-            } else if(thing.getBridgeUID() != null && oldStatus == ThingStatus.INITIALIZING
+            } 
+            if(thing.getBridgeUID() != null && oldStatus == ThingStatus.INITIALIZING
                     && (thing.getStatus() == ThingStatus.ONLINE || thing.getStatus() == ThingStatus.OFFLINE)) {
                 notifyThingAboutBridgeInitialization(thing);
             }
@@ -307,13 +308,17 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 }
             });
         } catch (TimeoutException ex) {
-            setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED,
-                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR, ex.getMessage()));
+            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
+                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR,
+                    ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
+            setThingStatus(thing, statusInfo);
             logger.warn("Initializing handler for thing '{}' takes more than {}ms.", thing.getUID(),
                     SafeMethodCaller.DEFAULT_TIMEOUT);
         } catch (Exception ex) {
-            setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED,
-                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR, ex.getMessage()));
+            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
+                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR,
+                    ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
+            setThingStatus(thing, statusInfo);
             logger.error("Exception occured while initializing handler of thing '" + thing.getUID() + "': "
                     + ex.getMessage(), ex);
         }
@@ -331,7 +336,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         logger.debug("Unassigning handler for thing '{}' and setting status to UNINITIALIZED.", thing.getUID());
         thing.setHandler(null);
         setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR));
-
         thingHandler.setCallback(null);
         disposeHandler(thing, thingHandler);
         if(thing instanceof Bridge) {
@@ -593,8 +597,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     private void registerHandler(final Thing thing, final ThingHandlerFactory thingHandlerFactory) {
         logger.debug("Calling registerHandler handler for thing '{}' at '{}'.", thing.getUID(), thingHandlerFactory);
         try {
-//            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE);
-//            setThingStatus(thing, statusInfo);
             SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
 
                 @Override
@@ -603,23 +605,17 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                     return null;
                 }
             });
-        } catch (ExecutionException ex) {
-            String message = ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage();
-            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
-                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR, message);
-            setThingStatus(thing, statusInfo);
-            logger.error(
-                    "Exception occured while calling thing handler factory '" + thingHandlerFactory + "': " + message,
-                    ex.getCause());
         } catch (TimeoutException ex) {
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
-                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR, ex.getMessage());
+                    ThingStatusDetail.HANDLER_REGISTERING_ERROR,
+                    ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
             setThingStatus(thing, statusInfo);
             logger.warn("Registering handler for thing '{}' takes more than {}ms.", thing.getUID(),
                     SafeMethodCaller.DEFAULT_TIMEOUT);
         } catch (Exception ex) {
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
-                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR, ex.getMessage());
+                    ThingStatusDetail.HANDLER_REGISTERING_ERROR,
+                    ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
             setThingStatus(thing, statusInfo);
             logger.error("Exception occured while calling thing handler factory '" + thingHandlerFactory + "': "
                     + ex.getMessage(), ex);
@@ -714,21 +710,21 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 }
             }
         });
-        // if (childThing.getHandler() != null && bridge.getHandler() != null) {
-        //
         // try {
         // SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
         //
         // @Override
         // public Void call() throws Exception {
+        // logger.debug("######## notifyThingAboutBridgeInitialization");
+        // logger.debug("bridge '{}', handler '{}'", bridge, bridge.getHandler());
+        // logger.debug("childThing '{}', handler '{}'", childThing, childThing.getHandler());
         // childThing.getHandler().bridgeHandlerInitialized(bridge.getHandler(), bridge);
         // return null;
         // }
         // });
         // } catch (Exception ex) {
-        // logger.error("Exception occured during bridge initialization notification of thing '"
-        // + childThing.getUID() + "' at '" + childThing.getHandler() + "': " + ex.getMessage(), ex);
-        // }
+        // logger.error("Exception occured during bridge initialization notification of thing '" + childThing.getUID()
+        // + "' at '" + childThing.getHandler() + "': " + ex.getMessage(), ex);
         // }
     }
 
