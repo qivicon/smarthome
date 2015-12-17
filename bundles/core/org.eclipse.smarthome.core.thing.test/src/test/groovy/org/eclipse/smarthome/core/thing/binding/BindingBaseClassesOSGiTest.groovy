@@ -226,85 +226,9 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
             assertThat event.getPayload(), containsString("\"parameterName\":\"param\",\"type\":\"INFORMATION\",\"message\":\"param ok\"}")
         }, 2500)
     }
-
-    class AnotherSimpleThingHandlerFactory extends BaseThingHandlerFactory {
-
-        @Override
-        public boolean supportsThingType(ThingTypeUID thingTypeUID) {
-            true
-        }
-
-        @Override
-        protected ThingHandler createHandler(Thing thing) {
-            return new AnotherSimpleThingHandler(thing)
-        }
-    }
-
-    def bridgeInitCalled = false;
-    def bridgeDisposedCalled = false;
-
-    class AnotherSimpleThingHandler extends BaseThingHandler {
-
-        public AnotherSimpleThingHandler(Thing thing) {
-            super(thing)
-        }
-
-        @Override
-        public void handleCommand(ChannelUID channelUID, Command command) {
-        }
-
-        @Override
-        public void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
-            updateStatus(ThingStatus.ONLINE)
-            bridgeInitCalled = true
-        }
-
-        @Override
-        public void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge) {
-            updateStatus(ThingStatus.OFFLINE)
-            bridgeDisposedCalled = true
-        }
-    }
-
-
-    @Test
-    void 'assert bridgeInitialized is called by ThingManager'() {
-        registerThingTypeProvider()
-        def componentContext = [getBundleContext: {bundleContext}] as ComponentContext
-        def thingHandlerFactory = new AnotherSimpleThingHandlerFactory()
-        thingHandlerFactory.activate(componentContext)
-        registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
-
-        def bridge = BridgeBuilder.create(new ThingUID("bindingId:type:bridgeId")).build()
-        def thing = ThingBuilder.create(new ThingUID("bindingId:type:thingId")).withBridge(bridge.getUID()).build()
-
-        // add thing first
-        managedThingProvider.add(thing)
-        managedThingProvider.add(bridge)
-
-        waitForAssert({assertThat bridgeInitCalled, is(true)})
-        waitForAssert({assertThat bridgeDisposedCalled, is(false)})
-        assertThat thing.status, is(ThingStatus.ONLINE)
-
-        // remove bridge
-        managedThingProvider.remove(bridge.UID)
-
-        waitForAssert({assertThat bridgeDisposedCalled, is(true)})
-        assertThat thing.status, is(ThingStatus.OFFLINE)
-
-        managedThingProvider.remove(thing.UID)
-        bridgeInitCalled = false
-        bridgeDisposedCalled = false
-
-        // add bridge first
-        managedThingProvider.add(bridge)
-        managedThingProvider.add(thing)
-
-        waitForAssert({assertThat bridgeInitCalled, is(true)})
-    }
     
     @Test
-    void 'assert BaseThingHandler notifies configuration update'() {
+    void 'assert BaseThingHandler notifies ThingManager about configuration updates'() {
         // register ThingTypeProvider & ConfigurationDescription with 'required' parameter 
         registerThingTypeAndConfigDescription()
 

@@ -11,6 +11,10 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.config.core.ConfigDescription
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder
+import org.eclipse.smarthome.config.core.ConfigDescriptionProvider
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
@@ -32,6 +36,8 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingStatusInfo
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
+import org.eclipse.smarthome.core.thing.binding.BaseThingHandler
+import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
@@ -45,11 +51,14 @@ import org.eclipse.smarthome.core.thing.events.ThingStatusInfoEvent
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
 import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
+import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.osgi.service.component.ComponentContext
 
 import com.google.common.collect.Sets
 
@@ -612,18 +621,152 @@ class ThingManagerOSGiTest extends OSGiTest {
         Thread.sleep(100)
         assertThat receivedEvent, is(null)
     }
+    
+    @Test
+    void 'ThingManager calls initialize for added Thing correctly'() {
+        // register ThingTypeProvider & ConfigurationDescriptionProvider with 'required' parameter
+        registerThingTypeProvider()
+        registerConfigDescriptionProvider(true)
+
+        ThingHandlerCallback callback;
+        def initializedCalled = false;
+        def thing = ThingBuilder.create(new ThingUID("binding:type:thingId")).build()
+        def thingHandler = [
+            setCallback: { callbackArg -> callback = callbackArg },
+            initialize: { initializedCalled = true},
+            dispose: {}
+        ] as ThingHandler
+
+        def thingHandlerFactory = [
+            supportsThingType: {ThingTypeUID thingTypeUID -> true},
+            registerHandler: {thingArg, handlerCallback ->
+                registerService(thingHandler,[
+                    (ThingHandler.SERVICE_PROPERTY_THING_ID): thing.getUID(),
+                    (ThingHandler.SERVICE_PROPERTY_THING_TYPE): thing.getThingTypeUID()
+                ] as Hashtable)},
+            unregisterHandler: {},
+            removeThing: {}
+        ] as ThingHandlerFactory
+        registerService(thingHandlerFactory)
+
+        def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build()
+        assertThat thing.getStatusInfo(), is(statusInfo)
+
+        // add thing with empty configuration
+        managedThingProvider.add(thing)
+
+        // ThingHandler.initialize() not called, thing status is UNINITIALIZED.HANDLER_CONFIGURATION_PENDING
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_CONFIGURATION_PENDING).build()
+        assertThat initializedCalled, is(false)
+        assertThat thing.getStatusInfo(), is(statusInfo)
+
+        // set required configuration parameter
+        thing.configuration = [parameter: "value"] as Map
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
+        callback.configurationUpdated(thing);
+        callback.statusUpdated(thing, statusInfo)
+
+        // ThingHandler.initialize() called, thing status is ONLINE.NONE
+        assertThat initializedCalled, is(true)
+        assertThat thing.getStatusInfo(), is(statusInfo)
+    }
+
+    @Test
+    void 'ThingManager calls bridgeInitialized for added Bridge and Thing correctly'() {
+        registerThingTypeProvider()
+        def componentContext = [getBundleContext: {bundleContext}] as ComponentContext
+        def thingHandlerFactory = new SomeThingHandlerFactory()
+        thingHandlerFactory.activate(componentContext)
+        registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
+
+        def bridge = BridgeBuilder.create(new ThingUID("binding:type:bridgeId")).build()
+        def thing = ThingBuilder.create(new ThingUID("binding:type:thingId")).withBridge(bridge.getUID()).build()
+
+        // add thing first
+        managedThingProvider.add(thing)
+        managedThingProvider.add(bridge)
+
+        waitForAssert({assertThat bridgeInitCalled, is(true)})
+        waitForAssert({assertThat bridgeDisposedCalled, is(false)})
+        assertThat thing.status, is(ThingStatus.ONLINE)
+
+        // remove bridge
+        managedThingProvider.remove(bridge.UID)
+
+        waitForAssert({assertThat bridgeDisposedCalled, is(true)})
+        assertThat thing.status, is(ThingStatus.OFFLINE)
+
+        managedThingProvider.remove(thing.UID)
+        bridgeInitCalled = false
+        bridgeDisposedCalled = false
+
+        // add bridge first
+        managedThingProvider.add(bridge)
+        managedThingProvider.add(thing)
+
+        waitForAssert({assertThat bridgeInitCalled, is(true)})
+    }
+    
+    class SomeThingHandlerFactory extends BaseThingHandlerFactory {
+
+        @Override
+        public boolean supportsThingType(ThingTypeUID thingTypeUID) {
+            true
+        }
+
+        @Override
+        protected ThingHandler createHandler(Thing thing) {
+            return new SomeThingHandler(thing)
+        }
+    }
+
+    def bridgeInitCalled = false;
+    def bridgeDisposedCalled = false;
+
+    class SomeThingHandler extends BaseThingHandler {
+
+        public SomeThingHandler(Thing thing) {
+            super(thing)
+        }
+
+        @Override
+        public void handleCommand(ChannelUID channelUID, Command command) {
+        }
+
+        @Override
+        public void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
+            updateStatus(ThingStatus.ONLINE)
+            bridgeInitCalled = true
+        }
+
+        @Override
+        public void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge) {
+            updateStatus(ThingStatus.OFFLINE)
+            bridgeDisposedCalled = true
+        }
+    }
 
     private void registerThingTypeProvider() {
-        def THING_TYPES = [
-            new ThingType("binding", "type", "label")
-        ]
+        def URI configDescriptionUri = new URI("test:test");
+        def thingType = new ThingType(new ThingTypeUID("binding", "type"), null, "label", null, null, null, null, configDescriptionUri)
 
-        def THING_TYPE_PROVIDER = [
-            getThingTypes: { THING_TYPES },
-            getThingType: { ThingTypeUID thingTypeUID, Locale locale ->
-                THING_TYPES.find { it.UID == thingTypeUID }
-            }
-        ] as ThingTypeProvider
-        registerService(THING_TYPE_PROVIDER, ThingTypeProvider.class.name)
+        registerService([
+            getThingType: {thingTypeUID,locale -> thingType }
+        ] as ThingTypeProvider)
+
+        registerService([
+            getThingType:{thingTypeUID -> thingType}
+        ] as ThingTypeRegistry)
     }
+
+    private void registerConfigDescriptionProvider(boolean withRequiredParameter = false) {
+        def URI configDescriptionUri = new URI("test:test");
+        def configDescription = new ConfigDescription(configDescriptionUri, [
+            ConfigDescriptionParameterBuilder.create("parameter", ConfigDescriptionParameter.Type.TEXT).withRequired(withRequiredParameter).build()] as List);
+
+        registerService([
+            getConfigDescription: {uri, locale -> configDescription}
+        ] as ConfigDescriptionProvider)
+    }
+
 }
