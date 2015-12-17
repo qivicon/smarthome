@@ -17,7 +17,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
@@ -254,7 +253,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         public void configurationUpdated(Thing thing) {
             initializeHandler(thing);
         }
-        
+
     };
 
     private ItemRegistry itemRegistry;

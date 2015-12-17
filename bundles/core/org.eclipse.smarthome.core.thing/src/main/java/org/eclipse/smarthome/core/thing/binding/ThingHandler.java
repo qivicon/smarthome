@@ -102,7 +102,8 @@ public interface ThingHandler {
     void dispose();
 
     /**
-     * This method is called, when the handler is started.
+     * This method is called, when the handler has been registered and all required configuration parameters of the
+     * {@link Thing} are present.
      */
     void initialize();
 
@@ -129,7 +130,7 @@ public interface ThingHandler {
      * @param channelUID UID of the unlinked channel
      */
     void channelUnlinked(ChannelUID channelUID);
-    
+
     /**
      * This method is called, when the according {@link ThingHandler} of the
      * bridge was initialized. If the thing of this handler does not have a
@@ -141,7 +142,7 @@ public interface ThingHandler {
      *            bridge
      */
     void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge);
-    
+
     /**
      * This method is called, when the according {@link ThingHandler} of the
      * bridge was disposed. If the thing of this handler does not have a

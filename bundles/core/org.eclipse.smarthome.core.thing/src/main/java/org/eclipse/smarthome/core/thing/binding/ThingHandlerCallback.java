@@ -54,7 +54,11 @@ public interface ThingHandlerCallback {
      */
     void thingUpdated(Thing thing);
 
-    
+    /**
+     * Informs about an updated configuration of a thing.
+     * 
+     * @param thing thing with the updated configuration (must no be null)
+     */
     void configurationUpdated(Thing thing);
 
 }
