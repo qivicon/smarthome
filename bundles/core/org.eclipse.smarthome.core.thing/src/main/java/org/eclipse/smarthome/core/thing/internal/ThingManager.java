@@ -69,13 +69,15 @@ import org.slf4j.LoggerFactory;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Added dynamic configuration update
- * @author Stefan Bußweiler - Added new thing status handling, migration to new event mechanism
+ * @author Stefan Bußweiler - Added new thing status handling, migration to new event mechanism,
+ *         refactorings thing life cycle
  * @author Simon Kaufmann - Added remove handling
- * @author Stefan Bußweiler - Refactoring thing life cycle
  */
 public class ThingManager extends AbstractItemEventSubscriber implements ThingTracker {
 
     private static final String FORCEREMOVE_THREADPOOL_NAME = "forceRemove";
+
+    private static final String THING_MANAGER_THREADPOOL_NAME = "thingManager";
 
     private final class ThingHandlerTracker extends ServiceTracker<ThingHandler, ThingHandler> {
 
@@ -157,77 +159,34 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         public void statusUpdated(final Thing thing, ThingStatusInfo thingStatus) {
             if (ThingStatus.REMOVING.equals(thing.getStatus())
                     && !ThingStatus.REMOVED.equals(thingStatus.getStatus())) {
-                // only allow REMOVING -> REMOVED transition and
-                // ignore all other state changes
+                // only allow REMOVING -> REMOVED transition and ignore all other state changes
                 return;
             }
-
             ThingStatus oldStatus = thing.getStatus();
+            
+            // update thing status and send event about it
             setThingStatus(thing, thingStatus);
 
             if (thing instanceof Bridge) {
             	Bridge bridge = (Bridge) thing;
-
+                // notify all child-things about bridge initialization
                 if (oldStatus == ThingStatus.INITIALIZING && isInitialized(thing)) {
                     notifyThingsAboutBridgeInitialization(bridge);
                 }
-
-                for (Thing bridgeChildThing : bridge.getThings()) {
-            		ThingStatusInfo bridgeChildThingStatus = bridgeChildThing.getStatusInfo();
-            		if (bridgeChildThingStatus.getStatus() == ThingStatus.ONLINE
-            				|| bridgeChildThingStatus.getStatus() == ThingStatus.OFFLINE) {
-
-            			if (thingStatus.getStatus() == ThingStatus.ONLINE
-            					&& bridgeChildThingStatus.getStatusDetail() == ThingStatusDetail.BRIDGE_OFFLINE) {
-            				ThingStatusInfo statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE,
-            						ThingStatusDetail.NONE).build();
-            				setThingStatus(bridgeChildThing, statusInfo);
-            			} else if (thingStatus.getStatus() == ThingStatus.OFFLINE) {
-            				ThingStatusInfo statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE,
-            						ThingStatusDetail.BRIDGE_OFFLINE).build();
-            				setThingStatus(bridgeChildThing, statusInfo);
-            			}
-            		}
-            	}
-            } 
+                // notify all child-things that bridge is ONLINE/OFFLINE
+                notifyThingsAboutBridgeStatusUpdate(thingStatus, bridge);
+            }
+            // determine if bridge has been initialized and notify thing handler about it
             if (thing.getBridgeUID() != null && oldStatus == ThingStatus.INITIALIZING && isInitialized(thing)) {
                 notifyThingAboutBridgeInitialization(thing);
             }
-
+            // notify thing about its removal
             if (ThingStatus.REMOVING.equals(thing.getStatus())) {
-                logger.debug("Asking handler of thing '{}' to handle its removal.", thing.getUID());
-                try {
-                    thing.getHandler().handleRemoval();
-                } catch (Exception e) {
-                    logger.error("The ItemHandler caused an exception while handling the removal of its thing", e);
-                }
-                logger.trace("Handler of thing '{}' returned from handling its removal.", thing.getUID());
-            } else if (ThingStatus.REMOVED.equals(thing.getStatus())) {
-                logger.debug("Removal handling of thing '{}' completed. Going to remove it now.", thing.getUID());
-
-                // call asynchronous to avoid deadlocks in thing handler
-                ThreadPoolManager.getPool(FORCEREMOVE_THREADPOOL_NAME).execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            AccessController.doPrivileged(new PrivilegedAction<Void>() {
-                                @Override
-                                public Void run() {
-                                    thingRegistry.forceRemove(thing.getUID());
-                                    return null;
-                                }
-                            });
-                        } catch (IllegalStateException ex) {
-                            logger.debug("Could not remove thing {}. Most likely because it is not managed.",
-                                    thing.getUID(), ex);
-                        } catch (Exception ex) {
-                            logger.error(
-                                    "Could not remove thing {}, because an unknwon Exception occured. Most likely because it is not managed.",
-                                    thing.getUID(), ex);
-                        }
-                    }
-                });
-
+                notifyThingAboutRemoval(thing);
+            } 
+            // notify thing registry about thing removal
+            else if (ThingStatus.REMOVED.equals(thing.getStatus())) {
+                notifyRegistryAboutForceRemove(thing);
             }
         }
 
@@ -640,14 +599,12 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     }
 
     private void notifyThingsAboutBridgeInitialization(Bridge bridge) {
-        // notify all child-thing-handlers about bridge initialization
         for (Thing child : bridge.getThings()) {
             notifyThingAboutBridgeInitialization(bridge, child);
         }
     }
 
     private void notifyThingAboutBridgeInitialization(Thing thing) {
-        // determine if bridge has been initialized and notify thing handler about it
         if (thing.getBridgeUID() != null) {
             Thing bridge = thingRegistry.get(thing.getBridgeUID());
             if (bridge instanceof Bridge) {
@@ -660,20 +617,18 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         if (childThing.getHandler() == null)
             return;
 
-        try {
-            SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-                @Override
-                public Void call() throws Exception {
+        ThreadPoolManager.getPool(THING_MANAGER_THREADPOOL_NAME).execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
                     childThing.getHandler().bridgeHandlerInitialized(bridge.getHandler(), bridge);
-                    return null;
-                }
-            });
-        } catch (Exception ex) {
-            logger.error(
-                    "Exception occured during notification of thing '" + childThing.getUID()
+                } catch (Exception ex) {
+                    logger.error("Exception occured during notification of thing '" + childThing.getUID()
                             + "' about bridge initialization at '" + childThing.getHandler() + "': " + ex.getMessage(),
-                    ex);
-        }
+                            ex);
+                }
+            }
+        });
     }
 
     private void unregisterHandler(final Thing thing, final ThingHandlerFactory thingHandlerFactory) {
@@ -735,6 +690,69 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             logger.error("Exception occured during notification of thing '" + childThing.getUID()
                     + "' about bridge disposal at '" + childThing.getHandler() + "': " + ex.getMessage(), ex);
         }
+    }
+
+    private void notifyThingsAboutBridgeStatusUpdate(final ThingStatusInfo thingStatus, final Bridge bridge) {
+        for (Thing bridgeChildThing : bridge.getThings()) {
+            ThingStatusInfo bridgeChildThingStatus = bridgeChildThing.getStatusInfo();
+            if (bridgeChildThingStatus.getStatus() == ThingStatus.ONLINE
+                    || bridgeChildThingStatus.getStatus() == ThingStatus.OFFLINE) {
+
+                if (thingStatus.getStatus() == ThingStatus.ONLINE
+                        && bridgeChildThingStatus.getStatusDetail() == ThingStatusDetail.BRIDGE_OFFLINE) {
+                    ThingStatusInfo statusInfo = ThingStatusInfoBuilder
+                            .create(ThingStatus.OFFLINE, ThingStatusDetail.NONE).build();
+                    setThingStatus(bridgeChildThing, statusInfo);
+                } else if (thingStatus.getStatus() == ThingStatus.OFFLINE) {
+                    ThingStatusInfo statusInfo = ThingStatusInfoBuilder
+                            .create(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE).build();
+                    setThingStatus(bridgeChildThing, statusInfo);
+                }
+            }
+        }
+    }
+
+    private void notifyThingAboutRemoval(final Thing thing) {
+        logger.debug("Asking handler of thing '{}' to handle its removal.", thing.getUID());
+
+        ThreadPoolManager.getPool(THING_MANAGER_THREADPOOL_NAME).execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    thing.getHandler().handleRemoval();
+                    logger.trace("Handler of thing '{}' returned from handling its removal.", thing.getUID());
+                } catch (Exception ex) {
+                    logger.error("The ThingHandler caused an exception while handling the removal of its thing", ex);
+                }
+            }
+        });
+    }
+
+    private void notifyRegistryAboutForceRemove(final Thing thing) {
+        logger.debug("Removal handling of thing '{}' completed. Going to remove it now.", thing.getUID());
+
+        // call asynchronous to avoid deadlocks in thing handler
+        ThreadPoolManager.getPool(FORCEREMOVE_THREADPOOL_NAME).execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    AccessController.doPrivileged(new PrivilegedAction<Void>() {
+                        @Override
+                        public Void run() {
+                            thingRegistry.forceRemove(thing.getUID());
+                            return null;
+                        }
+                    });
+                } catch (IllegalStateException ex) {
+                    logger.debug("Could not remove thing {}. Most likely because it is not managed.", thing.getUID(),
+                            ex);
+                } catch (Exception ex) {
+                    logger.error(
+                            "Could not remove thing {}, because an unknwon Exception occured. Most likely because it is not managed.",
+                            thing.getUID(), ex);
+                }
+            }
+        });
     }
 
     protected void activate(ComponentContext componentContext) {

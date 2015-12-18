@@ -45,8 +45,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Added dynamic configuration update
  * @author Thomas Höfer - Added thing properties and config description validation
- * @author Stefan Bußweiler - Added new thing status handling
- * @author Stefan Bußweiler - Refactoring thing life cycle
+ * @author Stefan Bußweiler - Added new thing status handling, refactorings thing life cycle
  */
 public abstract class BaseThingHandler implements ThingHandler {
 
