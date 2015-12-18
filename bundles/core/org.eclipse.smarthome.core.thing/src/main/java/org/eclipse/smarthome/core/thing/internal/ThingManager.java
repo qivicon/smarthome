@@ -76,8 +76,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     private static final String FORCEREMOVE_THREADPOOL_NAME = "forceRemove";
 
-    private static final String BRIDGE_THINGS_NOTIFICATION_THREADPOOL_NAME = "bridgeLifecycleNotification";
-
     private final class ThingHandlerTracker extends ServiceTracker<ThingHandler, ThingHandler> {
 
         public ThingHandlerTracker(BundleContext context) {
@@ -168,13 +166,12 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
             if (thing instanceof Bridge) {
             	Bridge bridge = (Bridge) thing;
-            	
-                if (oldStatus == ThingStatus.INITIALIZING
-                        && (thing.getStatus() == ThingStatus.ONLINE || thing.getStatus() == ThingStatus.OFFLINE)) {
+
+                if (oldStatus == ThingStatus.INITIALIZING && isInitialized(thing)) {
                     notifyThingsAboutBridgeInitialization(bridge);
                 }
-            	
-            	for (Thing bridgeChildThing : bridge.getThings()) {
+
+                for (Thing bridgeChildThing : bridge.getThings()) {
             		ThingStatusInfo bridgeChildThingStatus = bridgeChildThing.getStatusInfo();
             		if (bridgeChildThingStatus.getStatus() == ThingStatus.ONLINE
             				|| bridgeChildThingStatus.getStatus() == ThingStatus.OFFLINE) {
@@ -192,8 +189,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             		}
             	}
             } 
-            if(thing.getBridgeUID() != null && oldStatus == ThingStatus.INITIALIZING
-                    && (thing.getStatus() == ThingStatus.ONLINE || thing.getStatus() == ThingStatus.OFFLINE)) {
+            if (thing.getBridgeUID() != null && oldStatus == ThingStatus.INITIALIZING && isInitialized(thing)) {
                 notifyThingAboutBridgeInitialization(thing);
             }
 
@@ -285,44 +281,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         initializeHandler(thing);
     }
 
-    private void initializeHandler(Thing thing) {
-        if (isInitializable(thing)) {
-            setThingStatus(thing, buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE));
-            initializeHandler(thing, thing.getHandler());
-        } else {
-            setThingStatus(thing,
-                    buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_CONFIGURATION_PENDING));
-        }
-    }
-
-    private void initializeHandler(final Thing thing, final ThingHandler thingHandler) {
-        logger.debug("Calling initialize handler for thing '{}' at '{}'.", thing.getUID(), thingHandler);
-        try {
-            SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-
-                @Override
-                public Void call() throws Exception {
-                    thingHandler.initialize();
-                    return null;
-                }
-            });
-        } catch (TimeoutException ex) {
-            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
-                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR,
-                    ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
-            setThingStatus(thing, statusInfo);
-            logger.warn("Initializing handler for thing '{}' takes more than {}ms.", thing.getUID(),
-                    SafeMethodCaller.DEFAULT_TIMEOUT);
-        } catch (Exception ex) {
-            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
-                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR,
-                    ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
-            setThingStatus(thing, statusInfo);
-            logger.error("Exception occured while initializing handler of thing '" + thing.getUID() + "': "
-                    + ex.getMessage(), ex);
-        }
-    }
-
     /**
      * Method is called when a {@link ThingHandler} is removed.
      *
@@ -340,28 +298,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         if(thing instanceof Bridge) {
             notifyThingsAboutBridgeDisposal((Bridge) thing);
         }
-    }
-
-    private boolean disposeHandler(final Thing thing, final ThingHandler thingHandler) {
-        logger.debug("Calling dispose handler for thing '{}' at '{}'.", thing.getUID(), thingHandler);
-        try {
-            return SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Boolean>() {
-
-                @Override
-                public Boolean call() throws Exception {
-                    thingHandler.dispose();
-                    return true;
-                }
-            });
-        } catch (TimeoutException ex) {
-            logger.warn("Disposing handler for thing '{}' takes more than {}ms.", thing.getUID(),
-                    SafeMethodCaller.DEFAULT_TIMEOUT);
-        } catch (Exception ex) {
-            logger.error(
-                    "Exception occured while disposing handler of thing '" + thing.getUID() + "': " + ex.getMessage(),
-                    ex);
-        }
-        return false;
     }
 
     @Override
@@ -546,7 +482,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 }
             } else {
                 logger.warn("Cannot notify handler about updated thing {}, because thing is not initialized "
-                        + "(must be in status ONLINE or OFFLINE).", thing.getThingTypeUID().getAsString());
+                        + "(must be in status ONLINE or OFFLINE).", thing.getThingTypeUID());
             }
         } else {
             registerHandler(thing);
@@ -621,18 +557,57 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         }
     }
 
+    private void initializeHandler(Thing thing) {
+        if (isInitializable(thing)) {
+            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE);
+            setThingStatus(thing, statusInfo);
+            initializeHandler(thing, thing.getHandler());
+        } else {
+            logger.debug("Thing '{}' not initializeable, check required configuration parameters.", thing.getUID());
+            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
+                    ThingStatusDetail.HANDLER_CONFIGURATION_PENDING);
+            setThingStatus(thing, statusInfo);
+        }
+    }
+
+    private void initializeHandler(final Thing thing, final ThingHandler thingHandler) {
+        logger.debug("Calling initialize handler for thing '{}' at '{}'.", thing.getUID(), thingHandler);
+        try {
+            SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    thingHandler.initialize();
+                    return null;
+                }
+            });
+        } catch (TimeoutException ex) {
+            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
+                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR,
+                    ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
+            setThingStatus(thing, statusInfo);
+            logger.warn("Initializing handler for thing '{}' takes more than {}ms.", thing.getUID(),
+                    SafeMethodCaller.DEFAULT_TIMEOUT);
+        } catch (Exception ex) {
+            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
+                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR,
+                    ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
+            setThingStatus(thing, statusInfo);
+            logger.error("Exception occured while initializing handler of thing '" + thing.getUID() + "': "
+                    + ex.getMessage(), ex);
+        }
+    }
+
     /**
-     * Determines if a thing is initializable: all 'required' {@link ConfigDescriptionParameter} must be available in
-     * the {@link Configuration} of the {@link Thing}.
+     * Determines if a {@link Thing} is initializable: all 'required' {@link ConfigDescriptionParameter}
+     * must be available in the {@link Configuration}.
      *
      * @return true if all required parameters are available in the configuration, false otherwise
      */
     private boolean isInitializable(Thing thing) {
-        logger.debug("Determine if thing '{}' is initializable", thing.getUID().getAsString());
+        logger.debug("Determine if thing '{}' is initializable.", thing.getUID());
+
         ThingType thingType = TypeResolver.resolve(thing.getThingTypeUID());
-        logger.debug("  -> thing type '{}'", thingType);
         if (thingType != null) {
-            logger.debug("  -> thing '{}', thingTypeURI '{}'", thing.getUID().getAsString(), thingType.getConfigDescriptionURI());
             ConfigDescription description = TypeResolver.resolve(thingType.getConfigDescriptionURI());
             if (description == null) {
                 return true;
@@ -641,6 +616,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             List<String> requiredParameters = getRequiredParameters(description);
             Map<String, Object> properties = thing.getConfiguration().getProperties();
             return properties.keySet().containsAll(requiredParameters);
+        } else {
+            logger.debug("Thing type '{}' of thing '{}' not found.", thing.getThingTypeUID(), thing.getUID());
         }
         return false;
     }
@@ -654,35 +631,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         }
         return requiredParameters;
     }
-    
+
     private boolean isInitialized(Thing thing) {
         return thing.getStatus() == ThingStatus.ONLINE || thing.getStatus() == ThingStatus.OFFLINE;
-    }
-    
-    private void notifyThingsAboutBridgeDisposal(final Bridge bridge) {
-        // notify all child-thing-handlers about bridge disposal
-        for (Thing childThing : bridge.getThings()) {
-          notifyThingAboutBridgeDisposal(bridge, childThing);
-        }
-    }
-
-    private void notifyThingAboutBridgeDisposal(final Bridge bridge, final Thing childThing) {
-        if (childThing.getHandler() == null)
-            return;
-
-        ThreadPoolManager.getPool(BRIDGE_THINGS_NOTIFICATION_THREADPOOL_NAME).execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    logger.debug("Notify handler '{}' of thing '{}' about bridge disposal", childThing.getHandler(),
-                            childThing.getUID());
-                    childThing.getHandler().bridgeHandlerDisposed(bridge.getHandler(), bridge);
-                } catch (Exception ex) {
-                    logger.error("Exception occured during bridge disposal notification of thing '"
-                            + childThing.getUID() + "' at '" + childThing.getHandler() + "': " + ex.getMessage(), ex);
-                }
-            }
-        });
     }
 
     private void notifyThingsAboutBridgeInitialization(Bridge bridge) {
@@ -692,41 +643,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         }
     }
 
-    private void notifyThingAboutBridgeInitialization(final Bridge bridge, final Thing childThing) {
-        if (childThing.getHandler() == null)
-            return;
-
-        ThreadPoolManager.getPool(BRIDGE_THINGS_NOTIFICATION_THREADPOOL_NAME).execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    logger.debug("Notify handler '{}' of thing '{}' about bridge initialization",
-                            childThing.getHandler(), childThing.getUID());
-                    childThing.getHandler().bridgeHandlerInitialized(bridge.getHandler(), bridge);
-                } catch (Exception ex) {
-                    logger.error("Exception occured during bridge initialization notification of thing '"
-                            + childThing.getUID() + "' at '" + childThing.getHandler() + "': " + ex.getMessage(), ex);
-                }
-            }
-        });
-        // try {
-        // SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-        //
-        // @Override
-        // public Void call() throws Exception {
-        // logger.debug("######## notifyThingAboutBridgeInitialization");
-        // logger.debug("bridge '{}', handler '{}'", bridge, bridge.getHandler());
-        // logger.debug("childThing '{}', handler '{}'", childThing, childThing.getHandler());
-        // childThing.getHandler().bridgeHandlerInitialized(bridge.getHandler(), bridge);
-        // return null;
-        // }
-        // });
-        // } catch (Exception ex) {
-        // logger.error("Exception occured during bridge initialization notification of thing '" + childThing.getUID()
-        // + "' at '" + childThing.getHandler() + "': " + ex.getMessage(), ex);
-        // }
-    }
-
     private void notifyThingAboutBridgeInitialization(Thing thing) {
         // determine if bridge has been initialized and notify thing handler about it
         if (thing.getBridgeUID() != null) {
@@ -734,6 +650,26 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             if (bridge instanceof Bridge) {
                 notifyThingAboutBridgeInitialization((Bridge) bridge, thing);
             }
+        }
+    }
+
+    private void notifyThingAboutBridgeInitialization(final Bridge bridge, final Thing childThing) {
+        if (childThing.getHandler() == null)
+            return;
+
+        try {
+            SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    childThing.getHandler().bridgeHandlerInitialized(bridge.getHandler(), bridge);
+                    return null;
+                }
+            });
+        } catch (Exception ex) {
+            logger.error(
+                    "Exception occured during notification of thing '" + childThing.getUID()
+                            + "' about bridge initialization at '" + childThing.getHandler() + "': " + ex.getMessage(),
+                    ex);
         }
     }
 
@@ -750,6 +686,51 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         } catch (Exception ex) {
             logger.error("Exception occured while calling thing handler factory '" + thingHandlerFactory + "': "
                     + ex.getMessage(), ex);
+        }
+    }
+
+    private void disposeHandler(final Thing thing, final ThingHandler thingHandler) {
+        logger.debug("Calling dispose handler for thing '{}' at '{}'.", thing.getUID(), thingHandler);
+        try {
+            SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    thingHandler.dispose();
+                    return null;
+                }
+            });
+        } catch (TimeoutException ex) {
+            logger.warn("Disposing handler for thing '{}' takes more than {}ms.", thing.getUID(),
+                    SafeMethodCaller.DEFAULT_TIMEOUT);
+        } catch (Exception ex) {
+            logger.error(
+                    "Exception occured while disposing handler of thing '" + thing.getUID() + "': " + ex.getMessage(),
+                    ex);
+        }
+    }
+
+    private void notifyThingsAboutBridgeDisposal(final Bridge bridge) {
+        // notify all child-thing-handlers about bridge disposal
+        for (Thing childThing : bridge.getThings()) {
+            notifyThingAboutBridgeDisposal(bridge, childThing);
+        }
+    }
+
+    private void notifyThingAboutBridgeDisposal(final Bridge bridge, final Thing childThing) {
+        if (childThing.getHandler() == null)
+            return;
+
+        try {
+            SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    childThing.getHandler().bridgeHandlerDisposed(bridge.getHandler(), bridge);
+                    return null;
+                }
+            });
+        } catch (Exception ex) {
+            logger.error("Exception occured during notification of thing '" + childThing.getUID()
+                    + "' about bridge disposal at '" + childThing.getHandler() + "': " + ex.getMessage(), ex);
         }
     }
 
