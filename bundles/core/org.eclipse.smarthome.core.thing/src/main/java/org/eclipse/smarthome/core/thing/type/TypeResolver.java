@@ -20,7 +20,7 @@ import org.eclipse.smarthome.core.thing.internal.Activator;
  * objects. It provides static methods which do a look up for a type in the according registry.
  *
  * @author Dennis Nobel - Initial contribution
- *
+ * @author Stefan Bußweiler - Added resolver for {@link ConfigDescription}
  */
 public class TypeResolver {
 

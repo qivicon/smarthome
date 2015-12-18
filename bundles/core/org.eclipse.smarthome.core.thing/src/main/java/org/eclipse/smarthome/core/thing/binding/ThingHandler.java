@@ -30,6 +30,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author Dennis Nobel - Initial contribution and API
  * @author Michael Grammling - Added dynamic configuration update
  * @auther Thomas Höfer - Added config description validation exception to handleConfigurationUpdate operation
+ * @author Stefan Bußweiler - Added API for bridge initialization notification
  */
 public interface ThingHandler {
 

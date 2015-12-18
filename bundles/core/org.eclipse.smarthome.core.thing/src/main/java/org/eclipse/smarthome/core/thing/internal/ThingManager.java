@@ -71,6 +71,7 @@ import org.slf4j.LoggerFactory;
  * @author Michael Grammling - Added dynamic configuration update
  * @author Stefan Bußweiler - Added new thing status handling, migration to new event mechanism
  * @author Simon Kaufmann - Added remove handling
+ * @author Stefan Bußweiler - Refactoring thing life cycle
  */
 public class ThingManager extends AbstractItemEventSubscriber implements ThingTracker {
 
@@ -292,10 +293,12 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     public void handlerRemoved(Thing thing, ThingHandler thingHandler) {
         logger.debug("Unassigning handler for thing '{}' and setting status to UNINITIALIZED.", thing.getUID());
         thing.setHandler(null);
-        setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR));
+        ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
+                ThingStatusDetail.HANDLER_MISSING_ERROR);
+        setThingStatus(thing, statusInfo);
         thingHandler.setCallback(null);
         disposeHandler(thing, thingHandler);
-        if(thing instanceof Bridge) {
+        if (thing instanceof Bridge) {
             notifyThingsAboutBridgeDisposal((Bridge) thing);
         }
     }

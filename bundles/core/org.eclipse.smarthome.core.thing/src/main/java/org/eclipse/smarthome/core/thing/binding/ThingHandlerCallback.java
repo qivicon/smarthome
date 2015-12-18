@@ -20,6 +20,7 @@ import org.eclipse.smarthome.core.types.State;
  * 
  * @author Dennis Nobel - Initial contribution
  * @author Stefan Bußweiler - Added new thing status info 
+ * @author Stefan Bußweiler - Added new configuration update info
  */
 public interface ThingHandlerCallback {
 

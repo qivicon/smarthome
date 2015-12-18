@@ -11,6 +11,7 @@ package org.eclipse.smarthome.core.thing;
  * {@link ThingStatusDetail} defines possible status details of a {@link ThingStatusInfo}.
  *
  * @author Stefan Bußweiler - Initial contribution
+ * @author Stefan Bußweiler - Added new status details
  */
 public enum ThingStatusDetail {
     NONE(0),
