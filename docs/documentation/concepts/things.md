@@ -47,6 +47,8 @@ A status is detailed further with a status detail object. The following table li
 |----------------------------|-------------| 
 | NONE                       | No further status details available. |
 | HANDLER_MISSING_ERROR      | The handler cannot be initialized, because the responsible binding is not available or started. | 
+| HANDLER_REGISTERING_ERROR | The handler failed in the service registration phase. |
+| HANDLER_CONFIGURATION_PENDING | The handler is registered but can not be initialized caused by missing configuration parameters. |
 | HANDLER_INITIALIZING_ERROR | The handler failed in the initialization phase. |
 | CONFIGURATION_PENDING      | The thing is waiting to transfer configuration information to a device. Some bindings need to communicate with the device to make sure the configuration is accepted. | 
 | COMMUNICATION_ERROR        | Error in communication with the device. This may also be only a temporary error. |
@@ -61,7 +63,7 @@ Statuses can only have some of the given details. The allowed combinations are l
 
 | Status        | Status Details |
 |---------------|----------------|
-| UNINITIALIZED | NONE<br>HANDLER_MISSING_ERROR<br>HANDLER_INITIALIZING_ERROR |
+| UNINITIALIZED | NONE<br>HANDLER_MISSING_ERROR<br>HANDLER_REGISTERING_ERROR<br>HANDLER_CONFIGURATION_PENDING<br>HANDLER_INITIALIZING_ERROR |
 | INITIALIZING  | NONE |
 | ONLINE        | NONE<br>CONFIGURATION_PENDING | 
 | OFFLINE       | NONE<br>COMMUNICATION_ERROR<br>CONFIGURATION_ERROR<br>BRIDGE_OFFLINE<br>FIRMWARE_UPDATING<br>DUTY_CYCLE | 
