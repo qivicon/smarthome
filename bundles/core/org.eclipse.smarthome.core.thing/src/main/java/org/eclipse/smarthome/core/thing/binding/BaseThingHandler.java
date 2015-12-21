@@ -119,7 +119,7 @@ public abstract class BaseThingHandler implements ThingHandler {
             configuration.put(configurationParmeter.getKey(), configurationParmeter.getValue());
         }
 
-        if (getThing().getStatus() == ThingStatus.ONLINE || getThing().getStatus() == ThingStatus.OFFLINE) {
+        if (thingIsInitialized()) {
             // persist new configuration and reinitialize handler
             dispose();
             updateConfiguration(configuration);
@@ -513,6 +513,15 @@ public abstract class BaseThingHandler implements ThingHandler {
         }
     }
 
+    /**
+     * Returns whether the thing has already been initialized.
+     * 
+     * @return true if thing is initialized, false otherwise
+     */
+    protected boolean thingIsInitialized() {
+        return getThing().getStatus() == ThingStatus.ONLINE || getThing().getStatus() == ThingStatus.OFFLINE;
+    }
+    
     @Override
     public void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
         // do nothing by default, can be overridden by subclasses

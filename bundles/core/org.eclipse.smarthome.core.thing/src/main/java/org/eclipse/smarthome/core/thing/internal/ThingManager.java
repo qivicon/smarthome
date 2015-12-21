@@ -680,18 +680,17 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         if (childThing.getHandler() == null)
             return;
 
-        try {
-            SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-                @Override
-                public Void call() throws Exception {
+        ThreadPoolManager.getPool(THING_MANAGER_THREADPOOL_NAME).execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
                     childThing.getHandler().bridgeHandlerDisposed(bridge.getHandler(), bridge);
-                    return null;
+                } catch (Exception ex) {
+                    logger.error("Exception occured during notification of thing '" + childThing.getUID()
+                            + "' about bridge disposal at '" + childThing.getHandler() + "': " + ex.getMessage(), ex);
                 }
-            });
-        } catch (Exception ex) {
-            logger.error("Exception occured during notification of thing '" + childThing.getUID()
-                    + "' about bridge disposal at '" + childThing.getHandler() + "': " + ex.getMessage(), ex);
-        }
+            }
+        });
     }
 
     private void notifyThingsAboutBridgeStatusUpdate(final ThingStatusInfo thingStatus, final Bridge bridge) {
