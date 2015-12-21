@@ -22,7 +22,6 @@ import java.util.concurrent.TimeoutException;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.SafeMethodCaller;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
@@ -158,18 +157,21 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
         @Override
         public void statusUpdated(final Thing thing, ThingStatusInfo thingStatus) {
+            // all provoked operations based on a status update should be executed asynchronously!
+
             if (ThingStatus.REMOVING.equals(thing.getStatus())
                     && !ThingStatus.REMOVED.equals(thingStatus.getStatus())) {
                 // only allow REMOVING -> REMOVED transition and ignore all other state changes
                 return;
             }
             ThingStatus oldStatus = thing.getStatus();
-            
-            // update thing status and send event about it
+
+            // update thing status and send event with new status
             setThingStatus(thing, thingStatus);
 
+            // if thing is a bridge:
             if (thing instanceof Bridge) {
-            	Bridge bridge = (Bridge) thing;
+                Bridge bridge = (Bridge) thing;
                 // notify all child-things about bridge initialization
                 if (oldStatus == ThingStatus.INITIALIZING && isInitialized(thing)) {
                     notifyThingsAboutBridgeInitialization(bridge);
@@ -177,14 +179,14 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 // notify all child-things that bridge is ONLINE/OFFLINE
                 notifyThingsAboutBridgeStatusUpdate(thingStatus, bridge);
             }
-            // determine if bridge has been initialized and notify thing handler about it
+            // if thing has a bridge: determine if bridge has been initialized and notify thing handler about it
             if (thing.getBridgeUID() != null && oldStatus == ThingStatus.INITIALIZING && isInitialized(thing)) {
                 notifyThingAboutBridgeInitialization(thing);
             }
             // notify thing about its removal
             if (ThingStatus.REMOVING.equals(thing.getStatus())) {
                 notifyThingAboutRemoval(thing);
-            } 
+            }
             // notify thing registry about thing removal
             else if (ThingStatus.REMOVED.equals(thing.getStatus())) {
                 notifyRegistryAboutForceRemove(thing);
@@ -537,40 +539,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         }
     }
 
-    private void initializeHandler(final Thing thing, final ThingHandler thingHandler) {
-        logger.debug("Calling initialize handler for thing '{}' at '{}'.", thing.getUID(), thingHandler);
-        try {
-            SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    thingHandler.initialize();
-                    return null;
-                }
-            });
-        } catch (TimeoutException ex) {
-            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
-                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR,
-                    ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
-            setThingStatus(thing, statusInfo);
-            logger.warn("Initializing handler for thing '{}' takes more than {}ms.", thing.getUID(),
-                    SafeMethodCaller.DEFAULT_TIMEOUT);
-        } catch (Exception ex) {
-            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
-                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR,
-                    ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
-            setThingStatus(thing, statusInfo);
-            logger.error("Exception occured while initializing handler of thing '" + thing.getUID() + "': "
-                    + ex.getMessage(), ex);
-        }
-    }
-
-    /**
-     * Determines if a {@link Thing} is initializable: all 'required' {@link ConfigDescriptionParameter}
-     * must be available in the {@link Configuration}.
-     *
-     * @return true if all required parameters are available in the configuration, false otherwise
-     */
     private boolean isInitializable(Thing thing) {
+        // determines if all 'required' configuration parameters are available in the configuration
         logger.debug("Determine if thing '{}' is initializable.", thing.getUID());
 
         ThingType thingType = TypeResolver.resolve(thing.getThingTypeUID());
@@ -597,6 +567,33 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             }
         }
         return requiredParameters;
+    }
+
+    private void initializeHandler(final Thing thing, final ThingHandler thingHandler) {
+        logger.debug("Calling initialize handler for thing '{}' at '{}'.", thing.getUID(), thingHandler);
+        try {
+            SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    thingHandler.initialize();
+                    return null;
+                }
+            });
+        } catch (TimeoutException ex) {
+            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
+                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR,
+                    ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
+            setThingStatus(thing, statusInfo);
+            logger.warn("Initializing handler for thing '{}' takes more than {}ms.", thing.getUID(),
+                    SafeMethodCaller.DEFAULT_TIMEOUT);
+        } catch (Exception ex) {
+            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
+                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR,
+                    ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
+            setThingStatus(thing, statusInfo);
+            logger.error("Exception occured while initializing handler of thing '" + thing.getUID() + "': "
+                    + ex.getMessage(), ex);
+        }
     }
 
     private boolean isInitialized(Thing thing) {
@@ -698,21 +695,31 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     }
 
     private void notifyThingsAboutBridgeStatusUpdate(final ThingStatusInfo thingStatus, final Bridge bridge) {
-        for (Thing bridgeChildThing : bridge.getThings()) {
-            ThingStatusInfo bridgeChildThingStatus = bridgeChildThing.getStatusInfo();
+        for (final Thing bridgeChildThing : bridge.getThings()) {
+            final ThingStatusInfo bridgeChildThingStatus = bridgeChildThing.getStatusInfo();
             if (bridgeChildThingStatus.getStatus() == ThingStatus.ONLINE
                     || bridgeChildThingStatus.getStatus() == ThingStatus.OFFLINE) {
 
-                if (thingStatus.getStatus() == ThingStatus.ONLINE
-                        && bridgeChildThingStatus.getStatusDetail() == ThingStatusDetail.BRIDGE_OFFLINE) {
-                    ThingStatusInfo statusInfo = ThingStatusInfoBuilder
-                            .create(ThingStatus.OFFLINE, ThingStatusDetail.NONE).build();
-                    setThingStatus(bridgeChildThing, statusInfo);
-                } else if (thingStatus.getStatus() == ThingStatus.OFFLINE) {
-                    ThingStatusInfo statusInfo = ThingStatusInfoBuilder
-                            .create(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE).build();
-                    setThingStatus(bridgeChildThing, statusInfo);
-                }
+                ThreadPoolManager.getPool(THING_MANAGER_THREADPOOL_NAME).execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            if (thingStatus.getStatus() == ThingStatus.ONLINE
+                                    && bridgeChildThingStatus.getStatusDetail() == ThingStatusDetail.BRIDGE_OFFLINE) {
+                                ThingStatusInfo statusInfo = ThingStatusInfoBuilder
+                                        .create(ThingStatus.OFFLINE, ThingStatusDetail.NONE).build();
+                                setThingStatus(bridgeChildThing, statusInfo);
+                            } else if (thingStatus.getStatus() == ThingStatus.OFFLINE) {
+                                ThingStatusInfo statusInfo = ThingStatusInfoBuilder
+                                        .create(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE).build();
+                                setThingStatus(bridgeChildThing, statusInfo);
+                            }
+                        } catch (Exception ex) {
+                            logger.error("Exception occured during status update of thing '" + bridgeChildThing.getUID()
+                                    + "': " + ex.getMessage(), ex);
+                        }
+                    }
+                });
             }
         }
     }
