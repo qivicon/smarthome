@@ -24,15 +24,15 @@ The startup of a handler is divided in two essential steps:
 
 1. Handler will be registered: `ThingHandler` instance created and registered as OSGi service. Handler is visible to the framework.
  
-2. Handler will be initialized: `initialize` method is called, if all required Configuration Parameters of the Thing are present. Handler is ready to work (methods like `handleCommand`, `handleUpdate` or `thingUpdated` can be called).
+2. Handler will be initialized: `initialize` method is called, if all 'required' configuration parameters of the Thing are present. Handler is ready to work (methods like `handleCommand`, `handleUpdate` or `thingUpdated` can be called).
 
-The diagram below illustrates the startup of a handler in more detail. The life cycle is controlled by the `ThingManager`. The interactions of the `ThingHandlerFactory` and `ThingHandler` are implemented by the default implementations `BaseThingHandlerFactory` and `BaseThingHandler` and must be also fulfilled by own implementations. 
+The diagram below illustrates the startup of a handler in more detail. The life cycle is controlled by the `ThingManager`. 
 
 ![thing_life_cycle_startup](diagrams/thing_life_cycle_startup.png)
 
 The `ThingManager` tracks all Things and mediates the communication between the `Thing` and the `ThingHandler` from the binding. Therefore it tracks `ThingHandlerFactory`s and calls `ThingHandlerFactory.registerHandler(Thing)` for each thing, that was added. A `ThingHandlerFactory` has to create a new `ThingHandler` instance and and must register the instance as an OSGi service. 
 
-The `ThingHandlerTracker` notifies the `ThingManager` about the registered `ThingHandler` instance and determines if the `Thing` is initializable or not. A `Thing` will be considered as *initializable* if all *required* configuration parameters (cf. [Configuration Description](xml-reference.html)) are available. If so, the method `ThingHandler.initialize()` will be called in order to configure the `Thing` of the handler. During the initialization routine the binding developer has to set the status to `ONLINE` resp. `OFFLINE` (cf. [Thing Status](../../concepts/things.html#thing-status)). Only Things in status `ONLINE` or `OFFLINE` will be considered as *initialized*.
+The `ThingHandlerTracker` notifies the `ThingManager` about the registered `ThingHandler` instance and determines if the `Thing` is initializable or not. A `Thing` will be considered as *initializable* if all 'required' configuration parameters (cf. property *parameter.required* in [Configuration Description](xml-reference.html)) are available. If so, the method `ThingHandler.initialize()` will be called in order to initialize the `Thing`. During the initialization routine the binding developer has to set the status to `ONLINE` resp. `OFFLINE` (cf. [Thing Status](../../concepts/things.html#thing-status)). Only Things in status `ONLINE` or `OFFLINE` will be considered as *initialized*.
 
 If the `Thing` is not initializable the configuration can be updated via `ThingHandler.handleConfigurationUpdate(Map)`. The binding has to notify the `ThingManager` about the updated configuration, if the `ThingManager` should try to initialize the `ThingHandler` resp. `Thing` again.
 
