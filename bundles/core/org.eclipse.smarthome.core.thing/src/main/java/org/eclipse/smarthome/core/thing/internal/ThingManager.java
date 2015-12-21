@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.thing.internal;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -193,16 +194,20 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         @Override
         public void thingUpdated(final Thing thing) {
             thingUpdatedLock.add(thing.getUID());
-            AccessController.doPrivileged(new PrivilegedAction<Void>() {
+            Thing ret = AccessController.doPrivileged(new PrivilegedAction<Thing>() {
 
                 @Override
-                public Void run() {
-                    managedThingProvider.update(thing);
-                    return null;
+                public Thing run() {
+                    return managedThingProvider.update(thing);
                 }
 
             });
             thingUpdatedLock.remove(thing.getUID());
+            if (ret == null) {
+                throw new IllegalStateException(
+                        MessageFormat.format("Could not update thing {0}. Most likely because it is read-only.",
+                                thing.getUID().getAsString()));
+            }
         }
 
         @Override

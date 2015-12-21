@@ -77,6 +77,7 @@ class ItemUpdaterOSGiTest extends OSGiTest {
         assertThat lastReceivedEvent.oldItemState, is(OnOffType.ON)
 
         lastReceivedEvent = null
+        
 
         // send update for same state
         eventPublisher.post(ItemEventFactory.createStateEvent("switch", OnOffType.OFF))

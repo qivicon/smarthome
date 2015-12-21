@@ -11,12 +11,14 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -25,6 +27,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -48,7 +51,9 @@ import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
+import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.core.internal.JSONResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +83,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Chris Jackson - Added method to write complete item bean
  * @author Stefan Bußweiler - Migration to new ESH event concept
  * @author Yordan Zhelev - Added Swagger annotations
- *
+ * @author Jörg Plewe - refactoring, error handling
  */
 @Path(ItemResource.PATH_ITEMS)
 @Api(value = ItemResource.PATH_ITEMS)
@@ -88,6 +93,12 @@ public class ItemResource implements RESTResource {
 
     /** The URI path to this resource */
     public static final String PATH_ITEMS = "items";
+
+    @Context
+    UriInfo uriInfo;
+
+    @Context
+    UriInfo localUriInfo;
 
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
@@ -126,38 +137,19 @@ public class ItemResource implements RESTResource {
         this.itemFactories.remove(itemFactory);
     }
 
-    @Context
-    UriInfo uriInfo;
-
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all available items.", response = EnrichedItemDTO.class, responseContainer = "List")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
-    public Response getItems(@QueryParam("type") @ApiParam(value = "item type filter", required = false) String type,
+    public Response getItems(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
+            @QueryParam("type") @ApiParam(value = "item type filter", required = false) String type,
             @QueryParam("tags") @ApiParam(value = "item tag filter", required = false) String tags,
             @DefaultValue("false") @QueryParam("recursive") @ApiParam(value = "get member items recursivly", required = false) boolean recursive) {
+        final Locale locale = LocaleUtil.getLocale(language);
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
-        Object responseObject = getItemBeans(type, tags, recursive);
+        Object responseObject = getItemBeans(type, tags, recursive, locale);
         return Response.ok(responseObject).build();
-    }
-
-    @GET
-    @Path("/{itemname: [a-zA-Z_0-9]*}/state")
-    @Produces({ MediaType.TEXT_PLAIN })
-    @ApiOperation(value = "Gets the state of an item.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Item not found") })
-    public Response getPlainItemState(
-            @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
-        Item item = getItem(itemname);
-        if (item != null) {
-            logger.debug("Received HTTP GET request at '{}'.", uriInfo.getPath());
-            throw new WebApplicationException(Response.ok(item.getState().toString()).build());
-        } else {
-            logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
-            throw new WebApplicationException(404);
-        }
     }
 
     @GET
@@ -166,12 +158,52 @@ public class ItemResource implements RESTResource {
     @ApiOperation(value = "Gets a single item.", response = EnrichedItemDTO.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Item not found") })
-    public Response getItemData(
+    public Response getItemData(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
+        final Locale locale = LocaleUtil.getLocale(language);
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
-        final Object responseObject = getItemDataBean(itemname);
-        throw new WebApplicationException(Response.ok(responseObject).build());
+        // get item
+        Item item = getItem(itemname);
+
+        // if it exists
+        if (item != null) {
+            logger.debug("Received HTTP GET request at '{}'.", uriInfo.getPath());
+            return getItemResponse(Status.OK, item, locale, null);
+        } else {
+            logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
+            return getItemNotFoundResponse(itemname);
+        }
+    }
+
+    /**
+     *
+     * @param itemname
+     * @return
+     */
+    @GET
+    @Path("/{itemname: [a-zA-Z_0-9]*}/state")
+    @Produces(MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Gets the state of an item.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Item not found") })
+    public Response getPlainItemState(
+            @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
+
+        // get item
+        Item item = getItem(itemname);
+
+        // if it exists
+        if (item != null) {
+            logger.debug("Received HTTP GET request at '{}'.", uriInfo.getPath());
+
+            // we cannot use JSONResponse.createResponse() bc. MediaType.TEXT_PLAIN
+            // return JSONResponse.createResponse(Status.OK, item.getState().toString(), null);
+            return Response.ok(item.getState().toString()).build();
+        } else {
+            logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
+            return getItemNotFoundResponse(itemname);
+        }
     }
 
     @PUT
@@ -181,28 +213,41 @@ public class ItemResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Item not found"),
             @ApiResponse(code = 400, message = "Item state null") })
-    public Response putItemState(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
+    public Response putItemState(
+            @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
+            @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
             @ApiParam(value = "valid item state (e.g. ON, OFF)", required = true) String value) {
+        final Locale locale = LocaleUtil.getLocale(language);
+
+        // get Item
         Item item = getItem(itemname);
+
+        // if Item exists
         if (item != null) {
+
+            // try to parse a State from the input
             State state = TypeParser.parseState(item.getAcceptedDataTypes(), value);
+
             if (state != null) {
+
+                // set State and report OK
                 logger.debug("Received HTTP PUT request at '{}' with value '{}'.", uriInfo.getPath(), value);
                 eventPublisher.post(ItemEventFactory.createStateEvent(itemname, state));
-                return Response.ok().build();
+                return getItemResponse(Status.ACCEPTED, null, locale, null);
+
             } else {
+
+                // State could not be parsed
                 logger.warn("Received HTTP PUT request at '{}' with an invalid status value '{}'.", uriInfo.getPath(),
                         value);
-                return Response.status(Status.BAD_REQUEST).build();
+                return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "State could not be parsed: " + value);
             }
         } else {
+            // Item does not exist
             logger.info("Received HTTP PUT request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
-            throw new WebApplicationException(404);
+            return getItemNotFoundResponse(itemname);
         }
     }
-
-    @Context
-    UriInfo localUriInfo;
 
     @POST
     @Path("/{itemname: [a-zA-Z_0-9]*}")
@@ -218,14 +263,18 @@ public class ItemResource implements RESTResource {
         Command command = null;
         if (item != null) {
             if ("toggle".equalsIgnoreCase(value) && (item instanceof SwitchItem || item instanceof RollershutterItem)) {
-                if (OnOffType.ON.equals(item.getStateAs(OnOffType.class)))
+                if (OnOffType.ON.equals(item.getStateAs(OnOffType.class))) {
                     command = OnOffType.OFF;
-                if (OnOffType.OFF.equals(item.getStateAs(OnOffType.class)))
+                }
+                if (OnOffType.OFF.equals(item.getStateAs(OnOffType.class))) {
                     command = OnOffType.ON;
-                if (UpDownType.UP.equals(item.getStateAs(UpDownType.class)))
+                }
+                if (UpDownType.UP.equals(item.getStateAs(UpDownType.class))) {
                     command = UpDownType.DOWN;
-                if (UpDownType.DOWN.equals(item.getStateAs(UpDownType.class)))
+                }
+                if (UpDownType.DOWN.equals(item.getStateAs(UpDownType.class))) {
                     command = UpDownType.UP;
+                }
             } else {
                 command = TypeParser.parseCommand(item.getAcceptedCommandTypes(), value);
             }
@@ -400,8 +449,10 @@ public class ItemResource implements RESTResource {
             @ApiResponse(code = 404, message = "Item not found."),
             @ApiResponse(code = 405, message = "Item not editable.") })
     public Response createOrUpdateItem(
+            @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
             @ApiParam(value = "item data", required = true) ItemDTO item) {
+        final Locale locale = LocaleUtil.getLocale(language);
 
         // If we didn't get an item bean, then return!
         if (item == null) {
@@ -439,27 +490,58 @@ public class ItemResource implements RESTResource {
 
         // Save the item
         if (existingItem == null) {
+            // item does not yet exist, create it
             managedItemProvider.add(newItem);
+            return getItemResponse(Status.CREATED, newItem, locale, null);
+
         } else if (managedItemProvider.get(itemname) != null) {
+            // item already exists as a managed item, update it
             managedItemProvider.update(newItem);
+            return getItemResponse(Status.OK, newItem, locale, null);
         } else {
+            // Item exists but cannot be updated
             logger.warn("Cannot update existing item '{}', because is not managed.", itemname);
-            return Response.status(Status.METHOD_NOT_ALLOWED).build();
+            return JSONResponse.createErrorResponse(Status.CONFLICT, "Cannot update non-managed Item " + itemname);
         }
-
-        return Response.ok().build();
     }
 
+    /**
+     * helper: Response to be sent to client if a Thing cannot be found
+     *
+     * @param thingUID
+     * @return Response configured for 'item not found'
+     */
+    private static Response getItemNotFoundResponse(String itemname) {
+        String message = "Item " + itemname + " does not exist!";
+        return JSONResponse.createResponse(Status.NOT_FOUND, null, message);
+    }
+
+    /**
+     * Prepare a response representing the Item depending in the status.
+     *
+     * @param status
+     * @param item can be null
+     * @param locale the locale
+     * @param errormessage optional message in case of error
+     * @return Response configured to represent the Item in depending on the status
+     */
+    private Response getItemResponse(Status status, Item item, Locale locale, String errormessage) {
+        Object entity = null != item ? EnrichedItemDTOMapper.map(item, true, uriInfo.getBaseUri(), locale) : null;
+        return JSONResponse.createResponse(status, entity, errormessage);
+    }
+
+    /**
+     * convenience shortcut
+     *
+     * @param itemname
+     * @return Item addressed by itemname
+     */
     private Item getItem(String itemname) {
-        try {
-            Item item = itemRegistry.getItem(itemname);
-            return item;
-        } catch (ItemNotFoundException ignored) {
-        }
-        return null;
+        Item item = itemRegistry.get(itemname);
+        return item;
     }
 
-    private List<EnrichedItemDTO> getItemBeans(String type, String tags, boolean recursive) {
+    private List<EnrichedItemDTO> getItemBeans(String type, String tags, boolean recursive, Locale locale) {
         List<EnrichedItemDTO> beans = new LinkedList<>();
         Collection<Item> items;
         if (tags == null) {
@@ -478,19 +560,9 @@ public class ItemResource implements RESTResource {
         }
         if (items != null) {
             for (Item item : items) {
-                beans.add(EnrichedItemDTOMapper.map(item, recursive, uriInfo.getBaseUri()));
+                beans.add(EnrichedItemDTOMapper.map(item, recursive, uriInfo.getBaseUri(), locale));
             }
         }
         return beans;
-    }
-
-    private EnrichedItemDTO getItemDataBean(String itemname) {
-        Item item = getItem(itemname);
-        if (item != null) {
-            return EnrichedItemDTOMapper.map(item, true, uriInfo.getBaseUri());
-        } else {
-            logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
-            throw new WebApplicationException(404);
-        }
     }
 }
