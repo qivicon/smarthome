@@ -18,7 +18,7 @@ angular.module('PaperUI.controllers.setup',
         });
     });
 }).controller('InboxController', function($scope, $timeout, $mdDialog, $q, inboxService, discoveryResultRepository, 
-        thingTypeRepository, thingSetupService, toastService) {
+        thingTypeRepository, thingService, toastService) {
     $scope.setHeaderText('Shows a list of found things in your home.')
     
     $scope.showScanDialog = function(event) {
@@ -166,7 +166,7 @@ angular.module('PaperUI.controllers.setup',
         }
 		$mdDialog.hide({label: label,  groupNames: selectedGroupNames});
 	}
-}).controller('ManualSetupChooseController', function($scope, bindingRepository, thingTypeRepository, thingSetupService) {
+}).controller('ManualSetupChooseController', function($scope, bindingRepository, thingTypeRepository, thingService) {
 	$scope.setSubtitle(['Manual Setup']);
 	$scope.setHeaderText('Choose a thing, which should be aded manually to your Smart Home.')
 	
@@ -179,7 +179,7 @@ angular.module('PaperUI.controllers.setup',
 	});
    
 }).controller('ManualSetupConfigureController', function($scope, $routeParams, $mdDialog, toastService, 
-		bindingRepository, thingTypeRepository, thingSetupService, homeGroupRepository, thingRepository, configService) {
+		bindingRepository, thingTypeRepository, thingService, homeGroupRepository, thingRepository, configService) {
 	
 	var thingTypeUID = $routeParams.thingTypeUID;
 	
@@ -219,7 +219,7 @@ angular.module('PaperUI.controllers.setup',
                 thing.item.groupNames.push(groupName);
             }
         }
-		thingSetupService.add({'enableChannels': !$scope.advancedMode}, thing, function() {
+		thingService.add({'enableChannels': !$scope.advancedMode}, thing, function() {
 		    homeGroupRepository.setDirty(true);
 			toastService.showDefaultToast('Thing added');
 			$scope.navigateTo('setup/search/' + $scope.thingType.UID.split(':')[0]);

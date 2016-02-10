@@ -279,7 +279,7 @@ angular.module('PaperUI.controllers.configuration',
 		$mdDialog.hide(label);
 	}
 }).controller('ThingController', function($scope, $timeout, $mdDialog, thingRepository, 
-        thingSetupService, toastService, homeGroupRepository) {
+        thingService, toastService, homeGroupRepository) {
 	$scope.setSubtitle(['Things']);
 	$scope.setHeaderText('Shows all configured Things.');
 	$scope.refresh = function() {
@@ -499,7 +499,7 @@ angular.module('PaperUI.controllers.configuration',
 		$scope.setHeaderText(thingType.description);
 	});
 }).controller('RemoveThingDialogController', function($scope, $mdDialog, toastService, 
-        thingSetupService, homeGroupRepository, thing) {
+        thingService, homeGroupRepository, thing) {
     $scope.thing = thing;
     $scope.isRemoving = thing.statusInfo.status === 'REMOVING';
     $scope.close = function() {
@@ -507,7 +507,7 @@ angular.module('PaperUI.controllers.configuration',
     }
     $scope.remove  = function(thingUID) {    
         var forceRemove = $scope.isRemoving ? true : false;
-        thingSetupService.remove({thingUID: thing.UID, force: forceRemove}, function() {
+        thingService.remove({thingUID: thing.UID, force: forceRemove}, function() {
             homeGroupRepository.setDirty(true);
             if(forceRemove) {
                 toastService.showDefaultToast('Thing removed (forced).');
@@ -530,7 +530,7 @@ angular.module('PaperUI.controllers.configuration',
         $mdDialog.hide(itemName);
     }
 }).controller('EditThingController', function($scope, $mdDialog, toastService, 
-		thingTypeRepository, thingRepository, thingSetupService, homeGroupRepository, configService, thingService) {
+		thingTypeRepository, thingRepository, homeGroupRepository, configService, thingService) {
 	
 	$scope.setHeaderText('Click the \'Save\' button to apply the changes.');
 	
