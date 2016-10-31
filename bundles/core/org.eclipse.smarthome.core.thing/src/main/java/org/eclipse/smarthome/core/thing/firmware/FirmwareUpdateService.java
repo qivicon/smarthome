@@ -479,6 +479,7 @@ public final class FirmwareUpdateService implements EventSubscriber {
             createFirmwareUpdateStatusInfoJob();
         }
         firmwareUpdateHandlers.add(firmwareUpdateHandler);
+        getFirmwareStatusInfo(firmwareUpdateHandler.getThing().getUID()); 
     }
 
     protected synchronized void removeFirmwareUpdateHandler(FirmwareUpdateHandler firmwareUpdateHandler) {
