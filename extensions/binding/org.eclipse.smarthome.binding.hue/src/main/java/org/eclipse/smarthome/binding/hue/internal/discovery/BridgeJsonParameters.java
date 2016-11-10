@@ -7,39 +7,42 @@
  */
 package org.eclipse.smarthome.binding.hue.internal.discovery;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * The {@link BridgeJsonParameters} class defines JSON object, which
  * contains bridge attributes like IP address. It is used for bridge
  * N-UPNP Discovery.
  *
- * @author Awelkiyar Wehabrebi
- *
+ * @author Awelkiyar Wehabrebi - Initial contribution and API
+ * @author Christoph Knauf - Refactorings
  */
 public class BridgeJsonParameters {
 
-    // hue bridge parameters
     private final String id;
-    private final String internalipaddress;
-    private final String macaddress;
+    @SerializedName("internalipaddress")
+    private final String internalIpAddress;
+    @SerializedName("macaddress")
+    private final String macAddress;
     private final String name;
 
-    public BridgeJsonParameters(String id, String internalipaddress, String macaddress, String name) {
+    public BridgeJsonParameters(String id, String internalIpAddress, String macAdress, String name) {
         this.id = id;
-        this.internalipaddress = internalipaddress;
-        this.macaddress = macaddress;
+        this.internalIpAddress = internalIpAddress;
+        this.macAddress = macAdress;
         this.name = name;
     }
 
-    public String getInternalipaddress() {
-        return internalipaddress;
+    public String getInternalIpAddress() {
+        return internalIpAddress;
     }
 
     public String getId() {
         return id;
     }
 
-    public String getMacaddress() {
-        return macaddress;
+    public String getMacAddress() {
+        return macAddress;
     }
 
     public String getName() {
