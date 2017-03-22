@@ -34,9 +34,31 @@ import org.junit.Test;
  *
  * @author Marin Mitev - initial version
  * @author Thomas Höfer - Added config description parameter unit
+ * @author Victor Toni - Added Rule scope / RuleEngine prefix tests
  */
 public class RuleEngineTest {
+	
+	private static final String TEST_RULE_ID = "TestRule1";
 
+	private static final String RULE_ENGINE_SCOPE = "TestRuleEngine";
+	private static final String RULE_ENGINE_SCOPE_PREFIX = RULE_ENGINE_SCOPE + RuleUtils.SCOPE_DELIMITER;
+	private static final String RULE_ENGINE_PREFIX = RULE_ENGINE_SCOPE_PREFIX + RuleEngine.ID_PREFIX;
+
+    /**
+     * Create a RuleEngine with a prefix for UID (used as a scope).
+     * {@see RULE_ENGINE_SCOPE}
+     *
+     */
+    private RuleEngine createScopedRuleEngine() {
+        RuleEngine ruleEngine = new RuleEngine(RULE_ENGINE_PREFIX);
+        ruleEngine.setModuleTypeRegistry(new ModuleTypeRegistryMockup());
+        return ruleEngine;
+    }
+
+    /**
+     * Create the RuleEngine (without the default prefix).
+     *
+     */
     private RuleEngine createRuleEngine() {
         RuleEngine ruleEngine = new RuleEngine();
         ruleEngine.setModuleTypeRegistry(new ModuleTypeRegistryMockup());
@@ -44,29 +66,133 @@ public class RuleEngineTest {
     }
 
     /**
+     * Test adding and retrieving rules (without the default prefix)
+     *
+     */
+    @Test
+    public void testUniqueIdFromRuleEngine() {
+        final RuleEngine ruleEngine = createRuleEngine();
+        
+        final Rule rule1 = new Rule(ruleEngine.getUniqueId());
+        ruleEngine.addRule(rule1, true);
+
+        Collection<RuntimeRule> rules = ruleEngine.getRuntimeRules();
+        Assert.assertNotNull("null returned instead of rules list", rules);
+        Assert.assertEquals("Rules list size not correct", 1, rules.size());
+
+        final Rule rule1Get = rules.iterator().next();
+        Assert.assertEquals("Returned rule with wrong UID", RuleEngine.ID_PREFIX+"1", rule1Get.getUID());
+        Assert.assertNull("Returned '" + RuleUtils.getScope(rule1Get) + "' instead of null", RuleUtils.getScope(rule1Get));
+
+        final Rule rule2 = new Rule(ruleEngine.getUniqueId());
+        ruleEngine.addRule(rule2, true);
+
+        rules = ruleEngine.getRuntimeRules();
+        Assert.assertNotNull("null returned instead of rules list", rules);
+        Assert.assertEquals("Rules list size not correct", 2, rules.size());
+
+        final Rule rule2Get = ruleEngine.getRuntimeRule(RuleEngine.ID_PREFIX+"2");
+        Assert.assertNotNull("Rule not found for UID", RuleEngine.ID_PREFIX+"2");
+        Assert.assertEquals("Returned rule with wrong UID", RuleEngine.ID_PREFIX+"2", rule2Get.getUID());
+        Assert.assertNull("Returned '" + RuleUtils.getScope(rule2Get) + "' instead of null", RuleUtils.getScope(rule2Get));
+
+        final Rule rule3 = new Rule(ruleEngine.getUniqueId());
+        ruleEngine.addRule(rule3, true);
+
+        rules = ruleEngine.getRuntimeRules();
+        Assert.assertNotNull("null returned instead of rules list", rules);
+        Assert.assertEquals("Rules list size not correct", 3, rules.size());
+
+        final Rule rule3Get = ruleEngine.getRuntimeRule(RuleEngine.ID_PREFIX+"3");
+        Assert.assertNotNull("Rule not found for UID", RuleEngine.ID_PREFIX+"3");
+        Assert.assertEquals("Returned rule with wrong UID", RuleEngine.ID_PREFIX+"3", rule3Get.getUID());
+        Assert.assertNull("Returned '" + RuleUtils.getScope(rule3Get) + "' instead of null", RuleUtils.getScope(rule3Get));
+    }
+
+    /**
+     * test adding and retrieving rules
+     *
+     */
+    @Test
+    public void testScopeFromRuleEngine() {
+        final RuleEngine ruleEngine = createScopedRuleEngine();
+        
+        final Rule rule1 = new Rule(ruleEngine.getUniqueId());
+        ruleEngine.addRule(rule1, true);
+
+        Collection<RuntimeRule> rules = ruleEngine.getRuntimeRules();
+        Assert.assertNotNull("null returned instead of rules list", rules);
+        Assert.assertEquals("Rules list size not correct", 1, rules.size());
+
+        final Rule rule1Get = rules.iterator().next();
+        Assert.assertEquals("Returned rule with wrong UID", RULE_ENGINE_SCOPE_PREFIX+RuleEngine.ID_PREFIX+"1", rule1Get.getUID());
+        Assert.assertEquals("Returned wrong scope for rule",RULE_ENGINE_SCOPE, RuleUtils.getScope(rule1Get));
+
+        final Rule rule2 = new Rule(ruleEngine.getUniqueId());
+        ruleEngine.addRule(rule2, true);
+
+        rules = ruleEngine.getRuntimeRules();
+        Assert.assertNotNull("null returned instead of rules list", rules);
+        Assert.assertEquals("Rules list size not correct", 2, rules.size());
+        
+        final Rule rule2Get = ruleEngine.getRuntimeRule(RULE_ENGINE_SCOPE_PREFIX+RuleEngine.ID_PREFIX+"2");
+        Assert.assertNotNull("Rule not found for UID", RULE_ENGINE_SCOPE_PREFIX+RuleEngine.ID_PREFIX+"2");
+        Assert.assertEquals("Returned rule with wrong UID", RULE_ENGINE_SCOPE_PREFIX+RuleEngine.ID_PREFIX+"2", rule2Get.getUID());
+        Assert.assertEquals("Returned wrong scope for rule",RULE_ENGINE_SCOPE, RuleUtils.getScope(rule2Get));
+
+        final Rule rule3 = new Rule(ruleEngine.getUniqueId());
+        ruleEngine.addRule(rule3, true);
+
+        rules = ruleEngine.getRuntimeRules();
+        Assert.assertNotNull("null returned instead of rules list", rules);
+        Assert.assertEquals("Rules list size not correct", 3, rules.size());
+        
+        final Rule rule3Get = ruleEngine.getRuntimeRule(RULE_ENGINE_SCOPE_PREFIX+RuleEngine.ID_PREFIX+"3");
+        Assert.assertNotNull("Rule not found for UID", RULE_ENGINE_SCOPE_PREFIX+RuleEngine.ID_PREFIX+"3");
+        Assert.assertEquals("Returned rule with wrong UID", RULE_ENGINE_SCOPE_PREFIX+RuleEngine.ID_PREFIX+"3", rule3Get.getUID());
+        Assert.assertEquals("Returned wrong scope for rule",RULE_ENGINE_SCOPE, RuleUtils.getScope(rule3Get));
+    }
+
+
+    /**
      * test adding and retrieving rules
      *
      */
     @Test
     public void testAddRetrieveRules() {
-        RuleEngine ruleEngine = createRuleEngine();
-        Rule rule0 = new Rule(ruleEngine.getUniqueId());
+    	// this RuleEngine uses default prefix thus no scope
+        final RuleEngine ruleEngine = createRuleEngine();
+
+        // create rule with RuleEngine without scope
+        // unique ID will be rule_<INT>
+        final Rule rule0 = new Rule(ruleEngine.getUniqueId());
         ruleEngine.addRule(rule0, true);
+
         Collection<RuntimeRule> rules = ruleEngine.getRuntimeRules();
         Assert.assertNotNull("null returned instead of rules list", rules);
-        Assert.assertEquals("empty rules list is returned", 1, rules.size());
-        Assert.assertEquals("Returned rule with wrong UID", "rule_1", rules.iterator().next().getUID());
-        Rule rule1 = createRule();
+        Assert.assertEquals("Rules list size not correct", 1, rules.size());
+
+        final Rule firstRule = rules.iterator().next();
+        Assert.assertNull("Returned rule with Scope", RuleUtils.getScope(firstRule));
+        Assert.assertEquals("Returned rule with wrong UID", "rule_1", firstRule.getUID());
+
+        // create rules without scope
+        // unique ID will be rule1
+        final Rule rule1 = createRuleWithoutPrefix();
         ruleEngine.addRule(rule1, true);
         rules = ruleEngine.getRuntimeRules();
         Assert.assertEquals("rules list should contain 2 rules", 2, rules.size());
-        RuntimeRule rule1Get = ruleEngine.getRuntimeRule("rule1");
-        Assert.assertEquals("Returned rule with wrong UID", "rule1", rule1Get.getUID());
-        Rule rule2 = createRule();
+        RuntimeRule rule1Get = ruleEngine.getRuntimeRule(TEST_RULE_ID);
+        Assert.assertNull("Returned rule with Scope", RuleUtils.getScope(rule1Get));
+        Assert.assertEquals("Returned rule with wrong UID", TEST_RULE_ID, rule1Get.getUID());
+
+        // create rules without scope
+        final Rule rule2 = createRuleWithoutPrefix();
+        // should overwrite rule1 because they have the same UID
         ruleEngine.addRule(rule2, true);
         rules = ruleEngine.getRuntimeRules();
         Assert.assertEquals("rules list should contain 2 rules", 2, rules.size());
-        Assert.assertEquals("rules list should contain 2 rules", rule1Get, ruleEngine.getRuntimeRule("rule1"));
+        Assert.assertEquals("rules list should contain 2 rules", rule1Get, ruleEngine.getRuntimeRule(TEST_RULE_ID));
     }
 
     /**
@@ -212,11 +338,11 @@ public class RuleEngineTest {
     public void testRuleActions() {
         RuleEngine ruleEngine = createRuleEngine();
 
-        Rule rule1 = createRule();
+        Rule rule1 = createRuleWithoutPrefix();
         List<Action> actions = rule1.getActions();
         ruleEngine.addRule(rule1, true);
 
-        RuntimeRule rule1Get = ruleEngine.getRuntimeRule("rule1");
+        RuntimeRule rule1Get = ruleEngine.getRuntimeRule(TEST_RULE_ID);
         List<Action> actionsGet = rule1Get.getActions();
         Assert.assertNotNull("Null actions list", actionsGet);
         Assert.assertEquals("Empty actions list", 1, actionsGet.size());
@@ -224,7 +350,7 @@ public class RuleEngineTest {
 
         actions.add(new Action("actionId2", "typeUID2", null, null));
         ruleEngine.updateRule(rule1, true);
-        rule1Get = ruleEngine.getRuntimeRule("rule1");
+        rule1Get = ruleEngine.getRuntimeRule(TEST_RULE_ID);
         List<Action> actionsGet2 = rule1Get.getActions();
         Assert.assertNotNull("Null actions list", actionsGet2);
         Assert.assertEquals("Action was not added to the rule's list of actions", 2, actionsGet2.size());
@@ -233,12 +359,12 @@ public class RuleEngineTest {
         actions.add(new Action("actionId3", "typeUID3", null, null));
         ruleEngine.updateRule(rule1, true);// ruleEngine.update will update the RuntimeRule.moduleMap with the new
         // module
-        rule1Get = ruleEngine.getRuntimeRule("rule1");
+        rule1Get = ruleEngine.getRuntimeRule(TEST_RULE_ID);
         List<Action> actionsGet3 = rule1Get.getActions();
         Assert.assertNotNull("Null actions list", actionsGet3);
         Assert.assertEquals("Action was not added to the rule's list of actions", 3, actionsGet3.size());
         Assert.assertNotNull("Rule modules map was not updated",
-                ruleEngine.getRuntimeRule("rule1").getModule("actionId3"));
+                ruleEngine.getRuntimeRule(TEST_RULE_ID).getModule("actionId3"));
     }
 
     /**
@@ -249,10 +375,10 @@ public class RuleEngineTest {
     public void testRuleTriggers() {
         RuleEngine ruleEngine = createRuleEngine();
 
-        Rule rule1 = createRule();
+        Rule rule1 = createRuleWithoutPrefix();
         List<Trigger> triggers = rule1.getTriggers();
         ruleEngine.addRule(rule1, true);
-        RuntimeRule rule1Get = ruleEngine.getRuntimeRule("rule1");
+        RuntimeRule rule1Get = ruleEngine.getRuntimeRule(TEST_RULE_ID);
         List<Trigger> triggersGet = rule1Get.getTriggers();
         Assert.assertNotNull("Null triggers list", triggersGet);
         Assert.assertEquals("Empty triggers list", 1, triggersGet.size());
@@ -261,7 +387,7 @@ public class RuleEngineTest {
         triggers.add(new Trigger("triggerId2", "typeUID2", null));
         ruleEngine.updateRule(rule1, true);// ruleEngine.update will update the RuntimeRule.moduleMap with the new
                                            // module
-        RuntimeRule rule2Get = ruleEngine.getRuntimeRule("rule1");
+        RuntimeRule rule2Get = ruleEngine.getRuntimeRule(TEST_RULE_ID);
         List<Trigger> triggersGet2 = rule2Get.getTriggers();
         Assert.assertNotNull("Null triggers list", triggersGet2);
         Assert.assertEquals("Trigger was not added to the rule's list of triggers", 2, triggersGet2.size());
@@ -275,31 +401,40 @@ public class RuleEngineTest {
      */
     @Test
     public void testRuleConditions() {
-        RuleEngine ruleEngine = createRuleEngine();
+        final RuleEngine ruleEngine = createRuleEngine();
 
-        Rule rule1 = createRule();
-        List<Condition> conditions = rule1.getConditions();
+        final Rule rule1 = createRuleWithoutPrefix();
+        final List<Condition> conditions = rule1.getConditions();
         ruleEngine.addRule(rule1, true);
-        RuntimeRule rule1Get = ruleEngine.getRuntimeRule("rule1");
-        List<Condition> conditionsGet = rule1Get.getConditions();
+
+        RuntimeRule rule1Get = ruleEngine.getRuntimeRule(TEST_RULE_ID);
+
+        final List<Condition> conditionsGet = rule1Get.getConditions();
         Assert.assertNotNull("Null conditions list", conditionsGet);
         Assert.assertEquals("Empty conditions list", 1, conditionsGet.size());
         Assert.assertEquals("Returned conditions list should not be a copy", conditionsGet, rule1Get.getConditions());
 
         conditions.add(new Condition("conditionId2", "typeUID2", null, null));
-        ruleEngine.updateRule(rule1, true);// ruleEngine.update will update the RuntimeRule.moduleMap with the new
-        // module
-        RuntimeRule rule2Get = ruleEngine.getRuntimeRule("rule1");
-        List<Condition> conditionsGet2 = rule2Get.getConditions();
+
+        // ruleEngine.updateRule() will create a new RuntimeRule with conditions containing the new condition
+        // the new RuntimeRule will then update the internal module Map
+        ruleEngine.updateRule(rule1, true);        
+        
+        final RuntimeRule rule2Get = ruleEngine.getRuntimeRule(TEST_RULE_ID);
+ 
+        final List<Condition> conditionsGet2 = rule2Get.getConditions();
         Assert.assertNotNull("Null conditions list", conditionsGet2);
         Assert.assertEquals("Condition was not added to the rule's list of conditions", 2, conditionsGet2.size());
         Assert.assertEquals("Returned conditions list should not be a copy", conditionsGet2, rule2Get.getConditions());
-        Assert.assertNotNull("Rule condition with wrong id is returned: " + conditionsGet2,
-                rule2Get.getModule("conditionId2"));
+        Assert.assertNotNull("Rule condition with wrong id is returned: " + conditionsGet2, rule2Get.getModule("conditionId2"));
     }
 
-    private Rule createRule() {
-        Rule rule = new Rule("rule1");
+    /**
+     * Creates rules without scope
+     * @return created rule.
+     */
+    private Rule createRuleWithoutPrefix() {
+        Rule rule = new Rule(TEST_RULE_ID);
         rule.setTriggers(createTriggers("typeUID"));
         rule.setConditions(createConditions("typeUID"));
         rule.setActions(createActions("typeUID"));

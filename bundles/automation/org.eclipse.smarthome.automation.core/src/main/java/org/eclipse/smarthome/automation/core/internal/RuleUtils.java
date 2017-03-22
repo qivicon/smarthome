@@ -19,8 +19,13 @@ import org.eclipse.smarthome.automation.Trigger;
  * An utility class creating copy of the rule
  *
  * @author Yordan Mihaylov - initial content
+ * @author Victor Toni - Add support for scope prefix
  */
 public class RuleUtils {
+    /**
+     * Constant defining separator between module UID and output name.
+     */
+    public static final char SCOPE_DELIMITER = ':';
 
     /**
      * This method creates deep copy of list of conditions
@@ -93,6 +98,33 @@ public class RuleUtils {
         rule.setTags(r.getTags());
         rule.setDescription(r.getDescription());
         return rule;
+    }
+
+    /**
+     * Gets the scope of the Rule, if any exist. This property is either set by the {@link RuleEngine} when
+     * the {@link Rule} is added or by the creating party. It's an optional property.
+     * <br/><br/>Implementation note
+     *    <br/>The scope is part of the {@code UID} and the prefix thereof.
+     *    <br/>If the UID does not contain a {@link SCOPE_DELIMITER} {@code null} will be returned.
+     *    <br/>If the UID does contain a {@link SCOPE_DELIMITER} the prefix until the first occurrence will be returned.
+     *    <br/>If the prefix would have a zero length {@code null} will be returned.
+     *
+     * @return scope of this {@link Rule}, or {@code null} if no scope or an empty scope is found
+    */
+    public static String getScope(Rule rule) {
+        if (null != rule) {
+            final String uid = rule.getUID();
+            if (null != uid) {
+                final int index = uid.indexOf(SCOPE_DELIMITER);
+
+                // only when a delimiter was found and the scope is not empty
+                if (0 < index) {
+                    return uid.substring(0, index);
+                }
+            }
+        }
+
+        return null;
     }
 
 }

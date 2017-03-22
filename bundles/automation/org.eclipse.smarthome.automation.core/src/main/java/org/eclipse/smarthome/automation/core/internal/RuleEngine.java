@@ -59,7 +59,6 @@ import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,18 +81,19 @@ import com.google.gson.JsonSyntaxException;
  * @author Yordan Mihaylov - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider, registry implementation and customized modules
  * @author Benedikt Niehues - change behavior for unregistering ModuleHandler
+ * @author Victor Toni - change creation of UIDs to support different prefix for RuleEngine Rules
  *
  */
 @SuppressWarnings("rawtypes")
 public class RuleEngine implements RegistryChangeListener<ModuleType> {
 
     /**
-     * Constant defining separator between module uid and output name.
+     * Constant defining separator between module UID and output name.
      */
     public static final char OUTPUT_SEPARATOR = '.';
 
     /**
-     * Prefix of {@link Rule}'s UID created by the rule engine.
+     * Default prefix of {@link Rule}'s UID created by the rule engine.
      */
     public static final String ID_PREFIX = "rule_"; //$NON-NLS-1$
 
@@ -106,6 +106,11 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
      * Delay between rule's re-initialization tries.
      */
     public static final String CONFIG_PROPERTY_REINITIALIZATION_DELAY = "rule.reinitialization.delay";
+
+    /**
+     * Prefix of {@link Rule}'s UID created by the rule engine.
+     */
+    private final String idPrefix;
 
     /**
      * Delay between rule's re-initialization tries.
@@ -163,13 +168,22 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
     private Gson gson;
 
     /**
-     * Constructor of {@link RuleEngine}. It initializes the logger and starts tracker for {@link ModuleHandlerFactory}
-     * services.
-     *
-     * @param bc {@link BundleContext} used for tracker registration and rule engine logger creation.
-     * @throws InvalidSyntaxException
+     * Constructor of {@link RuleEngine}. It starts tracker for {@link ModuleHandlerFactory}
+     * and sets {@link ID_PREFIX} as the default prefix  for rules created by the engine.
      */
     public RuleEngine() {
+        this(ID_PREFIX);
+    }
+
+    /**
+     * Constructor of {@link RuleEngine}. It starts tracker for {@link ModuleHandlerFactory}
+     * and sets the default prefix for rules created by the engine.
+     *
+     * @param idPrefix {@link BundleContext} used as prefix for RuleEngine created Rules.
+     * 
+     */
+    public RuleEngine(String idPrefix) {
+        this.idPrefix = idPrefix;
         this.rules = new HashMap<String, RuntimeRule>(20);
         this.contextMap = new HashMap<String, Map<String, Object>>();
         this.moduleHandlerFactories = new HashMap<String, ModuleHandlerFactory>(20);
@@ -1083,8 +1097,8 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
             if (col != null) {
                 for (Iterator<String> it = col.iterator(); it.hasNext();) {
                     String rUID = it.next();
-                    if (rUID != null && rUID.startsWith(ID_PREFIX)) {
-                        String sNum = rUID.substring(ID_PREFIX.length());
+                    if (rUID != null && rUID.startsWith(idPrefix)) {
+                        String sNum = rUID.substring(idPrefix.length());
                         int i;
                         try {
                             i = Integer.parseInt(sNum);
@@ -1101,7 +1115,7 @@ public class RuleEngine implements RegistryChangeListener<ModuleType> {
         } else {
             ++ruleMaxID;
         }
-        return ID_PREFIX + ruleMaxID;
+        return idPrefix + ruleMaxID;
     }
 
     protected void setStatusInfoCallback(StatusInfoCallback statusInfoCallback) {
