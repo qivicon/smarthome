@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.google.common.base.Predicate;
+
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.RuleRegistry;
@@ -80,6 +82,7 @@ import org.slf4j.LoggerFactory;
  * @author Ana Dimova - Persistence implementation & updating rules from providers
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation and other fixes
  * @author Benedikt Niehues - added events for rules
+ * @author Victor Toni - added search capability via {@link Predicate}
  */
 public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvider>
         implements RuleRegistry, StatusInfoCallback, RegistryChangeListener<RuleTemplate> {
@@ -372,6 +375,21 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
             }
         }
         return null;
+    }
+
+    @Override
+    public Collection<Rule> getAll(Predicate<Rule> predicate) {
+        Collection<Rule> result = new LinkedList<Rule>();
+
+        for (Collection<Rule> rules : elementMap.values()) {
+            // filter all matching rules and create copies
+            for (Rule rule : rules) {
+            if (predicate.apply(rule))
+                result.add(RuleUtils.getRuleCopy(rule));
+            }
+        }
+
+        return result;
     }
 
     @Override

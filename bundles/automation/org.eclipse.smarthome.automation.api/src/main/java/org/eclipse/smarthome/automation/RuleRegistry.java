@@ -11,6 +11,8 @@ import java.util.Collection;
 
 import org.eclipse.smarthome.core.common.registry.Registry;
 
+import com.google.common.base.Predicate;
+
 /**
  * The {@link RuleRegistry} provides basic functionality for managing {@link Rule}s.
  * It can be used to
@@ -44,8 +46,17 @@ import org.eclipse.smarthome.core.common.registry.Registry;
  * </ul>
  *
  * @author Yordan Mihaylov - Initial Contribution
+ * @author Victor Toni - added search capability via {@link Predicate}
  */
 public interface RuleRegistry extends Registry<Rule, String> {
+
+    /**
+     * This method is used to get a collection of {@link Rule}s which have the same {@link Predicate}.
+     *
+     * @param predicate to check the rules against
+     * @return collection of {@link Rule}s having matching predicate.
+     */
+    public Collection<Rule> getAll(Predicate<Rule> predicate);
 
     /**
      * This method is used to get collection of {@link Rule}s which shares same tag.
