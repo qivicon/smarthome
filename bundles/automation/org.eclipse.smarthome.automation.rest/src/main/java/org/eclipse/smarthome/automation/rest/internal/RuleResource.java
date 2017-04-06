@@ -11,7 +11,10 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+
+import com.google.common.base.Predicate;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -21,6 +24,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -33,6 +37,7 @@ import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.internal.RulePredicates;
 import org.eclipse.smarthome.automation.dto.ActionDTO;
 import org.eclipse.smarthome.automation.dto.ActionDTOMapper;
 import org.eclipse.smarthome.automation.dto.ConditionDTO;
@@ -63,6 +68,8 @@ import io.swagger.annotations.ResponseHeader;
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Markus Rathgeb - Use DTOs
+ * @author Victor Toni - added support for search by tags and scope
+ *
  */
 @Path("rules")
 @Api("rules")
@@ -85,11 +92,63 @@ public class RuleResource implements SatisfiableRESTResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Get all available rules.", response = EnrichedRuleDTO.class, responseContainer = "Collection")
+    @ApiOperation(value = "Get available rules, optionally filtered by tags and/or scope.", response = EnrichedRuleDTO.class, responseContainer = "Collection")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
-    public Response getAll() {
-        Collection<EnrichedRuleDTO> rules = enrich(ruleRegistry.getAll());
-        return Response.ok(rules).build();
+    public Response get(@QueryParam("scope") String scope, @QueryParam("tags") List<String> tags) {
+        // no tags, no scope => return all
+        if (null == scope && null == tags) {
+            Collection<EnrichedRuleDTO> enrichedRules = enrich(ruleRegistry.getAll());
+
+            return Response.ok(enrichedRules).build();
+        } else {
+            // at least a scope and/or tags were used
+
+            Predicate<Rule> scopePredicate;
+            // no scope parameter used, no predicate to filter
+            // want to return all found rules so far, regardless of scope
+            if (null == scope) {
+                scopePredicate = null;
+            } else {
+                // scope parameter was used on purpose and is empty
+                // want to search for rules without scope
+                if ("".equals(scope)) {
+                    scopePredicate = RulePredicates.hasScope(null);
+                } else {
+                    // query parameter is a named scope
+                    scopePredicate = RulePredicates.hasScope(scope);
+                }
+            }
+
+            Predicate<Rule> tagPredicate;
+            // no tags are used for search, no predicate to filter
+            if (null == tags){
+                tagPredicate = null;
+            } else {
+                // tags were a query parameter, get only correctly tagged rules
+                // all queried tags must exist for matching rules
+                tagPredicate = RulePredicates.hasAllTags(tags);
+            }
+
+            // at this point at least one of the predicates is not null
+
+            Predicate<Rule> predicate;
+            if (null != scopePredicate) {
+                predicate = scopePredicate;
+                if (null != tagPredicate) {
+                    predicate = RulePredicates.and(scopePredicate, tagPredicate);
+                }
+            } else {
+                // then this one is not null
+                predicate = tagPredicate;
+            }
+
+            // add all matching rules and do the enrichment
+            Collection<Rule> rules = ruleRegistry.getAll(predicate);
+
+            Collection<EnrichedRuleDTO> enrichedRules = enrich(rules);
+
+            return Response.ok(enrichedRules).build();
+        }
     }
 
     private Collection<EnrichedRuleDTO> enrich(Collection<Rule> rules) {
