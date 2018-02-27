@@ -43,6 +43,7 @@ import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
+import org.eclipse.smarthome.core.thing.ThingManager
 import org.eclipse.smarthome.core.thing.ThingProvider
 import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingStatus
@@ -104,7 +105,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
     EventPublisher eventPublisher
     ItemChannelLinkRegistry itemChannelLinkRegistry
-    ChannelTypeProvider channelTypeProvider;
+    ChannelTypeProvider channelTypeProvider
 
     @Before
     void setUp() {
@@ -138,7 +139,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         assertNotNull(readyService)
 
         waitForAssert {
-            assertThat getBundleContext().getServiceReferences(ReadyMarker, "(" + ThingManager.XML_THING_TYPE + "=" + getBundleContext().getBundle().getSymbolicName() + ")"), is(notNullValue())
+            assertThat getBundleContext().getServiceReferences(ReadyMarker, "(" + ThingManagerImpl.XML_THING_TYPE + "=" + getBundleContext().getBundle().getSymbolicName() + ")"), is(notNullValue())
         }
         waitForAssert {
             assertThat getBundleContext().getServiceReferences(ChannelItemProvider, null), is(notNullValue())
@@ -1322,7 +1323,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         waitForAssert {
             // wait for the XML processing to be finished, then remove the ready marker again
-            ReadyMarker marker = new ReadyMarker(ThingManager.XML_THING_TYPE, FrameworkUtil.getBundle(this.getClass()).getSymbolicName())
+            ReadyMarker marker = new ReadyMarker(ThingManagerImpl.XML_THING_TYPE, FrameworkUtil.getBundle(this.getClass()).getSymbolicName())
             assertThat readyService.isReady(marker), is(true)
             readyService.unmarkReady(marker);
         }
@@ -1337,7 +1338,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         assertThat initializedCalled, is(false)
         assertThat thing.getStatusInfo(), is(statusInfo)
 
-        readyService.markReady(new ReadyMarker(ThingManager.XML_THING_TYPE, FrameworkUtil.getBundle(this.getClass()).getSymbolicName()))
+        readyService.markReady(new ReadyMarker(ThingManagerImpl.XML_THING_TYPE, FrameworkUtil.getBundle(this.getClass()).getSymbolicName()))
 
         // ThingHandler.initialize() called, thing status is INITIALIZING.NONE
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build()

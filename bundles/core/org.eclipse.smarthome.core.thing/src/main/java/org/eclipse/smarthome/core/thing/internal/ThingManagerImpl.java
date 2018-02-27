@@ -46,10 +46,13 @@ import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.service.ReadyMarker;
 import org.eclipse.smarthome.core.service.ReadyMarkerFilter;
 import org.eclipse.smarthome.core.service.ReadyService;
+import org.eclipse.smarthome.core.storage.Storage;
+import org.eclipse.smarthome.core.storage.StorageService;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingManager;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
@@ -91,12 +94,12 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 
 /**
- * {@link ThingManager} tracks all things in the {@link ThingRegistry} and
+ * {@link ThingManagerImpl} tracks all things in the {@link ThingRegistry} and
  * mediates the communication between the {@link Thing} and the {@link ThingHandler} from the binding. Therefore it
  * tracks {@link ThingHandlerFactory}s and calls {@link ThingHandlerFactory#registerHandler(Thing)} for each thing, that
- * was added to the {@link ThingRegistry}. In addition the {@link ThingManager} acts
+ * was added to the {@link ThingRegistry}. In addition the {@link ThingManagerImpl} acts
  * as an {@link EventHandler} and subscribes to smarthome update and command
- * events. Finally the {@link ThingManager} implement the {@link ThingTypeMigrationService} to offer
+ * events. Finally the {@link ThingManagerImpl} implement the {@link ThingTypeMigrationService} to offer
  * a way to change the thing type of a {@link Thing}.
  *
  * @author Dennis Nobel - Initial contribution
@@ -107,15 +110,18 @@ import com.google.common.collect.SetMultimap;
  * @author Kai Kreuzer - Removed usage of itemRegistry and thingLinkRegistry, fixed vetoing mechanism
  * @author Andre Fuechsel - Added the {@link ThingTypeMigrationService} 
  * @author Thomas Höfer - Added localization of thing status info
+ * @author Yordan Zhelev - Added thing disabling mechanism
  */
-@Component(immediate = true, service = { ThingTypeMigrationService.class })
-public class ThingManager implements ThingTracker, ThingTypeMigrationService, ReadyService.ReadyTracker {
+
+@Component(immediate = true, service = { ThingTypeMigrationService.class, ThingManager.class })
+public class ThingManagerImpl
+        implements ThingManager, ThingTracker, ThingTypeMigrationService, ReadyService.ReadyTracker {
 
     private static final String FORCEREMOVE_THREADPOOL_NAME = "forceRemove";
     private static final String THING_MANAGER_THREADPOOL_NAME = "thingManager";
     private static final String XML_THING_TYPE = "esh.xmlThingTypes";
 
-    private final Logger logger = LoggerFactory.getLogger(ThingManager.class);
+    private final Logger logger = LoggerFactory.getLogger(ThingManagerImpl.class);
 
     private final ScheduledExecutorService scheduler = ThreadPoolManager
             .getScheduledPool(THING_MANAGER_THREADPOOL_NAME);
@@ -139,6 +145,8 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     private final Map<ThingUID, Lock> thingLocks = new HashMap<>();
     private final Set<String> loadedXmlThingTypes = new CopyOnWriteArraySet<>();
     private SafeCaller safeCaller;
+    private StorageService storageService;
+    private volatile Storage<ManagedThingStatusInfo> storage;
 
     private final ThingHandlerCallback thingHandlerCallback = new ThingHandlerCallback() {
 
@@ -257,7 +265,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
         @Override
         public void migrateThingType(final Thing thing, final ThingTypeUID thingTypeUID,
                 final Configuration configuration) {
-            ThingManager.this.migrateThingType(thing, thingTypeUID, configuration);
+            ThingManagerImpl.this.migrateThingType(thing, thingTypeUID, configuration);
         }
 
         @Override
@@ -527,7 +535,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
                 thing.getUID());
         try {
             ThingHandler thingHandler = thingHandlerFactory.registerHandler(thing);
-            thingHandler.setCallback(ThingManager.this.thingHandlerCallback);
+            thingHandler.setCallback(ThingManagerImpl.this.thingHandlerCallback);
             thing.setHandler(thingHandler);
             thingHandlers.put(thing.getUID(), thingHandler);
             thingHandlersByFactory.put(thingHandlerFactory, thingHandler);
@@ -587,13 +595,20 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
             }
             ThingType thingType = getThingType(thing);
             applyDefaultConfiguration(thing, thingType);
-            if (isInitializable(thing, thingType)) {
-                setThingStatus(thing, buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE));
-                doInitializeHandler(thing.getHandler());
+
+            if (isPersistedAsEnabled(thing.getUID())) {
+                if (isInitializable(thing, thingType)) {
+                    setThingStatus(thing, buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE));
+                    doInitializeHandler(thing.getHandler());
+                } else {
+                    logger.debug("Thing '{}' not initializable, check required configuration parameters.",
+                            thing.getUID());
+                    setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED,
+                            ThingStatusDetail.HANDLER_CONFIGURATION_PENDING));
+                }
             } else {
-                logger.debug("Thing '{}' not initializable, check required configuration parameters.", thing.getUID());
-                setThingStatus(thing,
-                        buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_CONFIGURATION_PENDING));
+                // the thing is persisted as disabled. Will not attempt to initialize its handler.
+                setThingStatus(thing, new ThingStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.DISABLED, null));
             }
         } finally {
             lock.unlock();
@@ -733,7 +748,9 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
                 thingHandler.setCallback(null);
             }
             thing.setHandler(null);
-            setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR));
+            ThingStatusDetail detail = isPersistedAsEnabled(thing.getUID()) ? ThingStatusDetail.HANDLER_MISSING_ERROR
+                    : ThingStatusDetail.DISABLED;
+            setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED, detail));
             thingHandlers.remove(thing.getUID());
             thingHandlersByFactory.remove(thingHandlerFactory, thingHandler);
         }, Runnable.class).build().run();
@@ -1073,6 +1090,61 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
         }
     }
 
+    @Override
+    public void enableThing(ThingUID thingUID, boolean enabled) {
+        Thing thing = getThing(thingUID);
+        ThingHandler thingHandler = thing.getHandler();
+        persistEnabledStatusForThing(thing.getUID(), enabled);
+
+        if (enabled) {
+            logger.debug("Thing {} will be enabled.", thing.getUID().getAsString());
+            if (thingHandler != null && isHandlerRegistered(thing)) {
+                initializeHandler(thing);
+            } else {
+                registerAndInitializeHandler(thing, findThingHandlerFactory(thing.getThingTypeUID()));
+            }
+        } else {
+            logger.debug("Thing {} will be disabled.", thing.getUID().getAsString());
+            if (thingHandler != null) {
+                unregisterAndDisposeHandler(findThingHandlerFactory(thing.getThingTypeUID()), thing, thingHandler);
+            }
+        }
+
+    }
+
+    /**
+     * Persists whether the thing should be enabled or disabled.
+     * 
+     * @param thingUID the uid of the thing. Will be used as a key.
+     * @param enabled
+     * <p>
+     * <ul>
+     * <li>case {@code true} the record for that key will be removed from the storage. Thing should
+     * be considered as enabled.
+     * <li>case {@code false} a boolean value false with a key the UID of the thing will be
+     * persisted. Thing should be considered as explicitly disabled.
+     * </ul>
+     * <p>
+     */
+    private void persistEnabledStatusForThing(final ThingUID thingUID, boolean enabled) {
+        // Persist only disabled things. Thing with no corresponding persisted value will be considered as enabled.
+        if (enabled) {
+            storage.remove(thingUID.getAsString());
+        } else {
+            storage.put(thingUID.getAsString(), new ManagedThingStatusInfo(enabled));
+        }
+    }
+
+    private boolean isPersistedAsEnabled(ThingUID thingUID) {
+        ManagedThingStatusInfo persistedStatus = storage.get(thingUID.getAsString());
+        if (persistedStatus == null) {
+            // If there is no record available the thing will be considered as not explicitly disabled, therefore enabled.
+            // See persistEnabledStatusForThing(thingUID, boolean)
+            return true;
+        }
+        return persistedStatus.isEnabled();
+    }
+
     @Reference
     protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = thingTypeRegistry;
@@ -1120,4 +1192,19 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
         this.safeCaller = null;
     }
 
+    @Reference
+    protected void setStorageService(StorageService storageService) {
+        if (this.storageService != storageService) {
+            this.storageService = storageService;
+            storage = storageService.getStorage(ManagedThingStatusInfo.class.getName(),
+                    this.getClass().getClassLoader());
+        }
+    }
+
+    protected void unsetStorageService(StorageService storageService) {
+        if (this.storageService == storageService) {
+            this.storageService = null;
+            this.storage = null;
+        }
+    }
 }
